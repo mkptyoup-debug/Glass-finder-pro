@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Glass Finder Pro</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#07090f;color:#e8eeff;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding-bottom:80px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:#c9a84c44;border-radius:4px}
+input,textarea,button{font-family:inherit}
+button{cursor:pointer}
+.hide{display:none!important}
+
+/* HEADER */
+#header{position:sticky;top:0;z-index:200;background:rgba(7,9,15,0.97);backdrop-filter:blur(20px);border-bottom:1px solid #c9a84c22;padding:14px 16px 0}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.logo{display:flex;align-items:center;gap:11px}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,#c9a84c,#7a5f28);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 4px 20px #c9a84c55;flex-shrink:0}
+.logo-title{font-size:18px;font-weight:800;background:linear-gradient(90deg,#f0d98a,#c9a84c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.3px}
+.logo-sub{font-size:10px;color:#3a4055;font-weight:600;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:5px;margin-top:2px}
+#syncDot{width:6px;height:6px;border-radius:50%;background:#c9a84c;flex-shrink:0;animation:blink 1s infinite}
+#syncDot.ok{background:#4caf7a;box-shadow:0 0 8px #4caf7a88;animation:none}
+#syncDot.err{background:#e05c7a;animation:none}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+#adminBtn{display:flex;align-items:center;gap:6px;padding:9px 15px;border-radius:10px;font-size:12px;font-weight:700;border:1px solid #1e2535;background:#0d1018;color:#5a6380;transition:all .25s}
+#adminBtn.on{background:#c9a84c15;border-color:#c9a84c88;color:#c9a84c;box-shadow:0 0 16px #c9a84c22}
+
+/* TABS */
+.tabs{display:flex;gap:6px;background:#050710;border-radius:14px 14px 0 0;padding:6px 6px 0}
+.tab{flex:1;padding:12px 8px;background:transparent;border:1px solid transparent;border-bottom:2px solid transparent;border-radius:12px 12px 0 0;color:#3a4055;font-size:13px;font-weight:500;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:6px}
+.tab.af{background:linear-gradient(180deg,#111826,#0c1018);border-color:#c9a84c33;border-bottom-color:#c9a84c;color:#c9a84c;font-weight:800;box-shadow:0 -4px 20px #c9a84c0f}
+.tab.au{background:linear-gradient(180deg,#111826,#0c1018);border-color:#a855f733;border-bottom-color:#a855f7;color:#a855f7;font-weight:800}
+
+/* BODY */
+#body{max-width:680px;margin:0 auto;padding:16px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.stat{background:linear-gradient(145deg,#0d1018,#111620);border:1px solid #c9a84c22;border-radius:14px;padding:14px 16px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#c9a84c44,transparent)}
+.stat-ico{position:absolute;top:-4px;right:2px;font-size:32px;opacity:.06}
+.stat-val{font-size:22px;font-weight:800;color:#e8c97a;line-height:1.1}
+.stat-val.sm{font-size:13px;font-weight:700}
+.stat-lbl{font-size:10px;color:#3a4055;font-weight:700;margin-top:4px;text-transform:uppercase;letter-spacing:.07em}
+
+/* RECENT */
+#recentBox{background:linear-gradient(145deg,#0d1018,#111620);border:1px solid #c9a84c22;border-radius:14px;padding:16px;margin-bottom:18px;position:relative;overflow:hidden}
+#recentBox::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#c9a84c44,transparent)}
+.rtitle{font-size:10px;font-weight:800;color:#c9a84c;letter-spacing:.1em;margin-bottom:13px;text-transform:uppercase}
+.ritem{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.rdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* SEARCH — HERO ELEMENT */
+#searchWrap{margin-bottom:14px;position:relative}
+#searchBox{display:flex;align-items:center;background:#0a0d16;border:1.5px solid #c9a84c66;border-radius:16px;padding:0 6px 0 18px;gap:12px;box-shadow:0 4px 30px #c9a84c1a,0 0 0 0 #c9a84c;transition:box-shadow .3s}
+#searchBox.focused{box-shadow:0 4px 40px #c9a84c33,0 0 0 3px #c9a84c18;border-color:#c9a84c}
+#searchInput{flex:1;background:none;border:none;outline:none;color:#f0f4ff;font-size:16px;font-weight:500;padding:16px 0}
+#searchInput::placeholder{color:#2a3045;font-weight:400}
+#searchClear{background:none;border:none;color:#3a4055;padding:8px;display:none;font-size:16px}
+#searchBtn{padding:10px 18px;background:linear-gradient(135deg,#c9a84c,#7a5f28);border:none;border-radius:11px;color:#000;font-size:13px;font-weight:800;margin:5px 0;letter-spacing:.04em;flex-shrink:0}
+
+/* SEARCH RESULT BANNER */
+#resultBanner{display:none;margin-bottom:14px;padding:14px 16px;border-radius:14px;border:1px solid;position:relative;overflow:hidden}
+#resultBanner.found{background:linear-gradient(135deg,#0a1a08,#071408);border-color:#2a6a2044}
+#resultBanner.notfound{background:linear-gradient(135deg,#1a0808,#140507);border-color:#6a2a3044}
+#resultBanner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,currentColor,transparent);opacity:.3}
+.rb-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.rb-label{font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px}
+.rb-count{font-size:11px;font-weight:600;opacity:.7}
+#resultClear{background:none;border:1px solid currentColor;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;opacity:.7}
+.rb-query{font-size:12px;opacity:.6}
+
+/* BRAND BAR */
+#brandBar{display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;margin-bottom:16px;scrollbar-width:none}
+#brandBar::-webkit-scrollbar{display:none}
+.bbtn{flex-shrink:0;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;border:1px solid #1a2030;background:#0a0d14;color:#4a5570;white-space:nowrap;transition:all .2s}
+.bbtn.on{background:linear-gradient(135deg,#c9a84c,#7a5f28);border-color:#c9a84c;color:#000;box-shadow:0 2px 14px #c9a84c44}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:8px;margin-bottom:16px;justify-content:flex-end}
+.tbtn{display:flex;align-items:center;gap:6px;padding:9px 14px;background:#0d1018;border:1px solid #1a2030;border-radius:10px;color:#6a9fc8;font-size:12px;font-weight:600}
+
+/* CARDS */
+#cardList{display:flex;flex-direction:column;gap:14px}
+
+/* Search result card — special */
+.card{background:linear-gradient(145deg,#0d1018,#111620);border:1px solid #1e2535;border-radius:16px;padding:0;overflow:hidden;transition:transform .15s}
+.card-accent{height:3px;background:linear-gradient(90deg,#c9a84c,#7a5f28,transparent)}
+.card-inner{padding:16px}
+.card.match-card{border-color:#c9a84c33;box-shadow:0 4px 24px #c9a84c0d}
+.card.match-card .card-accent{background:linear-gradient(90deg,#c9a84c,#e8c97a,#c9a84c)}
+
+/* Match highlight section */
+.match-section{background:#c9a84c0c;border:1px solid #c9a84c22;border-radius:10px;padding:12px;margin-bottom:12px}
+.match-section-title{font-size:10px;color:#c9a84c;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.match-tags{display:flex;flex-wrap:wrap;gap:6px}
+.match-tag{background:#c9a84c22;border:1px solid #c9a84c55;border-radius:7px;padding:5px 11px;font-size:12px;font-weight:700;color:#e8c97a}
+.mhl{background:#c9a84c;color:#000;border-radius:3px;padding:0 3px;font-weight:800}
+
+.cname{font-weight:800;font-size:15px;color:#f0f4ff;margin-bottom:6px;line-height:1.3}
+.cbadges{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.bg{background:#c9a84c15;border:1px solid #c9a84c33;border-radius:6px;padding:3px 10px;color:#c9a84c;font-size:11px;font-weight:700}
+.bgg{background:#0a1f05;border:1px solid #2a6a2055;border-radius:6px;padding:3px 10px;color:#6dd640;font-size:11px;font-weight:700;display:flex;align-items:center;gap:4px}
+.cadmin{display:flex;gap:6px;flex-shrink:0;margin-left:8px}
+.ibtn{background:#0a0d14;border:1px solid #1a2030;border-radius:8px;padding:8px 10px;font-size:13px}
+
+/* All models grid */
+.all-models{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
+.mtag{background:#0a0d14;border:1px solid #1a2030;border-radius:6px;padding:4px 9px;font-size:11px;color:#4a5570;transition:all .2s}
+
+/* Card buttons */
+.cbtns{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #1a2030}
+.cbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;background:#0a0d14;border:1px solid #1a2030;border-radius:10px;color:#6a7890;font-size:12px;font-weight:600;transition:all .2s}
+.cbtn.gold{border-color:#c9a84c44;color:#c9a84c;background:#c9a84c08}
+.cbtn.copied{background:#c9a84c18;border-color:#c9a84c88;color:#c9a84c}
+
+/* Floating add */
+#floatingAdd{display:none;position:fixed;bottom:28px;right:20px;width:56px;height:56px;background:linear-gradient(135deg,#c9a84c,#7a5f28);border:none;border-radius:50%;font-size:26px;color:#000;box-shadow:0 6px 24px #c9a84c66;z-index:500;align-items:center;justify-content:center;font-weight:300;line-height:1;transition:transform .2s}
+#floatingAdd.show{display:flex}
+#floatingAdd:active{transform:scale(.92)}
+
+/* Add btn */
+#addBtn{width:100%;margin-top:14px;padding:14px;background:linear-gradient(135deg,#c9a84c12,#c9a84c06);border:1px dashed #c9a84c44;border-radius:13px;color:#c9a84c;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
+
+/* Empty */
+.empty{text-align:center;padding:48px 16px;border:1px dashed #1a2030;border-radius:16px}
+.empty-ico{font-size:40px;margin-bottom:12px}
+.empty-t{font-weight:700;color:#4a5570;margin-bottom:5px;font-size:15px}
+.empty-s{font-size:13px;color:#2a3045}
+
+/* Modal */
+#modalBg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);z-index:2000;align-items:center;justify-content:center;padding:16px}
+#modalBg.show{display:flex}
+.modal{background:linear-gradient(145deg,#0f1420,#090d14);border:1px solid #c9a84c44;border-radius:20px;width:100%;max-width:520px;padding:26px;box-shadow:0 0 60px #c9a84c18,0 24px 60px rgba(0,0,0,.8);max-height:90vh;overflow-y:auto}
+.mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid #c9a84c22}
+.mtitle{font-size:16px;font-weight:800;color:#e8c97a}
+.mclose{background:none;border:none;color:#444;padding:4px;font-size:20px;line-height:1}
+.flbl{display:block;color:#6a7890;font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:8px;text-transform:uppercase}
+.finp{width:100%;background:#070a10;border:1px solid #1a2030;border-radius:11px;color:#e8eeff;font-size:15px;padding:13px 14px;outline:none;transition:border .2s}
+.finp:focus{border-color:#c9a84c55;box-shadow:0 0 0 3px #c9a84c0d}
+.fgrp{margin-bottom:16px}
+.fhint{font-size:11px;color:#2a3045;margin-top:5px}
+.brow{display:flex;gap:10px;margin-top:20px}
+.bcancel{flex:1;padding:13px;background:transparent;border:1px solid #1a2030;border-radius:11px;color:#444;font-size:14px;font-weight:600}
+.bsave{flex:2;padding:13px;background:linear-gradient(135deg,#c9a84c,#7a5f28);border:none;border-radius:11px;color:#000;font-size:14px;font-weight:800;box-shadow:0 4px 18px #c9a84c44}
+.bdel{flex:1;padding:13px;background:#1a0810;border:1px solid #e05c7a33;border-radius:11px;color:#e05c7a;font-size:14px;font-weight:700}
+
+/* Toast */
+#toast{display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#0f1f08,#0a1506);border:1px solid #2a6a30;border-radius:12px;padding:12px 20px;color:#6dd640;font-size:14px;font-weight:600;z-index:3000;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+#toast.show{display:block}
+#toast.err{background:linear-gradient(135deg,#1a0808,#100506);border-color:#6a2020;color:#e05c7a}
+
+/* Loading */
+#loading{text-align:center;padding:60px 16px;color:#3a4055}
+.spin{width:26px;height:26px;border:2px solid #1a2030;border-top-color:#c9a84c;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">🛡️</div>
+      <div>
+        <div class="logo-title">Glass Finder Pro</div>
+        <div class="logo-sub"><span id="syncDot"></span>Live Sync Active</div>
+      </div>
+    </div>
+    <button id="adminBtn" onclick="toggleAdmin()">🔒 Login</button>
+  </div>
+  <div class="tabs">
+    <button class="tab af" id="tabFlat" onclick="switchTab('flat')">📱 Flat Glass</button>
+    <button class="tab" id="tabUv" onclick="switchTab('uv')">🌀 UV Curved</button>
+  </div>
+</div>
+
+<div id="body">
+  <div id="loading"><div class="spin"></div>Firebase se connect ho raha hai...</div>
+  <div id="mainContent" class="hide">
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat"><div class="stat-ico">🛡️</div><div class="stat-val" id="s1">0</div><div class="stat-lbl">Glass Groups</div></div>
+      <div class="stat"><div class="stat-ico">📱</div><div class="stat-val" id="s2">0</div><div class="stat-lbl">Total Models</div></div>
+      <div class="stat"><div class="stat-ico">📂</div><div class="stat-val" id="s3">0</div><div class="stat-lbl">Categories</div></div>
+      <div class="stat"><div class="stat-ico">🕐</div><div class="stat-val sm" id="s4">—</div><div class="stat-lbl">Last Updated</div></div>
+    </div>
+
+    <!-- Recent -->
+    <div id="recentBox" class="hide">
+      <div class="rtitle">⚡ Recent Updates</div>
+      <div id="recentList"></div>
+    </div>
+
+    <!-- SEARCH -->
+    <div id="searchWrap">
+      <div id="searchBox">
+        <span style="color:#c9a84c;font-size:18px;opacity:.9">🔍</span>
+        <input id="searchInput" placeholder="Model number search karo... Y20, A14, Redmi 9A" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused')" onblur="document.getElementById('searchBox').classList.remove('focused')"/>
+        <button id="searchClear" onclick="clearSearch()">✕</button>
+        <button id="searchBtn" onclick="onSearch()">Search</button>
+      </div>
+    </div>
+
+    <!-- Result Banner -->
+    <div id="resultBanner">
+      <div class="rb-top">
+        <span class="rb-label" id="rbLabel"></span>
+        <button id="resultClear" onclick="clearSearch()">Clear</button>
+      </div>
+      <div class="rb-query" id="rbQuery"></div>
+    </div>
+
+    <!-- Brand Filter -->
+    <div id="brandBar"></div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button class="tbtn" onclick="openCodeModal()">💾 Data Code</button>
+    </div>
+
+    <!-- Cards -->
+    <div id="cardList"></div>
+
+    <!-- Add btn (admin) -->
+    <button id="addBtn" class="hide" onclick="openAddModal()">＋ Add New Glass</button>
+  </div>
+</div>
+
+<!-- Floating Add -->
+<button id="floatingAdd" onclick="openAddModal()">＋</button>
+
+<!-- Modal -->
+<div id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalBox"></div>
+</div>
+<div id="toast"></div>
+
+<script>
+var S={tab:'flat',flat:[],uv:[],log:[],isAdmin:false,query:'',brand:'All',editId:null};
+var BRANDS=['All','Samsung','Vivo','Oppo','Realme','Redmi','Poco','iPhone','OnePlus'];
+var PASS='admin123';
+var toastTimer=null;
+var db=null;
+
+function setSyncDot(st){document.getElementById('syncDot').className=st;}
+function uid(){return Math.random().toString(36).slice(2,9);}
+function getList(){return S.tab==='flat'?S.flat:S.uv;}
+
+// Split models — supports array, comma, or slash separated
+function parseModels(models){
+  if(!models)return[];
+  var arr=Array.isArray(models)?models:[models];
+  var result=[];
+  arr.forEach(function(m){
+    String(m).split(/[,\/]/).forEach(function(p){var t=p.trim();if(t)result.push(t);});
+  });
+  return result;
+}
+
+function hlText(text,q){
+  if(!q)return text;
+  var result='';var i=0;var tu=text.toUpperCase();var qu=q.toUpperCase();
+  while(i<=text.length){
+    var idx=tu.indexOf(qu,i);
+    if(idx<0){result+=escHtml(text.slice(i));break;}
+    result+=escHtml(text.slice(i,idx))+'<span class="mhl">'+escHtml(text.slice(idx,idx+q.length))+'</span>';
+    i=idx+q.length;
+  }
+  return result;
+}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function showToast(msg,err){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.className='show'+(err?' err':'');
+  clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.className='';},2800);
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function render(){renderStats();renderBrands();renderCards();renderAddBtn();}
+
+function renderStats(){
+  var all=S.flat.concat(S.uv);
+  document.getElementById('s1').textContent=S.flat.length+S.uv.length;
+  document.getElementById('s2').textContent=all.reduce(function(a,g){return a+parseModels(g.models).length;},0);
+  document.getElementById('s3').textContent=(S.flat.length?1:0)+(S.uv.length?1:0);
+  document.getElementById('s4').textContent=S.log.length?S.log[0].date:'—';
+}
+
+function renderRecent(){
+  var box=document.getElementById('recentBox');
+  if(!S.log.length){box.classList.add('hide');return;}
+  box.classList.remove('hide');
+  document.getElementById('recentList').innerHTML=S.log.slice(0,5).map(function(l,i){
+    return '<div class="ritem"><div class="rdot" style="background:'+(i===0?'#c9a84c':'#3a4055')+';'+(i===0?'box-shadow:0 0 8px #c9a84c88':'')+'"></div>'+
+      '<span style="font-size:13px;flex:1;color:'+(i===0?'#d4c070':'#555')+'">'+l.msg+'</span>'+
+      '<span style="font-size:10px;color:#2a3045;flex-shrink:0">'+l.date+'</span></div>';
+  }).join('');
+}
+
+function renderBrands(){
+  document.getElementById('brandBar').innerHTML=BRANDS.map(function(b){
+    return '<button class="bbtn'+(S.brand===b?' on':'')+'" onclick="setBrand(\''+b+'\')">'+b+'</button>';
+  }).join('');
+}
+
+function getFiltered(){
+  var list=getList().slice();
+  if(S.brand!=='All'){
+    var br=S.brand.toUpperCase();
+    list=list.filter(function(g){return parseModels(g.models).some(function(m){return m.toUpperCase().indexOf(br)>=0;});});
+  }
+  var q=S.query.trim().toUpperCase();
+  if(q){
+    list=list.filter(function(g){
+      return g.glassName.toUpperCase().indexOf(q)>=0||parseModels(g.models).some(function(m){return m.toUpperCase().indexOf(q)>=0;});
+    });
+    // Sort: exact model match first, then starts-with, then contains
+    list.sort(function(a,b){
+      function score(g){
+        var ms=parseModels(g.models);
+        if(ms.some(function(m){return m.toUpperCase()===q;}))return 0;
+        if(ms.some(function(m){return m.toUpperCase().indexOf(q)===0;}))return 1;
+        if(ms.some(function(m){return m.toUpperCase().indexOf(q)>=0;}))return 2;
+        return 3;
+      }
+      return score(a)-score(b);
+    });
+  }
+  return list;
+}
+
+function renderCards(){
+  var list=getFiltered();
+  var q=S.query.trim().toUpperCase();
+  var el=document.getElementById('cardList');
+
+  // Result banner
+  var banner=document.getElementById('resultBanner');
+  var rbLabel=document.getElementById('rbLabel');
+  var rbQuery=document.getElementById('rbQuery');
+  if(q||S.brand!=='All'){
+    banner.style.display='block';
+    if(list.length>0){
+      banner.className='found';
+      rbLabel.style.color='#6dd640';
+      rbLabel.innerHTML='✅ '+list.length+' Glass'+(list.length>1?' Groups':' Group')+' Found';
+    } else {
+      banner.className='notfound';
+      rbLabel.style.color='#e05c7a';
+      rbLabel.innerHTML='❌ Koi match nahi mila';
+    }
+    var parts=[];
+    if(q)parts.push('Model: <strong style="color:#e8c97a">'+escHtml(S.query.trim())+'</strong>');
+    if(S.brand!=='All')parts.push('Brand: <strong style="color:#e8c97a">'+S.brand+'</strong>');
+    rbQuery.innerHTML=parts.join(' &nbsp;·&nbsp; ');
+    document.getElementById('resultClear').style.color=list.length>0?'#6dd640':'#e05c7a';
+  } else {
+    banner.style.display='none';
+  }
+
+  if(!list.length){
+    var ae=!getList().length;
+    el.innerHTML='<div class="empty"><div class="empty-ico">'+(ae?'📦':'🔍')+'</div>'+
+      '<p class="empty-t">'+(ae?'Koi glass nahi hai':'Koi result nahi mila')+'</p>'+
+      '<p class="empty-s">'+(ae&&S.isAdmin?'Neeche + button dabao glass add karne ke liye':'Alag model ya brand try karo')+'</p></div>';
+    return;
+  }
+
+  el.innerHTML=list.map(function(g){
+    var mlist=parseModels(g.models);
+    var isMatch=q&&mlist.some(function(m){return m.toUpperCase().indexOf(q)>=0;});
+    var matchedModels=q?mlist.filter(function(m){return m.toUpperCase().indexOf(q)>=0;}):[];
+    var otherModels=q?mlist.filter(function(m){return m.toUpperCase().indexOf(q)<0;}):mlist;
+
+    var matchSection='';
+    if(matchedModels.length>0){
+      matchSection='<div class="match-section">'+
+        '<div class="match-section-title">🎯 Matched Models ('+matchedModels.length+')</div>'+
+        '<div class="match-tags">'+
+        matchedModels.map(function(m){return '<span class="match-tag">'+hlText(m,S.query.trim())+'</span>';}).join('')+
+        '</div></div>';
+    }
+
+    var otherTags='';
+    if(otherModels.length>0){
+      otherTags='<div class="all-models">'+
+        otherModels.map(function(m){return '<span class="mtag">'+escHtml(m)+'</span>';}).join('')+
+        '</div>';
+    }
+
+    var adm=S.isAdmin?'<div class="cadmin"><button class="ibtn" onclick="openEditModal(\''+g.id+'\')">✏️</button><button class="ibtn" onclick="confirmDelete(\''+g.id+'\')">🗑️</button></div>':'';
+
+    return '<div class="card'+(isMatch?' match-card':'')+'">'+
+      '<div class="card-accent"></div>'+
+      '<div class="card-inner">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
+      '<div style="flex:1">'+
+      '<div class="cname">🛡️ '+escHtml(g.glassName)+'</div>'+
+      '<div class="cbadges">'+
+      '<span class="bg">'+mlist.length+' Models</span>'+
+      (matchedModels.length?'<span class="bgg">✅ '+matchedModels.length+' Match</span>':'')+
+      '</div></div>'+adm+'</div>'+
+      matchSection+
+      otherTags+
+      '<div class="cbtns">'+
+      '<button class="cbtn" onclick="copyList(\''+g.id+'\')">📋 Share List</button>'+
+      '</div>'+
+      '</div></div>';
+  }).join('');
+}
+
+function renderAddBtn(){
+  var btn=document.getElementById('addBtn');
+  var fab=document.getElementById('floatingAdd');
+  if(S.isAdmin){btn.classList.remove('hide');fab.classList.add('show');}
+  else{btn.classList.add('hide');fab.classList.remove('show');}
+}
+
+// ── CONTROLS ──────────────────────────────────────────────────────────────
+function switchTab(t){
+  S.tab=t;S.query='';S.brand='All';
+  document.getElementById('searchInput').value='';
+  document.getElementById('searchClear').style.display='none';
+  document.getElementById('tabFlat').className='tab'+(t==='flat'?' af':'');
+  document.getElementById('tabUv').className='tab'+(t==='uv'?' au':'');
+  render();
+}
+
+function toggleAdmin(){
+  if(S.isAdmin){
+    S.isAdmin=false;
+    document.getElementById('adminBtn').innerHTML='🔒 Login';
+    document.getElementById('adminBtn').classList.remove('on');
+    renderCards();renderAddBtn();return;
+  }
+  openModal('<div class="mhead"><span class="mtitle">🔐 Admin Login</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="fgrp"><label class="flbl">Password</label>'+
+    '<input class="finp" type="password" id="passInp" placeholder="Enter admin password" onkeydown="if(event.key===\'Enter\')checkPass()"/></div>'+
+    '<p id="passErr" style="color:#e05c7a;font-size:13px;margin-bottom:10px;display:none">❌ Wrong password</p>'+
+    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button><button class="bsave" onclick="checkPass()">Login</button></div>');
+  setTimeout(function(){var el=document.getElementById('passInp');if(el)el.focus();},100);
+}
+
+function checkPass(){
+  var v=document.getElementById('passInp').value;
+  if(v===PASS){
+    S.isAdmin=true;
+    document.getElementById('adminBtn').innerHTML='🔓 Admin';
+    document.getElementById('adminBtn').classList.add('on');
+    closeModal();renderCards();renderAddBtn();showToast('✅ Admin mode ON');
+  } else {
+    document.getElementById('passErr').style.display='block';
+    document.getElementById('passInp').value='';
+  }
+}
+
+function onSearch(){
+  S.query=document.getElementById('searchInput').value;
+  document.getElementById('searchClear').style.display=S.query?'block':'none';
+  renderCards();renderBrands();
+}
+
+function clearSearch(){
+  S.query='';S.brand='All';
+  document.getElementById('searchInput').value='';
+  document.getElementById('searchClear').style.display='none';
+  render();
+}
+
+function setBrand(b){S.brand=S.brand===b?'All':b;renderCards();renderBrands();}
+
+function copyList(id){
+  var g=getList().find(function(x){return x.id===id;});if(!g)return;
+  var mlist=parseModels(g.models);
+  navigator.clipboard.writeText('🛡️ '+g.glassName+'\n📱 Compatible Models ('+mlist.length+'):\n'+mlist.join(', '));
+  showToast('✅ List copied! WhatsApp pe share karo');
+}
+
+function openAddModal(){S.editId=null;openModal(glassFormHtml(null));}
+function openEditModal(id){S.editId=id;var g=getList().find(function(x){return x.id===id;});openModal(glassFormHtml(g));}
+
+function glassFormHtml(g){
+  return '<div class="mhead"><span class="mtitle">'+(g?'✏️ Edit Glass':'➕ Add New Glass')+'</span>'+
+    '<button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="fgrp"><label class="flbl">Glass Name</label>'+
+    '<input class="finp" id="gName" value="'+(g?escHtml(g.glassName):'')+'" placeholder="e.g. 9D Matte Glass, 21D UV Curved..."/></div>'+
+    '<div class="fgrp"><label class="flbl">Compatible Models</label>'+
+    '<textarea class="finp" id="gModels" rows="6" placeholder="Samsung A14, Vivo Y20, Redmi 9A, Oppo F21...">'+(g?parseModels(g.models).join(', '):'')+'</textarea>'+
+    '<div class="fhint">💡 Comma se alag karo. Brand naam ke saath likho: Samsung A14, Vivo Y20</div></div>'+
+    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
+    '<button class="bsave" onclick="submitGlass()">Save Glass</button></div>';
+}
+
+function submitGlass(){
+  var name=document.getElementById('gName').value.trim();
+  var models=document.getElementById('gModels').value.split(',').map(function(m){return m.trim();}).filter(Boolean);
+  if(!name||!models.length){showToast('❌ Name aur models dono bharo!',true);return;}
+  if(!db){showToast('❌ Firebase connect nahi hua',true);return;}
+  var id=S.editId||uid();var isEdit=!!S.editId;
+  setSyncDot('syncing');
+  var col=S.tab==='flat'?'flat_glasses':'uv_glasses';
+  db.collection(col).doc(id).set({glassName:name,models:models}).then(function(){
+    var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
+    db.collection('meta').doc('log').set({entries:[entry].concat(S.log).slice(0,20)});
+    setSyncDot('ok');closeModal();
+    showToast(isEdit?'✅ Glass updated!':'✅ Glass added! Sab devices pe sync ho gaya');
+    S.editId=null;
+  }).catch(function(e){setSyncDot('err');showToast('❌ '+e.message,true);});
+}
+
+function confirmDelete(id){
+  openModal('<div class="mhead"><span class="mtitle">🗑️ Delete?</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<p style="color:#8892b0;margin-bottom:20px;font-size:14px">Yeh glass permanently delete ho jayega sabhi devices se.</p>'+
+    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
+    '<button class="bdel" onclick="doDelete(\''+id+'\')">Delete</button></div>');
+}
+
+function doDelete(id){
+  if(!db)return;
+  var g=getList().find(function(x){return x.id===id;});
+  setSyncDot('syncing');
+  var col=S.tab==='flat'?'flat_glasses':'uv_glasses';
+  db.collection(col).doc(id).delete().then(function(){
+    if(g){var entry={msg:'🗑️ '+g.glassName+' removed',date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};db.collection('meta').doc('log').set({entries:[entry].concat(S.log).slice(0,20)});}
+    setSyncDot('ok');closeModal();showToast('✅ Glass deleted');
+  }).catch(function(){setSyncDot('err');});
+}
+
+function openCodeModal(){
+  var list=getList();var json=JSON.stringify(list,null,2);
+  openModal('<div class="mhead"><span class="mtitle">📋 Data Export / Import</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<p style="color:#555;font-size:13px;margin-bottom:12px">Copy karke doosre device pe Import karo — Firebase se sync hoga.</p>'+
+    '<textarea id="codeTA" style="width:100%;height:220px;background:#040608;border:1px solid #1a2030;border-radius:11px;color:#6a9fc8;font-size:11px;font-family:monospace;padding:13px;box-sizing:border-box;resize:vertical;outline:none">'+json+'</textarea>'+
+    '<div class="brow"><button class="bcancel" onclick="copyCode()">📋 Copy</button>'+(S.isAdmin?'<button class="bsave" onclick="importCode()">📥 Import</button>':'')+'</div>');
+}
+function copyCode(){navigator.clipboard.writeText(document.getElementById('codeTA').value);showToast('✅ Code copied!');}
+function importCode(){
+  try{
+    var data=JSON.parse(document.getElementById('codeTA').value);
+    if(!Array.isArray(data))throw new Error('Array chahiye');
+    if(!db){showToast('❌ Firebase connect nahi hua',true);return;}
+    setSyncDot('syncing');var col=S.tab==='flat'?'flat_glasses':'uv_glasses';
+    var done=0,total=data.length;if(!total){showToast('❌ Data empty',true);return;}
+    data.forEach(function(g){
+      db.collection(col).doc(g.id||uid()).set({glassName:g.glassName,models:g.models}).then(function(){
+        done++;if(done===total){setSyncDot('ok');showToast('✅ Imported! Sab devices pe sync ho gaya');closeModal();}
+      });
+    });
+  }catch(e){showToast('❌ '+e.message,true);}
+}
+
+function openModal(html){document.getElementById('modalBox').innerHTML=html;document.getElementById('modalBg').classList.add('show');}
+function closeModal(){document.getElementById('modalBg').classList.remove('show');}
+
+// ── FIREBASE ──────────────────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey:"AIzaSyC_OXACPuxzAerOWiQ6O1BZBL0Du8Axdtg",
+  authDomain:"glass-finder-pro.firebaseapp.com",
+  projectId:"glass-finder-pro",
+  storageBucket:"glass-finder-pro.firebasestorage.app",
+  messagingSenderId:"1082015655381",
+  appId:"1:1082015655381:web:cf24bbc2d7442b10a6c95c"
+});
+db=firebase.firestore();
+
+db.collection('flat_glasses').onSnapshot(function(snap){
+  S.flat=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+  render();setSyncDot('ok');
+  document.getElementById('loading').classList.add('hide');
+  document.getElementById('mainContent').classList.remove('hide');
+},function(){setSyncDot('err');});
+
+db.collection('uv_glasses').onSnapshot(function(snap){
+  S.uv=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+  render();setSyncDot('ok');
+},function(){setSyncDot('err');});
+
+db.collection('meta').doc('log').onSnapshot(function(snap){
+  if(snap.exists)S.log=snap.data().entries||[];
+  renderRecent();renderStats();
+});
+
+setTimeout(function(){
+  document.getElementById('loading').classList.add('hide');
+  document.getElementById('mainContent').classList.remove('hide');
+  render();
+},5000);
+</script>
+</body>
+</html>
