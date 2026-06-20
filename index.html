@@ -88,7 +88,7 @@ animation:barSlide 1.3s ease-in-out infinite;
 
 /* HEADER */
 #header{position:sticky;top:0;z-index:200;background:rgba(10,12,20,0.97);backdrop-filter:blur(20px);border-bottom:1px solid #d4af6a1f;padding:14px 16px 0}
-.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:8px}
 .logo{display:flex;align-items:center;gap:11px}
 .logo-icon{width:40px;height:40px;background:linear-gradient(135deg,#e8c97a,#a87f2e 65%,#7a5f28);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 4px 20px #d4af6a4a,inset 0 1px 0 #ffffff33;flex-shrink:0}
 .logo-title{font-size:18px;font-weight:800;background:linear-gradient(90deg,#f3e1ab,#d4af6a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.3px}
@@ -100,6 +100,22 @@ animation:barSlide 1.3s ease-in-out infinite;
 #adminBtn{display:flex;align-items:center;gap:6px;padding:9px 15px;border-radius:10px;font-size:12px;font-weight:700;border:1px solid #232a3d;background:#10141f;color:#6a7390;transition:all .25s}
 #adminBtn:active{transform:scale(.95)}
 #adminBtn.on{background:#d4af6a17;border-color:#d4af6a8a;color:#e8c97a;box-shadow:0 0 16px #d4af6a26}
+
+/* HEADER ACTIONS WRAP */
+.header-actions{display:flex;align-items:center;gap:8px}
+#menuBtn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1px solid #232a3d;background:#10141f;color:#9aa6c4;font-size:17px;transition:transform .15s}
+#menuBtn:active{transform:scale(.92)}
+
+/* SIDE MENU PANEL */
+#menuOverlay{display:none;position:fixed;inset:0;background:rgba(4,5,10,.7);backdrop-filter:blur(4px);z-index:2500}
+#menuOverlay.show{display:block;animation:popIn .25s ease}
+#menuPanel{position:fixed;top:0;right:0;height:100%;width:78%;max-width:300px;background:linear-gradient(165deg,#11141f,#0a0c14);border-left:1px solid #d4af6a26;z-index:2600;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);padding:24px 18px;overflow-y:auto}
+#menuPanel.show{transform:translateX(0)}
+.menu-head{font-size:11px;font-weight:800;color:#d4af6a;text-transform:uppercase;letter-spacing:.1em;margin-bottom:18px}
+.menu-item{display:flex;align-items:center;gap:13px;padding:14px 10px;border-radius:12px;color:#cdd6f0;font-size:14.5px;font-weight:600;transition:background .2s,transform .15s;width:100%;text-align:left;border:none;background:none}
+.menu-item:active{transform:scale(.97);background:#d4af6a10}
+.menu-ic{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.menu-sep{height:1px;background:#1d2336;margin:10px 0}
 
 /* TABS */
 .tabs{display:flex;gap:6px;background:#070811;border-radius:14px 14px 0 0;padding:6px 6px 0;position:relative}
@@ -293,7 +309,10 @@ to{opacity:1;transform:scale(1);}
         <div class="logo-sub"><span id="syncDot"></span>Live Sync Active</div>
       </div>
     </div>
-    <button id="adminBtn" onclick="toggleAdmin()">🔒 Login</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button id="adminBtn" onclick="toggleAdmin()">🔒 Login</button>
+      <button id="menuBtn" onclick="openMenu()">☰</button>
+    </div>
   </div>
   <div class="tabs">
     <button class="tab af" id="tabFlat" onclick="switchTab('flat')"><span class="tab-ic">▭</span> Flat Glass</button>
@@ -363,6 +382,16 @@ to{opacity:1;transform:scale(1);}
 
 <!-- Floating Add -->
 <button id="floatingAdd" onclick="openAddModal()">＋</button>
+
+<!-- SIDE MENU -->
+<div id="menuOverlay" onclick="closeMenu()"></div>
+<div id="menuPanel">
+  <div class="menu-head">Menu</div>
+  <button class="menu-item" onclick="shareApp()"><span class="menu-ic">📤</span> Share App</button>
+  <button class="menu-item" onclick="openFeedback()"><span class="menu-ic">💬</span> Send Feedback</button>
+  <div class="menu-sep"></div>
+  <button class="menu-item" onclick="closeMenu()"><span class="menu-ic">✕</span> Close</button>
+</div>
 
 <!-- Modal -->
 <div id="modalBg" onclick="if(event.target===this)closeModal()">
@@ -706,6 +735,56 @@ function importCode(){
 }
 
 function openModal(html){document.getElementById('modalBox').innerHTML=html;document.getElementById('modalBg').classList.add('show');}
+
+// ── SIDE MENU ─────────────────────────────────────────────────────────────
+function openMenu(){
+  document.getElementById('menuOverlay').classList.add('show');
+  document.getElementById('menuPanel').classList.add('show');
+}
+function closeMenu(){
+  document.getElementById('menuOverlay').classList.remove('show');
+  document.getElementById('menuPanel').classList.remove('show');
+}
+
+function shareApp(){
+  var shareData={
+    title:'Universal Combo',
+    text:'Universal Combo - apne phone model ke liye sahi tempered glass turant dhundo! Free tool hai, try karo:',
+    url:'https://universalcombo.netlify.app/'
+  };
+  if(navigator.share){
+    navigator.share(shareData).catch(function(){});
+  } else {
+    navigator.clipboard.writeText(shareData.text+' '+shareData.url);
+    showToast('✅ Link copied! WhatsApp pe paste karo');
+  }
+  closeMenu();
+}
+
+function openFeedback(){
+  closeMenu();
+  openModal('<div class="mhead"><span class="mtitle">💬 Send Feedback</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="fgrp"><label class="flbl">Aapka Feedback</label>'+
+    '<textarea class="finp" id="fbText" rows="5" placeholder="Koi suggestion, problem, ya naya model add karne ki request likho..."></textarea></div>'+
+    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
+    '<button class="bsave" onclick="sendFeedback()">Send</button></div>');
+}
+
+function sendFeedback(){
+  var text=document.getElementById('fbText').value.trim();
+  if(!text){showToast('❌ Kuch likho pehle',true);return;}
+  if(!db){showToast('❌ Connection nahi hai',true);return;}
+  db.collection('feedback').add({
+    text:text,
+    date:new Date().toISOString(),
+    tab:S.tab
+  }).then(function(){
+    closeModal();
+    showToast('✅ Feedback bhej diya! Dhanyawad');
+  }).catch(function(e){
+    showToast('❌ '+e.message,true);
+  });
+}
 function closeModal(){document.getElementById('modalBg').classList.remove('show');}
 
 // ── FIREBASE ──────────────────────────────────────────────────────────────
