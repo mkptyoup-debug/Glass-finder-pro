@@ -44,6 +44,7 @@ button{cursor:pointer}
 .tab{flex:1;padding:12px 8px;background:transparent;border:1px solid transparent;border-bottom:2px solid transparent;border-radius:12px 12px 0 0;color:#3a4055;font-size:13px;font-weight:500;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:6px}
 .tab.af{background:linear-gradient(180deg,#111826,#0c1018);border-color:#c9a84c33;border-bottom-color:#c9a84c;color:#c9a84c;font-weight:800;box-shadow:0 -4px 20px #c9a84c0f}
 .tab.au{background:linear-gradient(180deg,#111826,#0c1018);border-color:#a855f733;border-bottom-color:#a855f7;color:#a855f7;font-weight:800}
+.tab.ad{background:linear-gradient(180deg,#111826,#0c1018);border-color:#3aa8e033;border-bottom-color:#3aa8e0;color:#3aa8e0;font-weight:800}
 
 /* BODY */
 #body{max-width:680px;margin:0 auto;padding:16px}
@@ -119,7 +120,8 @@ box-shadow:0 10px 30px rgba(0,0,0,.25);
 .card:hover{
 transform:translateY(-4px);
 box-shadow:0 15px 35px rgba(201,168,76,.18);
-}* Match highlight section */
+}
+/* Match highlight section */
 .match-section{background:#c9a84c0c;border:1px solid #c9a84c22;border-radius:10px;padding:12px;margin-bottom:12px}
 .match-section-title{font-size:10px;color:#c9a84c;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:5px}
 .match-tags{display:flex;flex-wrap:wrap;gap:6px}
@@ -176,70 +178,33 @@ box-shadow:0 15px 35px rgba(201,168,76,.18);
 
 /* Toast */
 #toast{display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#0f1f08,#0a1506);border:1px solid #2a6a30;border-radius:12px;padding:12px 20px;color:#6dd640;font-size:14px;font-weight:600;z-index:3000;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.6)}
-#toast.show{display:block}#toast{
-display:none;
-position:fixed;
-bottom:30px;
-left:50%;
-transform:translateX(-50%);
-animation:popIn .3s ease;
-}
+#toast.show{display:block;animation:popIn .3s ease}
 #toast.err{background:linear-gradient(135deg,#1a0808,#100506);border-color:#6a2020;color:#e05c7a}
 
 /* Loading */
 #loading{text-align:center;padding:60px 16px;color:#3a4055}
 .spin{width:26px;height:26px;border:2px solid #1a2030;border-top-color:#c9a84c;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
-@keyframes spin{to{transform:rotate(360deg)}}@keyframes fadeUp{
-from{
-opacity:0;
-transform:translateY(20px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(20px);}
+to{opacity:1;transform:translateY(0);}
 }
 
 @keyframes popIn{
-from{
-opacity:0;
-transform:scale(.9);
-}
-to{
-opacity:1;
-transform:scale(1);
-}
+from{opacity:0;transform:scale(.9);}
+to{opacity:1;transform:scale(1);}
 }
 
-.card{
-animation:fadeUp .45s ease;
-transition:.3s;
-}
+.card{animation:fadeUp .45s ease;transition:.3s;}
+.card:hover{transform:translateY(-4px);}
+.modal{animation:popIn .3s ease;}
+.stat{transition:.3s;}
+.stat:hover{transform:translateY(-3px) scale(1.02);}
+#searchBox{transition:.3s;}
+#searchBox:focus-within{transform:scale(1.02);box-shadow:0 0 25px #c9a84c55;}
 
-.card:hover{
-transform:translateY(-4px);
-}
-
-.modal{
-animation:popIn .3s ease;
-}
-
-.stat{
-transition:.3s;
-}
-
-.stat:hover{
-transform:translateY(-3px) scale(1.02);
-}
-
-#searchBox{
-transition:.3s;
-}
-
-#searchBox:focus-within{
-transform:scale(1.02);
-box-shadow:0 0 25px #c9a84c55;
-}
+/* Install button */
+#installBtn{position:fixed;bottom:20px;right:20px;padding:12px 20px;background:#c9a84c;color:#000;border:none;border-radius:10px;font-weight:bold;display:none;z-index:9999;}
 </style>
 </head>
 <body>
@@ -258,6 +223,7 @@ box-shadow:0 0 25px #c9a84c55;
   <div class="tabs">
     <button class="tab af" id="tabFlat" onclick="switchTab('flat')">📱 Flat Glass</button>
     <button class="tab" id="tabUv" onclick="switchTab('uv')">🌀 UV Curved</button>
+    <button class="tab" id="tabDisplay" onclick="switchTab('display')">🖥️ Display</button>
   </div>
 </div>
 
@@ -322,17 +288,21 @@ box-shadow:0 0 25px #c9a84c55;
   <div class="modal" id="modalBox"></div>
 </div>
 <div id="toast"></div>
+<button id="installBtn">📲 Install App</button>
 
 <script>
-var S={tab:'flat',flat:[],uv:[],log:[],isAdmin:false,query:'',brand:'All',editId:null};
+var S={tab:'flat',flat:[],uv:[],display:[],log:[],isAdmin:false,query:'',brand:'All',editId:null};
 var BRANDS=['All','Samsung','Vivo','Oppo','Realme','Redmi','Poco','iPhone','OnePlus'];
 var PASS='admin123';
 var toastTimer=null;
 var db=null;
 
+// Map each tab to its Firestore collection name
+var COLLECTIONS={flat:'flat_glasses',uv:'uv_glasses',display:'display_glasses'};
+
 function setSyncDot(st){document.getElementById('syncDot').className=st;}
 function uid(){return Math.random().toString(36).slice(2,9);}
-function getList(){return S.tab==='flat'?S.flat:S.uv;}
+function getList(){return S[S.tab];}
 
 // Split models — supports array, comma, or slash separated
 function parseModels(models){
@@ -368,10 +338,10 @@ function showToast(msg,err){
 function render(){renderStats();renderBrands();renderCards();renderAddBtn();}
 
 function renderStats(){
-  var all=S.flat.concat(S.uv);
-  document.getElementById('s1').textContent=S.flat.length+S.uv.length;
+  var all=S.flat.concat(S.uv,S.display);
+  document.getElementById('s1').textContent=S.flat.length+S.uv.length+S.display.length;
   document.getElementById('s2').textContent=all.reduce(function(a,g){return a+parseModels(g.models).length;},0);
-  document.getElementById('s3').textContent=(S.flat.length?1:0)+(S.uv.length?1:0);
+  document.getElementById('s3').textContent=(S.flat.length?1:0)+(S.uv.length?1:0)+(S.display.length?1:0);
   document.getElementById('s4').textContent=S.log.length?S.log[0].date:'—';
 }
 
@@ -512,6 +482,7 @@ function switchTab(t){
   document.getElementById('searchClear').style.display='none';
   document.getElementById('tabFlat').className='tab'+(t==='flat'?' af':'');
   document.getElementById('tabUv').className='tab'+(t==='uv'?' au':'');
+  document.getElementById('tabDisplay').className='tab'+(t==='display'?' ad':'');
   render();
 }
 
@@ -587,7 +558,7 @@ function submitGlass(){
   if(!db){showToast('❌ Firebase connect nahi hua',true);return;}
   var id=S.editId||uid();var isEdit=!!S.editId;
   setSyncDot('syncing');
-  var col=S.tab==='flat'?'flat_glasses':'uv_glasses';
+  var col=COLLECTIONS[S.tab];
   db.collection(col).doc(id).set({glassName:name,models:models}).then(function(){
     var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
     db.collection('meta').doc('log').set({entries:[entry].concat(S.log).slice(0,20)});
@@ -608,7 +579,7 @@ function doDelete(id){
   if(!db)return;
   var g=getList().find(function(x){return x.id===id;});
   setSyncDot('syncing');
-  var col=S.tab==='flat'?'flat_glasses':'uv_glasses';
+  var col=COLLECTIONS[S.tab];
   db.collection(col).doc(id).delete().then(function(){
     if(g){var entry={msg:'🗑️ '+g.glassName+' removed',date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};db.collection('meta').doc('log').set({entries:[entry].concat(S.log).slice(0,20)});}
     setSyncDot('ok');closeModal();showToast('✅ Glass deleted');
@@ -628,7 +599,7 @@ function importCode(){
     var data=JSON.parse(document.getElementById('codeTA').value);
     if(!Array.isArray(data))throw new Error('Array chahiye');
     if(!db){showToast('❌ Firebase connect nahi hua',true);return;}
-    setSyncDot('syncing');var col=S.tab==='flat'?'flat_glasses':'uv_glasses';
+    setSyncDot('syncing');var col=COLLECTIONS[S.tab];
     var done=0,total=data.length;if(!total){showToast('❌ Data empty',true);return;}
     data.forEach(function(g){
       db.collection(col).doc(g.id||uid()).set({glassName:g.glassName,models:g.models}).then(function(){
@@ -664,6 +635,11 @@ db.collection('uv_glasses').onSnapshot(function(snap){
   render();setSyncDot('ok');
 },function(){setSyncDot('err');});
 
+db.collection('display_glasses').onSnapshot(function(snap){
+  S.display=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+  render();setSyncDot('ok');
+},function(){setSyncDot('err');});
+
 db.collection('meta').doc('log').onSnapshot(function(snap){
   if(snap.exists)S.log=snap.data().entries||[];
   renderRecent();renderStats();
@@ -675,20 +651,6 @@ setTimeout(function(){
   render();
 },5000);
 </script>
-<button id="installBtn" style="
-position:fixed;
-bottom:20px;
-right:20px;
-padding:12px 20px;
-background:#c9a84c;
-color:#000;
-border:none;
-border-radius:10px;
-font-weight:bold;
-display:none;
-z-index:9999;">
-📲 Install App
-</button>
 
 <script>
 let deferredPrompt;
@@ -701,17 +663,18 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 document.getElementById('installBtn').addEventListener('click', async () => {
   if (!deferredPrompt) return;
-
   deferredPrompt.prompt();
   await deferredPrompt.userChoice;
   deferredPrompt = null;
   document.getElementById('installBtn').style.display = 'none';
-<script>
+});
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
     .then(() => console.log('SW registered'))
     .catch(e => console.log('SW error', e));
 }
-</script>});
-</script></body>
+</script>
+</body>
 </html>
+
