@@ -401,6 +401,7 @@ to{opacity:1;transform:scale(1);}
 <div id="menuPanel">
   <div class="menu-head">Menu</div>
   <button class="menu-item" onclick="shareApp()"><span class="menu-ic">📤</span> Share App</button>
+  <button class="menu-item" id="notifBtn" onclick="setupNotifications()"><span class="menu-ic">🔔</span> Notifications On Karo</button>
   <button class="menu-item" onclick="openFeedback()"><span class="menu-ic">💬</span> Send Feedback</button>
   <button class="menu-item hide" id="menuAnnounceBtn" onclick="openAnnounceEditor()"><span class="menu-ic">📢</span> Edit Announcement</button>
   <div class="menu-sep"></div>
@@ -845,27 +846,66 @@ db=firebase.firestore();
 
 // ── PUSH NOTIFICATIONS ───────────────────────────────────────────────────
 var VAPID_KEY="BBPTMUmA0spBWVPtnYhpRHJjjuePdcsit9bs9yWgOST7Cf6aqAK0YEb2DhCfAf-TmDyO9_oSpSWzK9iEba61MDU";
+var notifMessaging=null;
+
 function setupNotifications(){
-  if(!('serviceWorker' in navigator) || !firebase.messaging){return;}
-  try{
-    var messaging=firebase.messaging();
-    Notification.requestPermission().then(function(permission){
-      if(permission!=='granted'){return;}
-      navigator.serviceWorker.ready.then(function(registration){
-        messaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:registration}).then(function(token){
-          if(token){
-            db.collection('fcm_tokens').doc(token).set({
-              token:token,
-              createdAt:new Date().toISOString()
-            }).catch(function(){});
-          }
-        }).catch(function(e){console.log('FCM token error',e);});
+  closeMenu();
+  if(!('serviceWorker' in navigator)){showToast('❌ Yeh browser notification support nahi karta',true);return;}
+  if(!('Notification' in window)){showToast('❌ Yeh browser notification support nahi karta',true);return;}
+
+  if(Notification.permission==='denied'){
+    showToast('❌ Notifications block hain. Phone Settings > Apps > Notifications mein jaake allow karo',true);
+    return;
+  }
+
+  Notification.requestPermission().then(function(permission){
+    if(permission!=='granted'){
+      showToast('❌ Permission nahi mili',true);
+      return;
+    }
+    registerForPush();
+  }).catch(function(e){
+    showToast('❌ Error: '+e.message,true);
+  });
+}
+
+function registerForPush(){
+  navigator.serviceWorker.ready.then(function(registration){
+    try{
+      if(!notifMessaging)notifMessaging=firebase.messaging();
+      notifMessaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:registration}).then(function(token){
+        if(token){
+          db.collection('fcm_tokens').doc(token).set({
+            token:token,
+            createdAt:new Date().toISOString()
+          }).then(function(){
+            showToast('✅ Notifications ON ho gaya!');
+            var btn=document.getElementById('notifBtn');
+            if(btn)btn.innerHTML='<span class="menu-ic">✅</span> Notifications ON hain';
+          }).catch(function(){
+            showToast('✅ Permission mil gayi (save mein issue)');
+          });
+        } else {
+          showToast('❌ Token nahi mila, dobara try karo',true);
+        }
+      }).catch(function(e){
+        showToast('❌ FCM error: '+e.message,true);
       });
-    });
-    messaging.onMessage(function(payload){
-      showToast('🔔 '+(payload.notification?payload.notification.title:'Naya update aaya hai!'));
-    });
-  }catch(e){console.log('Messaging setup error',e);}
+      notifMessaging.onMessage(function(payload){
+        showToast('🔔 '+(payload.notification?payload.notification.title:'Naya update aaya hai!'));
+      });
+    }catch(e){
+      showToast('❌ Setup error: '+e.message,true);
+    }
+  });
+}
+
+// Check on load if already granted, update button label silently
+function checkNotifStatus(){
+  if('Notification' in window && Notification.permission==='granted'){
+    var btn=document.getElementById('notifBtn');
+    if(btn)btn.innerHTML='<span class="menu-ic">✅</span> Notifications ON hain';
+  }
 }
 
 function markLoaded(){
@@ -932,7 +972,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
     .then(() => {
       console.log('SW registered');
-      setTimeout(setupNotifications, 2000);
+      setTimeout(checkNotifStatus, 1000);
     })
     .catch(e => console.log('SW error', e));
 }
