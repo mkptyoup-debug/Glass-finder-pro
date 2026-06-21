@@ -371,9 +371,7 @@ function showToast(msg,err){
 // ✅ NOTIFICATION BANNER FUNCTIONS
 function showNotifBanner(){
   if(!('Notification' in window))return;
-  
-  var dismissed=localStorage.getItem('nb_dismissed');
-  if(dismissed && (Date.now()-parseInt(dismissed))<86400000)return;
+  if(Notification.permission==='granted')return;
   document.getElementById('notifBanner').classList.add('show');
 }
 
