@@ -22,6 +22,7 @@
 <meta name="theme-color" content="#d4af6a">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{
@@ -842,6 +843,31 @@ firebase.initializeApp({
 });
 db=firebase.firestore();
 
+// ── PUSH NOTIFICATIONS ───────────────────────────────────────────────────
+var VAPID_KEY="BBPTMUmA0spBWVPtnYhpRHJjjuePdcsit9bs9yWgOST7Cf6aqAK0YEb2DhCfAf-TmDyO9_oSpSWzK9iEba61MDU";
+function setupNotifications(){
+  if(!('serviceWorker' in navigator) || !firebase.messaging){return;}
+  try{
+    var messaging=firebase.messaging();
+    Notification.requestPermission().then(function(permission){
+      if(permission!=='granted'){return;}
+      navigator.serviceWorker.ready.then(function(registration){
+        messaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:registration}).then(function(token){
+          if(token){
+            db.collection('fcm_tokens').doc(token).set({
+              token:token,
+              createdAt:new Date().toISOString()
+            }).catch(function(){});
+          }
+        }).catch(function(e){console.log('FCM token error',e);});
+      });
+    });
+    messaging.onMessage(function(payload){
+      showToast('🔔 '+(payload.notification?payload.notification.title:'Naya update aaya hai!'));
+    });
+  }catch(e){console.log('Messaging setup error',e);}
+}
+
 function markLoaded(){
   if(dataLoaded)return;
   dataLoaded=true;
@@ -904,7 +930,10 @@ document.getElementById('installBtn').addEventListener('click', async () => {
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
-    .then(() => console.log('SW registered'))
+    .then(() => {
+      console.log('SW registered');
+      setTimeout(setupNotifications, 2000);
+    })
     .catch(e => console.log('SW error', e));
 }
 </script>
