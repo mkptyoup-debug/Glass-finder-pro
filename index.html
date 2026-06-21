@@ -88,6 +88,14 @@ animation:barSlide 1.3s ease-in-out infinite;
 
 /* HEADER */
 #header{position:sticky;top:0;z-index:200;background:rgba(10,12,20,0.97);backdrop-filter:blur(20px);border-bottom:1px solid #d4af6a1f;padding:14px 16px 0}
+
+/* ANNOUNCEMENT BAR */
+#announceBar{display:none;position:sticky;top:0;z-index:201;background:linear-gradient(90deg,#7a5f1a,#9a7a28,#7a5f1a);overflow:hidden;white-space:nowrap;padding:8px 0}
+#announceBar.show{display:block}
+#announceTrack{display:inline-block;padding-left:100%;animation:scrollText 16s linear infinite}
+#announceTrack span{color:#fff4d6;font-size:12.5px;font-weight:700;letter-spacing:.02em}
+@keyframes scrollText{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+#announceClose{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.25);border:none;border-radius:50%;width:20px;height:20px;color:#fff4d6;font-size:11px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:202}
 .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:8px}
 .logo{display:flex;align-items:center;gap:11px}
 .logo-icon{width:40px;height:40px;background:linear-gradient(135deg,#e8c97a,#a87f2e 65%,#7a5f28);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 4px 20px #d4af6a4a,inset 0 1px 0 #ffffff33;flex-shrink:0}
@@ -300,6 +308,10 @@ to{opacity:1;transform:scale(1);}
   <div class="splash-bar"></div>
 </div>
 
+<div id="announceBar">
+  <button id="announceClose" onclick="closeAnnounce()">✕</button>
+  <div id="announceTrack"><span id="announceText"></span></div>
+</div>
 <div id="header">
   <div class="header-top">
     <div class="logo">
@@ -362,7 +374,7 @@ to{opacity:1;transform:scale(1);}
     <div id="brandBar"></div>
 
     <!-- Toolbar -->
-    <div class="toolbar">
+    <div class="toolbar hide" id="toolbarWrap">
       <button class="tbtn" onclick="openCodeModal()">💾 Data Code</button>
     </div>
 
@@ -389,6 +401,7 @@ to{opacity:1;transform:scale(1);}
   <div class="menu-head">Menu</div>
   <button class="menu-item" onclick="shareApp()"><span class="menu-ic">📤</span> Share App</button>
   <button class="menu-item" onclick="openFeedback()"><span class="menu-ic">💬</span> Send Feedback</button>
+  <button class="menu-item hide" id="menuAnnounceBtn" onclick="openAnnounceEditor()"><span class="menu-ic">📢</span> Edit Announcement</button>
   <div class="menu-sep"></div>
   <button class="menu-item" onclick="closeMenu()"><span class="menu-ic">✕</span> Close</button>
 </div>
@@ -596,8 +609,10 @@ function renderCards(){
 function renderAddBtn(){
   var btn=document.getElementById('addBtn');
   var fab=document.getElementById('floatingAdd');
-  if(S.isAdmin){btn.classList.remove('hide');fab.classList.add('show');}
-  else{btn.classList.add('hide');fab.classList.remove('show');}
+  var tb=document.getElementById('toolbarWrap');
+  var ann=document.getElementById('menuAnnounceBtn');
+  if(S.isAdmin){btn.classList.remove('hide');fab.classList.add('show');tb.classList.remove('hide');ann.classList.remove('hide');}
+  else{btn.classList.add('hide');fab.classList.remove('show');tb.classList.add('hide');ann.classList.add('hide');}
 }
 
 // ── CONTROLS ──────────────────────────────────────────────────────────────
@@ -737,6 +752,7 @@ function importCode(){
 function openModal(html){document.getElementById('modalBox').innerHTML=html;document.getElementById('modalBg').classList.add('show');}
 
 // ── SIDE MENU ─────────────────────────────────────────────────────────────
+// ── SIDE MENU ─────────────────────────────────────────────────────────────
 function openMenu(){
   document.getElementById('menuOverlay').classList.add('show');
   document.getElementById('menuPanel').classList.add('show');
@@ -744,6 +760,34 @@ function openMenu(){
 function closeMenu(){
   document.getElementById('menuOverlay').classList.remove('show');
   document.getElementById('menuPanel').classList.remove('show');
+}
+
+function closeAnnounce(){
+  document.getElementById('announceBar').classList.remove('show');
+}
+
+function openAnnounceEditor(){
+  closeMenu();
+  if(!db){showToast('❌ Connection nahi hai',true);return;}
+  db.collection('meta').doc('announcement').get().then(function(snap){
+    var cur=snap.exists?snap.data():{text:'',active:false};
+    openModal('<div class="mhead"><span class="mtitle">📢 Announcement Bar</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+      '<div class="fgrp"><label class="flbl">Message</label>'+
+      '<textarea class="finp" id="annText" rows="3" placeholder="Jaise: Naya video aaya hai, channel subscribe karo!">'+(cur.text?escHtml(cur.text):'')+'</textarea></div>'+
+      '<div class="fgrp" style="display:flex;align-items:center;gap:10px">'+
+      '<input type="checkbox" id="annActive" '+(cur.active?'checked':'')+' style="width:18px;height:18px"/>'+
+      '<label style="color:#cdd6f0;font-size:13px;font-weight:600">Bar dikhana hai (ON)</label></div>'+
+      '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
+      '<button class="bsave" onclick="saveAnnounce()">Save</button></div>');
+  });
+}
+
+function saveAnnounce(){
+  var text=document.getElementById('annText').value.trim();
+  var active=document.getElementById('annActive').checked;
+  db.collection('meta').doc('announcement').set({text:text,active:active}).then(function(){
+    closeModal();showToast('✅ Announcement updated!');
+  }).catch(function(e){showToast('❌ '+e.message,true);});
 }
 
 function shareApp(){
@@ -825,6 +869,16 @@ db.collection('display_glasses').onSnapshot(function(snap){
 db.collection('meta').doc('log').onSnapshot(function(snap){
   if(snap.exists)S.log=snap.data().entries||[];
   renderRecent();renderStats();
+});
+
+db.collection('meta').doc('announcement').onSnapshot(function(snap){
+  var bar=document.getElementById('announceBar');
+  if(snap.exists && snap.data().text && snap.data().active){
+    document.getElementById('announceText').textContent=snap.data().text;
+    bar.classList.add('show');
+  } else {
+    bar.classList.remove('show');
+  }
 });
 
 // Hard fallback — never let splash hang forever
