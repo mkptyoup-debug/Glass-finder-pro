@@ -293,6 +293,7 @@ button{cursor:pointer}
     <div id="brandBar"></div>
     <div class="toolbar hide" id="toolbarWrap">
       <button class="tbtn" onclick="openCodeModal()">💾 Data Code</button>
+      <button class="tbtn" onclick="openFeedbackViewer()" style="color:#d4af6a;border-color:#d4af6a44">💬 Feedbacks</button>
     </div>
     <div id="cardList"></div>
     <button id="addBtn" class="hide" onclick="openAddModal()">＋ Add New Glass</button>
@@ -568,6 +569,28 @@ function importCode(){
     setSyncDot('syncing');var done=0,total=data.length;if(!total){showToast('❌ Data empty',true);return;}
     data.forEach(function(g){db.collection(COLLECTIONS[S.tab]).doc(g.id||uid()).set({glassName:g.glassName,models:g.models}).then(function(){done++;if(done===total){setSyncDot('ok');showToast('✅ Imported!');closeModal();}});});
   }catch(e){showToast('❌ '+e.message,true);}
+}
+
+function openFeedbackViewer(){
+  if(!db){showToast('❌ Connection nahi hai',true);return;}
+  openModal('<div class="mhead"><span class="mtitle">💬 User Feedbacks</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div id="fbList" style="max-height:60vh;overflow-y:auto"><div style="text-align:center;padding:20px;color:#454d68">Loading...</div></div>');
+  db.collection('feedback').orderBy('date','desc').limit(50).get().then(function(snap){
+    if(snap.empty){
+      document.getElementById('fbList').innerHTML='<div style="text-align:center;padding:30px;color:#454d68">Abhi tak koi feedback nahi aaya</div>';
+      return;
+    }
+    document.getElementById('fbList').innerHTML=snap.docs.map(function(d){
+      var data=d.data();
+      var date=data.date?new Date(data.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+      return '<div style="background:#0d0f18;border:1px solid #1d2336;border-radius:12px;padding:14px;margin-bottom:10px">'+
+        '<div style="font-size:11px;color:#d4af6a;margin-bottom:6px;font-weight:700">'+date+' · '+escHtml(data.tab||'')+'</div>'+
+        '<div style="font-size:13px;color:#cdd6f0;line-height:1.6">'+escHtml(data.text||'')+'</div>'+
+        '</div>';
+    }).join('');
+  }).catch(function(e){
+    document.getElementById('fbList').innerHTML='<div style="text-align:center;padding:20px;color:#e8718e">❌ '+e.message+'</div>';
+  });
 }
 
 function openModal(html){document.getElementById('modalBox').innerHTML=html;document.getElementById('modalBg').classList.add('show');}
