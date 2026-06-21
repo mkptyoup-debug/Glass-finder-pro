@@ -1,3 +1,5 @@
+const CACHE_VERSION = '2.0';
+
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
@@ -10,7 +12,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(fetch(event.request));
 });
 
-// ── FIREBASE CLOUD MESSAGING (background notifications) ────────────────
+// —— FIREBASE CLOUD MESSAGING (background notifications) ————————————————
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
 
