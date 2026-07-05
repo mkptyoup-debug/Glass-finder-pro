@@ -11,13 +11,10 @@
 <meta name="geo.region" content="IN">
 <meta name="geo.placename" content="India">
 <link rel="canonical" href="https://universalcombo.netlify.app/">
-
-<!-- Open Graph (WhatsApp/Facebook share preview) -->
 <meta property="og:title" content="Universal Combo - Mobile Screen Guard Model Finder">
 <meta property="og:description" content="Apne phone model ke liye sahi tempered glass turant dhundo. Flat Glass, UV Curved, Display - sab ek jagah.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_IN">
-
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#d4af6a">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -41,56 +38,20 @@ input,textarea,button{font-family:inherit}
 button{cursor:pointer}
 .hide{display:none!important}
 
-/* ============ SPLASH SCREEN ============ */
-#splash{
-position:fixed;inset:0;z-index:9999;
-background:
-radial-gradient(circle at 30% 20%,#d4af6a22,transparent 45%),
-radial-gradient(circle at 80% 80%,#2a4a7022,transparent 45%),
-#08090f;
-display:flex;flex-direction:column;align-items:center;justify-content:center;
-transition:opacity .6s ease,visibility .6s ease;
-}
+/* SPLASH */
+#splash{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 30% 20%,#d4af6a22,transparent 45%),radial-gradient(circle at 80% 80%,#2a4a7022,transparent 45%),#08090f;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s ease,visibility .6s ease;}
 #splash.fade-out{opacity:0;visibility:hidden;pointer-events:none}
-.splash-shield{
-width:92px;height:92px;border-radius:26px;
-background:linear-gradient(145deg,#e8c97a,#a87f2e 60%,#7a5f28);
-display:flex;align-items:center;justify-content:center;
-font-size:44px;
-box-shadow:0 0 0 1px #d4af6a33,0 8px 40px #d4af6a44,0 0 80px #d4af6a22;
-animation:splashPop .7s cubic-bezier(.34,1.56,.64,1) both;
-}
-.splash-title{
-margin-top:22px;font-size:24px;font-weight:800;letter-spacing:-.4px;
-background:linear-gradient(90deg,#f3e1ab,#d4af6a 55%,#a87f2e);
--webkit-background-clip:text;-webkit-text-fill-color:transparent;
-animation:splashRise .6s ease .15s both;
-opacity:0;
-}
-.splash-tag{
-margin-top:9px;font-size:13.5px;color:#9aa6c4;font-weight:500;letter-spacing:.02em;
-animation:splashRise .6s ease .32s both;
-opacity:0;
-}
-.splash-bar{
-margin-top:30px;width:140px;height:3px;border-radius:3px;
-background:#1a1f30;overflow:hidden;position:relative;
-animation:splashRise .6s ease .45s both;
-opacity:0;
-}
-.splash-bar::after{
-content:'';position:absolute;inset:0;width:40%;border-radius:3px;
-background:linear-gradient(90deg,transparent,#d4af6a,#f3e1ab,#d4af6a,transparent);
-animation:barSlide 1.3s ease-in-out infinite;
-}
+.splash-shield{width:92px;height:92px;border-radius:26px;background:linear-gradient(145deg,#e8c97a,#a87f2e 60%,#7a5f28);display:flex;align-items:center;justify-content:center;font-size:44px;box-shadow:0 0 0 1px #d4af6a33,0 8px 40px #d4af6a44,0 0 80px #d4af6a22;animation:splashPop .7s cubic-bezier(.34,1.56,.64,1) both;}
+.splash-title{margin-top:22px;font-size:24px;font-weight:800;letter-spacing:-.4px;background:linear-gradient(90deg,#f3e1ab,#d4af6a 55%,#a87f2e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:splashRise .6s ease .15s both;opacity:0;}
+.splash-tag{margin-top:9px;font-size:13.5px;color:#9aa6c4;font-weight:500;letter-spacing:.02em;animation:splashRise .6s ease .32s both;opacity:0;}
+.splash-bar{margin-top:30px;width:140px;height:3px;border-radius:3px;background:#1a1f30;overflow:hidden;position:relative;animation:splashRise .6s ease .45s both;opacity:0;}
+.splash-bar::after{content:'';position:absolute;inset:0;width:40%;border-radius:3px;background:linear-gradient(90deg,transparent,#d4af6a,#f3e1ab,#d4af6a,transparent);animation:barSlide 1.3s ease-in-out infinite;}
 @keyframes splashPop{from{opacity:0;transform:scale(.6) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes splashRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes barSlide{0%{left:-40%}100%{left:100%}}
 
 /* HEADER */
 #header{position:sticky;top:0;z-index:200;background:rgba(10,12,20,0.97);backdrop-filter:blur(20px);border-bottom:1px solid #d4af6a1f;padding:14px 16px 0}
-
-/* ANNOUNCEMENT BAR */
 #announceBar{display:none;position:sticky;top:0;z-index:201;background:linear-gradient(90deg,#7a5f1a,#9a7a28,#7a5f1a);overflow:hidden;white-space:nowrap;padding:8px 0}
 #announceBar.show{display:block}
 #announceTrack{display:inline-block;padding-left:100%;animation:scrollText 16s linear infinite}
@@ -109,13 +70,11 @@ animation:barSlide 1.3s ease-in-out infinite;
 #adminBtn{display:flex;align-items:center;gap:6px;padding:9px 15px;border-radius:10px;font-size:12px;font-weight:700;border:1px solid #232a3d;background:#10141f;color:#6a7390;transition:all .25s}
 #adminBtn:active{transform:scale(.95)}
 #adminBtn.on{background:#d4af6a17;border-color:#d4af6a8a;color:#e8c97a;box-shadow:0 0 16px #d4af6a26}
-
-/* HEADER ACTIONS WRAP */
 .header-actions{display:flex;align-items:center;gap:8px}
 #menuBtn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1px solid #232a3d;background:#10141f;color:#9aa6c4;font-size:17px;transition:transform .15s}
 #menuBtn:active{transform:scale(.92)}
 
-/* SIDE MENU PANEL */
+/* SIDE MENU */
 #menuOverlay{display:none;position:fixed;inset:0;background:rgba(4,5,10,.7);backdrop-filter:blur(4px);z-index:2500}
 #menuOverlay.show{display:block;animation:popIn .25s ease}
 #menuPanel{position:fixed;top:0;right:0;height:100%;width:78%;max-width:300px;background:linear-gradient(165deg,#11141f,#0a0c14);border-left:1px solid #d4af6a26;z-index:2600;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);padding:24px 18px;overflow-y:auto}
@@ -179,6 +138,23 @@ animation:barSlide 1.3s ease-in-out infinite;
 .pf-part-val{font-size:13px;color:#cdd6f0;font-weight:600}
 .pf-part-val.empty{color:#333a52;font-style:italic;font-weight:400}
 
+/* PARTS FINDER — NEW STYLES */
+.field-select-wrap{margin-bottom:18px;padding:14px;background:#0d0f18;border:1px solid #1d2336;border-radius:13px}
+.field-select-title{font-size:11px;font-weight:800;color:#4ab0e8;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.field-checkboxes{display:flex;flex-wrap:wrap;gap:8px}
+.fcheck{display:flex;align-items:center;gap:7px;padding:8px 13px;background:#13161f;border:1px solid #1d2336;border-radius:8px;cursor:pointer;transition:all .2s;user-select:none}
+.fcheck input{width:15px;height:15px;accent-color:#4ab0e8;cursor:pointer;flex-shrink:0}
+.fcheck span{font-size:13px;font-weight:600;color:#7e88a6}
+.fcheck.selected{background:#4ab0e812;border-color:#4ab0e855}
+.fcheck.selected span{color:#7cc8f0}
+.battery-models-inp{width:100%;background:#080a12;border:1px solid #1d2336;border-radius:11px;color:#eaf0ff;font-size:14px;padding:13px 14px;outline:none;transition:border .2s;resize:none;height:90px;font-family:inherit}
+.battery-models-inp:focus{border-color:#4ab0e855;box-shadow:0 0 0 3px #4ab0e814}
+.pf-battery-section{margin-top:10px;padding:11px 13px;background:#4ab0e808;border:1px solid #4ab0e826;border-radius:10px}
+.pf-battery-label{font-size:10px;color:#4ab0e8;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.pf-battery-model{font-size:15px;font-weight:800;color:#7cc8f0;margin-bottom:7px}
+.pf-battery-phones{display:flex;flex-wrap:wrap;gap:5px}
+.pf-battery-tag{background:#4ab0e812;border:1px solid #4ab0e840;border-radius:6px;padding:3px 9px;font-size:11px;color:#7cc8f0}
+
 /* RECENT */
 #recentBox{background:linear-gradient(150deg,#11141f 0%,#161b2a 100%);border:1px solid #d4af6a26;border-radius:14px;padding:16px;margin-bottom:18px;position:relative;overflow:hidden}
 #recentBox::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#d4af6a55,transparent)}
@@ -186,7 +162,7 @@ animation:barSlide 1.3s ease-in-out infinite;
 .ritem{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .rdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 
-/* SEARCH — HERO ELEMENT */
+/* SEARCH */
 #searchWrap{margin-bottom:14px;position:relative}
 #searchBox{display:flex;align-items:center;background:linear-gradient(150deg,#0d0f18,#11141f);border:1.5px solid #d4af6a55;border-radius:16px;padding:0 6px 0 18px;gap:12px;box-shadow:0 4px 30px #d4af6a14;transition:box-shadow .3s,border-color .3s,transform .2s}
 #searchBox.focused{box-shadow:0 4px 40px #d4af6a33,0 0 0 3px #d4af6a1a;border-color:#d4af6a;transform:scale(1.01)}
@@ -196,24 +172,18 @@ animation:barSlide 1.3s ease-in-out infinite;
 #searchBtn{padding:10px 18px;background:linear-gradient(135deg,#e8c97a,#a87f2e);border:none;border-radius:11px;color:#1a1305;font-size:13px;font-weight:800;margin:5px 0;letter-spacing:.04em;flex-shrink:0;transition:transform .15s}
 #searchBtn:active{transform:scale(.94)}
 
-/* SEARCH RESULT BANNER */
+/* RESULT BANNER */
 #resultBanner{display:none;margin-bottom:14px;padding:14px 16px;border-radius:14px;border:1px solid;position:relative;overflow:hidden;animation:fadeUp .35s ease}
 #resultBanner.found{background:linear-gradient(135deg,#0c1c10,#08140c);border-color:#2f7a4044}
 #resultBanner.notfound{background:linear-gradient(135deg,#1c0c10,#15080a);border-color:#7a2f4044}
 #resultBanner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,currentColor,transparent);opacity:.3}
 .rb-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .rb-label{font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px}
-.rb-count{font-size:11px;font-weight:600;opacity:.7}
 #resultClear{background:none;border:1px solid currentColor;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;opacity:.7;transition:transform .15s}
 #resultClear:active{transform:scale(.92)}
 .rb-query{font-size:12px;opacity:.6}
 
-/* BRAND BAR */
-#brandBar{display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;margin-bottom:16px;scrollbar-width:none}
-#brandBar::-webkit-scrollbar{display:none}
-.bbtn{flex-shrink:0;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;border:1px solid #1d2336;background:#0d0f18;color:#525c7c;white-space:nowrap;transition:all .2s}
-.bbtn:active{transform:scale(.92)}
-.bbtn.on{background:linear-gradient(135deg,#e8c97a,#a87f2e);border-color:#d4af6a;color:#1a1305;box-shadow:0 2px 14px #d4af6a4a}
+
 
 /* TOOLBAR */
 .toolbar{display:flex;gap:8px;margin-bottom:16px;justify-content:flex-end}
@@ -221,36 +191,18 @@ animation:barSlide 1.3s ease-in-out infinite;
 .tbtn:active{transform:scale(.94)}
 
 /* CARDS */
-#cardList{
-display:flex;
-flex-direction:column;
-gap:14px;
-}
-
-.card{transition:transform .25s,box-shadow .25s;
-background:linear-gradient(155deg,rgba(255,255,255,.045),rgba(255,255,255,.02));
-backdrop-filter:blur(20px);
-border:1px solid rgba(255,255,255,.085);
-border-radius:22px;
-overflow:hidden;
-box-shadow:0 10px 30px rgba(0,0,0,.3);
-opacity:0;
-animation:fadeUp .45s ease forwards;
-}
+#cardList{display:flex;flex-direction:column;gap:14px;}
+.card{transition:transform .25s,box-shadow .25s;background:linear-gradient(155deg,rgba(255,255,255,.045),rgba(255,255,255,.02));backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.085);border-radius:22px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;animation:fadeUp .45s ease forwards;}
 .card-accent{height:3px;background:linear-gradient(90deg,#d4af6a,#a87f2e,transparent)}
 .card-inner{padding:16px}
 .card.match-card{border-color:#d4af6a3d;box-shadow:0 4px 24px #d4af6a14}
 .card.match-card .card-accent{background:linear-gradient(90deg,#d4af6a,#f3e1ab,#d4af6a)}
-
 .card:active{transform:scale(.985)}
-
-/* Match highlight section */
 .match-section{background:#d4af6a0e;border:1px solid #d4af6a26;border-radius:10px;padding:12px;margin-bottom:12px}
 .match-section-title{font-size:10px;color:#d4af6a;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:5px}
 .match-tags{display:flex;flex-wrap:wrap;gap:6px}
 .match-tag{background:#d4af6a26;border:1px solid #d4af6a5e;border-radius:7px;padding:5px 11px;font-size:12px;font-weight:700;color:#eed5a0}
 .mhl{background:#d4af6a;color:#1a1305;border-radius:3px;padding:0 3px;font-weight:800}
-
 .cname{font-weight:800;font-size:15px;color:#f0f4ff;margin-bottom:6px;line-height:1.3}
 .cbadges{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
 .bg{background:#d4af6a17;border:1px solid #d4af6a3d;border-radius:6px;padding:3px 10px;color:#d4af6a;font-size:11px;font-weight:700}
@@ -258,34 +210,27 @@ animation:fadeUp .45s ease forwards;
 .cadmin{display:flex;gap:6px;flex-shrink:0;margin-left:8px}
 .ibtn{background:#0d0f18;border:1px solid #1d2336;border-radius:8px;padding:8px 10px;font-size:13px;transition:transform .15s}
 .ibtn:active{transform:scale(.9)}
-
-/* All models grid */
 .all-models{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
 .mtag{background:#0d0f18;border:1px solid #1d2336;border-radius:6px;padding:4px 9px;font-size:11px;color:#525c7c;transition:all .2s}
-
-/* Card buttons */
 .cbtns{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #1d2336}
 .cbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;background:#0d0f18;border:1px solid #1d2336;border-radius:10px;color:#7e88a6;font-size:12px;font-weight:600;transition:all .2s}
 .cbtn:active{transform:scale(.95)}
 .cbtn.gold{border-color:#d4af6a4a;color:#d4af6a;background:#d4af6a0a}
-.cbtn.copied{background:#d4af6a1f;border-color:#d4af6a8a;color:#d4af6a}
 
-/* Floating add */
+/* FAB */
 #floatingAdd{display:none;position:fixed;bottom:28px;right:20px;width:56px;height:56px;background:linear-gradient(135deg,#e8c97a,#a87f2e);border:none;border-radius:50%;font-size:26px;color:#1a1305;box-shadow:0 6px 24px #d4af6a6e;z-index:500;align-items:center;justify-content:center;font-weight:300;line-height:1;transition:transform .2s}
 #floatingAdd.show{display:flex}
 #floatingAdd:active{transform:scale(.9)}
-
-/* Add btn */
 #addBtn{width:100%;margin-top:14px;padding:14px;background:linear-gradient(135deg,#d4af6a14,#d4af6a08);border:1px dashed #d4af6a4a;border-radius:13px;color:#d4af6a;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s}
 #addBtn:active{transform:scale(.97)}
 
-/* Empty */
+/* EMPTY */
 .empty{text-align:center;padding:48px 16px;border:1px dashed #1d2336;border-radius:16px;animation:fadeUp .4s ease}
 .empty-ico{font-size:40px;margin-bottom:12px}
 .empty-t{font-weight:700;color:#525c7c;margin-bottom:5px;font-size:15px}
 .empty-s{font-size:13px;color:#333a52}
 
-/* Modal */
+/* MODAL */
 #modalBg{display:none;position:fixed;inset:0;background:rgba(4,5,10,.88);backdrop-filter:blur(8px);z-index:2000;align-items:center;justify-content:center;padding:16px}
 #modalBg.show{display:flex}
 .modal{background:linear-gradient(155deg,#141926,#0b0e17);border:1px solid #d4af6a4a;border-radius:20px;width:100%;max-width:520px;padding:26px;box-shadow:0 0 60px #d4af6a1f,0 24px 60px rgba(0,0,0,.85);max-height:90vh;overflow-y:auto}
@@ -306,32 +251,25 @@ animation:fadeUp .45s ease forwards;
 .bdel{flex:1;padding:13px;background:#220a12;border:1px solid #e8718e44;border-radius:11px;color:#e8718e;font-size:14px;font-weight:700;transition:transform .15s}
 .bdel:active{transform:scale(.96)}
 
-/* Toast */
+/* TOAST */
 #toast{display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#0f2412,#0a160c);border:1px solid #2f7a40;border-radius:12px;padding:12px 20px;color:#7adf63;font-size:14px;font-weight:600;z-index:3000;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.6)}
 #toast.show{display:block;animation:popIn .3s ease}
 #toast.err{background:linear-gradient(135deg,#220a0e,#150608);border-color:#7a2a35;color:#e8718e}
 
-/* Loading (inline, fallback) */
+/* LOADING */
 #loading{text-align:center;padding:60px 16px;color:#454d68}
 .spin{width:26px;height:26px;border:2px solid #1d2336;border-top-color:#d4af6a;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fadeUp{
-from{opacity:0;transform:translateY(16px);}
-to{opacity:1;transform:translateY(0);}
-}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes popIn{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:scale(1);}}
 
-@keyframes popIn{
-from{opacity:0;transform:scale(.9);}
-to{opacity:1;transform:scale(1);}
-}
-
-/* Install button */
+/* INSTALL BTN */
 #installBtn{position:fixed;bottom:20px;right:20px;padding:12px 20px;background:linear-gradient(135deg,#e8c97a,#a87f2e);color:#1a1305;border:none;border-radius:10px;font-weight:bold;display:none;z-index:9999;box-shadow:0 6px 20px #d4af6a4a}
 </style>
 </head>
 <body>
 
-<!-- SPLASH SCREEN -->
+<!-- SPLASH -->
 <div id="splash">
   <div class="splash-shield">🛡️</div>
   <div class="splash-title">Universal Combo</div>
@@ -343,6 +281,7 @@ to{opacity:1;transform:scale(1);}
   <button id="announceClose" onclick="closeAnnounce()">✕</button>
   <div id="announceTrack"><span id="announceText"></span></div>
 </div>
+
 <div id="header">
   <div class="header-top">
     <div class="logo">
@@ -368,7 +307,6 @@ to{opacity:1;transform:scale(1);}
   <div id="loading" class="hide"><div class="spin"></div>Connecting...</div>
   <div id="mainContent" class="hide">
 
-    <!-- Stats -->
     <div class="stats">
       <div class="stat"><div class="stat-ico">🛡️</div><div class="stat-val" id="s1">0</div><div class="stat-lbl">Glass Groups</div></div>
       <div class="stat"><div class="stat-ico">📱</div><div class="stat-val" id="s2">0</div><div class="stat-lbl">Total Models</div></div>
@@ -376,23 +314,20 @@ to{opacity:1;transform:scale(1);}
       <div class="stat"><div class="stat-ico">🕐</div><div class="stat-val sm" id="s4">—</div><div class="stat-lbl">Last Updated</div></div>
     </div>
 
-    <!-- Recent -->
     <div id="recentBox" class="hide">
       <div class="rtitle">⚡ Recent Updates</div>
       <div id="recentList"></div>
     </div>
 
-    <!-- Parts Finder Entry Button -->
     <button id="partsFinderBtn" onclick="openPartsScreen()">
       <div class="pf-icon">🔧</div>
       <div>
         <div class="pf-title">Parts Finder</div>
-        <div class="pf-sub">Glass, Display, Frame, Back Door, CC Board, Back Cover</div>
+        <div class="pf-sub">Display, Frame, Back Door, CC Board, Battery & More</div>
       </div>
       <span class="pf-arrow">›</span>
     </button>
 
-    <!-- SEARCH -->
     <div id="searchWrap">
       <div id="searchBox">
         <span style="color:#d4af6a;font-size:18px;opacity:.9">🔍</span>
@@ -402,7 +337,6 @@ to{opacity:1;transform:scale(1);}
       </div>
     </div>
 
-    <!-- Result Banner -->
     <div id="resultBanner">
       <div class="rb-top">
         <span class="rb-label" id="rbLabel"></span>
@@ -411,29 +345,22 @@ to{opacity:1;transform:scale(1);}
       <div class="rb-query" id="rbQuery"></div>
     </div>
 
-    <!-- Brand Filter -->
-    <div id="brandBar"></div>
 
-    <!-- Toolbar -->
+
     <div class="toolbar hide" id="toolbarWrap">
       <button class="tbtn" onclick="openCodeModal()">💾 Data Code</button>
     </div>
 
-    <!-- Cards -->
     <div id="cardList"></div>
-
-    <!-- Add btn (admin) -->
     <button id="addBtn" class="hide" onclick="openAddModal()">＋ Add New Glass</button>
   </div>
 </div>
 
-<!-- SEO About Section -->
 <div id="aboutSeo" style="max-width:680px;margin:0 auto;padding:8px 16px 24px;color:#454d68;font-size:12px;line-height:1.7">
   <h2 style="font-size:13px;color:#6a7390;font-weight:700;margin-bottom:8px">Universal Combo - Mobile Tempered Glass Model Finder</h2>
-  <p>Universal Combo dukaandaron aur mobile accessories dealers ke liye ek free tool hai jo turant batata hai kis phone model ke liye kaunsa tempered glass ya screen guard compatible hai. Flat Glass, UV Curved Glass, aur Display ke alag-alag categories mein Samsung, Vivo, Oppo, Realme, Redmi, OnePlus jaise sabhi major brands ke universal combo glass groups maujood hain. Model number search karke turant pata karo - kaunsa glass kis phone ke saath fit hota hai.</p>
+  <p>Universal Combo dukaandaron aur mobile accessories dealers ke liye ek free tool hai jo turant batata hai kis phone model ke liye kaunsa tempered glass ya screen guard compatible hai.</p>
 </div>
 
-<!-- Floating Add -->
 <button id="floatingAdd" onclick="openAddModal()">＋</button>
 
 <!-- SIDE MENU -->
@@ -457,7 +384,7 @@ to{opacity:1;transform:scale(1);}
   <div class="pf-body">
     <div id="partsSearchBox">
       <span style="color:#4ab0e8;font-size:18px;opacity:.9">🔍</span>
-      <input id="partsSearchInput" placeholder="Phone model search karo... Realme 6i" oninput="onPartsSearch()"/>
+      <input id="partsSearchInput" placeholder="Phone model search karo... Vivo Y21" oninput="onPartsSearch()"/>
       <button id="partsSearchBtn" onclick="onPartsSearch()">Search</button>
     </div>
     <button id="partsAddBtn" class="hide" onclick="openPartsAddModal()">＋ Add New Model Parts</button>
@@ -465,7 +392,6 @@ to{opacity:1;transform:scale(1);}
   </div>
 </div>
 
-<!-- Modal -->
 <div id="modalBg" onclick="if(event.target===this)closeModal()">
   <div class="modal" id="modalBox"></div>
 </div>
@@ -473,19 +399,25 @@ to{opacity:1;transform:scale(1);}
 <button id="installBtn">📲 Install App</button>
 
 <script>
-var S={tab:'flat',flat:[],uv:[],display:[],log:[],isAdmin:false,query:'',brand:'All',editId:null};
-var PF={items:[],query:'',editId:null};
-var BRANDS=['All','Samsung','Vivo','Oppo','Realme','Redmi','Poco','iPhone','OnePlus'];
+var S={tab:'flat',flat:[],uv:[],display:[],log:[],isAdmin:false,query:'',editId:null};
+var PF={items:[],query:'',editId:null,loaded:false};
+
 var PASS='admin123';
 var toastTimer=null;
 var db=null;
 var splashDone=false;
 var dataLoaded=false;
-
-// Map each tab to its Firestore collection name
 var COLLECTIONS={flat:'flat_glasses',uv:'uv_glasses',display:'display_glasses'};
 
-// ── SPLASH SCREEN HANDLING ──────────────────────────────────────────────
+// UPDATED: Glass REMOVED, Battery ADDED
+var PART_FIELDS=[
+  {key:'display',label:'Display',icon:'🖥️'},
+  {key:'frame',label:'Frame',icon:'⬜'},
+  {key:'backdoor',label:'Back Door',icon:'🚪'},
+  {key:'ccboard',label:'CC Board',icon:'🔌'},
+  {key:'backcover',label:'Back Cover',icon:'📱'}
+];
+
 function hideSplash(){
   if(splashDone)return;
   splashDone=true;
@@ -493,14 +425,12 @@ function hideSplash(){
   sp.classList.add('fade-out');
   setTimeout(function(){sp.style.display='none';},650);
 }
-// Minimum splash display time so it doesn't flash too fast, but never blocks longer than needed
-var splashMinTimer=setTimeout(function(){if(dataLoaded)hideSplash();},900);
+setTimeout(function(){if(dataLoaded)hideSplash();},900);
 
 function setSyncDot(st){document.getElementById('syncDot').className=st;}
 function uid(){return Math.random().toString(36).slice(2,9);}
 function getList(){return S[S.tab];}
 
-// Split models — supports array, comma, or slash separated
 function parseModels(models){
   if(!models)return[];
   var arr=Array.isArray(models)?models:[models];
@@ -522,7 +452,7 @@ function hlText(text,q){
   }
   return result;
 }
-function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function showToast(msg,err){
   var t=document.getElementById('toast');
@@ -530,8 +460,7 @@ function showToast(msg,err){
   clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.className='';},2800);
 }
 
-// ── RENDER ────────────────────────────────────────────────────────────────
-function render(){renderStats();renderBrands();renderCards();renderAddBtn();}
+function render(){renderStats();renderCards();renderAddBtn();}
 
 function renderStats(){
   var all=S.flat.concat(S.uv,S.display);
@@ -552,24 +481,15 @@ function renderRecent(){
   }).join('');
 }
 
-function renderBrands(){
-  document.getElementById('brandBar').innerHTML=BRANDS.map(function(b){
-    return '<button class="bbtn'+(S.brand===b?' on':'')+'" onclick="setBrand(\''+b+'\')">'+b+'</button>';
-  }).join('');
-}
+
 
 function getFiltered(){
   var list=getList().slice();
-  if(S.brand!=='All'){
-    var br=S.brand.toUpperCase();
-    list=list.filter(function(g){return parseModels(g.models).some(function(m){return m.toUpperCase().indexOf(br)>=0;});});
-  }
   var q=S.query.trim().toUpperCase();
   if(q){
     list=list.filter(function(g){
       return g.glassName.toUpperCase().indexOf(q)>=0||parseModels(g.models).some(function(m){return m.toUpperCase().indexOf(q)>=0;});
     });
-    // Sort: exact model match first, then starts-with, then contains
     list.sort(function(a,b){
       function score(g){
         var ms=parseModels(g.models);
@@ -588,12 +508,10 @@ function renderCards(){
   var list=getFiltered();
   var q=S.query.trim().toUpperCase();
   var el=document.getElementById('cardList');
-
-  // Result banner
   var banner=document.getElementById('resultBanner');
   var rbLabel=document.getElementById('rbLabel');
   var rbQuery=document.getElementById('rbQuery');
-  if(q||S.brand!=='All'){
+  if(q){
     banner.style.display='block';
     if(list.length>0){
       banner.className='found';
@@ -604,15 +522,11 @@ function renderCards(){
       rbLabel.style.color='#e8718e';
       rbLabel.innerHTML='❌ Koi match nahi mila';
     }
-    var parts=[];
-    if(q)parts.push('Model: <strong style="color:#eed5a0">'+escHtml(S.query.trim())+'</strong>');
-    if(S.brand!=='All')parts.push('Brand: <strong style="color:#eed5a0">'+S.brand+'</strong>');
-    rbQuery.innerHTML=parts.join(' &nbsp;·&nbsp; ');
+    rbQuery.innerHTML='Model: <strong style="color:#eed5a0">'+escHtml(S.query.trim())+'</strong>';
     document.getElementById('resultClear').style.color=list.length>0?'#7adf63':'#e8718e';
   } else {
     banner.style.display='none';
   }
-
   if(!list.length){
     var ae=!getList().length;
     el.innerHTML='<div class="empty"><div class="empty-ico">'+(ae?'📦':'🔍')+'</div>'+
@@ -620,13 +534,11 @@ function renderCards(){
       '<p class="empty-s">'+(ae&&S.isAdmin?'Neeche + button dabao glass add karne ke liye':'Alag model ya brand try karo')+'</p></div>';
     return;
   }
-
   el.innerHTML=list.map(function(g,idx){
     var mlist=parseModels(g.models);
     var isMatch=q&&mlist.some(function(m){return m.toUpperCase().indexOf(q)>=0;});
     var matchedModels=q?mlist.filter(function(m){return m.toUpperCase().indexOf(q)>=0;}):[];
     var otherModels=q?mlist.filter(function(m){return m.toUpperCase().indexOf(q)<0;}):mlist;
-
     var matchSection='';
     if(matchedModels.length>0){
       matchSection='<div class="match-section">'+
@@ -635,18 +547,14 @@ function renderCards(){
         matchedModels.map(function(m){return '<span class="match-tag">'+hlText(m,S.query.trim())+'</span>';}).join('')+
         '</div></div>';
     }
-
     var otherTags='';
     if(otherModels.length>0){
       otherTags='<div class="all-models">'+
         otherModels.map(function(m){return '<span class="mtag">'+escHtml(m)+'</span>';}).join('')+
         '</div>';
     }
-
     var adm=S.isAdmin?'<div class="cadmin"><button class="ibtn" onclick="openEditModal(\''+g.id+'\')">✏️</button><button class="ibtn" onclick="confirmDelete(\''+g.id+'\')">🗑️</button></div>':'';
-
     var delay=Math.min(idx*0.05,0.4);
-
     return '<div class="card'+(isMatch?' match-card':'')+'" style="animation-delay:'+delay+'s">'+
       '<div class="card-accent"></div>'+
       '<div class="card-inner">'+
@@ -675,9 +583,8 @@ function renderAddBtn(){
   else{btn.classList.add('hide');fab.classList.remove('show');tb.classList.add('hide');ann.classList.add('hide');}
 }
 
-// ── CONTROLS ──────────────────────────────────────────────────────────────
 function switchTab(t){
-  S.tab=t;S.query='';S.brand='All';
+  S.tab=t;S.query='';
   document.getElementById('searchInput').value='';
   document.getElementById('searchClear').style.display='none';
   document.getElementById('tabFlat').className='tab'+(t==='flat'?' af':'');
@@ -717,17 +624,15 @@ function checkPass(){
 function onSearch(){
   S.query=document.getElementById('searchInput').value;
   document.getElementById('searchClear').style.display=S.query?'block':'none';
-  renderCards();renderBrands();
+  renderCards();
 }
 
 function clearSearch(){
-  S.query='';S.brand='All';
+  S.query='';
   document.getElementById('searchInput').value='';
   document.getElementById('searchClear').style.display='none';
   render();
 }
-
-function setBrand(b){S.brand=S.brand===b?'All':b;renderCards();renderBrands();}
 
 function copyList(id){
   var g=getList().find(function(x){return x.id===id;});if(!g)return;
@@ -745,8 +650,8 @@ function glassFormHtml(g){
     '<div class="fgrp"><label class="flbl">Glass Name</label>'+
     '<input class="finp" id="gName" value="'+(g?escHtml(g.glassName):'')+'" placeholder="e.g. 9D Matte Glass, 21D UV Curved..."/></div>'+
     '<div class="fgrp"><label class="flbl">Compatible Models</label>'+
-    '<textarea class="finp" id="gModels" rows="6" placeholder="Samsung A14, Vivo Y20, Redmi 9A, Oppo F21...">'+(g?parseModels(g.models).join(', '):'')+'</textarea>'+
-    '<div class="fhint">💡 Comma se alag karo. Brand naam ke saath likho: Samsung A14, Vivo Y20</div></div>'+
+    '<textarea class="finp" id="gModels" rows="6" placeholder="Samsung A14, Vivo Y20, Redmi 9A...">'+(g?parseModels(g.models).join(', '):'')+'</textarea>'+
+    '<div class="fhint">💡 Comma se alag karo.</div></div>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
     '<button class="bsave" onclick="submitGlass()">Save Glass</button></div>';
 }
@@ -763,14 +668,14 @@ function submitGlass(){
     var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
     db.collection('meta').doc('log').set({entries:[entry].concat(S.log).slice(0,20)});
     setSyncDot('ok');closeModal();
-    showToast(isEdit?'✅ Glass updated!':'✅ Glass added! Sab devices pe sync ho gaya');
+    showToast(isEdit?'✅ Glass updated!':'✅ Glass added!');
     S.editId=null;
   }).catch(function(e){setSyncDot('err');showToast('❌ '+e.message,true);});
 }
 
 function confirmDelete(id){
   openModal('<div class="mhead"><span class="mtitle">🗑️ Delete?</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<p style="color:#9aa6c4;margin-bottom:20px;font-size:14px">Yeh glass permanently delete ho jayega sabhi devices se.</p>'+
+    '<p style="color:#9aa6c4;margin-bottom:20px;font-size:14px">Yeh glass permanently delete ho jayega.</p>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
     '<button class="bdel" onclick="doDelete(\''+id+'\')">Delete</button></div>');
 }
@@ -788,8 +693,7 @@ function doDelete(id){
 
 function openCodeModal(){
   var list=getList();var json=JSON.stringify(list,null,2);
-  openModal('<div class="mhead"><span class="mtitle">📋 Data Export / Import</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<p style="color:#6a7390;font-size:13px;margin-bottom:12px">Copy karke doosre device pe Import karo — Firebase se sync hoga.</p>'+
+  openModal('<div class="mhead"><span class="mtitle">📋 Data Export</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
     '<textarea id="codeTA" style="width:100%;height:220px;background:#05060a;border:1px solid #1d2336;border-radius:11px;color:#7cb8e0;font-size:11px;font-family:monospace;padding:13px;box-sizing:border-box;resize:vertical;outline:none">'+json+'</textarea>'+
     '<div class="brow"><button class="bcancel" onclick="copyCode()">📋 Copy</button>'+(S.isAdmin?'<button class="bsave" onclick="importCode()">📥 Import</button>':'')+'</div>');
 }
@@ -803,23 +707,16 @@ function importCode(){
     var done=0,total=data.length;if(!total){showToast('❌ Data empty',true);return;}
     data.forEach(function(g){
       db.collection(col).doc(g.id||uid()).set({glassName:g.glassName,models:g.models}).then(function(){
-        done++;if(done===total){setSyncDot('ok');showToast('✅ Imported! Sab devices pe sync ho gaya');closeModal();}
+        done++;if(done===total){setSyncDot('ok');showToast('✅ Imported!');closeModal();}
       });
     });
   }catch(e){showToast('❌ '+e.message,true);}
 }
 
 function openModal(html){document.getElementById('modalBox').innerHTML=html;document.getElementById('modalBg').classList.add('show');}
+function closeModal(){document.getElementById('modalBg').classList.remove('show');}
 
-// ── PARTS FINDER ──────────────────────────────────────────────────────────
-var PART_FIELDS=[
-  {key:'glass',label:'Glass',icon:'🛡️'},
-  {key:'display',label:'Display',icon:'🖥️'},
-  {key:'frame',label:'Frame',icon:'⬜'},
-  {key:'backdoor',label:'Back Door',icon:'🚪'},
-  {key:'ccboard',label:'CC Board',icon:'🔌'},
-  {key:'backcover',label:'Back Cover',icon:'📱'}
-];
+// ── PARTS FINDER ─────────────────────────────────────────────────────────
 
 function openPartsScreen(){
   document.getElementById('partsScreen').classList.add('show');
@@ -830,7 +727,6 @@ function openPartsScreen(){
 function closePartsScreen(){
   document.getElementById('partsScreen').classList.remove('show');
 }
-
 function loadPartsData(){
   if(!db)return;
   PF.loaded=true;
@@ -839,13 +735,11 @@ function loadPartsData(){
     renderPartsCards();
   },function(){});
 }
-
 function renderPartsAddBtn(){
   var btn=document.getElementById('partsAddBtn');
   if(S.isAdmin)btn.classList.remove('hide');
   else btn.classList.add('hide');
 }
-
 function getPartsFiltered(){
   var q=PF.query.trim().toUpperCase();
   if(!q)return PF.items;
@@ -853,31 +747,152 @@ function getPartsFiltered(){
     return (it.modelName||'').toUpperCase().indexOf(q)>=0;
   });
 }
-
 function onPartsSearch(){
   PF.query=document.getElementById('partsSearchInput').value;
   renderPartsCards();
 }
 
+// UPDATED: Checkbox toggle
+function togglePartField(key){
+  var chk=document.getElementById('chk_'+key);
+  var field=document.getElementById('field_'+key);
+  var label=document.querySelector('label[for-key="'+key+'"]');
+  if(chk&&field){
+    field.style.display=chk.checked?'block':'none';
+  }
+  // Update label style
+  var fcheck=chk?chk.closest('.fcheck'):null;
+  if(fcheck){
+    if(chk.checked)fcheck.classList.add('selected');
+    else fcheck.classList.remove('selected');
+  }
+}
+
+// UPDATED: partsFormHtml — Glass removed, Battery added, Checkboxes added
+function partsFormHtml(it){
+  var checkboxesHtml='<div class="field-select-wrap">'+
+    '<div class="field-select-title">✅ Kya add karna hai? (select karo)</div>'+
+    '<div class="field-checkboxes">'+
+    PART_FIELDS.map(function(f){
+      var hasVal=it&&it[f.key];
+      return '<label class="fcheck'+(hasVal?' selected':'')+'" onclick="togglePartField(\''+f.key+'\')">'+
+        '<input type="checkbox" id="chk_'+f.key+'" '+(hasVal?'checked':'')+' style="pointer-events:none"/>'+
+        '<span>'+f.icon+' '+f.label+'</span>'+
+        '</label>';
+    }).join('')+
+    // Battery checkbox
+    (function(){
+      var hasBatt=it&&it.batteryModel;
+      return '<label class="fcheck'+(hasBatt?' selected':'')+'" onclick="togglePartField(\'battery\')">'+
+        '<input type="checkbox" id="chk_battery" '+(hasBatt?'checked':'')+' style="pointer-events:none"/>'+
+        '<span>🔋 Battery</span>'+
+        '</label>';
+    })()+
+    '</div></div>';
+
+  var fieldsHtml=PART_FIELDS.map(function(f){
+    var val=it&&it[f.key]?it[f.key]:'';
+    return '<div class="fgrp" id="field_'+f.key+'" style="'+(val?'':'display:none')+'">'+
+      '<label class="flbl">'+f.icon+' '+f.label+'</label>'+
+      '<input class="finp" id="pf_'+f.key+'" value="'+escHtml(val)+'" placeholder="'+f.label+' ka code/naam"/>'+
+      '</div>';
+  }).join('');
+
+  var battModel=it&&it.batteryModel?it.batteryModel:'';
+  var battPhones=it&&it.batteryPhones?(Array.isArray(it.batteryPhones)?it.batteryPhones.join('\n'):it.batteryPhones):'';
+  var batteryHtml='<div id="field_battery" style="'+(battModel?'':'display:none')+'">'+
+    '<div class="fgrp">'+
+      '<label class="flbl">🔋 Battery Model Number</label>'+
+      '<input class="finp" id="pf_batteryModel" value="'+escHtml(battModel)+'" placeholder="e.g. 4966, B-V9, BLP805"/>'+
+    '</div>'+
+    '<div class="fgrp">'+
+      '<label class="flbl">📱 Ye Battery Kaunse Phones Mein Aati Hai</label>'+
+      '<textarea class="battery-models-inp" id="pf_batteryPhones" placeholder="Vivo Y21&#10;Vivo Y22&#10;Vivo Y33s">'+escHtml(battPhones)+'</textarea>'+
+      '<div class="fhint">💡 Har phone alag line mein ya comma se alag karo</div>'+
+    '</div>'+
+  '</div>';
+
+  return '<div class="mhead">'+
+    '<span class="mtitle">'+(it?'✏️ Edit Parts':'➕ Add Model Parts')+'</span>'+
+    '<button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="fgrp">'+
+      '<label class="flbl">📱 Phone Model</label>'+
+      '<input class="finp" id="pf_modelName" value="'+(it?escHtml(it.modelName):'')+'" placeholder="e.g. Vivo Y21"/>'+
+    '</div>'+
+    checkboxesHtml+
+    fieldsHtml+
+    batteryHtml+
+    '<div class="brow">'+
+      '<button class="bcancel" onclick="closeModal()">Cancel</button>'+
+      '<button class="bsave" onclick="submitParts()">Save</button>'+
+    '</div>';
+}
+
+// UPDATED: submitParts — handles battery
+function submitParts(){
+  var modelName=document.getElementById('pf_modelName').value.trim();
+  if(!modelName){showToast('❌ Phone model naam likho',true);return;}
+  if(!db){showToast('❌ Connection nahi hai',true);return;}
+  var data={modelName:modelName};
+  PART_FIELDS.forEach(function(f){
+    var chk=document.getElementById('chk_'+f.key);
+    var inp=document.getElementById('pf_'+f.key);
+    if(chk&&chk.checked&&inp&&inp.value.trim()){
+      data[f.key]=inp.value.trim();
+    }
+  });
+  var battChk=document.getElementById('chk_battery');
+  if(battChk&&battChk.checked){
+    var bm=document.getElementById('pf_batteryModel').value.trim();
+    var bp=document.getElementById('pf_batteryPhones').value;
+    var phonesArr=bp.split(/[,\n]/).map(function(m){return m.trim();}).filter(Boolean);
+    if(bm){data.batteryModel=bm;data.batteryPhones=phonesArr;}
+  }
+  var id=PF.editId||uid();
+  db.collection('parts_finder').doc(id).set(data).then(function(){
+    closeModal();showToast(PF.editId?'✅ Updated!':'✅ Parts Added!');
+    PF.editId=null;
+  }).catch(function(e){showToast('❌ '+e.message,true);});
+}
+
+// UPDATED: renderPartsCards — glass removed, battery section added
 function renderPartsCards(){
   var list=getPartsFiltered();
   var el=document.getElementById('partsCardList');
   if(!list.length){
     el.innerHTML='<div class="empty"><div class="empty-ico">🔧</div>'+
       '<p class="empty-t">'+(PF.items.length?'Koi result nahi mila':'Abhi koi model add nahi hua')+'</p>'+
-      '<p class="empty-s">'+(S.isAdmin&&!PF.items.length?'Upar + button dabao model add karne ke liye':'Alag model try karo')+'</p></div>';
+      '<p class="empty-s">'+(S.isAdmin&&!PF.items.length?'Upar + button dabao':'Alag model try karo')+'</p></div>';
     return;
   }
   el.innerHTML=list.map(function(it){
-    var partsHtml=PART_FIELDS.map(function(f){
-      var val=it[f.key];
-      return '<div class="pf-part"><div class="pf-part-lbl">'+f.icon+' '+f.label+'</div>'+
-        '<div class="pf-part-val'+(val?'':' empty')+'">'+(val?escHtml(val):'N/A')+'</div></div>';
+    var normalFields=PART_FIELDS.filter(function(f){return it[f.key];});
+    var partsHtml=normalFields.map(function(f){
+      return '<div class="pf-part">'+
+        '<div class="pf-part-lbl">'+f.icon+' '+f.label+'</div>'+
+        '<div class="pf-part-val">'+escHtml(it[f.key])+'</div>'+
+        '</div>';
     }).join('');
-    var adm=S.isAdmin?'<div class="cadmin"><button class="ibtn" onclick="openPartsEditModal(\''+it.id+'\')">✏️</button><button class="ibtn" onclick="confirmPartsDelete(\''+it.id+'\')">🗑️</button></div>':'';
+    var batteryHtml='';
+    if(it.batteryModel){
+      var phones=Array.isArray(it.batteryPhones)?it.batteryPhones:[];
+      batteryHtml='<div class="pf-battery-section">'+
+        '<div class="pf-battery-label">🔋 Battery Model</div>'+
+        '<div class="pf-battery-model">'+escHtml(it.batteryModel)+'</div>'+
+        (phones.length?'<div class="pf-battery-phones">'+phones.map(function(p){return '<span class="pf-battery-tag">'+escHtml(p)+'</span>';}).join('')+'</div>':'')+
+        '</div>';
+    }
+    var partsSection=normalFields.length?
+      '<div class="pf-parts" style="grid-template-columns:'+(normalFields.length===1?'1fr':'1fr 1fr')+'">'+partsHtml+'</div>':'';
+    var adm=S.isAdmin?
+      '<div class="cadmin">'+
+        '<button class="ibtn" onclick="openPartsEditModal(\''+it.id+'\')">✏️</button>'+
+        '<button class="ibtn" onclick="confirmPartsDelete(\''+it.id+'\')">🗑️</button>'+
+      '</div>':'';
     return '<div class="pf-card">'+
       '<div class="pf-cname"><span>📱 '+escHtml(it.modelName)+'</span>'+adm+'</div>'+
-      '<div class="pf-parts">'+partsHtml+'</div>'+
+      partsSection+
+      batteryHtml+
       '</div>';
   }).join('');
 }
@@ -888,44 +903,12 @@ function openPartsEditModal(id){
   var it=PF.items.find(function(x){return x.id===id;});
   openModal(partsFormHtml(it));
 }
-
-function partsFormHtml(it){
-  var fieldsHtml=PART_FIELDS.map(function(f){
-    return '<div class="fgrp"><label class="flbl">'+f.icon+' '+f.label+'</label>'+
-      '<input class="finp" id="pf_'+f.key+'" value="'+(it&&it[f.key]?escHtml(it[f.key]):'')+'" placeholder="'+f.label+' ka naam/code daalo"/></div>';
-  }).join('');
-  return '<div class="mhead"><span class="mtitle">'+(it?'✏️ Edit Parts':'➕ Add Model Parts')+'</span>'+
-    '<button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<div class="fgrp"><label class="flbl">Phone Model</label>'+
-    '<input class="finp" id="pf_modelName" value="'+(it?escHtml(it.modelName):'')+'" placeholder="e.g. Realme 6i"/></div>'+
-    fieldsHtml+
-    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
-    '<button class="bsave" onclick="submitParts()">Save</button></div>';
-}
-
-function submitParts(){
-  var modelName=document.getElementById('pf_modelName').value.trim();
-  if(!modelName){showToast('❌ Phone model naam likho',true);return;}
-  if(!db){showToast('❌ Connection nahi hai',true);return;}
-  var data={modelName:modelName};
-  PART_FIELDS.forEach(function(f){
-    data[f.key]=document.getElementById('pf_'+f.key).value.trim();
-  });
-  var id=PF.editId||uid();
-  db.collection('parts_finder').doc(id).set(data).then(function(){
-    closeModal();
-    showToast(PF.editId?'✅ Updated!':'✅ Added!');
-    PF.editId=null;
-  }).catch(function(e){showToast('❌ '+e.message,true);});
-}
-
 function confirmPartsDelete(id){
   openModal('<div class="mhead"><span class="mtitle">🗑️ Delete?</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<p style="color:#9aa6c4;margin-bottom:20px;font-size:14px">Yeh model ka parts data permanently delete ho jayega.</p>'+
+    '<p style="color:#9aa6c4;margin-bottom:20px;font-size:14px">Yeh model ka parts data delete ho jayega.</p>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
     '<button class="bdel" onclick="doPartsDelete(\''+id+'\')">Delete</button></div>');
 }
-
 function doPartsDelete(id){
   if(!db)return;
   db.collection('parts_finder').doc(id).delete().then(function(){
@@ -933,8 +916,7 @@ function doPartsDelete(id){
   }).catch(function(){showToast('❌ Error',true);});
 }
 
-// ── SIDE MENU ─────────────────────────────────────────────────────────────
-// ── SIDE MENU ─────────────────────────────────────────────────────────────
+// ── SIDE MENU ────────────────────────────────────────────────────────────
 function openMenu(){
   document.getElementById('menuOverlay').classList.add('show');
   document.getElementById('menuPanel').classList.add('show');
@@ -943,19 +925,16 @@ function closeMenu(){
   document.getElementById('menuOverlay').classList.remove('show');
   document.getElementById('menuPanel').classList.remove('show');
 }
-
-function closeAnnounce(){
-  document.getElementById('announceBar').classList.remove('show');
-}
+function closeAnnounce(){document.getElementById('announceBar').classList.remove('show');}
 
 function openAnnounceEditor(){
   closeMenu();
   if(!db){showToast('❌ Connection nahi hai',true);return;}
   db.collection('meta').doc('announcement').get().then(function(snap){
     var cur=snap.exists?snap.data():{text:'',active:false};
-    openModal('<div class="mhead"><span class="mtitle">📢 Announcement Bar</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    openModal('<div class="mhead"><span class="mtitle">📢 Announcement</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
       '<div class="fgrp"><label class="flbl">Message</label>'+
-      '<textarea class="finp" id="annText" rows="3" placeholder="Jaise: Naya video aaya hai, channel subscribe karo!">'+(cur.text?escHtml(cur.text):'')+'</textarea></div>'+
+      '<textarea class="finp" id="annText" rows="3" placeholder="Announcement message...">'+(cur.text?escHtml(cur.text):'')+'</textarea></div>'+
       '<div class="fgrp" style="display:flex;align-items:center;gap:10px">'+
       '<input type="checkbox" id="annActive" '+(cur.active?'checked':'')+' style="width:18px;height:18px"/>'+
       '<label style="color:#cdd6f0;font-size:13px;font-weight:600">Bar dikhana hai (ON)</label></div>'+
@@ -963,7 +942,6 @@ function openAnnounceEditor(){
       '<button class="bsave" onclick="saveAnnounce()">Save</button></div>');
   });
 }
-
 function saveAnnounce(){
   var text=document.getElementById('annText').value.trim();
   var active=document.getElementById('annActive').checked;
@@ -973,17 +951,9 @@ function saveAnnounce(){
 }
 
 function shareApp(){
-  var shareData={
-    title:'Universal Combo',
-    text:'Universal Combo - apne phone model ke liye sahi tempered glass turant dhundo! Free tool hai, try karo:',
-    url:'https://universalcombo.netlify.app/'
-  };
-  if(navigator.share){
-    navigator.share(shareData).catch(function(){});
-  } else {
-    navigator.clipboard.writeText(shareData.text+' '+shareData.url);
-    showToast('✅ Link copied! WhatsApp pe paste karo');
-  }
+  var shareData={title:'Universal Combo',text:'Universal Combo - apne phone model ke liye sahi tempered glass turant dhundo!',url:'https://mkptyoup-debug.github.io/Glass-finder-pro'};
+  if(navigator.share){navigator.share(shareData).catch(function(){});}
+  else{navigator.clipboard.writeText(shareData.text+' '+shareData.url);showToast('✅ Link copied!');}
   closeMenu();
 }
 
@@ -991,29 +961,20 @@ function openFeedback(){
   closeMenu();
   openModal('<div class="mhead"><span class="mtitle">💬 Send Feedback</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
     '<div class="fgrp"><label class="flbl">Aapka Feedback</label>'+
-    '<textarea class="finp" id="fbText" rows="5" placeholder="Koi suggestion, problem, ya naya model add karne ki request likho..."></textarea></div>'+
+    '<textarea class="finp" id="fbText" rows="5" placeholder="Koi suggestion, problem ya request..."></textarea></div>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
     '<button class="bsave" onclick="sendFeedback()">Send</button></div>');
 }
-
 function sendFeedback(){
   var text=document.getElementById('fbText').value.trim();
   if(!text){showToast('❌ Kuch likho pehle',true);return;}
   if(!db){showToast('❌ Connection nahi hai',true);return;}
-  db.collection('feedback').add({
-    text:text,
-    date:new Date().toISOString(),
-    tab:S.tab
-  }).then(function(){
-    closeModal();
-    showToast('✅ Feedback bhej diya! Dhanyawad');
-  }).catch(function(e){
-    showToast('❌ '+e.message,true);
-  });
+  db.collection('feedback').add({text:text,date:new Date().toISOString(),tab:S.tab}).then(function(){
+    closeModal();showToast('✅ Feedback bhej diya! Dhanyawad');
+  }).catch(function(e){showToast('❌ '+e.message,true);});
 }
-function closeModal(){document.getElementById('modalBg').classList.remove('show');}
 
-// ── FIREBASE ──────────────────────────────────────────────────────────────
+// ── FIREBASE ─────────────────────────────────────────────────────────────
 firebase.initializeApp({
   apiKey:"AIzaSyC_OXACPuxzAerOWiQ6O1BZBL0Du8Axdtg",
   authDomain:"glass-finder-pro.firebaseapp.com",
@@ -1024,65 +985,37 @@ firebase.initializeApp({
 });
 db=firebase.firestore();
 
-// ── PUSH NOTIFICATIONS ───────────────────────────────────────────────────
+// ── NOTIFICATIONS ────────────────────────────────────────────────────────
 var VAPID_KEY="BBPTMUmA0spBWVPtnYhpRHJjjuePdcsit9bs9yWgOST7Cf6aqAK0YEb2DhCfAf-TmDyO9_oSpSWzK9iEba61MDU";
 var notifMessaging=null;
 
 function setupNotifications(){
   closeMenu();
-  if(!('serviceWorker' in navigator)){showToast('❌ Yeh browser notification support nahi karta',true);return;}
-  if(!('Notification' in window)){showToast('❌ Yeh browser notification support nahi karta',true);return;}
-
-  if(Notification.permission==='denied'){
-    showToast('❌ Notifications block hain. Phone Settings > Apps > Notifications mein jaake allow karo',true);
-    return;
-  }
-
+  if(!('serviceWorker' in navigator)||!('Notification' in window)){showToast('❌ Browser support nahi karta',true);return;}
+  if(Notification.permission==='denied'){showToast('❌ Notifications block hain. Settings mein allow karo',true);return;}
   Notification.requestPermission().then(function(permission){
-    if(permission!=='granted'){
-      showToast('❌ Permission nahi mili',true);
-      return;
-    }
+    if(permission!=='granted'){showToast('❌ Permission nahi mili',true);return;}
     registerForPush();
-  }).catch(function(e){
-    showToast('❌ Error: '+e.message,true);
   });
 }
-
 function registerForPush(){
   navigator.serviceWorker.ready.then(function(registration){
     try{
       if(!notifMessaging)notifMessaging=firebase.messaging();
       notifMessaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:registration}).then(function(token){
         if(token){
-          db.collection('fcm_tokens').doc(token).set({
-            token:token,
-            createdAt:new Date().toISOString()
-          }).then(function(){
+          db.collection('fcm_tokens').doc(token).set({token:token,createdAt:new Date().toISOString()}).then(function(){
             showToast('✅ Notifications ON ho gaya!');
             var btn=document.getElementById('notifBtn');
             if(btn)btn.innerHTML='<span class="menu-ic">✅</span> Notifications ON hain';
-          }).catch(function(){
-            showToast('✅ Permission mil gayi (save mein issue)');
           });
-        } else {
-          showToast('❌ Token nahi mila, dobara try karo',true);
         }
-      }).catch(function(e){
-        showToast('❌ FCM error: '+e.message,true);
-      });
-      notifMessaging.onMessage(function(payload){
-        showToast('🔔 '+(payload.notification?payload.notification.title:'Naya update aaya hai!'));
-      });
-    }catch(e){
-      showToast('❌ Setup error: '+e.message,true);
-    }
+      }).catch(function(e){showToast('❌ '+e.message,true);});
+    }catch(e){showToast('❌ '+e.message,true);}
   });
 }
-
-// Check on load if already granted, update button label silently
 function checkNotifStatus(){
-  if('Notification' in window && Notification.permission==='granted'){
+  if('Notification' in window&&Notification.permission==='granted'){
     var btn=document.getElementById('notifBtn');
     if(btn)btn.innerHTML='<span class="menu-ic">✅</span> Notifications ON hain';
   }
@@ -1098,8 +1031,7 @@ function markLoaded(){
 
 db.collection('flat_glasses').onSnapshot(function(snap){
   S.flat=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-  render();setSyncDot('ok');
-  markLoaded();
+  render();setSyncDot('ok');markLoaded();
 },function(){setSyncDot('err');markLoaded();});
 
 db.collection('uv_glasses').onSnapshot(function(snap){
@@ -1119,42 +1051,30 @@ db.collection('meta').doc('log').onSnapshot(function(snap){
 
 db.collection('meta').doc('announcement').onSnapshot(function(snap){
   var bar=document.getElementById('announceBar');
-  if(snap.exists && snap.data().text && snap.data().active){
+  if(snap.exists&&snap.data().text&&snap.data().active){
     document.getElementById('announceText').textContent=snap.data().text;
     bar.classList.add('show');
-  } else {
-    bar.classList.remove('show');
-  }
+  } else {bar.classList.remove('show');}
 });
 
-// Hard fallback — never let splash hang forever
 setTimeout(function(){markLoaded();},5000);
 </script>
 
 <script>
 let deferredPrompt;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('installBtn').style.display = 'block';
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('installBtn').style.display='block';
 });
-
-document.getElementById('installBtn').addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  document.getElementById('installBtn').style.display = 'none';
+document.getElementById('installBtn').addEventListener('click',async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();await deferredPrompt.userChoice;
+  deferredPrompt=null;document.getElementById('installBtn').style.display='none';
 });
-
-if ('serviceWorker' in navigator) {
+if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/sw.js')
-    .then(() => {
-      console.log('SW registered');
-      setTimeout(checkNotifStatus, 1000);
-    })
-    .catch(e => console.log('SW error', e));
+    .then(()=>{setTimeout(checkNotifStatus,1000);})
+    .catch(e=>console.log('SW error',e));
 }
 </script>
 </body>
