@@ -396,7 +396,7 @@ button{cursor:pointer}
   <button class="menu-item hide" id="menuAnnounceBtn" onclick="openAnnounceEditor()"><span class="menu-ic">📢</span> Edit Announcement</button>
   <div class="menu-sep"></div>
   <button class="menu-item hide" id="menuLogout" onclick="doLogout()"><span class="menu-ic">🚪</span> Logout</button>
-  <button class="menu-item hide" id="menuLoginBtn" onclick="closeMenu();showLogin()"><span class="menu-ic">🔐</span> Admin Login</button>
+  <button class="menu-item hide" id="menuLoginBtn" onclick="closeMenu();showLogin()"><span class="menu-ic">🔐</span> Login</button>
   <button class="menu-item" onclick="closeMenu()"><span class="menu-ic">✕</span> Close</button>
 </div>
 
@@ -569,9 +569,9 @@ function updateUserUI(){
     addBtn.classList.add('hide');
     tb.classList.add('hide');
   } else {
-    // GUEST STAFF (skipped login)
+    // GUEST STAFF (no login)
     badge.textContent='👤 Staff';
-    badge.className='staff';
+    badge.className='';
     menuUserInfo.classList.add('hide');
     menuLogout.classList.add('hide');
     menuLoginBtn.classList.remove('hide');
@@ -1143,11 +1143,6 @@ auth.onAuthStateChanged(function(user){
     updateUserUI();
   } else {
     S.user=null;S.role='staff';
-    // Show login screen only first time
-    if(!splashDone){
-      // After splash, show login
-      setTimeout(showLogin,1200);
-    }
     updateUserUI();
   }
 });
