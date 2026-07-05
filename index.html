@@ -20,6 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{
@@ -176,6 +177,7 @@ button{cursor:pointer}
 #resultBanner{display:none;margin-bottom:14px;padding:14px 16px;border-radius:14px;border:1px solid;position:relative;overflow:hidden;animation:fadeUp .35s ease}
 #resultBanner.found{background:linear-gradient(135deg,#0c1c10,#08140c);border-color:#2f7a4044}
 #resultBanner.notfound{background:linear-gradient(135deg,#1c0c10,#15080a);border-color:#7a2f4044}
+#resultBanner.fuzzy{background:linear-gradient(135deg,#1c170c,#151008);border-color:#7a5f2f44}
 #resultBanner::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,currentColor,transparent);opacity:.3}
 .rb-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .rb-label{font-size:13px;font-weight:800;display:flex;align-items:center;gap:7px}
@@ -197,16 +199,22 @@ button{cursor:pointer}
 .card-inner{padding:16px}
 .card.match-card{border-color:#d4af6a3d;box-shadow:0 4px 24px #d4af6a14}
 .card.match-card .card-accent{background:linear-gradient(90deg,#d4af6a,#f3e1ab,#d4af6a)}
+.card.fuzzy-card{border-color:#c9962f3d;box-shadow:0 4px 24px #c9962f14}
+.card.fuzzy-card .card-accent{background:linear-gradient(90deg,#c9962f,#f0d090,#c9962f)}
 .card:active{transform:scale(.985)}
 .match-section{background:#d4af6a0e;border:1px solid #d4af6a26;border-radius:10px;padding:12px;margin-bottom:12px}
 .match-section-title{font-size:10px;color:#d4af6a;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.match-section.fuzzy{background:#c9962f0e;border-color:#c9962f26}
+.match-section.fuzzy .match-section-title{color:#c9962f}
 .match-tags{display:flex;flex-wrap:wrap;gap:6px}
 .match-tag{background:#d4af6a26;border:1px solid #d4af6a5e;border-radius:7px;padding:5px 11px;font-size:12px;font-weight:700;color:#eed5a0}
+.match-tag.fuzzy{background:#c9962f26;border:1px solid #c9962f5e;color:#f0d090}
 .mhl{background:#d4af6a;color:#1a1305;border-radius:3px;padding:0 3px;font-weight:800}
 .cname{font-weight:800;font-size:15px;color:#f0f4ff;margin-bottom:6px;line-height:1.3}
 .cbadges{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
 .bg{background:#d4af6a17;border:1px solid #d4af6a3d;border-radius:6px;padding:3px 10px;color:#d4af6a;font-size:11px;font-weight:700}
 .bgg{background:#0c2008;border:1px solid #2f7a4060;border-radius:6px;padding:3px 10px;color:#7adf63;font-size:11px;font-weight:700;display:flex;align-items:center;gap:4px}
+.bgy{background:#241a08;border:1px solid #c9962f60;border-radius:6px;padding:3px 10px;color:#f0d090;font-size:11px;font-weight:700;display:flex;align-items:center;gap:4px}
 .cadmin{display:flex;gap:6px;flex-shrink:0;margin-left:8px}
 .ibtn{background:#0d0f18;border:1px solid #1d2336;border-radius:8px;padding:8px 10px;font-size:13px;transition:transform .15s}
 .ibtn:active{transform:scale(.9)}
@@ -408,6 +416,7 @@ var db=null;
 var splashDone=false;
 var dataLoaded=false;
 var COLLECTIONS={flat:'flat_glasses',uv:'uv_glasses',display:'display_glasses'};
+var searchDebounceTimer=null;
 
 // UPDATED: Glass REMOVED, Battery ADDED
 var PART_FIELDS=[
@@ -504,16 +513,53 @@ function getFiltered(){
   return list;
 }
 
+// ── FUZZY SEARCH (typo / word-order / spacing tolerant fallback) ─────────
+function fuzzySearchModels(list,query){
+  var items=[];
+  list.forEach(function(g){
+    parseModels(g.models).forEach(function(m){
+      items.push({groupId:g.id,model:m});
+    });
+  });
+  if(!items.length||typeof Fuse==='undefined')return{};
+  var fuse=new Fuse(items,{keys:['model'],threshold:0.4,ignoreLocation:true,distance:100});
+  var results=fuse.search(query);
+  var best={};
+  results.forEach(function(r){
+    var gid=r.item.groupId;
+    if(!best[gid]||r.score<best[gid].score){
+      best[gid]={score:r.score,matchedModel:r.item.model};
+    }
+  });
+  return best;
+}
+
 function renderCards(){
+  var q=S.query.trim();
   var list=getFiltered();
-  var q=S.query.trim().toUpperCase();
+  var isFuzzy=false;
+  var fuzzyMatches={};
+  if(q&&list.length===0&&q.length>=2){
+    fuzzyMatches=fuzzySearchModels(getList(),q);
+    var fids=Object.keys(fuzzyMatches);
+    if(fids.length){
+      isFuzzy=true;
+      list=fids.map(function(id){return getList().find(function(x){return x.id===id;});}).filter(Boolean);
+      list.sort(function(a,b){return fuzzyMatches[a.id].score-fuzzyMatches[b.id].score;});
+    }
+  }
+  var qUpper=q.toUpperCase();
   var el=document.getElementById('cardList');
   var banner=document.getElementById('resultBanner');
   var rbLabel=document.getElementById('rbLabel');
   var rbQuery=document.getElementById('rbQuery');
   if(q){
     banner.style.display='block';
-    if(list.length>0){
+    if(isFuzzy){
+      banner.className='fuzzy';
+      rbLabel.style.color='#f0d090';
+      rbLabel.innerHTML='🔎 '+list.length+' Similar Match'+(list.length>1?'es':'')+' Mile (spelling/order thoda alag ho sakta hai)';
+    } else if(list.length>0){
       banner.className='found';
       rbLabel.style.color='#7adf63';
       rbLabel.innerHTML='✅ '+list.length+' Glass'+(list.length>1?' Groups':' Group')+' Found';
@@ -522,8 +568,8 @@ function renderCards(){
       rbLabel.style.color='#e8718e';
       rbLabel.innerHTML='❌ Koi match nahi mila';
     }
-    rbQuery.innerHTML='Model: <strong style="color:#eed5a0">'+escHtml(S.query.trim())+'</strong>';
-    document.getElementById('resultClear').style.color=list.length>0?'#7adf63':'#e8718e';
+    rbQuery.innerHTML='Model: <strong style="color:#eed5a0">'+escHtml(q)+'</strong>';
+    document.getElementById('resultClear').style.color=isFuzzy?'#f0d090':(list.length>0?'#7adf63':'#e8718e');
   } else {
     banner.style.display='none';
   }
@@ -536,15 +582,27 @@ function renderCards(){
   }
   el.innerHTML=list.map(function(g,idx){
     var mlist=parseModels(g.models);
-    var isMatch=q&&mlist.some(function(m){return m.toUpperCase().indexOf(q)>=0;});
-    var matchedModels=q?mlist.filter(function(m){return m.toUpperCase().indexOf(q)>=0;}):[];
-    var otherModels=q?mlist.filter(function(m){return m.toUpperCase().indexOf(q)<0;}):mlist;
+    var matchedModels,otherModels,isMatch;
+    if(isFuzzy){
+      var fm=fuzzyMatches[g.id];
+      matchedModels=fm?[fm.matchedModel]:[];
+      otherModels=mlist.filter(function(m){return !matchedModels.includes(m);});
+      isMatch=true;
+    } else {
+      isMatch=qUpper&&mlist.some(function(m){return m.toUpperCase().indexOf(qUpper)>=0;});
+      matchedModels=qUpper?mlist.filter(function(m){return m.toUpperCase().indexOf(qUpper)>=0;}):[];
+      otherModels=qUpper?mlist.filter(function(m){return m.toUpperCase().indexOf(qUpper)<0;}):mlist;
+    }
     var matchSection='';
     if(matchedModels.length>0){
-      matchSection='<div class="match-section">'+
-        '<div class="match-section-title">🎯 Matched Models ('+matchedModels.length+')</div>'+
+      matchSection='<div class="match-section'+(isFuzzy?' fuzzy':'')+'">'+
+        '<div class="match-section-title">'+(isFuzzy?'🔎 Similar Match':'🎯 Matched Models ('+matchedModels.length+')')+'</div>'+
         '<div class="match-tags">'+
-        matchedModels.map(function(m){return '<span class="match-tag">'+hlText(m,S.query.trim())+'</span>';}).join('')+
+        matchedModels.map(function(m){
+          return isFuzzy?
+            '<span class="match-tag fuzzy">'+escHtml(m)+'</span>':
+            '<span class="match-tag">'+hlText(m,q)+'</span>';
+        }).join('')+
         '</div></div>';
     }
     var otherTags='';
@@ -555,7 +613,7 @@ function renderCards(){
     }
     var adm=S.isAdmin?'<div class="cadmin"><button class="ibtn" onclick="openEditModal(\''+g.id+'\')">✏️</button><button class="ibtn" onclick="confirmDelete(\''+g.id+'\')">🗑️</button></div>':'';
     var delay=Math.min(idx*0.05,0.4);
-    return '<div class="card'+(isMatch?' match-card':'')+'" style="animation-delay:'+delay+'s">'+
+    return '<div class="card'+(isFuzzy?' fuzzy-card':(isMatch&&matchedModels.length?' match-card':''))+'" style="animation-delay:'+delay+'s">'+
       '<div class="card-accent"></div>'+
       '<div class="card-inner">'+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
@@ -563,7 +621,7 @@ function renderCards(){
       '<div class="cname">🛡️ '+escHtml(g.glassName)+'</div>'+
       '<div class="cbadges">'+
       '<span class="bg">'+mlist.length+' Models</span>'+
-      (matchedModels.length?'<span class="bgg">✅ '+matchedModels.length+' Match</span>':'')+
+      (isFuzzy?'<span class="bgy">🔎 Similar</span>':(matchedModels.length?'<span class="bgg">✅ '+matchedModels.length+' Match</span>':''))+
       '</div></div>'+adm+'</div>'+
       matchSection+
       otherTags+
@@ -622,12 +680,17 @@ function checkPass(){
 }
 
 function onSearch(){
-  S.query=document.getElementById('searchInput').value;
-  document.getElementById('searchClear').style.display=S.query?'block':'none';
-  renderCards();
+  var v=document.getElementById('searchInput').value;
+  document.getElementById('searchClear').style.display=v?'block':'none';
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer=setTimeout(function(){
+    S.query=v;
+    renderCards();
+  },180);
 }
 
 function clearSearch(){
+  clearTimeout(searchDebounceTimer);
   S.query='';
   document.getElementById('searchInput').value='';
   document.getElementById('searchClear').style.display='none';
@@ -756,7 +819,6 @@ function onPartsSearch(){
 function togglePartField(key){
   var chk=document.getElementById('chk_'+key);
   var field=document.getElementById('field_'+key);
-  var label=document.querySelector('label[for-key="'+key+'"]');
   if(chk&&field){
     field.style.display=chk.checked?'block':'none';
   }
