@@ -196,6 +196,10 @@ button{cursor:pointer}
 .toolbar{display:flex;gap:8px;margin-bottom:16px;justify-content:flex-end}
 .tbtn{display:flex;align-items:center;gap:6px;padding:9px 14px;background:#10141f;border:1px solid #1d2336;border-radius:10px;color:#7cb8e0;font-size:12px;font-weight:600;transition:transform .15s}
 .tbtn:active{transform:scale(.94)}
+.suggest-box{background:#11141f;border:1px solid #1d2336;border-radius:12px;margin-top:-8px;margin-bottom:14px;overflow:hidden}
+.suggest-item{padding:10px 16px;font-size:13px;color:#cdd6f0;border-bottom:1px solid #1d2336}
+.suggest-item:last-child{border-bottom:none}
+.suggest-item:active{background:#d4af6a14}
 
 /* CARDS */
 #cardList{display:flex;flex-direction:column;gap:14px}
@@ -408,10 +412,11 @@ button{cursor:pointer}
     <div id="searchWrap">
       <div id="searchBox">
         <span style="color:#d4af6a;font-size:18px;opacity:.9">🔍</span>
-        <input id="searchInput" placeholder="Model number search karo... Y20, A14, Redmi 9A" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused')" onblur="document.getElementById('searchBox').classList.remove('focused')"/>
+        <input id="searchInput" placeholder="Model number search karo... Y20, A14, Redmi 9A" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused')" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
         <button id="searchClear" onclick="clearSearch()">✕</button>
         <button id="searchBtn" onclick="onSearch()">Search</button>
       </div>
+      <div id="searchSuggest" class="suggest-box hide"></div>
     </div>
     <div id="resultBanner">
       <div class="rb-top">
@@ -464,9 +469,10 @@ button{cursor:pointer}
   <div class="pf-body">
     <div id="partsSearchBox">
       <span style="color:#4ab0e8;font-size:18px;opacity:.9">🔍</span>
-      <input id="partsSearchInput" placeholder="Phone model search karo... Vivo Y21" oninput="onPartsSearch()"/>
+      <input id="partsSearchInput" placeholder="Phone model search karo... Vivo Y21" oninput="onPartsSearch()" onblur="setTimeout(function(){document.getElementById('partsSearchSuggest').classList.add('hide')},150)"/>
       <button id="partsSearchBtn" onclick="onPartsSearch()">Search</button>
     </div>
+    <div id="partsSearchSuggest" class="suggest-box hide"></div>
     <button id="partsAddBtn" class="hide" onclick="openPartsAddModal()">＋ Add New Part Group</button>
     <div id="partsCardList"></div>
   </div>
@@ -912,11 +918,37 @@ function switchTab(t){
   render();
 }
 
+function getAllModelsForTab(){
+  var out=[];getList().forEach(function(g){parseModels(g.models).forEach(function(m){out.push(m);});});
+  return out;
+}
+function uniqueMatches(all,q){
+  var qu=q.toUpperCase();var seen={};var out=[];
+  all.forEach(function(m){var mu=m.toUpperCase();if(mu.indexOf(qu)>=0&&!seen[mu]){seen[mu]=1;out.push(m);}});
+  return out.slice(0,6);
+}
+function showSuggestions(boxId,items,onPick){
+  var box=document.getElementById(boxId);
+  if(!items.length){box.classList.add('hide');box.innerHTML='';return;}
+  box.innerHTML=items.map(function(m){return '<div class="suggest-item" onmousedown="'+onPick+'(\''+m.replace(/'/g,"\\'")+'\')">'+escHtml(m)+'</div>';}).join('');
+  box.classList.remove('hide');
+}
+function pickGlassSuggestion(m){
+  document.getElementById('searchInput').value=m;
+  document.getElementById('searchSuggest').classList.add('hide');
+  document.getElementById('searchClear').style.display='block';
+  S.query=m;renderCards();
+}
 function onSearch(){
   var v=document.getElementById('searchInput').value;
   document.getElementById('searchClear').style.display=v?'block':'none';
   clearTimeout(searchDebounceTimer);
-  searchDebounceTimer=setTimeout(function(){S.query=v;renderCards();},180);
+  searchDebounceTimer=setTimeout(function(){
+    S.query=v;renderCards();
+    var qq=v.trim();
+    if(qq.length>=2)showSuggestions('searchSuggest',uniqueMatches(getAllModelsForTab(),qq),'pickGlassSuggestion');
+    else document.getElementById('searchSuggest').classList.add('hide');
+  },180);
 }
 
 function clearSearch(){
@@ -1036,10 +1068,24 @@ function renderPartsAddBtn(){
   if(isAdmin())btn.classList.remove('hide');else btn.classList.add('hide');
 }
 
+function getAllPartsModels(){
+  var out=[];PART_TYPES.forEach(function(t){(PF.data[t.key]||[]).forEach(function(g){parseModels(g.models).forEach(function(m){out.push(m);});});});
+  return out;
+}
+function pickPartsSuggestion(m){
+  document.getElementById('partsSearchInput').value=m;
+  document.getElementById('partsSearchSuggest').classList.add('hide');
+  PF.query=m;renderPartsCards();
+}
 function onPartsSearch(){
   var v=document.getElementById('partsSearchInput').value;
   clearTimeout(partsDebounceTimer);
-  partsDebounceTimer=setTimeout(function(){PF.query=v;renderPartsCards();},180);
+  partsDebounceTimer=setTimeout(function(){
+    PF.query=v;renderPartsCards();
+    var qq=v.trim();
+    if(qq.length>=2)showSuggestions('partsSearchSuggest',uniqueMatches(getAllPartsModels(),qq),'pickPartsSuggestion');
+    else document.getElementById('partsSearchSuggest').classList.add('hide');
+  },180);
 }
 
 function renderPartsCards(){
