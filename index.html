@@ -861,6 +861,19 @@ function renderCards(){
   }).join('');
 }
 
+function confidenceOptions(val){
+  val=val||'100';
+  return '<option value="100"'+(val==='100'?' selected':'')+'>✅ 100% Sure</option>'+
+    '<option value="75"'+(val==='75'?' selected':'')+'>⚠️ 75% Sure</option>'+
+    '<option value="check"'+(val==='check'?' selected':'')+'>🔍 Please Check Before Fitting</option>';
+}
+
+function confidenceBadge(conf){
+  if(conf==='75')return '<span class="bgy">⚠️ 75% Sure</span>';
+  if(conf==='check')return '<span class="bgy" style="background:#241408;border-color:#e88a4a60;color:#f0a870">🔍 Check Before Fitting</span>';
+  return '<span class="bgg">✅ 100% Sure</span>';
+}
+
 function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
   var mlist=parseModels(g.models);
   var matchSection='';
@@ -876,13 +889,15 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
   var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openEditModal(\''+g.id+'\')">✏️</button><button class="ibtn" onclick="confirmDelete(\''+g.id+'\')">🗑️</button></div>':'';
   var delay=Math.min(idx*0.05,0.4);
   var cardClass=isFuzzy?'fuzzy-card':(hasSearch&&matched.length?'match-card':'');
+  var noteHtml=g.note?'<div style="font-size:11.5px;color:#9aa6c4;margin-top:8px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px 10px">📝 '+escHtml(g.note)+'</div>':'';
   return '<div class="card '+cardClass+'" style="animation-delay:'+delay+'s">'+
     '<div class="card-accent"></div><div class="card-inner">'+
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
     '<div style="flex:1"><div class="cname">🛡️ '+escHtml(g.glassName)+'</div>'+
     '<div class="cbadges"><span class="bg">'+mlist.length+' Models</span>'+
+    confidenceBadge(g.confidence)+
     (isFuzzy?'<span class="bgy">🔎 Similar</span>':(hasSearch&&matched.length?'<span class="bgg">✅ '+matched.length+' Match</span>':''))+
-    '</div></div>'+adm+'</div>'+matchSection+otherTags+
+    '</div></div>'+adm+'</div>'+matchSection+otherTags+noteHtml+
     '<div class="cbtns"><button class="cbtn" onclick="copyList(\''+g.id+'\')">📋 Share List</button></div>'+
     '</div></div>';
 }
@@ -931,6 +946,10 @@ function glassFormHtml(g){
     '<div class="fgrp"><label class="flbl">Compatible Models</label>'+
     '<textarea class="finp" id="gModels" rows="6" placeholder="Samsung A14, Vivo Y20, Redmi 9A...">'+(g?parseModels(g.models).join(', '):'')+'</textarea>'+
     '<div class="fhint">💡 Comma se alag karo.</div></div>'+
+    '<div class="fgrp"><label class="flbl">Fitment Confidence</label>'+
+    '<select class="finp" id="gConfidence">'+confidenceOptions(g?g.confidence:null)+'</select></div>'+
+    '<div class="fgrp"><label class="flbl">Note (Optional)</label>'+
+    '<textarea class="finp" id="gNote" rows="2" placeholder="e.g. Universal fit, camera cutout thoda alag ho sakta hai...">'+(g&&g.note?escHtml(g.note):'')+'</textarea></div>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
     '<button class="bsave" onclick="submitGlass()">Save Glass</button></div>';
 }
@@ -938,11 +957,13 @@ function glassFormHtml(g){
 function submitGlass(){
   var name=document.getElementById('gName').value.trim();
   var models=splitModelsInput(document.getElementById('gModels').value);
+  var confidence=document.getElementById('gConfidence').value;
+  var note=document.getElementById('gNote').value.trim();
   if(!name||!models.length){showToast('❌ Name aur models dono bharo!',true);return;}
   if(!db){showToast('❌ Firebase nahi',true);return;}
   var id=S.editId||db.collection(COLLECTIONS[S.tab]).doc().id;var isEdit=!!S.editId;
   setSyncDot('syncing');
-  db.collection(COLLECTIONS[S.tab]).doc(id).set({glassName:name,models:models}).then(function(){
+  db.collection(COLLECTIONS[S.tab]).doc(id).set({glassName:name,models:models,confidence:confidence,note:note}).then(function(){
     var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
     db.collection('meta').doc('log').set({entries:[entry].concat(S.log).slice(0,20)});
     setSyncDot('ok');closeModal();showToast(isEdit?'✅ Updated!':'✅ Added!');S.editId=null;
@@ -982,7 +1003,7 @@ function importCode(){
     setSyncDot('syncing');var col=COLLECTIONS[S.tab];var done=0,total=data.length;
     if(!total){showToast('❌ Empty',true);return;}
     data.forEach(function(g){
-      db.collection(col).doc(g.id||db.collection(col).doc().id).set({glassName:g.glassName,models:g.models}).then(function(){
+      db.collection(col).doc(g.id||db.collection(col).doc().id).set({glassName:g.glassName,models:g.models,confidence:g.confidence||'100',note:g.note||''}).then(function(){
         done++;if(done===total){setSyncDot('ok');showToast('✅ Imported!');closeModal();}
       });
     });
@@ -1045,6 +1066,7 @@ function renderPartsCards(){
       if(!groups.length)return '';
       var body=groups.map(function(g){
         var mlist=parseModels(g.models);
+        var noteHtml=g.note?'<div style="font-size:11px;color:#9aa6c4;margin-top:8px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
         return '<div class="pf-group-card" style="border-left:3px solid '+t.color+'44">'+
           '<div class="pf-group-top">'+
             '<div class="pf-group-left">'+
@@ -1056,8 +1078,10 @@ function renderPartsCards(){
               '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
             '</div>'+
           '</div>'+
+          '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+'</div>'+
           '<div class="pf-models-count">'+mlist.length+' compatible model'+(mlist.length>1?'s':'')+'</div>'+
           '<div class="pf-models-wrap">'+mlist.map(function(m){return '<span class="pf-model-chip">'+escHtml(m)+'</span>';}).join('')+'</div>'+
+          noteHtml+
           '</div>';
       }).join('');
       return '<div class="pf-type-block">'+
@@ -1105,6 +1129,7 @@ function renderPartsCards(){
           '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
           '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
         '</div>':'';
+      var noteHtml=g.note?'<div style="font-size:11px;color:#9aa6c4;margin-top:10px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
       return '<div class="pf-result-card" style="border-color:'+t.color+'33">'+
         '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,'+t.color+',transparent)"></div>'+
         '<div class="pf-result-header">'+
@@ -1119,7 +1144,9 @@ function renderPartsCards(){
           '</div>'+
           adm+
         '</div>'+
+        '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+'</div>'+
         '<div class="pf-models-wrap">'+tagsHtml+'</div>'+
+        noteHtml+
         '</div>';
     }).join('');
   }).join('');
@@ -1145,6 +1172,10 @@ function partsFormHtml(typeKey,it){
     '<div class="fgrp"><label class="flbl">Compatible Phone Models</label>'+
     '<textarea class="finp" id="pf_models" rows="6" placeholder="Vivo Y20, Vivo Y33s, Vivo Y12...">'+(it?parseModels(it.models).join(', '):'')+'</textarea>'+
     '<div class="fhint">💡 Comma se alag karo.</div></div>'+
+    '<div class="fgrp"><label class="flbl">Fitment Confidence</label>'+
+    '<select class="finp" id="pf_confidence">'+confidenceOptions(it?it.confidence:null)+'</select></div>'+
+    '<div class="fgrp"><label class="flbl">Note (Optional)</label>'+
+    '<textarea class="finp" id="pf_note" rows="2" placeholder="e.g. Universal fit, connector position check karo...">'+(it&&it.note?escHtml(it.note):'')+'</textarea></div>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
     '<button class="bsave" onclick="submitParts()">Save</button></div>';
 }
@@ -1154,10 +1185,12 @@ function submitParts(){
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   var partName=document.getElementById('pf_partName').value.trim();
   var models=splitModelsInput(document.getElementById('pf_models').value);
+  var confidence=document.getElementById('pf_confidence').value;
+  var note=document.getElementById('pf_note').value.trim();
   if(!t||!partName||!models.length){showToast('❌ Sab fields bharo!',true);return;}
   if(!db){showToast('❌ Connection nahi',true);return;}
   var id=PF.editId||db.collection(t.col).doc().id;var isEdit=!!PF.editId;
-  db.collection(t.col).doc(id).set({partName:partName,models:models}).then(function(){
+  db.collection(t.col).doc(id).set({partName:partName,models:models,confidence:confidence,note:note}).then(function(){
     closeModal();showToast(isEdit?'✅ Updated!':'✅ Part Group Added!');
     PF.editKey=null;PF.editId=null;
   }).catch(function(e){showToast('❌ '+e.message,true);});
@@ -1379,3 +1412,4 @@ if('serviceWorker' in navigator){
 </script>
 </body>
 </html>
+
