@@ -504,7 +504,6 @@ PART_TYPES.forEach(function(t){PF.data[t.key]=[];});
 
 // ── HELPERS ──────────────────────────────────────────────────────────────
 function isAdmin(){return S.role==='admin';}
-function uid(){return Math.random().toString(36).slice(2,9);}
 function getList(){return S[S.tab];}
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function setSyncDot(st){document.getElementById('syncDot').className=st;}
@@ -524,6 +523,11 @@ function parseModels(models){
     String(m).split(/[,\/]/).forEach(function(p){var t=p.trim();if(t)result.push(t);});
   });
   return result;
+}
+
+// Form input se models nikaalne ke liye — same rule jo search mein use hota hai (comma AND slash dono se split)
+function splitModelsInput(str){
+  return parseModels(str);
 }
 
 // ── SPLASH ───────────────────────────────────────────────────────────────
@@ -933,10 +937,10 @@ function glassFormHtml(g){
 
 function submitGlass(){
   var name=document.getElementById('gName').value.trim();
-  var models=document.getElementById('gModels').value.split(',').map(function(m){return m.trim();}).filter(Boolean);
+  var models=splitModelsInput(document.getElementById('gModels').value);
   if(!name||!models.length){showToast('❌ Name aur models dono bharo!',true);return;}
   if(!db){showToast('❌ Firebase nahi',true);return;}
-  var id=S.editId||uid();var isEdit=!!S.editId;
+  var id=S.editId||db.collection(COLLECTIONS[S.tab]).doc().id;var isEdit=!!S.editId;
   setSyncDot('syncing');
   db.collection(COLLECTIONS[S.tab]).doc(id).set({glassName:name,models:models}).then(function(){
     var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
@@ -978,7 +982,7 @@ function importCode(){
     setSyncDot('syncing');var col=COLLECTIONS[S.tab];var done=0,total=data.length;
     if(!total){showToast('❌ Empty',true);return;}
     data.forEach(function(g){
-      db.collection(col).doc(g.id||uid()).set({glassName:g.glassName,models:g.models}).then(function(){
+      db.collection(col).doc(g.id||db.collection(col).doc().id).set({glassName:g.glassName,models:g.models}).then(function(){
         done++;if(done===total){setSyncDot('ok');showToast('✅ Imported!');closeModal();}
       });
     });
@@ -1149,10 +1153,10 @@ function submitParts(){
   var typeKey=PF.editKey||(document.getElementById('pf_typeSelect')?document.getElementById('pf_typeSelect').value:null);
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   var partName=document.getElementById('pf_partName').value.trim();
-  var models=document.getElementById('pf_models').value.split(',').map(function(m){return m.trim();}).filter(Boolean);
+  var models=splitModelsInput(document.getElementById('pf_models').value);
   if(!t||!partName||!models.length){showToast('❌ Sab fields bharo!',true);return;}
   if(!db){showToast('❌ Connection nahi',true);return;}
-  var id=PF.editId||uid();var isEdit=!!PF.editId;
+  var id=PF.editId||db.collection(t.col).doc().id;var isEdit=!!PF.editId;
   db.collection(t.col).doc(id).set({partName:partName,models:models}).then(function(){
     closeModal();showToast(isEdit?'✅ Updated!':'✅ Part Group Added!');
     PF.editKey=null;PF.editId=null;
