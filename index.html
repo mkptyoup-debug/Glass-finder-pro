@@ -243,7 +243,21 @@ button{cursor:pointer}
 .bdel{flex:1;padding:13px;background:#220a12;border:1px solid #e8718e44;border-radius:11px;color:#e8718e;font-size:14px;font-weight:700}
 .bdel:active{transform:scale(.96)}
 
-/* SIDE MENU */
+.login-tabs{display:flex;background:#0d0f18;border-radius:10px;padding:4px;margin-bottom:20px;gap:4px}
+.login-tab{flex:1;padding:9px;border-radius:7px;border:none;background:transparent;color:#4a5270;font-size:13px;font-weight:600;transition:all .2s;cursor:pointer}
+.login-tab.active{background:linear-gradient(135deg,#d4af6a22,#d4af6a11);color:#d4af6a;border:1px solid #d4af6a33}
+
+/* FEEDBACK DASHBOARD */
+.fb-card{background:linear-gradient(150deg,#11141f,#161b2a);border:1px solid #d4af6a26;border-radius:14px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.fb-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#d4af6a44,transparent)}
+.fb-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.fb-user{font-size:13px;font-weight:700;color:#d4af6a}
+.fb-date{font-size:10px;color:#333a52}
+.fb-text{font-size:13px;color:#9aa6c4;line-height:1.6}
+.fb-tab-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:#d4af6a14;border:1px solid #d4af6a33;color:#d4af6a;margin-top:8px;display:inline-block}
+.fb-empty{text-align:center;padding:40px 16px;color:#333a52}
+.fb-empty-ico{font-size:36px;margin-bottom:10px}
+.fb-count{font-size:11px;color:#4a5270;margin-bottom:16px;font-weight:600}
 #menuOverlay{display:none;position:fixed;inset:0;background:rgba(4,5,10,.7);backdrop-filter:blur(4px);z-index:2500}
 #menuOverlay.show{display:block}
 #menuPanel{position:fixed;top:0;right:0;height:100%;width:78%;max-width:300px;background:linear-gradient(165deg,#11141f,#0a0c14);border-left:1px solid #d4af6a26;z-index:2600;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);padding:24px 18px;overflow-y:auto}
@@ -289,7 +303,15 @@ button{cursor:pointer}
   <div class="login-box">
     <div class="login-logo">🛡️</div>
     <div class="login-title">Universal Combo</div>
-    <div class="login-sub">Sign in to continue</div>
+    <div class="login-sub">Apna account banao ya login karo</div>
+    <div class="login-tabs">
+      <button class="login-tab active" id="ltSignin" onclick="switchLoginTab('signin')">🔑 Sign In</button>
+      <button class="login-tab" id="ltSignup" onclick="switchLoginTab('signup')">✨ Sign Up</button>
+    </div>
+    <div id="signupNameWrap" class="linp-wrap" style="display:none">
+      <span class="linp-icon">👤</span>
+      <input class="linp" type="text" id="loginName" placeholder="Aapka naam" autocomplete="name"/>
+    </div>
     <div class="linp-wrap">
       <span class="linp-icon">✉️</span>
       <input class="linp" type="email" id="loginEmail" placeholder="Email address" autocomplete="email"/>
@@ -299,7 +321,6 @@ button{cursor:pointer}
       <input class="linp" type="password" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"/>
     </div>
     <button class="login-btn" onclick="doLogin()" id="loginBtn">Sign In</button>
-    <button class="login-skip" onclick="skipLogin()">👤 Staff Mode (Search Only)</button>
     <div class="login-err" id="loginErr"></div>
   </div>
 </div>
@@ -394,6 +415,7 @@ button{cursor:pointer}
   <button class="menu-item" id="notifBtn" onclick="setupNotifications()"><span class="menu-ic">🔔</span> Notifications On Karo</button>
   <button class="menu-item" onclick="openFeedback()"><span class="menu-ic">💬</span> Send Feedback</button>
   <button class="menu-item hide" id="menuAnnounceBtn" onclick="openAnnounceEditor()"><span class="menu-ic">📢</span> Edit Announcement</button>
+  <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="menu-ic">💬</span> View Feedback</button>
   <div class="menu-sep"></div>
   <button class="menu-item hide" id="menuLogout" onclick="doLogout()"><span class="menu-ic">🚪</span> Logout</button>
   <button class="menu-item hide" id="menuLoginBtn" onclick="closeMenu();showLogin()"><span class="menu-ic">🔐</span> Login</button>
@@ -482,6 +504,17 @@ function hideSplash(){
 setTimeout(function(){if(dataLoaded)hideSplash();},900);
 
 // ── LOGIN ────────────────────────────────────────────────────────────────
+var currentLoginTab='signin';
+
+function switchLoginTab(tab){
+  currentLoginTab=tab;
+  document.getElementById('ltSignin').classList.toggle('active',tab==='signin');
+  document.getElementById('ltSignup').classList.toggle('active',tab==='signup');
+  document.getElementById('signupNameWrap').style.display=tab==='signup'?'block':'none';
+  document.getElementById('loginBtn').textContent=tab==='signin'?'Sign In':'Create Account';
+  document.getElementById('loginErr').textContent='';
+}
+
 function showLogin(){
   document.getElementById('loginScreen').classList.add('show');
   document.getElementById('loginErr').textContent='';
@@ -505,17 +538,41 @@ function doLogin(){
   var errEl=document.getElementById('loginErr');
   var btn=document.getElementById('loginBtn');
   if(!email||!pass){errEl.textContent='❌ Email aur password dono bharo';return;}
-  btn.textContent='Signing in...';btn.disabled=true;errEl.textContent='';
-  auth.signInWithEmailAndPassword(email,pass)
-    .then(function(){btn.textContent='Sign In';btn.disabled=false;hideLogin();})
-    .catch(function(e){
-      btn.textContent='Sign In';btn.disabled=false;
-      var msg='❌ Login failed';
-      if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')msg='❌ Email ya password galat hai';
-      else if(e.code==='auth/invalid-email')msg='❌ Email sahi nahi hai';
-      else if(e.code==='auth/too-many-requests')msg='❌ Bahut zyada tries. Thodi der baad karo';
-      errEl.textContent=msg;
-    });
+  if(currentLoginTab==='signup'&&pass.length<6){errEl.textContent='❌ Password kam se kam 6 characters ka hona chahiye';return;}
+  btn.textContent='Please wait...';btn.disabled=true;errEl.textContent='';
+
+  if(currentLoginTab==='signup'){
+    // Sign Up
+    var name=document.getElementById('loginName').value.trim()||email.split('@')[0];
+    auth.createUserWithEmailAndPassword(email,pass)
+      .then(function(cred){
+        return cred.user.updateProfile({displayName:name});
+      })
+      .then(function(){
+        btn.textContent='Create Account';btn.disabled=false;hideLogin();
+        showToast('✅ Account bana! Welcome '+name);
+      })
+      .catch(function(e){
+        btn.textContent='Create Account';btn.disabled=false;
+        var msg='❌ Signup failed';
+        if(e.code==='auth/email-already-in-use')msg='❌ Ye email pehle se registered hai';
+        else if(e.code==='auth/invalid-email')msg='❌ Email sahi nahi hai';
+        else if(e.code==='auth/weak-password')msg='❌ Password zyada strong rakho';
+        errEl.textContent=msg;
+      });
+  } else {
+    // Sign In
+    auth.signInWithEmailAndPassword(email,pass)
+      .then(function(){btn.textContent='Sign In';btn.disabled=false;hideLogin();})
+      .catch(function(e){
+        btn.textContent='Sign In';btn.disabled=false;
+        var msg='❌ Login failed';
+        if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')msg='❌ Email ya password galat hai';
+        else if(e.code==='auth/invalid-email')msg='❌ Email sahi nahi hai';
+        else if(e.code==='auth/too-many-requests')msg='❌ Bahut zyada tries. Thodi der baad karo';
+        errEl.textContent=msg;
+      });
+  }
 }
 
 function doLogout(){
@@ -532,12 +589,12 @@ function updateUserUI(){
   var menuLogout=document.getElementById('menuLogout');
   var menuLoginBtn=document.getElementById('menuLoginBtn');
   var menuAnnounceBtn=document.getElementById('menuAnnounceBtn');
+  var menuFeedbackBtn=document.getElementById('menuFeedbackBtn');
   var fab=document.getElementById('floatingAdd');
   var addBtn=document.getElementById('addBtn');
   var tb=document.getElementById('toolbarWrap');
 
   if(S.user&&isAdmin()){
-    // ADMIN — full access
     var name=S.user.displayName||S.user.email.split('@')[0];
     badge.textContent='👑 '+name;
     badge.className='admin';
@@ -549,11 +606,11 @@ function updateUserUI(){
     menuLogout.classList.remove('hide');
     menuLoginBtn.classList.add('hide');
     menuAnnounceBtn.classList.remove('hide');
+    menuFeedbackBtn.classList.remove('hide');
     fab.classList.add('show');
     addBtn.classList.remove('hide');
     tb.classList.remove('hide');
   } else if(S.user&&!isAdmin()){
-    // LOGGED IN STAFF
     var name2=S.user.displayName||S.user.email.split('@')[0];
     badge.textContent='👤 '+name2;
     badge.className='staff';
@@ -565,20 +622,23 @@ function updateUserUI(){
     menuLogout.classList.remove('hide');
     menuLoginBtn.classList.add('hide');
     menuAnnounceBtn.classList.add('hide');
+    menuFeedbackBtn.classList.add('hide');
     fab.classList.remove('show');
     addBtn.classList.add('hide');
     tb.classList.add('hide');
   } else {
-    // GUEST STAFF (no login)
-    badge.textContent='👤 Staff';
+    // Guest — auto show login
+    badge.textContent='🔒 Login';
     badge.className='';
     menuUserInfo.classList.add('hide');
     menuLogout.classList.add('hide');
-    menuLoginBtn.classList.remove('hide');
+    menuLoginBtn.classList.add('hide');
     menuAnnounceBtn.classList.add('hide');
+    menuFeedbackBtn.classList.add('hide');
     fab.classList.remove('show');
     addBtn.classList.add('hide');
     tb.classList.add('hide');
+    if(dataLoaded)showLogin();
   }
   renderCards();
   renderPartsAddBtn();
@@ -1075,6 +1135,39 @@ function shareApp(){
   closeMenu();
 }
 
+function openFeedbackDashboard(){
+  closeMenu();
+  if(!db){showToast('❌ Connection nahi',true);return;}
+  openModal('<div class="mhead"><span class="mtitle">💬 Feedback Dashboard</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div id="fbDashContent"><div class="fb-empty"><div class="fb-empty-ico">⏳</div><p style="color:#4a5270">Loading...</p></div></div>');
+  db.collection('feedback').orderBy('date','desc').limit(50).get().then(function(snap){
+    var el=document.getElementById('fbDashContent');
+    if(!el)return;
+    if(snap.empty){
+      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">💬</div><p style="color:#4a5270;font-size:14px">Abhi koi feedback nahi aaya</p></div>';
+      return;
+    }
+    var html='<div class="fb-count">'+snap.size+' feedback'+(snap.size>1?'s':'')+' mile</div>';
+    snap.forEach(function(doc){
+      var d=doc.data();
+      var date=d.date?new Date(d.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+      var user=d.userEmail||d.userName||'Anonymous';
+      html+='<div class="fb-card">'+
+        '<div class="fb-card-top">'+
+          '<span class="fb-user">👤 '+escHtml(user)+'</span>'+
+          '<span class="fb-date">'+date+'</span>'+
+        '</div>'+
+        '<div class="fb-text">'+escHtml(d.text)+'</div>'+
+        (d.tab?'<span class="fb-tab-badge">Tab: '+escHtml(d.tab)+'</span>':'')+
+      '</div>';
+    });
+    el.innerHTML=html;
+  }).catch(function(e){
+    var el=document.getElementById('fbDashContent');
+    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">❌</div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
+  });
+}
+
 function openFeedback(){
   closeMenu();
   openModal('<div class="mhead"><span class="mtitle">💬 Feedback</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
@@ -1086,7 +1179,13 @@ function openFeedback(){
 function sendFeedback(){
   var text=document.getElementById('fbText').value.trim();
   if(!text){showToast('❌ Kuch likho',true);return;}
-  db.collection('feedback').add({text:text,date:new Date().toISOString()}).then(function(){
+  db.collection('feedback').add({
+    text:text,
+    date:new Date().toISOString(),
+    tab:S.tab,
+    userEmail:S.user?S.user.email:'Anonymous',
+    userName:S.user?(S.user.displayName||S.user.email.split('@')[0]):'Anonymous'
+  }).then(function(){
     closeModal();showToast('✅ Feedback bhej diya!');
   });
 }
@@ -1152,6 +1251,7 @@ function markLoaded(){
   document.getElementById('loading').classList.add('hide');
   document.getElementById('mainContent').classList.remove('hide');
   hideSplash();
+  if(!S.user)showLogin();
 }
 
 db.collection('flat_glasses').onSnapshot(function(snap){
