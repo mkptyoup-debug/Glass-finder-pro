@@ -1078,7 +1078,7 @@ function renderPartsCards(){
               '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
             '</div>'+
           '</div>'+
-          '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+'</div>'+
+          '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
           '<div class="pf-models-count">'+mlist.length+' compatible model'+(mlist.length>1?'s':'')+'</div>'+
           '<div class="pf-models-wrap">'+mlist.map(function(m){return '<span class="pf-model-chip">'+escHtml(m)+'</span>';}).join('')+'</div>'+
           noteHtml+
@@ -1144,7 +1144,7 @@ function renderPartsCards(){
           '</div>'+
           adm+
         '</div>'+
-        '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+'</div>'+
+        '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
         '<div class="pf-models-wrap">'+tagsHtml+'</div>'+
         noteHtml+
         '</div>';
@@ -1174,6 +1174,8 @@ function partsFormHtml(typeKey,it){
     '<div class="fhint">💡 Comma se alag karo.</div></div>'+
     '<div class="fgrp" id="pf_panelWrap"'+(typeKey&&typeKey!=='display'?' style="display:none"':'')+'><label class="flbl">Panel Type (Display only)</label>'+
     '<select class="finp" id="pf_panel"><option value="TFT"'+(it&&it.panel==='OLED'?'':' selected')+'>TFT</option><option value="OLED"'+(it&&it.panel==='OLED'?' selected':'')+'>OLED</option></select></div>'+
+    '<div class="fgrp" id="pf_curveWrap"'+(typeKey&&typeKey!=='display'?' style="display:none"':'')+'><label class="flbl">Curve Type (Display only, optional)</label>'+
+    '<select class="finp" id="pf_curve"><option value=""'+(!it||!it.curve?' selected':'')+'>Normal</option><option value="curved"'+(it&&it.curve==='curved'?' selected':'')+'>Curved</option><option value="quadcurve"'+(it&&it.curve==='quadcurve'?' selected':'')+'>Quad Curve</option></select></div>'+
     '<div class="fgrp"><label class="flbl">Fitment Confidence</label>'+
     '<select class="finp" id="pf_confidence">'+confidenceOptions(it?it.confidence:null)+'</select></div>'+
     '<div class="fgrp"><label class="flbl">Note (Optional)</label>'+
@@ -1191,10 +1193,12 @@ function submitParts(){
   var note=document.getElementById('pf_note').value.trim();
   var panelEl=document.getElementById('pf_panel');
   var panel=(typeKey==='display'&&panelEl)?panelEl.value:'';
+  var curveEl=document.getElementById('pf_curve');
+  var curve=(typeKey==='display'&&curveEl)?curveEl.value:'';
   if(!t||!partName||!models.length){showToast('❌ Sab fields bharo!',true);return;}
   if(!db){showToast('❌ Connection nahi',true);return;}
   var id=PF.editId||db.collection(t.col).doc().id;var isEdit=!!PF.editId;
-  db.collection(t.col).doc(id).set({partName:partName,models:models,confidence:confidence,note:note,panel:panel}).then(function(){
+  db.collection(t.col).doc(id).set({partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve}).then(function(){
     closeModal();showToast(isEdit?'✅ Updated!':'✅ Part Group Added!');
     PF.editKey=null;PF.editId=null;
   }).catch(function(e){showToast('❌ '+e.message,true);});
@@ -1203,8 +1207,11 @@ function submitParts(){
 function togglePanelWrap(){
   var sel=document.getElementById('pf_typeSelect');
   var wrap=document.getElementById('pf_panelWrap');
-  if(!sel||!wrap)return;
-  wrap.style.display=sel.value==='display'?'':'none';
+  var cwrap=document.getElementById('pf_curveWrap');
+  if(!sel)return;
+  var show=sel.value==='display'?'':'none';
+  if(wrap)wrap.style.display=show;
+  if(cwrap)cwrap.style.display=show;
 }
 function openPartsAddModal(){PF.editKey=null;PF.editId=null;openModal(partsFormHtml(null,null));}
 function openPartsEditModal(typeKey,id){
