@@ -243,6 +243,11 @@ button{cursor:pointer}
 .bdel{flex:1;padding:13px;background:#220a12;border:1px solid #e8718e44;border-radius:11px;color:#e8718e;font-size:14px;font-weight:700}
 .bdel:active{transform:scale(.96)}
 
+.google-btn{width:100%;padding:13px;background:#fff;border:1px solid #ddd;border-radius:12px;color:#3c4043;font-size:14px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.google-btn:active{transform:scale(.97);background:#f8f8f8}
+.login-divider{text-align:center;margin-bottom:16px;position:relative}
+.login-divider::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:#1d2336}
+.login-divider span{background:#141926;padding:0 12px;font-size:11px;color:#4a5270;position:relative;font-weight:600;letter-spacing:.05em}
 .login-tabs{display:flex;background:#0d0f18;border-radius:10px;padding:4px;margin-bottom:20px;gap:4px}
 .login-tab{flex:1;padding:9px;border-radius:7px;border:none;background:transparent;color:#4a5270;font-size:13px;font-weight:600;transition:all .2s;cursor:pointer}
 .login-tab.active{background:linear-gradient(135deg,#d4af6a22,#d4af6a11);color:#d4af6a;border:1px solid #d4af6a33}
@@ -304,6 +309,15 @@ button{cursor:pointer}
     <div class="login-logo">🛡️</div>
     <div class="login-title">Universal Combo</div>
     <div class="login-sub">Apna account banao ya login karo</div>
+
+    <!-- Google Login Button -->
+    <button class="google-btn" onclick="doGoogleLogin()">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
+      Google se Login / Sign Up
+    </button>
+
+    <div class="login-divider"><span>ya email se</span></div>
+
     <div class="login-tabs">
       <button class="login-tab active" id="ltSignin" onclick="switchLoginTab('signin')">🔑 Sign In</button>
       <button class="login-tab" id="ltSignup" onclick="switchLoginTab('signup')">✨ Sign Up</button>
@@ -573,6 +587,22 @@ function doLogin(){
         errEl.textContent=msg;
       });
   }
+}
+
+function doGoogleLogin(){
+  var provider=new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+    .then(function(result){
+      hideLogin();
+      showToast('✅ Welcome '+result.user.displayName+'!');
+    })
+    .catch(function(e){
+      var msg='❌ Google login failed';
+      if(e.code==='auth/popup-closed-by-user')msg='❌ Popup band ho gaya, dobara try karo';
+      else if(e.code==='auth/popup-blocked')msg='❌ Popup block hai, allow karo';
+      document.getElementById('loginErr').textContent=msg;
+      showToast(msg,true);
+    });
 }
 
 function doLogout(){
