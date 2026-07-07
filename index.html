@@ -62,8 +62,17 @@ button{cursor:pointer}
 
 /* HEADER */
 #header{position:sticky;top:0;z-index:200;background:rgba(10,12,20,0.97);backdrop-filter:blur(20px);border-bottom:1px solid #d4af6a1f;padding:14px 16px 0}
-#announceBar{display:none;position:sticky;top:0;z-index:201;background:linear-gradient(90deg,#7a5f1a,#9a7a28,#7a5f1a);overflow:hidden;white-space:nowrap;padding:8px 0}
-#announceBar.show{display:block}
+#announceCard{display:none;margin:10px 14px 0;padding:14px;border-radius:18px;background:linear-gradient(135deg,#151a2c,#1b2138);border:1px solid #2a3350;align-items:center;gap:12px}
+#announceCard.show{display:flex}
+.ann-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#4a5fd8,#8a5fd8);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 0 14px #4a5fd870}
+.ann-body{flex:1;min-width:0}
+.ann-title{color:#f0f4ff;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ann-desc{color:#9aa6c4;font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ann-check{background:linear-gradient(90deg,#4ab0e8,#5fc9e8);border:none;color:#06121c;font-weight:800;font-size:13px;padding:9px 16px;border-radius:20px;flex-shrink:0;box-shadow:0 0 12px #4ab0e850}
+.ann-dots{display:flex;justify-content:center;gap:5px;margin-top:9px}
+.ann-dot{width:6px;height:6px;border-radius:50%;background:#2a3350}
+.ann-dot.active{width:16px;background:#6a7fe8}
+.search-ic-glow{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#d4af6a,#e8c98a);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;box-shadow:0 0 12px #d4af6a60}
 #offlineBar{display:none;position:sticky;top:0;z-index:202;background:#5a1a24;color:#ffd6dc;font-size:12.5px;font-weight:700;text-align:center;padding:8px 12px}
 #offlineBar.show{display:block}
 .skel-wrap{padding:4px 0}
@@ -86,7 +95,9 @@ button{cursor:pointer}
 #userBadge.admin{background:#d4af6a17;border-color:#d4af6a8a;color:#e8c97a}
 #userBadge.staff{background:#4fc78717;border-color:#4fc78788;color:#4fc787}
 #userBadge:active{transform:scale(.95)}
-#menuBtn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1px solid #232a3d;background:#10141f;color:#9aa6c4;font-size:17px}
+#menuBtn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1px solid #232a3d;background:#10141f;color:#9aa6c4;font-size:17px;position:relative}
+#menuDot{display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#e8718e;border:2px solid #08090f}
+#menuDot.show{display:block}
 #menuBtn:active{transform:scale(.92)}
 
 /* TABS */
@@ -373,9 +384,14 @@ button{cursor:pointer}
 
 <div id="offlineBar">📡 Internet nahi hai — data purana (cached) dikh raha hai</div>
 
-<div id="announceBar">
-  <button id="announceClose" onclick="closeAnnounce()">✕</button>
-  <div id="announceTrack"><span id="announceText"></span></div>
+<div id="announceCard" onclick="checkAnnounce()">
+  <div class="ann-icon">📢</div>
+  <div class="ann-body">
+    <div class="ann-title" id="annCardTitle"></div>
+    <div class="ann-desc" id="annCardDesc"></div>
+    <div class="ann-dots" id="annDots"></div>
+  </div>
+  <button class="ann-check" onclick="event.stopPropagation();checkAnnounce()">Check</button>
 </div>
 
 <div id="header">
@@ -389,7 +405,7 @@ button{cursor:pointer}
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       <button id="userBadge" onclick="openMenu()">👤 Staff</button>
-      <button id="menuBtn" onclick="openMenu()">☰</button>
+      <button id="menuBtn" onclick="openMenu()">☰<span id="menuDot"></span></button>
     </div>
   </div>
   <div class="tabs">
@@ -421,7 +437,7 @@ button{cursor:pointer}
     </button>
     <div id="searchWrap">
       <div id="searchBox">
-        <span style="color:#d4af6a;font-size:18px;opacity:.9">🔍</span>
+        <span class="search-ic-glow">🔍</span>
         <input id="searchInput" placeholder="Model number search karo... Y20, A14, Redmi 9A" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused')" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
         <button id="searchClear" onclick="clearSearch()">✕</button>
         <button id="searchBtn" onclick="onSearch()">Search</button>
@@ -470,6 +486,7 @@ button{cursor:pointer}
   <button class="menu-item hide" id="menuAnnounceBtn" onclick="openAnnounceEditor()"><span class="menu-ic">📢</span> Edit Announcement</button>
   <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="menu-ic">💬</span> View Feedback</button>
   <button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="menu-ic">📥</span> View Update Requests</button>
+  <button class="menu-item hide" id="menuBackupBtn" onclick="exportBackup()"><span class="menu-ic">💾</span> Backup Data (JSON)</button>
   <div class="menu-sep"></div>
   <button class="menu-item hide" id="menuLogout" onclick="doLogout()"><span class="menu-ic">🚪</span> Logout</button>
   <button class="menu-item hide" id="menuLoginBtn" onclick="closeMenu();showLogin()"><span class="menu-ic">🔐</span> Login</button>
@@ -484,7 +501,7 @@ button{cursor:pointer}
   </div>
   <div class="pf-body">
     <div id="partsSearchBox">
-      <span style="color:#4ab0e8;font-size:18px;opacity:.9">🔍</span>
+      <span class="search-ic-glow" style="background:linear-gradient(135deg,#4ab0e8,#5fc9e8)">🔍</span>
       <input id="partsSearchInput" placeholder="Phone model search karo... Vivo Y21" oninput="onPartsSearch()" onblur="setTimeout(function(){document.getElementById('partsSearchSuggest').classList.add('hide')},150)"/>
       <button id="partsSearchBtn" onclick="onPartsSearch()">Search</button>
     </div>
@@ -680,6 +697,7 @@ function updateUserUI(){
   var menuAnnounceBtn=document.getElementById('menuAnnounceBtn');
   var menuFeedbackBtn=document.getElementById('menuFeedbackBtn');
   var menuRequestsBtn=document.getElementById('menuRequestsBtn');
+  var menuBackupBtn=document.getElementById('menuBackupBtn');
   var fab=document.getElementById('floatingAdd');
   var addBtn=document.getElementById('addBtn');
   var tb=document.getElementById('toolbarWrap');
@@ -698,9 +716,11 @@ function updateUserUI(){
     menuAnnounceBtn.classList.remove('hide');
     menuFeedbackBtn.classList.remove('hide');
     menuRequestsBtn.classList.remove('hide');
+    menuBackupBtn.classList.remove('hide');
     fab.classList.add('show');
     addBtn.classList.remove('hide');
     tb.classList.remove('hide');
+    checkPendingRequests();
   } else if(S.user&&!isAdmin()){
     var name2=S.user.displayName||S.user.email.split('@')[0];
     badge.textContent='👤 '+name2;
@@ -715,6 +735,7 @@ function updateUserUI(){
     menuAnnounceBtn.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
+    menuBackupBtn.classList.add('hide');
     fab.classList.remove('show');
     addBtn.classList.add('hide');
     tb.classList.add('hide');
@@ -728,6 +749,7 @@ function updateUserUI(){
     menuAnnounceBtn.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
+    menuBackupBtn.classList.add('hide');
     fab.classList.remove('show');
     addBtn.classList.add('hide');
     tb.classList.add('hide');
@@ -1410,30 +1432,59 @@ function doPartsDelete(typeKey,id){
 // ── SIDE MENU ────────────────────────────────────────────────────────────
 function openMenu(){document.getElementById('menuOverlay').classList.add('show');document.getElementById('menuPanel').classList.add('show');}
 function closeMenu(){document.getElementById('menuOverlay').classList.remove('show');document.getElementById('menuPanel').classList.remove('show');}
-function closeAnnounce(){document.getElementById('announceBar').classList.remove('show');}
+// ── ANNOUNCEMENT CAROUSEL ─────────────────────────────────────────────────
+var annState={items:[],idx:0,timer:null};
+function renderAnnounceCard(){
+  var card=document.getElementById('announceCard');
+  if(!annState.items.length){card.classList.remove('show');return;}
+  card.classList.add('show');
+  var it=annState.items[annState.idx];
+  document.getElementById('annCardTitle').textContent=it.title;
+  document.getElementById('annCardDesc').textContent=it.desc||'';
+  document.getElementById('annDots').innerHTML=annState.items.length>1?annState.items.map(function(_,i){
+    return '<span class="ann-dot'+(i===annState.idx?' active':'')+'"></span>';
+  }).join(''):'';
+  if(annState.timer)clearInterval(annState.timer);
+  if(annState.items.length>1){
+    annState.timer=setInterval(function(){
+      annState.idx=(annState.idx+1)%annState.items.length;renderAnnounceCard();
+    },4000);
+  }
+}
+function checkAnnounce(){
+  if(!annState.items.length)return;
+  var it=annState.items[annState.idx];
+  openModal('<div class="mhead"><span class="mtitle">📢 '+escHtml(it.title)+'</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div style="color:#cdd6f0;font-size:13.5px;line-height:1.7">'+escHtml(it.desc||it.title)+'</div>');
+}
+function applyAnnounceData(d){
+  annState.items=(d&&d.items)||[];annState.idx=0;renderAnnounceCard();
+}
 
 function openAnnounceEditor(){
   closeMenu();if(!db){showToast('❌ Connection nahi',true);return;}
   db.collection('meta').doc('announcement').get().then(function(snap){
-    var cur=snap.exists?snap.data():{text:'',active:false};
-    openModal('<div class="mhead"><span class="mtitle">📢 Announcement</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-      '<div class="fgrp"><label class="flbl">Message</label>'+
-      '<textarea class="finp" id="annText" rows="3">'+(cur.text?escHtml(cur.text):'')+'</textarea></div>'+
+    var cur=snap.exists?snap.data():{items:[],active:false};
+    var lines=(cur.items||[]).map(function(it){return it.title+(it.desc?' | '+it.desc:'');}).join('\n');
+    openModal('<div class="mhead"><span class="mtitle">📢 Announcements</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+      '<div class="fgrp"><label class="flbl">Ek line = ek announcement. Format: Title | Description</label>'+
+      '<textarea class="finp" id="annText" rows="5" placeholder="Naya Update | Sabhi glass prices update ho gaye hain">'+(lines?escHtml(lines):'')+'</textarea></div>'+
       '<div class="fgrp" style="display:flex;align-items:center;gap:10px">'+
       '<input type="checkbox" id="annActive" '+(cur.active?'checked':'')+' style="width:18px;height:18px"/>'+
-      '<label style="color:#cdd6f0;font-size:13px;font-weight:600">Bar dikhana hai (ON)</label></div>'+
+      '<label style="color:#cdd6f0;font-size:13px;font-weight:600">Card dikhana hai (ON)</label></div>'+
       '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
       '<button class="bsave" onclick="saveAnnounce()">Save</button></div>');
   });
 }
 function saveAnnounce(){
-  var text=document.getElementById('annText').value.trim();
+  var raw=document.getElementById('annText').value.trim();
   var active=document.getElementById('annActive').checked;
-  db.collection('meta').doc('announcement').set({text:text,active:active}).then(function(){
+  var items=raw.split('\n').map(function(l){l=l.trim();if(!l)return null;
+    var p=l.split('|');return{title:p[0].trim(),desc:(p[1]||'').trim()};
+  }).filter(Boolean);
+  db.collection('meta').doc('announcement').set({items:items,active:active}).then(function(){
     bumpMetaVersion('announce');
-    var bar=document.getElementById('announceBar');
-    if(text&&active){document.getElementById('announceText').textContent=text;bar.classList.add('show');}
-    else{bar.classList.remove('show');}
+    applyAnnounceData(active?{items:items}:{items:[]});
     closeModal();showToast('✅ Updated!');
   });
 }
@@ -1504,6 +1555,8 @@ function sendFeedback(){
 function openRequestsDashboard(){
   closeMenu();
   if(!db){showToast('❌ Connection nahi',true);return;}
+  lsSet('req_lastSeen',new Date().toISOString());
+  document.getElementById('menuDot').classList.remove('show');
   openModal('<div class="mhead"><span class="mtitle">📥 Update Requests</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
     '<div id="reqDashContent"><div class="fb-empty"><div class="fb-empty-ico">⏳</div><p style="color:#4a5270">Loading...</p></div></div>');
   db.collection('update_requests').orderBy('date','desc').limit(50).get().then(function(snap){
@@ -1540,6 +1593,26 @@ function resolveRequest(id){
     if(el)el.remove();
     showToast('✅ Request clear ho gaya');
   });
+}
+function exportBackup(){
+  closeMenu();
+  if(!db){showToast('❌ Connection nahi',true);return;}
+  showToast('⏳ Backup ban raha hai...');
+  var cols=['flat_glasses','uv_glasses','display_glasses','parts_display','parts_frame','parts_backdoor','parts_ccboard','parts_battery'];
+  Promise.all(cols.map(function(c){
+    return db.collection(c).get().then(function(snap){
+      return snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    });
+  })).then(function(results){
+    var out={exportedAt:new Date().toISOString()};
+    cols.forEach(function(c,i){out[c]=results[i];});
+    var blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;a.download='glassfinder-backup-'+new Date().toISOString().slice(0,10)+'.json';
+    a.click();URL.revokeObjectURL(url);
+    showToast('✅ Backup download ho gaya!');
+  }).catch(function(e){showToast('❌ '+e.message,true);});
 }
 function openRequestForm(type){
   closeMenu();
@@ -1716,6 +1789,15 @@ function bumpGlassVersion(tabKey){
 // 'log' aur 'announcement' ke liye bhi wahi dataVersion doc reuse karte hain —
 // alag se real-time listener khula rakhne ke bajaye, yeh existing 2-min poll
 // cycle me hi check ho jaata hai. Kam open connections, kam cost.
+// Admin ke liye: naye update_requests ka halka check — sirf 1 chhota query (limit 1),
+// existing 2-min poll cycle ke saath piggyback, koi alag interval/cost nahi.
+function checkPendingRequests(){
+  if(!db||!isAdmin())return;
+  var lastSeen=lsGet('req_lastSeen')||'1970-01-01';
+  db.collection('update_requests').where('date','>',lastSeen).limit(1).get().then(function(snap){
+    document.getElementById('menuDot').classList.toggle('show',!snap.empty);
+  }).catch(function(){});
+}
 function bumpMetaVersion(key){
   var v={};v[key]=Date.now();
   db.collection('meta').doc('dataVersion').set(v,{merge:true});
@@ -1729,9 +1811,7 @@ function syncLogAndAnnounce(versions){
   var tasks=[
     {key:'log',doc:'log',apply:function(d){S.log=(d&&d.entries)||[];renderRecent();renderStats();}},
     {key:'announce',doc:'announcement',apply:function(d){
-      var bar=document.getElementById('announceBar');
-      if(d&&d.text&&d.active){document.getElementById('announceText').textContent=d.text;bar.classList.add('show');}
-      else{bar.classList.remove('show');}
+      applyAnnounceData(d&&d.active?d:{items:[]});
     }}
   ];
   tasks.forEach(function(t){
@@ -1768,6 +1848,7 @@ function pollGlassVersion(){
       }
     });
     syncLogAndAnnounce(versions);
+    checkPendingRequests();
   });
 }
 setInterval(pollGlassVersion,120000); // har 2 minute me sirf 1 chhota read
@@ -1794,4 +1875,4 @@ if('serviceWorker' in navigator){
 }
 </script>
 </body>
-  </html>
+</html>
