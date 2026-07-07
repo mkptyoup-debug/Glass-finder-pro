@@ -516,6 +516,10 @@ PART_TYPES.forEach(function(t){PF.data[t.key]=[];});
 // ── HELPERS ──────────────────────────────────────────────────────────────
 function isAdmin(){return S.role==='admin';}
 function getList(){return S[S.tab];}
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+function lsGetJSON(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
+function lsSetJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function setSyncDot(st){document.getElementById('syncDot').className=st;}
 
@@ -1011,10 +1015,15 @@ function submitGlass(){
   if(!name||!models.length){showToast('❌ Name aur models dono bharo!',true);return;}
   if(!db){showToast('❌ Firebase nahi',true);return;}
   var id=S.editId||db.collection(COLLECTIONS[S.tab]).doc().id;var isEdit=!!S.editId;
+  var newDoc={id:id,glassName:name,models:models,confidence:confidence,note:note};
   setSyncDot('syncing');
   db.collection(COLLECTIONS[S.tab]).doc(id).set({glassName:name,models:models,confidence:confidence,note:note}).then(function(){
     var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
     db.collection('meta').doc('log').set({entries:[entry].concat(S.log).slice(0,20)});
+    // Apni list turant update karo (live listener hata diya, isliye manually)
+    var idx=S[S.tab].findIndex(function(x){return x.id===id;});
+    if(idx>=0)S[S.tab][idx]=newDoc;else S[S.tab].push(newDoc);
+    bumpGlassVersion(S.tab);render();
     setSyncDot('ok');closeModal();showToast(isEdit?'✅ Updated!':'✅ Added!');S.editId=null;
   }).catch(function(e){setSyncDot('err');showToast('❌ '+e.message,true);});
 }
@@ -1032,6 +1041,8 @@ function doDelete(id){
   db.collection(COLLECTIONS[S.tab]).doc(id).delete().then(function(){
     if(g){var entry={msg:'🗑️ '+g.glassName+' removed',date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
     db.collection('meta').doc('log').set({entries:[entry].concat(S.log).slice(0,20)});}
+    S[S.tab]=S[S.tab].filter(function(x){return x.id!==id;});
+    bumpGlassVersion(S.tab);render();
     setSyncDot('ok');closeModal();showToast('✅ Deleted');
   }).catch(function(){setSyncDot('err');});
 }
@@ -1052,8 +1063,15 @@ function importCode(){
     setSyncDot('syncing');var col=COLLECTIONS[S.tab];var done=0,total=data.length;
     if(!total){showToast('❌ Empty',true);return;}
     data.forEach(function(g){
-      db.collection(col).doc(g.id||db.collection(col).doc().id).set({glassName:g.glassName,models:g.models,confidence:g.confidence||'100',note:g.note||''}).then(function(){
-        done++;if(done===total){setSyncDot('ok');showToast('✅ Imported!');closeModal();}
+      var docId=g.id||db.collection(col).doc().id;
+      db.collection(col).doc(docId).set({glassName:g.glassName,models:g.models,confidence:g.confidence||'100',note:g.note||''}).then(function(){
+        done++;if(done===total){
+          db.collection(col).get().then(function(snap){
+            S[S.tab]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+            bumpGlassVersion(S.tab);render();
+            setSyncDot('ok');showToast('✅ Imported!');closeModal();
+          });
+        }
       });
     });
   }catch(e){showToast('❌ '+e.message,true);}
@@ -1072,13 +1090,52 @@ function closePartsScreen(){document.getElementById('partsScreen').classList.rem
 
 function loadPartsData(){
   if(!db)return;PF.loaded=true;
-  PART_TYPES.forEach(function(t){
-    db.collection(t.col).onSnapshot(function(snap){
-      PF.data[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-      renderPartsCards();
+  db.collection('meta').doc('partsVersion').get().then(function(vSnap){
+    var versions=vSnap.exists?vSnap.data():{};
+    var pending=PART_TYPES.length;
+    PART_TYPES.forEach(function(t){
+      var remoteV=versions[t.key]||0;
+      var localV=lsGet('pv_'+t.key);
+      var cached=lsGetJSON('pc_'+t.key);
+      if(cached&&localV&&Number(localV)===Number(remoteV)){
+        PF.data[t.key]=cached;done();
+      } else {
+        db.collection(t.col).get().then(function(snap){
+          PF.data[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+          lsSetJSON('pc_'+t.key,PF.data[t.key]);lsSet('pv_'+t.key,String(remoteV));
+          done();
+        },function(){done();});
+      }
+    });
+    function done(){pending--;if(pending===0)renderPartsCards();}
+  });
+}
+
+function bumpPartsVersion(typeKey){
+  var v={};v[typeKey]=Date.now();
+  db.collection('meta').doc('partsVersion').set(v,{merge:true});
+  lsSet('pv_'+typeKey,String(v[typeKey]));
+  lsSetJSON('pc_'+typeKey,PF.data[typeKey]);
+}
+
+function pollPartsVersion(){
+  if(!db||!PF.loaded)return;
+  db.collection('meta').doc('partsVersion').get().then(function(vSnap){
+    var versions=vSnap.exists?vSnap.data():{};
+    PART_TYPES.forEach(function(t){
+      var remoteV=versions[t.key]||0;
+      var localV=lsGet('pv_'+t.key);
+      if(!localV||Number(localV)!==Number(remoteV)){
+        db.collection(t.col).get().then(function(snap){
+          PF.data[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+          lsSetJSON('pc_'+t.key,PF.data[t.key]);lsSet('pv_'+t.key,String(remoteV));
+          renderPartsCards();
+        });
+      }
     });
   });
 }
+setInterval(pollPartsVersion,120000);
 
 function renderPartsAddBtn(){
   var btn=document.getElementById('partsAddBtn');
@@ -1269,8 +1326,12 @@ function submitParts(){
   if(!t||!partName||!models.length){showToast('❌ Sab fields bharo!',true);return;}
   if(!db){showToast('❌ Connection nahi',true);return;}
   var id=PF.editId||db.collection(t.col).doc().id;var isEdit=!!PF.editId;
+  var newDoc={id:id,partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve};
   db.collection(t.col).doc(id).set({partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve}).then(function(){
     closeModal();showToast(isEdit?'✅ Updated!':'✅ Part Group Added!');
+    var idx=PF.data[typeKey].findIndex(function(x){return x.id===id;});
+    if(idx>=0)PF.data[typeKey][idx]=newDoc;else PF.data[typeKey].push(newDoc);
+    bumpPartsVersion(typeKey);renderPartsCards();
     PF.editKey=null;PF.editId=null;
   }).catch(function(e){showToast('❌ '+e.message,true);});
 }
@@ -1299,7 +1360,11 @@ function confirmPartsDelete(typeKey,id){
 function doPartsDelete(typeKey,id){
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   if(!db||!t)return;
-  db.collection(t.col).doc(id).delete().then(function(){closeModal();showToast('✅ Deleted');});
+  db.collection(t.col).doc(id).delete().then(function(){
+    PF.data[typeKey]=PF.data[typeKey].filter(function(x){return x.id!==id;});
+    bumpPartsVersion(typeKey);renderPartsCards();
+    closeModal();showToast('✅ Deleted');
+  });
 }
 
 // ── SIDE MENU ────────────────────────────────────────────────────────────
@@ -1454,18 +1519,65 @@ function markLoaded(){
   if(!S.user)showLogin();
 }
 
-db.collection('flat_glasses').onSnapshot(function(snap){
-  S.flat=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-  render();setSyncDot('ok');markLoaded();
-},function(){setSyncDot('err');markLoaded();});
+// ── SMART DATA LOADING (version-check + cache, avoids re-reading everything) ──
+// Sirf yeh 3 collections ke liye version-check pattern — 'meta/dataVersion' ek chhota
+// doc hai jisme flat/uv/display ka last-changed timestamp hota hai. Agar wo match
+// karta hai localStorage me saved version se, to poori collection dobara nahi
+// padhi jaati — cache se hi data mil jaata hai. Bill bahut kam ho jaata hai.
+var GLASS_TABS=[{key:'flat',col:'flat_glasses'},{key:'uv',col:'uv_glasses'},{key:'display',col:'display_glasses'}];
 
-db.collection('uv_glasses').onSnapshot(function(snap){
-  S.uv=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});render();setSyncDot('ok');
-},function(){setSyncDot('err');});
+function loadGlassData(){
+  db.collection('meta').doc('dataVersion').get().then(function(vSnap){
+    var versions=vSnap.exists?vSnap.data():{};
+    var pending=GLASS_TABS.length;
+    GLASS_TABS.forEach(function(t){
+      var remoteV=versions[t.key]||0;
+      var localV=lsGet('gv_'+t.key);
+      var cached=lsGetJSON('gc_'+t.key);
+      if(cached&&localV&&Number(localV)===Number(remoteV)){
+        S[t.key]=cached;done();
+      } else {
+        db.collection(t.col).get().then(function(snap){
+          S[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+          lsSetJSON('gc_'+t.key,S[t.key]);lsSet('gv_'+t.key,String(remoteV));
+          done();
+        },function(){done();});
+      }
+    });
+    function done(){pending--;if(pending===0){render();setSyncDot('ok');markLoaded();}}
+  },function(){setSyncDot('err');markLoaded();});
+}
 
-db.collection('display_glasses').onSnapshot(function(snap){
-  S.display=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});render();setSyncDot('ok');
-},function(){setSyncDot('err');});
+// Har collection write (add/edit/delete) ke baad version bump karo — taaki
+// dusre users ki agli visit pe unhe pata chale ki data badla hai.
+function bumpGlassVersion(tabKey){
+  var v={};v[tabKey]=Date.now();
+  db.collection('meta').doc('dataVersion').set(v,{merge:true});
+  lsSet('gv_'+tabKey,String(v[tabKey]));
+  lsSetJSON('gc_'+tabKey,S[tabKey]);
+}
+
+// Halka periodic check — sirf 1 chhota doc padhta hai (mehenga poori collection
+// padhna nahi), aur sirf tabhi refetch karta hai jab kuch actually badla ho.
+function pollGlassVersion(){
+  if(!db||!dataLoaded)return;
+  db.collection('meta').doc('dataVersion').get().then(function(vSnap){
+    var versions=vSnap.exists?vSnap.data():{};
+    GLASS_TABS.forEach(function(t){
+      var remoteV=versions[t.key]||0;
+      var localV=lsGet('gv_'+t.key);
+      if(!localV||Number(localV)!==Number(remoteV)){
+        db.collection(t.col).get().then(function(snap){
+          S[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+          lsSetJSON('gc_'+t.key,S[t.key]);lsSet('gv_'+t.key,String(remoteV));
+          render();
+        });
+      }
+    });
+  });
+}
+setInterval(pollGlassVersion,120000); // har 2 minute me sirf 1 chhota read
+loadGlassData();
 
 db.collection('meta').doc('log').onSnapshot(function(snap){
   if(snap.exists)S.log=snap.data().entries||[];
