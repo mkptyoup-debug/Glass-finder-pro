@@ -452,9 +452,14 @@ button{cursor:pointer}
     <span class="menu-user-role" id="menuUserRole">Staff</span>
   </div>
   <div class="menu-head">Menu</div>
+  <button class="menu-item" onclick="openRequestForm('display')"><span class="menu-ic">➕</span> Request Display Update</button>
+  <button class="menu-item" onclick="openRequestForm('glass')"><span class="menu-ic">📱</span> Request Glass Update</button>
+  <button class="menu-item" onclick="openTrending()"><span class="menu-ic">⭐</span> Trending Today</button>
+  <div class="menu-sep"></div>
   <button class="menu-item" onclick="shareApp()"><span class="menu-ic">📤</span> Share App</button>
   <button class="menu-item" id="notifBtn" onclick="setupNotifications()"><span class="menu-ic">🔔</span> Notifications On Karo</button>
   <button class="menu-item" onclick="openFeedback()"><span class="menu-ic">💬</span> Send Feedback</button>
+  <button class="menu-item" onclick="openAboutLegal()"><span class="menu-ic">ℹ️</span> About &amp; Legal</button>
   <button class="menu-item hide" id="menuAnnounceBtn" onclick="openAnnounceEditor()"><span class="menu-ic">📢</span> Edit Announcement</button>
   <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="menu-ic">💬</span> View Feedback</button>
   <div class="menu-sep"></div>
@@ -1453,6 +1458,54 @@ function sendFeedback(){
   }).then(function(){
     closeModal();showToast('✅ Feedback bhej diya!');
   });
+}
+
+// ── REQUEST UPDATE / TRENDING / ABOUT ────────────────────────────────────
+function openRequestForm(type){
+  closeMenu();
+  var title=type==='display'?'➕ Request Display Update':'📱 Request Glass Update';
+  var modelLbl=type==='display'?'Phone Model':'Phone Model / Glass Name';
+  openModal('<div class="mhead"><span class="mtitle">'+title+'</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="fgrp"><label class="flbl">'+modelLbl+'</label>'+
+    '<input class="finp" id="reqModel" placeholder="e.g. Redmi Note 12"/></div>'+
+    '<div class="fgrp"><label class="flbl">Details</label>'+
+    '<textarea class="finp" id="reqDetails" rows="4" placeholder="Kya update chahiye, batao..."></textarea></div>'+
+    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
+    '<button class="bsave" onclick="sendUpdateRequest(\''+type+'\')">Send</button></div>');
+}
+function sendUpdateRequest(type){
+  var model=document.getElementById('reqModel').value.trim();
+  var details=document.getElementById('reqDetails').value.trim();
+  if(!model){showToast('❌ Model likho',true);return;}
+  db.collection('update_requests').add({
+    type:type,model:model,details:details,
+    date:new Date().toISOString(),
+    userEmail:S.user?S.user.email:'Anonymous',
+    userName:S.user?(S.user.displayName||S.user.email.split('@')[0]):'Anonymous'
+  }).then(function(){closeModal();showToast('✅ Request bhej diya!');});
+}
+function openTrending(){
+  closeMenu();
+  var html='<div class="mhead"><span class="mtitle">⭐ Trending Today</span><button class="mclose" onclick="closeModal()">✕</button></div>';
+  if(!S.log||!S.log.length){
+    html+='<p style="color:#4a5270;font-size:13px;padding:10px 0">Abhi koi trending update nahi hai.</p>';
+  }else{
+    html+='<div style="max-height:60vh;overflow-y:auto">';
+    S.log.slice(0,15).forEach(function(e){
+      html+='<div class="fb-card"><div class="fb-text">'+escHtml(typeof e==='string'?e:(e.text||JSON.stringify(e)))+'</div></div>';
+    });
+    html+='</div>';
+  }
+  openModal(html);
+}
+function openAboutLegal(){
+  closeMenu();
+  openModal('<div class="mhead"><span class="mtitle">ℹ️ About &amp; Legal</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div style="color:#cdd6f0;font-size:13.5px;line-height:1.7">'+
+    '<p><b style="color:#d4af6a">Glass Finder</b> — Mobile parts &amp; glass catalog lookup app.</p>'+
+    '<p style="margin-top:10px;color:#9aa6c4">Yeh app aapko mobile display, glass aur parts ki compatibility jaankari deta hai. Data regularly update kiya jata hai.</p>'+
+    '<p style="margin-top:10px;color:#4a5270;font-size:12px">© '+new Date().getFullYear()+' Glass Finder. All rights reserved.</p>'+
+    '</div>');
 }
 
 // ── NOTIFICATIONS ────────────────────────────────────────────────────────
