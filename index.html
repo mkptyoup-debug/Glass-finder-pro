@@ -64,6 +64,11 @@ button{cursor:pointer}
 #header{position:sticky;top:0;z-index:200;background:rgba(10,12,20,0.97);backdrop-filter:blur(20px);border-bottom:1px solid #d4af6a1f;padding:14px 16px 0}
 #announceBar{display:none;position:sticky;top:0;z-index:201;background:linear-gradient(90deg,#7a5f1a,#9a7a28,#7a5f1a);overflow:hidden;white-space:nowrap;padding:8px 0}
 #announceBar.show{display:block}
+#offlineBar{display:none;position:sticky;top:0;z-index:202;background:#5a1a24;color:#ffd6dc;font-size:12.5px;font-weight:700;text-align:center;padding:8px 12px}
+#offlineBar.show{display:block}
+.skel-wrap{padding:4px 0}
+.skel-card{height:78px;border-radius:14px;margin-bottom:12px;background:linear-gradient(90deg,#11141f 25%,#1c2135 37%,#11141f 63%);background-size:400% 100%;animation:skelShine 1.4s ease-in-out infinite}
+@keyframes skelShine{0%{background-position:100% 0}100%{background-position:0 0}}
 #announceTrack{display:inline-block;padding-left:100%;animation:scrollText 16s linear infinite}
 #announceTrack span{color:#fff4d6;font-size:12.5px;font-weight:700}
 @keyframes scrollText{from{transform:translateX(0)}to{transform:translateX(-100%)}}
@@ -366,6 +371,8 @@ button{cursor:pointer}
   </div>
 </div>
 
+<div id="offlineBar">📡 Internet nahi hai — data purana (cached) dikh raha hai</div>
+
 <div id="announceBar">
   <button id="announceClose" onclick="closeAnnounce()">✕</button>
   <div id="announceTrack"><span id="announceText"></span></div>
@@ -462,6 +469,7 @@ button{cursor:pointer}
   <button class="menu-item" onclick="openAboutLegal()"><span class="menu-ic">ℹ️</span> About &amp; Legal</button>
   <button class="menu-item hide" id="menuAnnounceBtn" onclick="openAnnounceEditor()"><span class="menu-ic">📢</span> Edit Announcement</button>
   <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="menu-ic">💬</span> View Feedback</button>
+  <button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="menu-ic">📥</span> View Update Requests</button>
   <div class="menu-sep"></div>
   <button class="menu-item hide" id="menuLogout" onclick="doLogout()"><span class="menu-ic">🚪</span> Logout</button>
   <button class="menu-item hide" id="menuLoginBtn" onclick="closeMenu();showLogin()"><span class="menu-ic">🔐</span> Login</button>
@@ -515,7 +523,7 @@ var PART_TYPES=[
   {key:'ccboard',label:'CC Board',icon:'🔌',col:'parts_ccboard',color:'#4ae8a2'},
   {key:'battery',label:'Battery',icon:'🔋',col:'parts_battery',color:'#e8d54a'}
 ];
-var PF={data:{},query:'',editKey:null,editId:null,loaded:false};
+var PF={data:{},query:'',editKey:null,editId:null,loaded:false,ready:false};
 PART_TYPES.forEach(function(t){PF.data[t.key]=[];});
 
 // ── HELPERS ──────────────────────────────────────────────────────────────
@@ -527,6 +535,15 @@ function lsGetJSON(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):n
 function lsSetJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function setSyncDot(st){document.getElementById('syncDot').className=st;}
+
+// ── OFFLINE DETECTION ────────────────────────────────────────────────────
+function updateOfflineBar(){
+  var bar=document.getElementById('offlineBar');
+  if(navigator.onLine){bar.classList.remove('show');}
+  else{bar.classList.add('show');}
+}
+window.addEventListener('online',function(){updateOfflineBar();showToast('✅ Internet wapas aa gaya');pollGlassVersion();});
+window.addEventListener('offline',function(){updateOfflineBar();showToast('❌ Internet chala gaya',true);});
 
 function showToast(msg,err){
   var t=document.getElementById('toast');
@@ -662,6 +679,7 @@ function updateUserUI(){
   var menuLoginBtn=document.getElementById('menuLoginBtn');
   var menuAnnounceBtn=document.getElementById('menuAnnounceBtn');
   var menuFeedbackBtn=document.getElementById('menuFeedbackBtn');
+  var menuRequestsBtn=document.getElementById('menuRequestsBtn');
   var fab=document.getElementById('floatingAdd');
   var addBtn=document.getElementById('addBtn');
   var tb=document.getElementById('toolbarWrap');
@@ -679,6 +697,7 @@ function updateUserUI(){
     menuLoginBtn.classList.add('hide');
     menuAnnounceBtn.classList.remove('hide');
     menuFeedbackBtn.classList.remove('hide');
+    menuRequestsBtn.classList.remove('hide');
     fab.classList.add('show');
     addBtn.classList.remove('hide');
     tb.classList.remove('hide');
@@ -695,6 +714,7 @@ function updateUserUI(){
     menuLoginBtn.classList.add('hide');
     menuAnnounceBtn.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
+    menuRequestsBtn.classList.add('hide');
     fab.classList.remove('show');
     addBtn.classList.add('hide');
     tb.classList.add('hide');
@@ -707,6 +727,7 @@ function updateUserUI(){
     menuLoginBtn.classList.add('hide');
     menuAnnounceBtn.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
+    menuRequestsBtn.classList.add('hide');
     fab.classList.remove('show');
     addBtn.classList.add('hide');
     tb.classList.add('hide');
@@ -990,6 +1011,7 @@ function copyList(id){
   var mlist=parseModels(g.models);
   navigator.clipboard.writeText('🛡️ '+g.glassName+'\n📱 Compatible Models ('+mlist.length+'):\n'+mlist.join(', '));
   showToast('✅ List copied! WhatsApp pe share karo');
+  db.collection(COLLECTIONS[S.tab]).doc(id).update({shares:firebase.firestore.FieldValue.increment(1)}).catch(function(){});
 }
 
 // ── GLASS CRUD ───────────────────────────────────────────────────────────
@@ -1024,7 +1046,9 @@ function submitGlass(){
   setSyncDot('syncing');
   db.collection(COLLECTIONS[S.tab]).doc(id).set({glassName:name,models:models,confidence:confidence,note:note}).then(function(){
     var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
-    db.collection('meta').doc('log').set({entries:[entry].concat(S.log).slice(0,20)});
+    S.log=[entry].concat(S.log).slice(0,20);
+    db.collection('meta').doc('log').set({entries:S.log});
+    bumpMetaVersion('log');renderRecent();renderStats();
     // Apni list turant update karo (live listener hata diya, isliye manually)
     var idx=S[S.tab].findIndex(function(x){return x.id===id;});
     if(idx>=0)S[S.tab][idx]=newDoc;else S[S.tab].push(newDoc);
@@ -1045,7 +1069,9 @@ function doDelete(id){
   var g=getList().find(function(x){return x.id===id;});setSyncDot('syncing');
   db.collection(COLLECTIONS[S.tab]).doc(id).delete().then(function(){
     if(g){var entry={msg:'🗑️ '+g.glassName+' removed',date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
-    db.collection('meta').doc('log').set({entries:[entry].concat(S.log).slice(0,20)});}
+    S.log=[entry].concat(S.log).slice(0,20);
+    db.collection('meta').doc('log').set({entries:S.log});
+    bumpMetaVersion('log');renderRecent();renderStats();}
     S[S.tab]=S[S.tab].filter(function(x){return x.id!==id;});
     bumpGlassVersion(S.tab);render();
     setSyncDot('ok');closeModal();showToast('✅ Deleted');
@@ -1112,7 +1138,7 @@ function loadPartsData(){
         },function(){done();});
       }
     });
-    function done(){pending--;if(pending===0)renderPartsCards();}
+    function done(){pending--;if(pending===0){PF.ready=true;renderPartsCards();}}
   });
 }
 
@@ -1187,6 +1213,11 @@ function renderPartsCards(){
       return;
     }
     var anyData=PART_TYPES.some(function(t){return(PF.data[t.key]||[]).length;});
+    if(!anyData&&!PF.ready){
+      el.innerHTML='<div class="skel-wrap">'+
+        '<div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div></div>';
+      return;
+    }
     if(!anyData){
       el.innerHTML='<div class="empty"><div class="empty-ico">🔧</div>'+
         '<p class="empty-t">Koi part group nahi hai</p>'+
@@ -1238,6 +1269,10 @@ function renderPartsCards(){
   });
 
   if(!sections.length){
+    if(!PF.ready){
+      el.innerHTML='<div class="skel-wrap"><div class="skel-card"></div><div class="skel-card"></div></div>';
+      return;
+    }
     el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div>'+
       '<p class="empty-t">Koi parts nahi mila</p>'+
       '<p class="empty-s">"'+escHtml(q)+'" ke liye data add nahi hua abhi</p></div>';
@@ -1392,10 +1427,15 @@ function openAnnounceEditor(){
   });
 }
 function saveAnnounce(){
-  db.collection('meta').doc('announcement').set({
-    text:document.getElementById('annText').value.trim(),
-    active:document.getElementById('annActive').checked
-  }).then(function(){closeModal();showToast('✅ Updated!');});
+  var text=document.getElementById('annText').value.trim();
+  var active=document.getElementById('annActive').checked;
+  db.collection('meta').doc('announcement').set({text:text,active:active}).then(function(){
+    bumpMetaVersion('announce');
+    var bar=document.getElementById('announceBar');
+    if(text&&active){document.getElementById('announceText').textContent=text;bar.classList.add('show');}
+    else{bar.classList.remove('show');}
+    closeModal();showToast('✅ Updated!');
+  });
 }
 
 function shareApp(){
@@ -1461,6 +1501,46 @@ function sendFeedback(){
 }
 
 // ── REQUEST UPDATE / TRENDING / ABOUT ────────────────────────────────────
+function openRequestsDashboard(){
+  closeMenu();
+  if(!db){showToast('❌ Connection nahi',true);return;}
+  openModal('<div class="mhead"><span class="mtitle">📥 Update Requests</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div id="reqDashContent"><div class="fb-empty"><div class="fb-empty-ico">⏳</div><p style="color:#4a5270">Loading...</p></div></div>');
+  db.collection('update_requests').orderBy('date','desc').limit(50).get().then(function(snap){
+    var el=document.getElementById('reqDashContent');
+    if(!el)return;
+    if(snap.empty){
+      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">📥</div><p style="color:#4a5270;font-size:14px">Abhi koi request nahi aayi</p></div>';
+      return;
+    }
+    var html='<div class="fb-count">'+snap.size+' request'+(snap.size>1?'s':'')+' mile</div>';
+    snap.forEach(function(doc){
+      var d=doc.data();
+      var date=d.date?new Date(d.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+      var user=d.userEmail||d.userName||'Anonymous';
+      html+='<div class="fb-card" id="req_'+doc.id+'">'+
+        '<div class="fb-card-top">'+
+          '<span class="fb-user">👤 '+escHtml(user)+'</span>'+
+          '<span class="fb-date">'+date+'</span>'+
+        '</div>'+
+        '<div class="fb-text"><b>'+escHtml(d.model)+'</b>'+(d.details?'<br>'+escHtml(d.details):'')+'</div>'+
+        '<span class="fb-tab-badge">'+(d.type==='display'?'Display':'Glass')+'</span> '+
+        '<button class="menu-item" style="display:inline-block;width:auto;padding:6px 12px;margin-top:8px;font-size:12px;color:#e8718e" onclick="resolveRequest(\''+doc.id+'\')">🗑 Done / Remove</button>'+
+      '</div>';
+    });
+    el.innerHTML=html;
+  }).catch(function(e){
+    var el=document.getElementById('reqDashContent');
+    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">❌</div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
+  });
+}
+function resolveRequest(id){
+  db.collection('update_requests').doc(id).delete().then(function(){
+    var el=document.getElementById('req_'+id);
+    if(el)el.remove();
+    showToast('✅ Request clear ho gaya');
+  });
+}
 function openRequestForm(type){
   closeMenu();
   var title=type==='display'?'➕ Request Display Update':'📱 Request Glass Update';
@@ -1486,17 +1566,40 @@ function sendUpdateRequest(type){
 }
 function openTrending(){
   closeMenu();
-  var html='<div class="mhead"><span class="mtitle">⭐ Trending Today</span><button class="mclose" onclick="closeModal()">✕</button></div>';
-  if(!S.log||!S.log.length){
-    html+='<p style="color:#4a5270;font-size:13px;padding:10px 0">Abhi koi trending update nahi hai.</p>';
-  }else{
-    html+='<div style="max-height:60vh;overflow-y:auto">';
-    S.log.slice(0,15).forEach(function(e){
-      html+='<div class="fb-card"><div class="fb-text">'+escHtml(typeof e==='string'?e:(e.text||JSON.stringify(e)))+'</div></div>';
+  if(!db){showToast('❌ Connection nahi',true);return;}
+  openModal('<div class="mhead"><span class="mtitle">⭐ Trending Today</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div id="trendContent"><div class="fb-empty"><div class="fb-empty-ico">⏳</div><p style="color:#4a5270">Loading...</p></div></div>');
+  var cols=['flat_glasses','uv_glasses','display_glasses'];
+  Promise.all(cols.map(function(c){
+    return db.collection(c).orderBy('shares','desc').limit(5).get().catch(function(){return {docs:[]};});
+  })).then(function(snaps){
+    var el=document.getElementById('trendContent');
+    if(!el)return;
+    var items=[];
+    snaps.forEach(function(snap){
+      (snap.docs||[]).forEach(function(doc){
+        var d=doc.data();
+        if(d.shares>0)items.push({name:d.glassName,shares:d.shares});
+      });
     });
-    html+='</div>';
-  }
-  openModal(html);
+    items.sort(function(a,b){return b.shares-a.shares;});
+    items=items.slice(0,10);
+    if(!items.length){
+      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">⭐</div><p style="color:#4a5270;font-size:14px">Abhi koi trending item nahi hai — jaise log "Share List" use karenge, yaha dikhna shuru hoga</p></div>';
+      return;
+    }
+    var html='';
+    items.forEach(function(it,i){
+      html+='<div class="fb-card"><div class="fb-card-top">'+
+        '<span class="fb-user">🛡️ '+escHtml(it.name)+'</span>'+
+        '<span class="fb-date">#'+(i+1)+'</span></div>'+
+        '<span class="fb-tab-badge">📋 '+it.shares+' shares</span></div>';
+    });
+    el.innerHTML=html;
+  }).catch(function(e){
+    var el=document.getElementById('trendContent');
+    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">❌</div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
+  });
 }
 function openAboutLegal(){
   closeMenu();
@@ -1597,6 +1700,7 @@ function loadGlassData(){
         },function(){done();});
       }
     });
+    syncLogAndAnnounce(versions);
     function done(){pending--;if(pending===0){render();setSyncDot('ok');markLoaded();}}
   },function(){setSyncDot('err');markLoaded();});
 }
@@ -1608,6 +1712,42 @@ function bumpGlassVersion(tabKey){
   db.collection('meta').doc('dataVersion').set(v,{merge:true});
   lsSet('gv_'+tabKey,String(v[tabKey]));
   lsSetJSON('gc_'+tabKey,S[tabKey]);
+}
+// 'log' aur 'announcement' ke liye bhi wahi dataVersion doc reuse karte hain —
+// alag se real-time listener khula rakhne ke bajaye, yeh existing 2-min poll
+// cycle me hi check ho jaata hai. Kam open connections, kam cost.
+function bumpMetaVersion(key){
+  var v={};v[key]=Date.now();
+  db.collection('meta').doc('dataVersion').set(v,{merge:true});
+  lsSet('gv_'+key,String(v[key]));
+}
+
+// 'log' aur 'announcement' ke liye version-check — pehle yeh onSnapshot() real-time
+// listener se aate the (2 hamesha-khule connections). Ab dataVersion doc ke andar
+// hi 'log'/'announce' timestamp check hote hain, sirf tab fetch hota hai jab badla ho.
+function syncLogAndAnnounce(versions){
+  var tasks=[
+    {key:'log',doc:'log',apply:function(d){S.log=(d&&d.entries)||[];renderRecent();renderStats();}},
+    {key:'announce',doc:'announcement',apply:function(d){
+      var bar=document.getElementById('announceBar');
+      if(d&&d.text&&d.active){document.getElementById('announceText').textContent=d.text;bar.classList.add('show');}
+      else{bar.classList.remove('show');}
+    }}
+  ];
+  tasks.forEach(function(t){
+    var remoteV=versions[t.key]||0;
+    var localV=lsGet('gv_'+t.key);
+    var cached=lsGetJSON('gc_'+t.key);
+    if(cached&&localV&&Number(localV)===Number(remoteV)){
+      t.apply(cached);
+    } else {
+      db.collection('meta').doc(t.doc).get().then(function(snap){
+        var d=snap.exists?snap.data():null;
+        if(d){lsSetJSON('gc_'+t.key,d);lsSet('gv_'+t.key,String(remoteV));}
+        t.apply(d);
+      });
+    }
+  });
 }
 
 // Halka periodic check — sirf 1 chhota doc padhta hai (mehenga poori collection
@@ -1627,22 +1767,12 @@ function pollGlassVersion(){
         });
       }
     });
+    syncLogAndAnnounce(versions);
   });
 }
 setInterval(pollGlassVersion,120000); // har 2 minute me sirf 1 chhota read
 loadGlassData();
-
-db.collection('meta').doc('log').onSnapshot(function(snap){
-  if(snap.exists)S.log=snap.data().entries||[];
-  renderRecent();renderStats();
-});
-
-db.collection('meta').doc('announcement').onSnapshot(function(snap){
-  var bar=document.getElementById('announceBar');
-  if(snap.exists&&snap.data().text&&snap.data().active){
-    document.getElementById('announceText').textContent=snap.data().text;bar.classList.add('show');
-  } else {bar.classList.remove('show');}
-});
+updateOfflineBar();
 
 setTimeout(function(){markLoaded();},5000);
 </script>
@@ -1664,4 +1794,4 @@ if('serviceWorker' in navigator){
 }
 </script>
 </body>
-</html>
+  </html>
