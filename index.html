@@ -1545,6 +1545,8 @@ function saveAnnounce(){
     bumpMetaVersion('announce',{items:annEditItems,active:annEditActive});
     applyAnnounceData(annEditActive?{items:annEditItems}:{items:[]});
     closeModal();showToast('✅ Updated!');
+  }).catch(function(e){
+    showToast('❌ Save fail: '+e.message,true);
   });
 }
 
