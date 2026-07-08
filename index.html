@@ -1084,7 +1084,7 @@ function submitGlass(){
     var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
     S.log=[entry].concat(S.log).slice(0,20);
     db.collection('meta').doc('log').set({entries:S.log});
-    bumpMetaVersion('log');renderRecent();renderStats();
+    bumpMetaVersion('log',S.log);renderRecent();renderStats();
     // Apni list turant update karo (live listener hata diya, isliye manually)
     var idx=S[S.tab].findIndex(function(x){return x.id===id;});
     if(idx>=0)S[S.tab][idx]=newDoc;else S[S.tab].push(newDoc);
@@ -1107,7 +1107,7 @@ function doDelete(id){
     if(g){var entry={msg:'🗑️ '+g.glassName+' removed',date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
     S.log=[entry].concat(S.log).slice(0,20);
     db.collection('meta').doc('log').set({entries:S.log});
-    bumpMetaVersion('log');renderRecent();renderStats();}
+    bumpMetaVersion('log',S.log);renderRecent();renderStats();}
     S[S.tab]=S[S.tab].filter(function(x){return x.id!==id;});
     bumpGlassVersion(S.tab);render();
     setSyncDot('ok');closeModal();showToast('✅ Deleted');
@@ -1542,7 +1542,7 @@ function removeAnnounceItem(i){
 function saveAnnounce(){
   syncAnnActive();
   db.collection('meta').doc('announcement').set({items:annEditItems,active:annEditActive}).then(function(){
-    bumpMetaVersion('announce');
+    bumpMetaVersion('announce',{items:annEditItems,active:annEditActive});
     applyAnnounceData(annEditActive?{items:annEditItems}:{items:[]});
     closeModal();showToast('✅ Updated!');
   });
@@ -1857,10 +1857,11 @@ function checkPendingRequests(){
     document.getElementById('menuDot').classList.toggle('show',!snap.empty);
   }).catch(function(){});
 }
-function bumpMetaVersion(key){
+function bumpMetaVersion(key,data){
   var v={};v[key]=Date.now();
   db.collection('meta').doc('dataVersion').set(v,{merge:true});
   lsSet('gv_'+key,String(v[key]));
+  if(data!==undefined)lsSetJSON('gc_'+key,data);
 }
 
 // 'log' aur 'announcement' ke liye version-check — pehle yeh onSnapshot() real-time
@@ -1934,4 +1935,4 @@ if('serviceWorker' in navigator){
 }
 </script>
 </body>
-  </html>
+</html>
