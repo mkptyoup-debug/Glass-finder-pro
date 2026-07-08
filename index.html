@@ -1541,6 +1541,14 @@ function removeAnnounceItem(i){
 }
 function saveAnnounce(){
   syncAnnActive();
+  var pendingTitleEl=document.getElementById('annNewTitle');
+  if(pendingTitleEl&&pendingTitleEl.value.trim()){
+    annEditItems.push({
+      title:pendingTitleEl.value.trim(),
+      desc:(document.getElementById('annNewDesc')?document.getElementById('annNewDesc').value.trim():''),
+      target:(document.getElementById('annNewTarget')?document.getElementById('annNewTarget').value:'')
+    });
+  }
   db.collection('meta').doc('announcement').set({items:annEditItems,active:annEditActive}).then(function(){
     bumpMetaVersion('announce',{items:annEditItems,active:annEditActive});
     applyAnnounceData(annEditActive?{items:annEditItems}:{items:[]});
