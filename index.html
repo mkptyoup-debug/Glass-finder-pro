@@ -447,40 +447,43 @@ body {
 #announceCard {
   display: none;
   margin: 12px 16px 4px;
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: linear-gradient(150deg, #100f0d, #080706 80%);
-  border: 1px solid rgba(212, 175, 103, 0.25);
+  padding: 16px;
+  border-radius: 20px;
+  background: linear-gradient(160deg, #14110a, #0a0806 75%);
+  border: 1px solid rgba(212, 175, 103, 0.22);
   align-items: center;
-  gap: 12px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(212, 175, 103, 0.04);
-  cursor: pointer;
+  gap: 13px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255,255,255,0.03);
   position: relative;
   overflow: hidden;
-  transition: transform 0.2s;
+  touch-action: pan-y;
+  user-select: none;
 }
-#announceCard:active {
-  transform: scale(0.98);
+#announceCard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,103,0.5), transparent);
 }
 #announceCard.show {
   display: flex;
 }
 .ann-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #f3e1ab, #b8860b);
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #f3e1ab, #d4af6a 55%, #a87f2e);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 21px;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(212, 175, 103, 0.3);
-  animation: shineGlow 2.5s infinite;
+  box-shadow: 0 0 0 1px rgba(212,175,103,0.3), 0 4px 16px rgba(212, 175, 103, 0.35);
+  animation: shineGlow 2.8s ease-in-out infinite;
 }
 @keyframes shineGlow {
-  0%, 100% { box-shadow: 0 4px 12px rgba(212, 175, 103, 0.25); }
-  50% { box-shadow: 0 4px 20px rgba(212, 175, 103, 0.5); }
+  0%, 100% { box-shadow: 0 0 0 1px rgba(212,175,103,0.3), 0 4px 14px rgba(212, 175, 103, 0.28); }
+  50% { box-shadow: 0 0 0 1px rgba(212,175,103,0.4), 0 4px 22px rgba(212, 175, 103, 0.55); }
 }
 .ann-body {
   flex: 1;
@@ -488,16 +491,17 @@ body {
 }
 .ann-kicker {
   color: #dfc38a;
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 800;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
+  opacity: .85;
 }
 .ann-title {
   color: #f8fafc;
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 15.5px;
+  font-weight: 800;
   letter-spacing: -0.2px;
   white-space: nowrap;
   overflow: hidden;
@@ -506,28 +510,91 @@ body {
 .ann-desc {
   color: #94a3b8;
   font-size: 12px;
-  margin-top: 2px;
+  margin-top: 3px;
+  font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.ann-check-btn {
+  flex-shrink: 0;
+  padding: 11px 20px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f3e1ab, #d4af6a 60%, #c8a355);
+  color: #1a1305;
+  font-size: 13.5px;
+  font-weight: 800;
+  box-shadow: 0 4px 16px rgba(212, 175, 103, 0.4);
+  transition: transform 0.15s ease;
+  letter-spacing: .01em;
+}
+.ann-check-btn:active {
+  transform: scale(0.93);
+}
 .ann-dots {
   display: flex;
-  gap: 5px;
-  margin-top: 8px;
+  gap: 6px;
+  margin-top: 10px;
 }
 .ann-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #27272a;
+  position: relative;
+  width: 16px;
+  height: 4px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.08);
   cursor: pointer;
-  transition: all 0.25s;
+  overflow: hidden;
+  transition: width 0.35s cubic-bezier(.4,0,.2,1);
 }
 .ann-dot.active {
-  width: 14px;
+  width: 26px;
+}
+.ann-dot-fill {
+  position: absolute;
+  inset: 0;
   border-radius: 3px;
-  background: linear-gradient(90deg, #f3e1ab, #b8860b);
+  background: linear-gradient(90deg, #f3e1ab, #d4af6a);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.ann-dot.active .ann-dot-fill {
+  animation: annDotProgress 4s linear forwards;
+}
+.ann-dot.done .ann-dot-fill {
+  transform: scaleX(1);
+  background: rgba(212,175,103,0.45);
+}
+@keyframes annDotProgress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+#announceCard.dragging {
+  transition: none;
+}
+.ann-slide-wrap {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.ann-slide-track {
+  display: flex;
+  transition: transform 0.4s cubic-bezier(.22,1,.36,1);
+  will-change: transform;
+}
+.ann-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+.ann-body {
+  --dir: 1;
+}
+.ann-anim {
+  animation: annSlideIn 0.38s cubic-bezier(.22,1,.36,1);
+}
+@keyframes annSlideIn {
+  from { opacity: 0; transform: translateX(calc(var(--dir) * 14px)); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 /* BODY CONTENT */
@@ -1664,7 +1731,7 @@ body {
 
 <div id="offlineBar">📡 Internet nahi hai — data purana (cached) dikh raha hai</div>
 
-<div id="announceCard" onclick="goToAnnounceTarget()">
+<div id="announceCard">
   <div class="ann-icon">✦</div>
   <div class="ann-body" id="annBody">
     <div class="ann-kicker">Latest Update</div>
@@ -1672,6 +1739,7 @@ body {
     <div class="ann-desc" id="annCardDesc"></div>
     <div class="ann-dots" id="annDots"></div>
   </div>
+  <button class="ann-check-btn" onclick="goToAnnounceTarget()">Check</button>
 </div>
 
 <div id="header">
@@ -2798,7 +2866,8 @@ function openMenu(){document.getElementById('menuOverlay').classList.add('show')
 function closeMenu(){document.getElementById('menuOverlay').classList.remove('show');document.getElementById('menuPanel').classList.remove('show');}
 // ── ANNOUNCEMENT CAROUSEL ─────────────────────────────────────────────────
 var annState={items:[],idx:0,timer:null};
-function renderAnnounceCard(){
+var annSwipeReady=false;
+function renderAnnounceCard(dir){
   var card=document.getElementById('announceCard');
   if(!annState.items.length){card.classList.remove('show');return;}
   card.classList.add('show');
@@ -2806,21 +2875,49 @@ function renderAnnounceCard(){
   document.getElementById('annCardTitle').textContent=it.title;
   document.getElementById('annCardDesc').textContent=it.desc||'';
   document.getElementById('annDots').innerHTML=annState.items.length>1?annState.items.map(function(_,i){
-    return '<span class="ann-dot'+(i===annState.idx?' active':'')+'" onclick="event.stopPropagation();jumpToAnnounce('+i+')"></span>';
+    var cls='ann-dot'+(i===annState.idx?' active':(i<annState.idx?' done':''));
+    return '<span class="'+cls+'" onclick="jumpToAnnounce('+i+')"><span class="ann-dot-fill"></span></span>';
   }).join(''):'';
   var body=document.getElementById('annBody');
+  body.style.setProperty('--dir',dir||1);
   body.classList.remove('ann-anim');
   void body.offsetWidth;
   body.classList.add('ann-anim');
   if(annState.timer)clearInterval(annState.timer);
   if(annState.items.length>1){
     annState.timer=setInterval(function(){
-      annState.idx=(annState.idx+1)%annState.items.length;renderAnnounceCard();
+      annState.idx=(annState.idx+1)%annState.items.length;renderAnnounceCard(1);
     },4000);
   }
+  setupAnnounceSwipe();
 }
 function jumpToAnnounce(i){
-  annState.idx=i;renderAnnounceCard();
+  var dir=i>annState.idx?1:-1;
+  annState.idx=i;renderAnnounceCard(dir);
+}
+function swipeAnnounce(dir){
+  if(annState.items.length<2)return;
+  annState.idx=(annState.idx+dir+annState.items.length)%annState.items.length;
+  renderAnnounceCard(dir);
+}
+function setupAnnounceSwipe(){
+  if(annSwipeReady)return;annSwipeReady=true;
+  var card=document.getElementById('announceCard');
+  var startX=0,startY=0,tracking=false;
+  card.addEventListener('touchstart',function(e){
+    startX=e.touches[0].clientX;startY=e.touches[0].clientY;tracking=true;
+    if(annState.timer)clearInterval(annState.timer);
+  },{passive:true});
+  card.addEventListener('touchend',function(e){
+    if(!tracking)return;tracking=false;
+    var dx=e.changedTouches[0].clientX-startX;
+    var dy=e.changedTouches[0].clientY-startY;
+    if(Math.abs(dx)>36&&Math.abs(dx)>Math.abs(dy)){
+      swipeAnnounce(dx<0?1:-1);
+    } else {
+      renderAnnounceCard(1);
+    }
+  },{passive:true});
 }
 function targetLabel(key){
   var t=ANN_TARGETS.find(function(x){return x.key===key;});
@@ -3302,4 +3399,4 @@ if('serviceWorker' in navigator){
 }
 </script>
 </body>
-</html>
+                          </html>
