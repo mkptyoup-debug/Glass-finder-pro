@@ -145,7 +145,7 @@ button{cursor:pointer}
 #partsSearchInput::placeholder{color:#333a52}
 #partsSearchBtn{padding:10px 18px;background:linear-gradient(135deg,#4ab0e8,#2a6fa0);border:none;border-radius:11px;color:#06121c;font-size:13px;font-weight:800;margin:5px 0;flex-shrink:0}
 #partsAddBtn{width:100%;padding:14px;margin-bottom:16px;background:linear-gradient(135deg,#4ab0e814,#4ab0e808);border:1px dashed #4ab0e84a;border-radius:13px;color:#4ab0e8;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
-/* PARTS FINDER — PREMIUM REDESIGN */
+/* PARTS FINDER â€” PREMIUM REDESIGN */
 .pf-type-block{margin-bottom:20px}
 .pf-type-heading{font-size:11px;font-weight:800;letter-spacing:.12em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;text-transform:uppercase;padding:0 2px}
 .pf-type-left{display:flex;align-items:center;gap:8px}
@@ -340,7 +340,7 @@ button{cursor:pointer}
 
 <!-- SPLASH -->
 <div id="splash">
-  <div class="splash-shield">🛡️</div>
+  <div class="splash-shield">ðŸ›¡ï¸</div>
   <div class="splash-title">Universal Combo</div>
   <div class="splash-tag">Aapka Glass Helper</div>
   <div class="splash-bar"></div>
@@ -349,7 +349,7 @@ button{cursor:pointer}
 <!-- LOGIN SCREEN -->
 <div id="loginScreen">
   <div class="login-box">
-    <div class="login-logo">🛡️</div>
+    <div class="login-logo">ðŸ›¡ï¸</div>
     <div class="login-title">Universal Combo</div>
     <div class="login-sub">Apna account banao ya login karo</div>
 
@@ -362,19 +362,19 @@ button{cursor:pointer}
     <div class="login-divider"><span>ya email se</span></div>
 
     <div class="login-tabs">
-      <button class="login-tab active" id="ltSignin" onclick="switchLoginTab('signin')">🔑 Sign In</button>
-      <button class="login-tab" id="ltSignup" onclick="switchLoginTab('signup')">✨ Sign Up</button>
+      <button class="login-tab active" id="ltSignin" onclick="switchLoginTab('signin')">ðŸ”‘ Sign In</button>
+      <button class="login-tab" id="ltSignup" onclick="switchLoginTab('signup')">âœ¨ Sign Up</button>
     </div>
     <div id="signupNameWrap" class="linp-wrap" style="display:none">
-      <span class="linp-icon">👤</span>
+      <span class="linp-icon">ðŸ‘¤</span>
       <input class="linp" type="text" id="loginName" placeholder="Aapka naam" autocomplete="name"/>
     </div>
     <div class="linp-wrap">
-      <span class="linp-icon">✉️</span>
+      <span class="linp-icon">âœ‰ï¸</span>
       <input class="linp" type="email" id="loginEmail" placeholder="Email address" autocomplete="email"/>
     </div>
     <div class="linp-wrap">
-      <span class="linp-icon">🔒</span>
+      <span class="linp-icon">ðŸ”’</span>
       <input class="linp" type="password" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"/>
     </div>
     <button class="login-btn" onclick="doLogin()" id="loginBtn">Sign In</button>
@@ -382,10 +382,10 @@ button{cursor:pointer}
   </div>
 </div>
 
-<div id="offlineBar">📡 Internet nahi hai — data purana (cached) dikh raha hai</div>
+<div id="offlineBar">ðŸ“¡ Internet nahi hai â€” data purana (cached) dikh raha hai</div>
 
 <div id="announceCard" onclick="checkAnnounce()">
-  <div class="ann-icon">📢</div>
+  <div class="ann-icon">ðŸ“¢</div>
   <div class="ann-body">
     <div class="ann-title" id="annCardTitle"></div>
     <div class="ann-desc" id="annCardDesc"></div>
@@ -397,20 +397,20 @@ button{cursor:pointer}
 <div id="header">
   <div class="header-top">
     <div class="logo">
-      <div class="logo-icon">🛡️</div>
+      <div class="logo-icon">ðŸ›¡ï¸</div>
       <div>
         <div class="logo-title">Universal Combo</div>
         <div class="logo-sub"><span id="syncDot"></span>Live Sync Active</div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
-      <button id="userBadge" onclick="openMenu()">👤 Staff</button>
-      <button id="menuBtn" onclick="openMenu()">☰<span id="menuDot"></span></button>
+      <button id="userBadge" onclick="openMenu()">ðŸ‘¤ Staff</button>
+      <button id="menuBtn" onclick="openMenu()">â˜°<span id="menuDot"></span></button>
     </div>
   </div>
   <div class="tabs">
-    <button class="tab af" id="tabFlat" onclick="switchTab('flat')"><span class="tab-ic">▭</span> Flat Glass</button>
-    <button class="tab" id="tabUv" onclick="switchTab('uv')"><span class="tab-ic">◐</span> UV Curved</button>
+    <button class="tab af" id="tabFlat" onclick="switchTab('flat')"><span class="tab-ic">â–­</span> Flat Glass</button>
+    <button class="tab" id="tabUv" onclick="switchTab('uv')"><span class="tab-ic">â—</span> UV Curved</button>
   </div>
 </div>
 
@@ -418,28 +418,28 @@ button{cursor:pointer}
   <div id="loading" class="hide"><div class="spin"></div>Connecting...</div>
   <div id="mainContent" class="hide">
     <div class="stats">
-      <div class="stat"><div class="stat-ico">🛡️</div><div class="stat-val" id="s1">0</div><div class="stat-lbl">Glass Groups</div></div>
-      <div class="stat"><div class="stat-ico">📱</div><div class="stat-val" id="s2">0</div><div class="stat-lbl">Total Models</div></div>
-      <div class="stat"><div class="stat-ico">📂</div><div class="stat-val" id="s3">0</div><div class="stat-lbl">Categories</div></div>
-      <div class="stat"><div class="stat-ico">🕐</div><div class="stat-val sm" id="s4">—</div><div class="stat-lbl">Last Updated</div></div>
+      <div class="stat"><div class="stat-ico">ðŸ›¡ï¸</div><div class="stat-val" id="s1">0</div><div class="stat-lbl">Glass Groups</div></div>
+      <div class="stat"><div class="stat-ico">ðŸ“±</div><div class="stat-val" id="s2">0</div><div class="stat-lbl">Total Models</div></div>
+      <div class="stat"><div class="stat-ico">ðŸ“‚</div><div class="stat-val" id="s3">0</div><div class="stat-lbl">Categories</div></div>
+      <div class="stat"><div class="stat-ico">ðŸ•</div><div class="stat-val sm" id="s4">â€”</div><div class="stat-lbl">Last Updated</div></div>
     </div>
     <div id="recentBox" class="hide">
-      <div class="rtitle">⚡ Recent Updates</div>
+      <div class="rtitle">âš¡ Recent Updates</div>
       <div id="recentList"></div>
     </div>
     <button id="partsFinderBtn" onclick="openPartsScreen()">
-      <div class="pf-icon">🔧</div>
+      <div class="pf-icon">ðŸ”§</div>
       <div>
         <div class="pf-title">Parts Finder</div>
         <div class="pf-sub">Display, Frame, Back Door, CC Board, Battery</div>
       </div>
-      <span class="pf-arrow">›</span>
+      <span class="pf-arrow">â€º</span>
     </button>
     <div id="searchWrap">
       <div id="searchBox">
-        <span class="search-ic-glow">🔍</span>
+        <span class="search-ic-glow">ðŸ”</span>
         <input id="searchInput" placeholder="Model number search karo... Y20, A14, Redmi 9A" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused')" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
-        <button id="searchClear" onclick="clearSearch()">✕</button>
+        <button id="searchClear" onclick="clearSearch()">âœ•</button>
         <button id="searchBtn" onclick="onSearch()">Search</button>
       </div>
       <div id="searchSuggest" class="suggest-box hide"></div>
@@ -452,10 +452,10 @@ button{cursor:pointer}
       <div class="rb-query" id="rbQuery"></div>
     </div>
     <div class="toolbar hide" id="toolbarWrap">
-      <button class="tbtn" onclick="openCodeModal()">💾 Data Code</button>
+      <button class="tbtn" onclick="openCodeModal()">ðŸ’¾ Data Code</button>
     </div>
     <div id="cardList"></div>
-    <button id="addBtn" class="hide" onclick="openAddModal()">＋ Add New Glass</button>
+    <button id="addBtn" class="hide" onclick="openAddModal()">ï¼‹ Add New Glass</button>
   </div>
 </div>
 
@@ -464,49 +464,49 @@ button{cursor:pointer}
   <p>Universal Combo dukaandaron aur mobile accessories dealers ke liye ek free tool hai.</p>
 </div>
 
-<button id="floatingAdd" onclick="openAddModal()">＋</button>
+<button id="floatingAdd" onclick="openAddModal()">ï¼‹</button>
 
 <!-- SIDE MENU -->
 <div id="menuOverlay" onclick="closeMenu()"></div>
 <div id="menuPanel">
   <div id="menuUserInfo" class="menu-user hide">
-    <div class="menu-user-name" id="menuUserName">—</div>
-    <div class="menu-user-email" id="menuUserEmail">—</div>
+    <div class="menu-user-name" id="menuUserName">â€”</div>
+    <div class="menu-user-email" id="menuUserEmail">â€”</div>
     <span class="menu-user-role" id="menuUserRole">Staff</span>
   </div>
   <div class="menu-head">Menu</div>
-  <button class="menu-item" onclick="openRequestForm('display')"><span class="menu-ic">➕</span> Request Display Update</button>
-  <button class="menu-item" onclick="openRequestForm('glass')"><span class="menu-ic">📱</span> Request Glass Update</button>
-  <button class="menu-item" onclick="openTrending()"><span class="menu-ic">⭐</span> Trending Today</button>
+  <button class="menu-item" onclick="openRequestForm('display')"><span class="menu-ic">âž•</span> Request Display Update</button>
+  <button class="menu-item" onclick="openRequestForm('glass')"><span class="menu-ic">ðŸ“±</span> Request Glass Update</button>
+  <button class="menu-item" onclick="openTrending()"><span class="menu-ic">â­</span> Trending Today</button>
   <div class="menu-sep"></div>
-  <button class="menu-item" onclick="shareApp()"><span class="menu-ic">📤</span> Share App</button>
-  <button class="menu-item" id="notifBtn" onclick="setupNotifications()"><span class="menu-ic">🔔</span> Notifications On Karo</button>
-  <button class="menu-item" onclick="openFeedback()"><span class="menu-ic">💬</span> Send Feedback</button>
-  <button class="menu-item" onclick="openAboutLegal()"><span class="menu-ic">ℹ️</span> About &amp; Legal</button>
-  <button class="menu-item hide" id="menuAnnounceBtn" onclick="openAnnounceEditor()"><span class="menu-ic">📢</span> Edit Announcement</button>
-  <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="menu-ic">💬</span> View Feedback</button>
-  <button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="menu-ic">📥</span> View Update Requests</button>
-  <button class="menu-item hide" id="menuBackupBtn" onclick="exportBackup()"><span class="menu-ic">💾</span> Backup Data (JSON)</button>
+  <button class="menu-item" onclick="shareApp()"><span class="menu-ic">ðŸ“¤</span> Share App</button>
+  <button class="menu-item" id="notifBtn" onclick="setupNotifications()"><span class="menu-ic">ðŸ””</span> Notifications On Karo</button>
+  <button class="menu-item" onclick="openFeedback()"><span class="menu-ic">ðŸ’¬</span> Send Feedback</button>
+  <button class="menu-item" onclick="openAboutLegal()"><span class="menu-ic">â„¹ï¸</span> About &amp; Legal</button>
+  <button class="menu-item hide" id="menuAnnounceBtn" onclick="openAnnounceEditor()"><span class="menu-ic">ðŸ“¢</span> Edit Announcement</button>
+  <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="menu-ic">ðŸ’¬</span> View Feedback</button>
+  <button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="menu-ic">ðŸ“¥</span> View Update Requests</button>
+  <button class="menu-item hide" id="menuBackupBtn" onclick="exportBackup()"><span class="menu-ic">ðŸ’¾</span> Backup Data (JSON)</button>
   <div class="menu-sep"></div>
-  <button class="menu-item hide" id="menuLogout" onclick="doLogout()"><span class="menu-ic">🚪</span> Logout</button>
-  <button class="menu-item hide" id="menuLoginBtn" onclick="closeMenu();showLogin()"><span class="menu-ic">🔐</span> Login</button>
-  <button class="menu-item" onclick="closeMenu()"><span class="menu-ic">✕</span> Close</button>
+  <button class="menu-item hide" id="menuLogout" onclick="doLogout()"><span class="menu-ic">ðŸšª</span> Logout</button>
+  <button class="menu-item hide" id="menuLoginBtn" onclick="closeMenu();showLogin()"><span class="menu-ic">ðŸ”</span> Login</button>
+  <button class="menu-item" onclick="closeMenu()"><span class="menu-ic">âœ•</span> Close</button>
 </div>
 
 <!-- PARTS FINDER SCREEN -->
 <div id="partsScreen">
   <div class="pf-header">
-    <button class="pf-back" onclick="closePartsScreen()">←</button>
-    <span class="pf-htitle">🔧 Parts Finder</span>
+    <button class="pf-back" onclick="closePartsScreen()">â†</button>
+    <span class="pf-htitle">ðŸ”§ Parts Finder</span>
   </div>
   <div class="pf-body">
     <div id="partsSearchBox">
-      <span class="search-ic-glow" style="background:linear-gradient(135deg,#4ab0e8,#5fc9e8)">🔍</span>
+      <span class="search-ic-glow" style="background:linear-gradient(135deg,#4ab0e8,#5fc9e8)">ðŸ”</span>
       <input id="partsSearchInput" placeholder="Phone model search karo... Vivo Y21" oninput="onPartsSearch()" onblur="setTimeout(function(){document.getElementById('partsSearchSuggest').classList.add('hide')},150)"/>
       <button id="partsSearchBtn" onclick="onPartsSearch()">Search</button>
     </div>
     <div id="partsSearchSuggest" class="suggest-box hide"></div>
-    <button id="partsAddBtn" class="hide" onclick="openPartsAddModal()">＋ Add New Part Group</button>
+    <button id="partsAddBtn" class="hide" onclick="openPartsAddModal()">ï¼‹ Add New Part Group</button>
     <div id="partsCardList"></div>
   </div>
 </div>
@@ -515,14 +515,14 @@ button{cursor:pointer}
   <div class="modal" id="modalBox"></div>
 </div>
 <div id="toast"></div>
-<button id="installBtn">📲 Install App</button>
+<button id="installBtn">ðŸ“² Install App</button>
 
 <script>
-// ── ADMIN CONFIG ─────────────────────────────────────────────────────────
-// Sirf ye email admin hai — baaki sab staff
+// â”€â”€ ADMIN CONFIG â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Sirf ye email admin hai â€” baaki sab staff
 var ADMIN_EMAIL = 'm.k.p.tyoup@gmail.com';
 
-// ── STATE ────────────────────────────────────────────────────────────────
+// â”€â”€ STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var S={tab:'flat',flat:[],uv:[],display:[],log:[],query:'',editId:null,user:null,role:'staff'};
 var COLLECTIONS={flat:'flat_glasses',uv:'uv_glasses',display:'display_glasses'};
 var searchDebounceTimer=null;
@@ -534,16 +534,16 @@ var db=null,auth=null;
 var splashDone=false,dataLoaded=false;
 
 var PART_TYPES=[
-  {key:'display',label:'Display',icon:'🖥️',col:'parts_display',color:'#4ab0e8'},
-  {key:'frame',label:'Frame',icon:'⬜',col:'parts_frame',color:'#a87bf7'},
-  {key:'backdoor',label:'Back Door',icon:'🚪',col:'parts_backdoor',color:'#e8a24a'},
-  {key:'ccboard',label:'CC Board',icon:'🔌',col:'parts_ccboard',color:'#4ae8a2'},
-  {key:'battery',label:'Battery',icon:'🔋',col:'parts_battery',color:'#e8d54a'}
+  {key:'display',label:'Display',icon:'ðŸ–¥ï¸',col:'parts_display',color:'#4ab0e8'},
+  {key:'frame',label:'Frame',icon:'â¬œ',col:'parts_frame',color:'#a87bf7'},
+  {key:'backdoor',label:'Back Door',icon:'ðŸšª',col:'parts_backdoor',color:'#e8a24a'},
+  {key:'ccboard',label:'CC Board',icon:'ðŸ”Œ',col:'parts_ccboard',color:'#4ae8a2'},
+  {key:'battery',label:'Battery',icon:'ðŸ”‹',col:'parts_battery',color:'#e8d54a'}
 ];
 var PF={data:{},query:'',editKey:null,editId:null,loaded:false,ready:false};
 PART_TYPES.forEach(function(t){PF.data[t.key]=[];});
 
-// ── HELPERS ──────────────────────────────────────────────────────────────
+// â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function isAdmin(){return S.role==='admin';}
 function getList(){return S[S.tab];}
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
@@ -553,14 +553,14 @@ function lsSetJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function setSyncDot(st){document.getElementById('syncDot').className=st;}
 
-// ── OFFLINE DETECTION ────────────────────────────────────────────────────
+// â”€â”€ OFFLINE DETECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function updateOfflineBar(){
   var bar=document.getElementById('offlineBar');
   if(navigator.onLine){bar.classList.remove('show');}
   else{bar.classList.add('show');}
 }
-window.addEventListener('online',function(){updateOfflineBar();showToast('✅ Internet wapas aa gaya');pollGlassVersion();});
-window.addEventListener('offline',function(){updateOfflineBar();showToast('❌ Internet chala gaya',true);});
+window.addEventListener('online',function(){updateOfflineBar();showToast('âœ… Internet wapas aa gaya');pollGlassVersion();});
+window.addEventListener('offline',function(){updateOfflineBar();showToast('âŒ Internet chala gaya',true);});
 
 function showToast(msg,err){
   var t=document.getElementById('toast');
@@ -579,12 +579,12 @@ function parseModels(models){
   return result;
 }
 
-// Form input se models nikaalne ke liye — same rule jo search mein use hota hai (comma AND slash dono se split)
+// Form input se models nikaalne ke liye â€” same rule jo search mein use hota hai (comma AND slash dono se split)
 function splitModelsInput(str){
   return parseModels(str);
 }
 
-// ── SPLASH ───────────────────────────────────────────────────────────────
+// â”€â”€ SPLASH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function hideSplash(){
   if(splashDone)return;splashDone=true;
   var sp=document.getElementById('splash');
@@ -593,7 +593,7 @@ function hideSplash(){
 }
 setTimeout(function(){if(dataLoaded)hideSplash();},900);
 
-// ── LOGIN ────────────────────────────────────────────────────────────────
+// â”€â”€ LOGIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var currentLoginTab='signin';
 
 function switchLoginTab(tab){
@@ -615,7 +615,7 @@ function hideLogin(){
   document.getElementById('loginScreen').classList.remove('show');
 }
 
-// Staff mode — bina login ke search karo
+// Staff mode â€” bina login ke search karo
 function skipLogin(){
   hideLogin();
   S.user=null;S.role='staff';
@@ -627,8 +627,8 @@ function doLogin(){
   var pass=document.getElementById('loginPass').value;
   var errEl=document.getElementById('loginErr');
   var btn=document.getElementById('loginBtn');
-  if(!email||!pass){errEl.textContent='❌ Email aur password dono bharo';return;}
-  if(currentLoginTab==='signup'&&pass.length<6){errEl.textContent='❌ Password kam se kam 6 characters ka hona chahiye';return;}
+  if(!email||!pass){errEl.textContent='âŒ Email aur password dono bharo';return;}
+  if(currentLoginTab==='signup'&&pass.length<6){errEl.textContent='âŒ Password kam se kam 6 characters ka hona chahiye';return;}
   btn.textContent='Please wait...';btn.disabled=true;errEl.textContent='';
 
   if(currentLoginTab==='signup'){
@@ -640,14 +640,14 @@ function doLogin(){
       })
       .then(function(){
         btn.textContent='Create Account';btn.disabled=false;hideLogin();
-        showToast('✅ Account bana! Welcome '+name);
+        showToast('âœ… Account bana! Welcome '+name);
       })
       .catch(function(e){
         btn.textContent='Create Account';btn.disabled=false;
-        var msg='❌ Signup failed';
-        if(e.code==='auth/email-already-in-use')msg='❌ Ye email pehle se registered hai';
-        else if(e.code==='auth/invalid-email')msg='❌ Email sahi nahi hai';
-        else if(e.code==='auth/weak-password')msg='❌ Password zyada strong rakho';
+        var msg='âŒ Signup failed';
+        if(e.code==='auth/email-already-in-use')msg='âŒ Ye email pehle se registered hai';
+        else if(e.code==='auth/invalid-email')msg='âŒ Email sahi nahi hai';
+        else if(e.code==='auth/weak-password')msg='âŒ Password zyada strong rakho';
         errEl.textContent=msg;
       });
   } else {
@@ -656,10 +656,10 @@ function doLogin(){
       .then(function(){btn.textContent='Sign In';btn.disabled=false;hideLogin();})
       .catch(function(e){
         btn.textContent='Sign In';btn.disabled=false;
-        var msg='❌ Login failed';
-        if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')msg='❌ Email ya password galat hai';
-        else if(e.code==='auth/invalid-email')msg='❌ Email sahi nahi hai';
-        else if(e.code==='auth/too-many-requests')msg='❌ Bahut zyada tries. Thodi der baad karo';
+        var msg='âŒ Login failed';
+        if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')msg='âŒ Email ya password galat hai';
+        else if(e.code==='auth/invalid-email')msg='âŒ Email sahi nahi hai';
+        else if(e.code==='auth/too-many-requests')msg='âŒ Bahut zyada tries. Thodi der baad karo';
         errEl.textContent=msg;
       });
   }
@@ -670,12 +670,12 @@ function doGoogleLogin(){
   auth.signInWithPopup(provider)
     .then(function(result){
       hideLogin();
-      showToast('✅ Welcome '+result.user.displayName+'!');
+      showToast('âœ… Welcome '+result.user.displayName+'!');
     })
     .catch(function(e){
-      var msg='❌ Google login failed';
-      if(e.code==='auth/popup-closed-by-user')msg='❌ Popup band ho gaya, dobara try karo';
-      else if(e.code==='auth/popup-blocked')msg='❌ Popup block hai, allow karo';
+      var msg='âŒ Google login failed';
+      if(e.code==='auth/popup-closed-by-user')msg='âŒ Popup band ho gaya, dobara try karo';
+      else if(e.code==='auth/popup-blocked')msg='âŒ Popup block hai, allow karo';
       document.getElementById('loginErr').textContent=msg;
       showToast(msg,true);
     });
@@ -685,7 +685,7 @@ function doLogout(){
   auth.signOut().then(function(){
     S.user=null;S.role='staff';
     closeMenu();updateUserUI();
-    showToast('✅ Logged out');
+    showToast('âœ… Logged out');
   });
 }
 
@@ -704,7 +704,7 @@ function updateUserUI(){
 
   if(S.user&&isAdmin()){
     var name=S.user.displayName||S.user.email.split('@')[0];
-    badge.textContent='👑 '+name;
+    badge.textContent='ðŸ‘‘ '+name;
     badge.className='admin';
     menuUserInfo.classList.remove('hide');
     document.getElementById('menuUserName').textContent=name;
@@ -723,7 +723,7 @@ function updateUserUI(){
     checkPendingRequests();
   } else if(S.user&&!isAdmin()){
     var name2=S.user.displayName||S.user.email.split('@')[0];
-    badge.textContent='👤 '+name2;
+    badge.textContent='ðŸ‘¤ '+name2;
     badge.className='staff';
     menuUserInfo.classList.remove('hide');
     document.getElementById('menuUserName').textContent=name2;
@@ -740,8 +740,8 @@ function updateUserUI(){
     addBtn.classList.add('hide');
     tb.classList.add('hide');
   } else {
-    // Guest — auto show login
-    badge.textContent='🔒 Login';
+    // Guest â€” auto show login
+    badge.textContent='ðŸ”’ Login';
     badge.className='';
     menuUserInfo.classList.add('hide');
     menuLogout.classList.add('hide');
@@ -759,7 +759,7 @@ function updateUserUI(){
   renderPartsAddBtn();
 }
 
-// ── SEARCH — EXACT FIRST, FUZZY FALLBACK ─────────────────────────────────
+// â”€â”€ SEARCH â€” EXACT FIRST, FUZZY FALLBACK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // KEY FIX: Fuzzy only fires when ZERO exact results found.
 // This prevents Y20 showing up when searching Y21 exactly.
 function hlText(text,q){
@@ -810,11 +810,10 @@ function findMatchingGroups(list,query){
   var ids=Object.keys(fuzzyMap);
   if(!ids.length)return{groups:[],fuzzy:false,fuzzyMap:null};
   var groups=ids.map(function(id){return list.find(function(x){return x.id===id;});}).filter(Boolean);
-  groups.sort(function(a,b){return fuzzyMap[a.id].score-fuzzyMap[b.id].score;});
-  return{groups:groups,fuzzy:true,fuzzyMap:fuzzyMap};
+  groups.sort(function(a,b){return fuzzyMap[a.id].score-fuzzyMap[b.id].score;});  return{groups:groups,fuzzy:true,fuzzyMap:fuzzyMap};
 }
 
-// ── RENDER ───────────────────────────────────────────────────────────────
+// â”€â”€ RENDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function render(){renderStats();renderCards();}
 
 function renderStats(){
@@ -822,7 +821,7 @@ function renderStats(){
   document.getElementById('s1').textContent=S.flat.length+S.uv.length;
   document.getElementById('s2').textContent=all.reduce(function(a,g){return a+parseModels(g.models).length;},0);
   document.getElementById('s3').textContent=(S.flat.length?1:0)+(S.uv.length?1:0);
-  document.getElementById('s4').textContent=S.log.length?S.log[0].date:'—';
+  document.getElementById('s4').textContent=S.log.length?S.log[0].date:'â€”';
 }
 
 function renderRecent(){
@@ -845,7 +844,7 @@ function renderCards(){
     banner.style.display='none';
     var list=getList();
     if(!list.length){
-      el.innerHTML='<div class="empty"><div class="empty-ico">📦</div><p class="empty-t">Koi glass nahi hai</p><p class="empty-s">'+(isAdmin()?'Neeche + button dabao glass add karne ke liye':'Data load ho raha hai...')+'</p></div>';
+      el.innerHTML='<div class="empty"><div class="empty-ico">ðŸ“¦</div><p class="empty-t">Koi glass nahi hai</p><p class="empty-s">'+(isAdmin()?'Neeche + button dabao glass add karne ke liye':'Data load ho raha hai...')+'</p></div>';
       return;
     }
     el.innerHTML=list.map(function(g,idx){
@@ -890,21 +889,21 @@ function renderCards(){
   if(isFuzzy){
     banner.className='fuzzy';
     document.getElementById('rbLabel').style.color='#f0d090';
-    document.getElementById('rbLabel').innerHTML='🔎 '+list.length+' Similar Match'+(list.length>1?'es':'')+' (spelling thoda alag)';
+    document.getElementById('rbLabel').innerHTML='ðŸ”Ž '+list.length+' Similar Match'+(list.length>1?'es':'')+' (spelling thoda alag)';
   } else if(list.length){
     banner.className='found';
     document.getElementById('rbLabel').style.color='#7adf63';
-    document.getElementById('rbLabel').innerHTML='✅ '+list.length+' Glass'+(list.length>1?' Groups':' Group')+' Found';
+    document.getElementById('rbLabel').innerHTML='âœ… '+list.length+' Glass'+(list.length>1?' Groups':' Group')+' Found';
   } else {
     banner.className='notfound';
     document.getElementById('rbLabel').style.color='#e8718e';
-    document.getElementById('rbLabel').innerHTML='❌ Koi match nahi mila';
+    document.getElementById('rbLabel').innerHTML='âŒ Koi match nahi mila';
   }
   document.getElementById('rbQuery').innerHTML='Model: <strong style="color:#eed5a0">'+escHtml(q)+'</strong>';
   document.getElementById('resultClear').style.color=isFuzzy?'#f0d090':(list.length?'#7adf63':'#e8718e');
 
   if(!list.length){
-    el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div><p class="empty-t">Koi result nahi mila</p><p class="empty-s">Alag model try karo</p></div>';
+    el.innerHTML='<div class="empty"><div class="empty-ico">ðŸ”</div><p class="empty-t">Koi result nahi mila</p><p class="empty-s">Alag model try karo</p></div>';
     return;
   }
 
@@ -926,15 +925,15 @@ function renderCards(){
 
 function confidenceOptions(val){
   val=val||'100';
-  return '<option value="100"'+(val==='100'?' selected':'')+'>✅ 100% Sure</option>'+
-    '<option value="75"'+(val==='75'?' selected':'')+'>⚠️ 75% Sure</option>'+
-    '<option value="check"'+(val==='check'?' selected':'')+'>🔍 Please Check Before Fitting</option>';
+  return '<option value="100"'+(val==='100'?' selected':'')+'>âœ… 100% Sure</option>'+
+    '<option value="75"'+(val==='75'?' selected':'')+'>âš ï¸ 75% Sure</option>'+
+    '<option value="check"'+(val==='check'?' selected':'')+'>ðŸ” Please Check Before Fitting</option>';
 }
 
 function confidenceBadge(conf){
-  if(conf==='75')return '<span class="bgy">⚠️ 75% Sure</span>';
-  if(conf==='check')return '<span class="bgy" style="background:#241408;border-color:#e88a4a60;color:#f0a870">🔍 Check Before Fitting</span>';
-  return '<span class="bgg">✅ 100% Sure</span>';
+  if(conf==='75')return '<span class="bgy">âš ï¸ 75% Sure</span>';
+  if(conf==='check')return '<span class="bgy" style="background:#241408;border-color:#e88a4a60;color:#f0a870">ðŸ” Check Before Fitting</span>';
+  return '<span class="bgg">âœ… 100% Sure</span>';
 }
 
 function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
@@ -942,30 +941,30 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
   var matchSection='';
   if(hasSearch&&matched.length){
     matchSection='<div class="match-section'+(isFuzzy?' fuzzy':'')+'">'+
-      '<div class="match-section-title">'+(isFuzzy?'🔎 Similar Match':'🎯 Matched ('+matched.length+')')+'</div>'+
+      '<div class="match-section-title">'+(isFuzzy?'ðŸ”Ž Similar Match':'ðŸŽ¯ Matched ('+matched.length+')')+'</div>'+
       '<div class="match-tags">'+matched.map(function(m){
         return isFuzzy?'<span class="match-tag fuzzy">'+escHtml(m)+'</span>':
           '<span class="match-tag">'+hlText(m,q)+'</span>';
       }).join('')+'</div></div>';
   }
   var otherTags=other.length?'<div class="all-models">'+other.map(function(m){return '<span class="mtag">'+escHtml(m)+'</span>';}).join('')+'</div>':'';
-  var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openEditModal(\''+g.id+'\')">✏️</button><button class="ibtn" onclick="confirmDelete(\''+g.id+'\')">🗑️</button></div>':'';
+  var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openEditModal(\''+g.id+'\')">âœï¸</button><button class="ibtn" onclick="confirmDelete(\''+g.id+'\')">ðŸ—‘ï¸</button></div>':'';
   var delay=Math.min(idx*0.05,0.4);
   var cardClass=isFuzzy?'fuzzy-card':(hasSearch&&matched.length?'match-card':'');
-  var noteHtml=g.note?'<div style="font-size:11.5px;color:#9aa6c4;margin-top:8px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px 10px">📝 '+escHtml(g.note)+'</div>':'';
+  var noteHtml=g.note?'<div style="font-size:11.5px;color:#9aa6c4;margin-top:8px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px 10px">ðŸ“ '+escHtml(g.note)+'</div>':'';
   return '<div class="card '+cardClass+'" style="animation-delay:'+delay+'s">'+
     '<div class="card-accent"></div><div class="card-inner">'+
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
-    '<div style="flex:1"><div class="cname">🛡️ '+escHtml(g.glassName)+'</div>'+
+    '<div style="flex:1"><div class="cname">ðŸ›¡ï¸ '+escHtml(g.glassName)+'</div>'+
     '<div class="cbadges"><span class="bg">'+mlist.length+' Models</span>'+
     confidenceBadge(g.confidence)+
-    (isFuzzy?'<span class="bgy">🔎 Similar</span>':(hasSearch&&matched.length?'<span class="bgg">✅ '+matched.length+' Match</span>':''))+
+    (isFuzzy?'<span class="bgy">ðŸ”Ž Similar</span>':(hasSearch&&matched.length?'<span class="bgg">âœ… '+matched.length+' Match</span>':''))+
     '</div></div>'+adm+'</div>'+matchSection+otherTags+noteHtml+
-    '<div class="cbtns"><button class="cbtn" onclick="copyList(\''+g.id+'\')">📋 Share List</button></div>'+
+    '<div class="cbtns"><button class="cbtn" onclick="copyList(\''+g.id+'\')">ðŸ“‹ Share List</button></div>'+
     '</div></div>';
 }
 
-// ── CONTROLS ─────────────────────────────────────────────────────────────
+// â”€â”€ CONTROLS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function switchTab(t){
   S.tab=t;S.query='';
   document.getElementById('searchInput').value='';
@@ -988,7 +987,7 @@ function showSuggestions(boxId,items,onPick,query){
   var box=document.getElementById(boxId);
   if(!items.length){box.classList.add('hide');box.innerHTML='';return;}
   box.innerHTML=items.map(function(m){
-    return '<div class="suggest-item" onmousedown="'+onPick+'(\''+m.replace(/'/g,"\\'")+'\')"><span class="suggest-ic">🔍</span><span>'+hlText(m,query)+'</span></div>';
+    return '<div class="suggest-item" onmousedown="'+onPick+'(\''+m.replace(/'/g,"\\'")+'\')"><span class="suggest-ic">ðŸ”</span><span>'+hlText(m,query)+'</span></div>';
   }).join('');
   box.classList.remove('hide');
 }
@@ -1013,7 +1012,7 @@ function onSearch(){
     document.getElementById('searchSuggest').classList.add('hide');
   }
 
-  // Full card list (fuzzy search etc.) — slightly debounced since it's heavier
+  // Full card list (fuzzy search etc.) â€” slightly debounced since it's heavier
   clearTimeout(searchDebounceTimer);
   searchDebounceTimer=setTimeout(function(){
     S.query=v;renderCards();
@@ -1031,23 +1030,23 @@ function clearSearch(){
 function copyList(id){
   var g=getList().find(function(x){return x.id===id;});if(!g)return;
   var mlist=parseModels(g.models);
-  navigator.clipboard.writeText('🛡️ '+g.glassName+'\n📱 Compatible Models ('+mlist.length+'):\n'+mlist.join(', '));
-  showToast('✅ List copied! WhatsApp pe share karo');
+  navigator.clipboard.writeText('ðŸ›¡ï¸ '+g.glassName+'\nðŸ“± Compatible Models ('+mlist.length+'):\n'+mlist.join(', '));
+  showToast('âœ… List copied! WhatsApp pe share karo');
   db.collection(COLLECTIONS[S.tab]).doc(id).update({shares:firebase.firestore.FieldValue.increment(1)}).catch(function(){});
 }
 
-// ── GLASS CRUD ───────────────────────────────────────────────────────────
+// â”€â”€ GLASS CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openAddModal(){S.editId=null;openModal(glassFormHtml(null));}
 function openEditModal(id){S.editId=id;var g=getList().find(function(x){return x.id===id;});openModal(glassFormHtml(g));}
 
 function glassFormHtml(g){
-  return '<div class="mhead"><span class="mtitle">'+(g?'✏️ Edit Glass':'➕ Add New Glass')+'</span>'+
-    '<button class="mclose" onclick="closeModal()">✕</button></div>'+
+  return '<div class="mhead"><span class="mtitle">'+(g?'âœï¸ Edit Glass':'âž• Add New Glass')+'</span>'+
+    '<button class="mclose" onclick="closeModal()">âœ•</button></div>'+
     '<div class="fgrp"><label class="flbl">Glass Name</label>'+
     '<input class="finp" id="gName" value="'+(g?escHtml(g.glassName):'')+'" placeholder="e.g. 9D Matte Glass..."/></div>'+
     '<div class="fgrp"><label class="flbl">Compatible Models</label>'+
     '<textarea class="finp" id="gModels" rows="6" placeholder="Samsung A14, Vivo Y20, Redmi 9A...">'+(g?parseModels(g.models).join(', '):'')+'</textarea>'+
-    '<div class="fhint">💡 Comma se alag karo.</div></div>'+
+    '<div class="fhint">ðŸ’¡ Comma se alag karo.</div></div>'+
     '<div class="fgrp"><label class="flbl">Fitment Confidence</label>'+
     '<select class="finp" id="gConfidence">'+confidenceOptions(g?g.confidence:null)+'</select></div>'+
     '<div class="fgrp"><label class="flbl">Note (Optional)</label>'+
@@ -1061,13 +1060,13 @@ function submitGlass(){
   var models=splitModelsInput(document.getElementById('gModels').value);
   var confidence=document.getElementById('gConfidence').value;
   var note=document.getElementById('gNote').value.trim();
-  if(!name||!models.length){showToast('❌ Name aur models dono bharo!',true);return;}
-  if(!db){showToast('❌ Firebase nahi',true);return;}
+  if(!name||!models.length){showToast('âŒ Name aur models dono bharo!',true);return;}
+  if(!db){showToast('âŒ Firebase nahi',true);return;}
   var id=S.editId||db.collection(COLLECTIONS[S.tab]).doc().id;var isEdit=!!S.editId;
   var newDoc={id:id,glassName:name,models:models,confidence:confidence,note:note};
   setSyncDot('syncing');
   db.collection(COLLECTIONS[S.tab]).doc(id).set({glassName:name,models:models,confidence:confidence,note:note}).then(function(){
-    var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
+    var entry={msg:(isEdit?'âœï¸ ':'âœ¨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
     S.log=[entry].concat(S.log).slice(0,20);
     db.collection('meta').doc('log').set({entries:S.log});
     bumpMetaVersion('log');renderRecent();renderStats();
@@ -1075,12 +1074,12 @@ function submitGlass(){
     var idx=S[S.tab].findIndex(function(x){return x.id===id;});
     if(idx>=0)S[S.tab][idx]=newDoc;else S[S.tab].push(newDoc);
     bumpGlassVersion(S.tab);render();
-    setSyncDot('ok');closeModal();showToast(isEdit?'✅ Updated!':'✅ Added!');S.editId=null;
-  }).catch(function(e){setSyncDot('err');showToast('❌ '+e.message,true);});
+    setSyncDot('ok');closeModal();showToast(isEdit?'âœ… Updated!':'âœ… Added!');S.editId=null;
+  }).catch(function(e){setSyncDot('err');showToast('âŒ '+e.message,true);});
 }
 
 function confirmDelete(id){
-  openModal('<div class="mhead"><span class="mtitle">🗑️ Delete?</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+  openModal('<div class="mhead"><span class="mtitle">ðŸ—‘ï¸ Delete?</span><button class="mclose" onclick="closeModal()">âœ•</button></div>'+
     '<p style="color:#9aa6c4;margin-bottom:20px;font-size:14px">Yeh glass permanently delete ho jayega.</p>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
     '<button class="bdel" onclick="doDelete(\''+id+'\')">Delete</button></div>');
@@ -1090,31 +1089,31 @@ function doDelete(id){
   if(!db)return;
   var g=getList().find(function(x){return x.id===id;});setSyncDot('syncing');
   db.collection(COLLECTIONS[S.tab]).doc(id).delete().then(function(){
-    if(g){var entry={msg:'🗑️ '+g.glassName+' removed',date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
+    if(g){var entry={msg:'ðŸ—‘ï¸ '+g.glassName+' removed',date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
     S.log=[entry].concat(S.log).slice(0,20);
     db.collection('meta').doc('log').set({entries:S.log});
     bumpMetaVersion('log');renderRecent();renderStats();}
     S[S.tab]=S[S.tab].filter(function(x){return x.id!==id;});
     bumpGlassVersion(S.tab);render();
-    setSyncDot('ok');closeModal();showToast('✅ Deleted');
+    setSyncDot('ok');closeModal();showToast('âœ… Deleted');
   }).catch(function(){setSyncDot('err');});
 }
 
 function openCodeModal(){
   var list=getList();
-  openModal('<div class="mhead"><span class="mtitle">📋 Data Export</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+  openModal('<div class="mhead"><span class="mtitle">ðŸ“‹ Data Export</span><button class="mclose" onclick="closeModal()">âœ•</button></div>'+
     '<textarea id="codeTA" style="width:100%;height:220px;background:#05060a;border:1px solid #1d2336;border-radius:11px;color:#7cb8e0;font-size:11px;font-family:monospace;padding:13px;box-sizing:border-box;resize:vertical;outline:none">'+JSON.stringify(list,null,2)+'</textarea>'+
-    '<div class="brow"><button class="bcancel" onclick="copyCode()">📋 Copy</button>'+
-    '<button class="bsave" onclick="importCode()">📥 Import</button></div>');
+    '<div class="brow"><button class="bcancel" onclick="copyCode()">ðŸ“‹ Copy</button>'+
+    '<button class="bsave" onclick="importCode()">ðŸ“¥ Import</button></div>');
 }
-function copyCode(){navigator.clipboard.writeText(document.getElementById('codeTA').value);showToast('✅ Copied!');}
+function copyCode(){navigator.clipboard.writeText(document.getElementById('codeTA').value);showToast('âœ… Copied!');}
 function importCode(){
   try{
     var data=JSON.parse(document.getElementById('codeTA').value);
     if(!Array.isArray(data))throw new Error('Array chahiye');
-    if(!db){showToast('❌ Firebase nahi',true);return;}
+    if(!db){showToast('âŒ Firebase nahi',true);return;}
     setSyncDot('syncing');var col=COLLECTIONS[S.tab];var done=0,total=data.length;
-    if(!total){showToast('❌ Empty',true);return;}
+    if(!total){showToast('âŒ Empty',true);return;}
     data.forEach(function(g){
       var docId=g.id||db.collection(col).doc().id;
       db.collection(col).doc(docId).set({glassName:g.glassName,models:g.models,confidence:g.confidence||'100',note:g.note||''}).then(function(){
@@ -1122,18 +1121,18 @@ function importCode(){
           db.collection(col).get().then(function(snap){
             S[S.tab]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
             bumpGlassVersion(S.tab);render();
-            setSyncDot('ok');showToast('✅ Imported!');closeModal();
+            setSyncDot('ok');showToast('âœ… Imported!');closeModal();
           });
         }
       });
     });
-  }catch(e){showToast('❌ '+e.message,true);}
+  }catch(e){showToast('âŒ '+e.message,true);}
 }
 
 function openModal(html){document.getElementById('modalBox').innerHTML=html;document.getElementById('modalBg').classList.add('show');}
 function closeModal(){document.getElementById('modalBg').classList.remove('show');}
 
-// ── PARTS FINDER ─────────────────────────────────────────────────────────
+// â”€â”€ PARTS FINDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openPartsScreen(){
   document.getElementById('partsScreen').classList.add('show');
   if(!PF.loaded)loadPartsData();
@@ -1229,7 +1228,7 @@ function renderPartsCards(){
 
   if(!q){
     if(!isAdmin()){
-      el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div>'+
+      el.innerHTML='<div class="empty"><div class="empty-ico">ðŸ”</div>'+
         '<p class="empty-t">Model search karo</p>'+
         '<p class="empty-s">Y20, A14, Redmi 9A jaisa model type karo upar</p></div>';
       return;
@@ -1241,18 +1240,18 @@ function renderPartsCards(){
       return;
     }
     if(!anyData){
-      el.innerHTML='<div class="empty"><div class="empty-ico">🔧</div>'+
+      el.innerHTML='<div class="empty"><div class="empty-ico">ðŸ”§</div>'+
         '<p class="empty-t">Koi part group nahi hai</p>'+
         '<p class="empty-s">Upar + button dabao group add karne ke liye</p></div>';
       return;
     }
-    // Admin management view — premium design
+    // Admin management view â€” premium design
     el.innerHTML=PART_TYPES.map(function(t){
       var groups=PF.data[t.key]||[];
       if(!groups.length)return '';
       var body=groups.map(function(g){
         var mlist=parseModels(g.models);
-        var noteHtml=g.note?'<div style="font-size:11px;color:#9aa6c4;margin-top:8px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
+        var noteHtml=g.note?'<div style="font-size:11px;color:#9aa6c4;margin-top:8px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:7px 9px">ðŸ“ '+escHtml(g.note)+'</div>':'';
         return '<div class="pf-group-card" style="border-left:3px solid '+t.color+'44">'+
           '<div class="pf-group-top">'+
             '<div class="pf-group-left">'+
@@ -1260,8 +1259,8 @@ function renderPartsCards(){
               '<span class="pf-group-name">'+escHtml(g.partName)+'</span>'+
             '</div>'+
             '<div class="pf-group-actions">'+
-              '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
-              '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
+              '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">âœŽ</button>'+
+              '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">âœ•</button>'+
             '</div>'+
           '</div>'+
           '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
@@ -1295,7 +1294,7 @@ function renderPartsCards(){
       el.innerHTML='<div class="skel-wrap"><div class="skel-card"></div><div class="skel-card"></div></div>';
       return;
     }
-    el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div>'+
+    el.innerHTML='<div class="empty"><div class="empty-ico">ðŸ”</div>'+
       '<p class="empty-t">Koi parts nahi mila</p>'+
       '<p class="empty-s">"'+escHtml(q)+'" ke liye data add nahi hua abhi</p></div>';
     return;
@@ -1316,10 +1315,10 @@ function renderPartsCards(){
       }).join('');
       var adm=isAdmin()?
         '<div class="pf-result-actions">'+
-          '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
-          '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
+          '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">âœŽ</button>'+
+          '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">âœ•</button>'+
         '</div>':'';
-      var noteHtml=g.note?'<div style="font-size:11px;color:#9aa6c4;margin-top:10px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
+      var noteHtml=g.note?'<div style="font-size:11px;color:#9aa6c4;margin-top:10px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:7px 9px">ðŸ“ '+escHtml(g.note)+'</div>':'';
       return '<div class="pf-result-card" style="border-color:'+t.color+'33">'+
         '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,'+t.color+',transparent)"></div>'+
         '<div class="pf-result-header">'+
@@ -1354,14 +1353,14 @@ function partsFormHtml(typeKey,it){
       PART_TYPES.map(function(t){return '<option value="'+t.key+'">'+t.icon+' '+t.label+'</option>';}).join('')+
       '</select></div>';
   }
-  return '<div class="mhead"><span class="mtitle">'+(it?'✏️ Edit Part Group':'➕ Add Part Group')+'</span>'+
-    '<button class="mclose" onclick="closeModal()">✕</button></div>'+
+  return '<div class="mhead"><span class="mtitle">'+(it?'âœï¸ Edit Part Group':'âž• Add Part Group')+'</span>'+
+    '<button class="mclose" onclick="closeModal()">âœ•</button></div>'+
     typeSelectHtml+
     '<div class="fgrp"><label class="flbl">Part Name / Code</label>'+
     '<input class="finp" id="pf_partName" value="'+(it?escHtml(it.partName):'')+'" placeholder="e.g. Y20 Display, 4966 Battery"/></div>'+
     '<div class="fgrp"><label class="flbl">Compatible Phone Models</label>'+
     '<textarea class="finp" id="pf_models" rows="6" placeholder="Vivo Y20, Vivo Y33s, Vivo Y12...">'+(it?parseModels(it.models).join(', '):'')+'</textarea>'+
-    '<div class="fhint">💡 Comma se alag karo.</div></div>'+
+    '<div class="fhint">ðŸ’¡ Comma se alag karo.</div></div>'+
     '<div class="fgrp" id="pf_panelWrap"'+(typeKey&&typeKey!=='display'?' style="display:none"':'')+'><label class="flbl">Panel Type (Display only)</label>'+
     '<select class="finp" id="pf_panel"><option value="TFT"'+(it&&it.panel==='OLED'?'':' selected')+'>TFT</option><option value="OLED"'+(it&&it.panel==='OLED'?' selected':'')+'>OLED</option></select></div>'+
     '<div class="fgrp" id="pf_curveWrap"'+(typeKey&&typeKey!=='display'?' style="display:none"':'')+'><label class="flbl">Curve Type (Display only, optional)</label>'+
@@ -1385,17 +1384,17 @@ function submitParts(){
   var panel=(typeKey==='display'&&panelEl)?panelEl.value:'';
   var curveEl=document.getElementById('pf_curve');
   var curve=(typeKey==='display'&&curveEl)?curveEl.value:'';
-  if(!t||!partName||!models.length){showToast('❌ Sab fields bharo!',true);return;}
-  if(!db){showToast('❌ Connection nahi',true);return;}
+  if(!t||!partName||!models.length){showToast('âŒ Sab fields bharo!',true);return;}
+  if(!db){showToast('âŒ Connection nahi',true);return;}
   var id=PF.editId||db.collection(t.col).doc().id;var isEdit=!!PF.editId;
   var newDoc={id:id,partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve};
   db.collection(t.col).doc(id).set({partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve}).then(function(){
-    closeModal();showToast(isEdit?'✅ Updated!':'✅ Part Group Added!');
+    closeModal();showToast(isEdit?'âœ… Updated!':'âœ… Part Group Added!');
     var idx=PF.data[typeKey].findIndex(function(x){return x.id===id;});
     if(idx>=0)PF.data[typeKey][idx]=newDoc;else PF.data[typeKey].push(newDoc);
     bumpPartsVersion(typeKey);renderPartsCards();
     PF.editKey=null;PF.editId=null;
-  }).catch(function(e){showToast('❌ '+e.message,true);});
+  }).catch(function(e){showToast('âŒ '+e.message,true);});
 }
 
 function togglePanelWrap(){
@@ -1414,7 +1413,7 @@ function openPartsEditModal(typeKey,id){
   openModal(partsFormHtml(typeKey,it));
 }
 function confirmPartsDelete(typeKey,id){
-  openModal('<div class="mhead"><span class="mtitle">🗑️ Delete?</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+  openModal('<div class="mhead"><span class="mtitle">ðŸ—‘ï¸ Delete?</span><button class="mclose" onclick="closeModal()">âœ•</button></div>'+
     '<p style="color:#9aa6c4;margin-bottom:20px;font-size:14px">Yeh part group delete ho jayega.</p>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
     '<button class="bdel" onclick="doPartsDelete(\''+typeKey+'\',\''+id+'\')">Delete</button></div>');
@@ -1425,14 +1424,14 @@ function doPartsDelete(typeKey,id){
   db.collection(t.col).doc(id).delete().then(function(){
     PF.data[typeKey]=PF.data[typeKey].filter(function(x){return x.id!==id;});
     bumpPartsVersion(typeKey);renderPartsCards();
-    closeModal();showToast('✅ Deleted');
+    closeModal();showToast('âœ… Deleted');
   });
 }
 
-// ── SIDE MENU ────────────────────────────────────────────────────────────
+// â”€â”€ SIDE MENU â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openMenu(){document.getElementById('menuOverlay').classList.add('show');document.getElementById('menuPanel').classList.add('show');}
 function closeMenu(){document.getElementById('menuOverlay').classList.remove('show');document.getElementById('menuPanel').classList.remove('show');}
-// ── ANNOUNCEMENT CAROUSEL ─────────────────────────────────────────────────
+// â”€â”€ ANNOUNCEMENT CAROUSEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var annState={items:[],idx:0,timer:null};
 function renderAnnounceCard(){
   var card=document.getElementById('announceCard');
@@ -1454,7 +1453,7 @@ function renderAnnounceCard(){
 function checkAnnounce(){
   if(!annState.items.length)return;
   var it=annState.items[annState.idx];
-  openModal('<div class="mhead"><span class="mtitle">📢 '+escHtml(it.title)+'</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+  openModal('<div class="mhead"><span class="mtitle">ðŸ“¢ '+escHtml(it.title)+'</span><button class="mclose" onclick="closeModal()">âœ•</button></div>'+
     '<div style="color:#cdd6f0;font-size:13.5px;line-height:1.7">'+escHtml(it.desc||it.title)+'</div>');
 }
 function applyAnnounceData(d){
@@ -1462,11 +1461,11 @@ function applyAnnounceData(d){
 }
 
 function openAnnounceEditor(){
-  closeMenu();if(!db){showToast('❌ Connection nahi',true);return;}
+  closeMenu();if(!db){showToast('âŒ Connection nahi',true);return;}
   db.collection('meta').doc('announcement').get().then(function(snap){
     var cur=snap.exists?snap.data():{items:[],active:false};
     var lines=(cur.items||[]).map(function(it){return it.title+(it.desc?' | '+it.desc:'');}).join('\n');
-    openModal('<div class="mhead"><span class="mtitle">📢 Announcements</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    openModal('<div class="mhead"><span class="mtitle">ðŸ“¢ Announcements</span><button class="mclose" onclick="closeModal()">âœ•</button></div>'+
       '<div class="fgrp"><label class="flbl">Ek line = ek announcement. Format: Title | Description</label>'+
       '<textarea class="finp" id="annText" rows="5" placeholder="Naya Update | Sabhi glass prices update ho gaye hain">'+(lines?escHtml(lines):'')+'</textarea></div>'+
       '<div class="fgrp" style="display:flex;align-items:center;gap:10px">'+
@@ -1485,37 +1484,37 @@ function saveAnnounce(){
   db.collection('meta').doc('announcement').set({items:items,active:active}).then(function(){
     bumpMetaVersion('announce');
     applyAnnounceData(active?{items:items}:{items:[]});
-    closeModal();showToast('✅ Updated!');
+    closeModal();showToast('âœ… Updated!');
   });
 }
 
 function shareApp(){
   var d={title:'Universal Combo',text:'Universal Combo - apne phone model ke liye sahi tempered glass turant dhundo!',url:'https://mkptyoup-debug.github.io/Glass-finder-pro'};
   if(navigator.share)navigator.share(d).catch(function(){});
-  else{navigator.clipboard.writeText(d.text+' '+d.url);showToast('✅ Link copied!');}
+  else{navigator.clipboard.writeText(d.text+' '+d.url);showToast('âœ… Link copied!');}
   closeMenu();
 }
 
 function openFeedbackDashboard(){
   closeMenu();
-  if(!db){showToast('❌ Connection nahi',true);return;}
-  openModal('<div class="mhead"><span class="mtitle">💬 Feedback Dashboard</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<div id="fbDashContent"><div class="fb-empty"><div class="fb-empty-ico">⏳</div><p style="color:#4a5270">Loading...</p></div></div>');
+  if(!db){showToast('âŒ Connection nahi',true);return;}
+  openModal('<div class="mhead"><span class="mtitle">ðŸ’¬ Feedback Dashboard</span><button class="mclose" onclick="closeModal()">âœ•</button></div>'+
+    '<div id="fbDashContent"><div class="fb-empty"><div class="fb-empty-ico">â³</div><p style="color:#4a5270">Loading...</p></div></div>');
   db.collection('feedback').orderBy('date','desc').limit(50).get().then(function(snap){
     var el=document.getElementById('fbDashContent');
     if(!el)return;
     if(snap.empty){
-      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">💬</div><p style="color:#4a5270;font-size:14px">Abhi koi feedback nahi aaya</p></div>';
+      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">ðŸ’¬</div><p style="color:#4a5270;font-size:14px">Abhi koi feedback nahi aaya</p></div>';
       return;
     }
     var html='<div class="fb-count">'+snap.size+' feedback'+(snap.size>1?'s':'')+' mile</div>';
     snap.forEach(function(doc){
       var d=doc.data();
-      var date=d.date?new Date(d.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+      var date=d.date?new Date(d.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'â€”';
       var user=d.userEmail||d.userName||'Anonymous';
       html+='<div class="fb-card">'+
         '<div class="fb-card-top">'+
-          '<span class="fb-user">👤 '+escHtml(user)+'</span>'+
+          '<span class="fb-user">ðŸ‘¤ '+escHtml(user)+'</span>'+
           '<span class="fb-date">'+date+'</span>'+
         '</div>'+
         '<div class="fb-text">'+escHtml(d.text)+'</div>'+
@@ -1525,13 +1524,13 @@ function openFeedbackDashboard(){
     el.innerHTML=html;
   }).catch(function(e){
     var el=document.getElementById('fbDashContent');
-    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">❌</div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
+    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">âŒ</div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
   });
 }
 
 function openFeedback(){
   closeMenu();
-  openModal('<div class="mhead"><span class="mtitle">💬 Feedback</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+  openModal('<div class="mhead"><span class="mtitle">ðŸ’¬ Feedback</span><button class="mclose" onclick="closeModal()">âœ•</button></div>'+
     '<div class="fgrp"><label class="flbl">Aapka Feedback</label>'+
     '<textarea class="finp" id="fbText" rows="5" placeholder="Koi suggestion ya request..."></textarea></div>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
@@ -1539,7 +1538,7 @@ function openFeedback(){
 }
 function sendFeedback(){
   var text=document.getElementById('fbText').value.trim();
-  if(!text){showToast('❌ Kuch likho',true);return;}
+  if(!text){showToast('âŒ Kuch likho',true);return;}
   db.collection('feedback').add({
     text:text,
     date:new Date().toISOString(),
@@ -1547,57 +1546,57 @@ function sendFeedback(){
     userEmail:S.user?S.user.email:'Anonymous',
     userName:S.user?(S.user.displayName||S.user.email.split('@')[0]):'Anonymous'
   }).then(function(){
-    closeModal();showToast('✅ Feedback bhej diya!');
+    closeModal();showToast('âœ… Feedback bhej diya!');
   });
 }
 
-// ── REQUEST UPDATE / TRENDING / ABOUT ────────────────────────────────────
+// â”€â”€ REQUEST UPDATE / TRENDING / ABOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openRequestsDashboard(){
   closeMenu();
-  if(!db){showToast('❌ Connection nahi',true);return;}
+  if(!db){showToast('âŒ Connection nahi',true);return;}
   lsSet('req_lastSeen',new Date().toISOString());
   document.getElementById('menuDot').classList.remove('show');
-  openModal('<div class="mhead"><span class="mtitle">📥 Update Requests</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<div id="reqDashContent"><div class="fb-empty"><div class="fb-empty-ico">⏳</div><p style="color:#4a5270">Loading...</p></div></div>');
+  openModal('<div class="mhead"><span class="mtitle">ðŸ“¥ Update Requests</span><button class="mclose" onclick="closeModal()">âœ•</button></div>'+
+    '<div id="reqDashContent"><div class="fb-empty"><div class="fb-empty-ico">â³</div><p style="color:#4a5270">Loading...</p></div></div>');
   db.collection('update_requests').orderBy('date','desc').limit(50).get().then(function(snap){
     var el=document.getElementById('reqDashContent');
     if(!el)return;
     if(snap.empty){
-      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">📥</div><p style="color:#4a5270;font-size:14px">Abhi koi request nahi aayi</p></div>';
+      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">ðŸ“¥</div><p style="color:#4a5270;font-size:14px">Abhi koi request nahi aayi</p></div>';
       return;
     }
     var html='<div class="fb-count">'+snap.size+' request'+(snap.size>1?'s':'')+' mile</div>';
     snap.forEach(function(doc){
       var d=doc.data();
-      var date=d.date?new Date(d.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+      var date=d.date?new Date(d.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'â€”';
       var user=d.userEmail||d.userName||'Anonymous';
       html+='<div class="fb-card" id="req_'+doc.id+'">'+
         '<div class="fb-card-top">'+
-          '<span class="fb-user">👤 '+escHtml(user)+'</span>'+
+          '<span class="fb-user">ðŸ‘¤ '+escHtml(user)+'</span>'+
           '<span class="fb-date">'+date+'</span>'+
         '</div>'+
         '<div class="fb-text"><b>'+escHtml(d.model)+'</b>'+(d.details?'<br>'+escHtml(d.details):'')+'</div>'+
         '<span class="fb-tab-badge">'+(d.type==='display'?'Display':'Glass')+'</span> '+
-        '<button class="menu-item" style="display:inline-block;width:auto;padding:6px 12px;margin-top:8px;font-size:12px;color:#e8718e" onclick="resolveRequest(\''+doc.id+'\')">🗑 Done / Remove</button>'+
+        '<button class="menu-item" style="display:inline-block;width:auto;padding:6px 12px;margin-top:8px;font-size:12px;color:#e8718e" onclick="resolveRequest(\''+doc.id+'\')">ðŸ—‘ Done / Remove</button>'+
       '</div>';
     });
     el.innerHTML=html;
   }).catch(function(e){
     var el=document.getElementById('reqDashContent');
-    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">❌</div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
+    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">âŒ</div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
   });
 }
 function resolveRequest(id){
   db.collection('update_requests').doc(id).delete().then(function(){
     var el=document.getElementById('req_'+id);
     if(el)el.remove();
-    showToast('✅ Request clear ho gaya');
+    showToast('âœ… Request clear ho gaya');
   });
 }
 function exportBackup(){
   closeMenu();
-  if(!db){showToast('❌ Connection nahi',true);return;}
-  showToast('⏳ Backup ban raha hai...');
+  if(!db){showToast('âŒ Connection nahi',true);return;}
+  showToast('â³ Backup ban raha hai...');
   var cols=['flat_glasses','uv_glasses','display_glasses','parts_display','parts_frame','parts_backdoor','parts_ccboard','parts_battery'];
   Promise.all(cols.map(function(c){
     return db.collection(c).get().then(function(snap){
@@ -1611,14 +1610,14 @@ function exportBackup(){
     var a=document.createElement('a');
     a.href=url;a.download='glassfinder-backup-'+new Date().toISOString().slice(0,10)+'.json';
     a.click();URL.revokeObjectURL(url);
-    showToast('✅ Backup download ho gaya!');
-  }).catch(function(e){showToast('❌ '+e.message,true);});
+    showToast('âœ… Backup download ho gaya!');
+  }).catch(function(e){showToast('âŒ '+e.message,true);});
 }
 function openRequestForm(type){
   closeMenu();
-  var title=type==='display'?'➕ Request Display Update':'📱 Request Glass Update';
+  var title=type==='display'?'âž• Request Display Update':'ðŸ“± Request Glass Update';
   var modelLbl=type==='display'?'Phone Model':'Phone Model / Glass Name';
-  openModal('<div class="mhead"><span class="mtitle">'+title+'</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+  openModal('<div class="mhead"><span class="mtitle">'+title+'</span><button class="mclose" onclick="closeModal()">âœ•</button></div>'+
     '<div class="fgrp"><label class="flbl">'+modelLbl+'</label>'+
     '<input class="finp" id="reqModel" placeholder="e.g. Redmi Note 12"/></div>'+
     '<div class="fgrp"><label class="flbl">Details</label>'+
@@ -1629,19 +1628,19 @@ function openRequestForm(type){
 function sendUpdateRequest(type){
   var model=document.getElementById('reqModel').value.trim();
   var details=document.getElementById('reqDetails').value.trim();
-  if(!model){showToast('❌ Model likho',true);return;}
+  if(!model){showToast('âŒ Model likho',true);return;}
   db.collection('update_requests').add({
     type:type,model:model,details:details,
     date:new Date().toISOString(),
     userEmail:S.user?S.user.email:'Anonymous',
     userName:S.user?(S.user.displayName||S.user.email.split('@')[0]):'Anonymous'
-  }).then(function(){closeModal();showToast('✅ Request bhej diya!');});
+  }).then(function(){closeModal();showToast('âœ… Request bhej diya!');});
 }
 function openTrending(){
   closeMenu();
-  if(!db){showToast('❌ Connection nahi',true);return;}
-  openModal('<div class="mhead"><span class="mtitle">⭐ Trending Today</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<div id="trendContent"><div class="fb-empty"><div class="fb-empty-ico">⏳</div><p style="color:#4a5270">Loading...</p></div></div>');
+  if(!db){showToast('âŒ Connection nahi',true);return;}
+  openModal('<div class="mhead"><span class="mtitle">â­ Trending Today</span><button class="mclose" onclick="closeModal()">âœ•</button></div>'+
+    '<div id="trendContent"><div class="fb-empty"><div class="fb-empty-ico">â³</div><p style="color:#4a5270">Loading...</p></div></div>');
   var cols=['flat_glasses','uv_glasses','display_glasses'];
   Promise.all(cols.map(function(c){
     return db.collection(c).orderBy('shares','desc').limit(5).get().catch(function(){return {docs:[]};});
@@ -1658,40 +1657,40 @@ function openTrending(){
     items.sort(function(a,b){return b.shares-a.shares;});
     items=items.slice(0,10);
     if(!items.length){
-      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">⭐</div><p style="color:#4a5270;font-size:14px">Abhi koi trending item nahi hai — jaise log "Share List" use karenge, yaha dikhna shuru hoga</p></div>';
+      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">â­</div><p style="color:#4a5270;font-size:14px">Abhi koi trending item nahi hai â€” jaise log "Share List" use karenge, yaha dikhna shuru hoga</p></div>';
       return;
     }
     var html='';
     items.forEach(function(it,i){
       html+='<div class="fb-card"><div class="fb-card-top">'+
-        '<span class="fb-user">🛡️ '+escHtml(it.name)+'</span>'+
+        '<span class="fb-user">ðŸ›¡ï¸ '+escHtml(it.name)+'</span>'+
         '<span class="fb-date">#'+(i+1)+'</span></div>'+
-        '<span class="fb-tab-badge">📋 '+it.shares+' shares</span></div>';
+        '<span class="fb-tab-badge">ðŸ“‹ '+it.shares+' shares</span></div>';
     });
     el.innerHTML=html;
   }).catch(function(e){
     var el=document.getElementById('trendContent');
-    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">❌</div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
+    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">âŒ</div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
   });
 }
 function openAboutLegal(){
   closeMenu();
-  openModal('<div class="mhead"><span class="mtitle">ℹ️ About &amp; Legal</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+  openModal('<div class="mhead"><span class="mtitle">â„¹ï¸ About &amp; Legal</span><button class="mclose" onclick="closeModal()">âœ•</button></div>'+
     '<div style="color:#cdd6f0;font-size:13.5px;line-height:1.7">'+
-    '<p><b style="color:#d4af6a">Glass Finder</b> — Mobile parts &amp; glass catalog lookup app.</p>'+
+    '<p><b style="color:#d4af6a">Glass Finder</b> â€” Mobile parts &amp; glass catalog lookup app.</p>'+
     '<p style="margin-top:10px;color:#9aa6c4">Yeh app aapko mobile display, glass aur parts ki compatibility jaankari deta hai. Data regularly update kiya jata hai.</p>'+
-    '<p style="margin-top:10px;color:#4a5270;font-size:12px">© '+new Date().getFullYear()+' Glass Finder. All rights reserved.</p>'+
+    '<p style="margin-top:10px;color:#4a5270;font-size:12px">Â© '+new Date().getFullYear()+' Glass Finder. All rights reserved.</p>'+
     '</div>');
 }
 
-// ── NOTIFICATIONS ────────────────────────────────────────────────────────
+// â”€â”€ NOTIFICATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var VAPID_KEY="BBPTMUmA0spBWVPtnYhpRHJjjuePdcsit9bs9yWgOST7Cf6aqAK0YEb2DhCfAf-TmDyO9_oSpSWzK9iEba61MDU";
 var notifMessaging=null;
 function setupNotifications(){
   closeMenu();
-  if(!('serviceWorker' in navigator)||!('Notification' in window)){showToast('❌ Support nahi',true);return;}
-  if(Notification.permission==='denied'){showToast('❌ Block hai',true);return;}
-  Notification.requestPermission().then(function(p){if(p!=='granted'){showToast('❌ Permission nahi',true);return;}registerForPush();});
+  if(!('serviceWorker' in navigator)||!('Notification' in window)){showToast('âŒ Support nahi',true);return;}
+  if(Notification.permission==='denied'){showToast('âŒ Block hai',true);return;}
+  Notification.requestPermission().then(function(p){if(p!=='granted'){showToast('âŒ Permission nahi',true);return;}registerForPush();});
 }
 function registerForPush(){
   navigator.serviceWorker.ready.then(function(reg){
@@ -1699,24 +1698,180 @@ function registerForPush(){
       if(!notifMessaging)notifMessaging=firebase.messaging();
       notifMessaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:reg}).then(function(token){
         if(token)db.collection('fcm_tokens').doc(token).set({token:token,createdAt:new Date().toISOString()}).then(function(){
-          showToast('✅ Notifications ON!');
+          showToast('âœ… Notifications ON!');
           var btn=document.getElementById('notifBtn');
-          if(btn)btn.innerHTML='<span class="menu-ic">✅</span> Notifications ON hain';
+          if(btn)btn.innerHTML='<span class="menu-ic">âœ…</span> Notifications ON hain';
         });
       });
-    }catch(e){showToast('❌ '+e.message,true);}
+    }catch(e){showToast('âŒ '+e.message,true);}
   });
 }
 function checkNotifStatus(){
   if('Notification' in window&&Notification.permission==='granted'){
     var btn=document.getElementById('notifBtn');
-    if(btn)btn.innerHTML='<span class="menu-ic">✅</span> Notifications ON hain';
+    if(btn)btn.innerHTML='<span class="menu-ic">âœ…</span> Notifications ON hain';
   }
 }
 
-// ── FIREBASE ─────────────────────────────────────────────────────────────
+// â”€â”€ FIREBASE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 firebase.initializeApp({
   apiKey:"AIzaSyC_OXACPuxzAerOWiQ6O1BZBL0Du8Axdtg",
   authDomain:"glass-finder-pro.firebaseapp.com",
   projectId:"glass-finder-pro",
-  storageBucket:"glass-finder
+  storageBucket:"glass-finder-pro.firebasestorage.app",
+  messagingSenderId:"1082015655381",
+  appId:"1:1082015655381:web:cf24bbc2d7442b10a6c95c"
+});
+db=firebase.firestore();
+auth=firebase.auth();
+
+// Auth state â€” login screen sirf tab dikhao jab koi session nahi
+auth.onAuthStateChanged(function(user){
+  if(user){
+    S.user=user;
+    // Check if admin email
+    S.role=user.email.toLowerCase().trim()===ADMIN_EMAIL.toLowerCase().trim()?'admin':'staff';
+    hideLogin();
+    updateUserUI();
+  } else {
+    S.user=null;S.role='staff';
+    updateUserUI();
+  }
+});
+
+function markLoaded(){
+  if(dataLoaded)return;dataLoaded=true;
+  document.getElementById('loading').classList.add('hide');
+  document.getElementById('mainContent').classList.remove('hide');
+  hideSplash();
+  if(!S.user)showLogin();
+}
+
+// â”€â”€ SMART DATA LOADING (version-check + cache, avoids re-reading everything) â”€â”€
+// Sirf yeh 3 collections ke liye version-check pattern â€” 'meta/dataVersion' ek chhota
+// doc hai jisme flat/uv/display ka last-changed timestamp hota hai. Agar wo match
+// karta hai localStorage me saved version se, to poori collection dobara nahi
+// padhi jaati â€” cache se hi data mil jaata hai. Bill bahut kam ho jaata hai.
+var GLASS_TABS=[{key:'flat',col:'flat_glasses'},{key:'uv',col:'uv_glasses'},{key:'display',col:'display_glasses'}];
+
+function loadGlassData(){
+  db.collection('meta').doc('dataVersion').get().then(function(vSnap){
+    var versions=vSnap.exists?vSnap.data():{};
+    var pending=GLASS_TABS.length;
+    GLASS_TABS.forEach(function(t){
+      var remoteV=versions[t.key]||0;
+      var localV=lsGet('gv_'+t.key);
+      var cached=lsGetJSON('gc_'+t.key);
+      if(cached&&localV&&Number(localV)===Number(remoteV)){
+        S[t.key]=cached;done();
+      } else {
+        db.collection(t.col).get().then(function(snap){
+          S[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+          lsSetJSON('gc_'+t.key,S[t.key]);lsSet('gv_'+t.key,String(remoteV));
+          done();
+        },function(){done();});
+      }
+    });
+    syncLogAndAnnounce(versions);
+    function done(){pending--;if(pending===0){render();setSyncDot('ok');markLoaded();}}
+  },function(){setSyncDot('err');markLoaded();});
+}
+
+// Har collection write (add/edit/delete) ke baad version bump karo â€” taaki
+// dusre users ki agli visit pe unhe pata chale ki data badla hai.
+function bumpGlassVersion(tabKey){
+  var v={};v[tabKey]=Date.now();
+  db.collection('meta').doc('dataVersion').set(v,{merge:true});
+  lsSet('gv_'+tabKey,String(v[tabKey]));
+  lsSetJSON('gc_'+tabKey,S[tabKey]);
+}
+// 'log' aur 'announcement' ke liye bhi wahi dataVersion doc reuse karte hain â€”
+// alag se real-time listener khula rakhne ke bajaye, yeh existing 2-min poll
+// cycle me hi check ho jaata hai. Kam open connections, kam cost.
+// Admin ke liye: naye update_requests ka halka check â€” sirf 1 chhota query (limit 1),
+// existing 2-min poll cycle ke saath piggyback, koi alag interval/cost nahi.
+function checkPendingRequests(){
+  if(!db||!isAdmin())return;
+  var lastSeen=lsGet('req_lastSeen')||'1970-01-01';
+  db.collection('update_requests').where('date','>',lastSeen).limit(1).get().then(function(snap){
+    document.getElementById('menuDot').classList.toggle('show',!snap.empty);
+  }).catch(function(){});
+}
+function bumpMetaVersion(key){
+  var v={};v[key]=Date.now();
+  db.collection('meta').doc('dataVersion').set(v,{merge:true});
+  lsSet('gv_'+key,String(v[key]));
+}
+
+// 'log' aur 'announcement' ke liye version-check â€” pehle yeh onSnapshot() real-time
+// listener se aate the (2 hamesha-khule connections). Ab dataVersion doc ke andar
+// hi 'log'/'announce' timestamp check hote hain, sirf tab fetch hota hai jab badla ho.
+function syncLogAndAnnounce(versions){
+  var tasks=[
+    {key:'log',doc:'log',apply:function(d){S.log=(d&&d.entries)||[];renderRecent();renderStats();}},
+    {key:'announce',doc:'announcement',apply:function(d){
+      applyAnnounceData(d&&d.active?d:{items:[]});
+    }}
+  ];
+  tasks.forEach(function(t){
+    var remoteV=versions[t.key]||0;
+    var localV=lsGet('gv_'+t.key);
+    var cached=lsGetJSON('gc_'+t.key);
+    if(cached&&localV&&Number(localV)===Number(remoteV)){
+      t.apply(cached);
+    } else {
+      db.collection('meta').doc(t.doc).get().then(function(snap){
+        var d=snap.exists?snap.data():null;
+        if(d){lsSetJSON('gc_'+t.key,d);lsSet('gv_'+t.key,String(remoteV));}
+        t.apply(d);
+      });
+    }
+  });
+}
+
+// Halka periodic check â€” sirf 1 chhota doc padhta hai (mehenga poori collection
+// padhna nahi), aur sirf tabhi refetch karta hai jab kuch actually badla ho.
+function pollGlassVersion(){
+  if(!db||!dataLoaded)return;
+  db.collection('meta').doc('dataVersion').get().then(function(vSnap){
+    var versions=vSnap.exists?vSnap.data():{};
+    GLASS_TABS.forEach(function(t){
+      var remoteV=versions[t.key]||0;
+      var localV=lsGet('gv_'+t.key);
+      if(!localV||Number(localV)!==Number(remoteV)){
+        db.collection(t.col).get().then(function(snap){
+          S[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+          lsSetJSON('gc_'+t.key,S[t.key]);lsSet('gv_'+t.key,String(remoteV));
+          render();
+        });
+      }
+    });
+    syncLogAndAnnounce(versions);
+    checkPendingRequests();
+  });
+}
+setInterval(pollGlassVersion,120000); // har 2 minute me sirf 1 chhota read
+loadGlassData();
+updateOfflineBar();
+
+setTimeout(function(){markLoaded();},5000);
+</script>
+<script>
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('installBtn').style.display='block';
+});
+document.getElementById('installBtn').addEventListener('click',async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();await deferredPrompt.userChoice;
+  deferredPrompt=null;document.getElementById('installBtn').style.display='none';
+});
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js')
+    .then(()=>{setTimeout(checkNotifStatus,1000);})
+    .catch(e=>console.log('SW error',e));
+}
+</script>
+</body>
+</html>
