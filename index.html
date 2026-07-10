@@ -1059,11 +1059,19 @@ function startVoiceSearch(inputId,triggerFn){
   var gotAnySpeech=false;
   var noSpeechRetries=0;
   var voiceSessionDeadline=Date.now()+VOICE_MAX_SESSION_MS;
+  var lastInterim='';       // jo abhi tak "final" nahi hua par sunayi de raha hai (aakhri adhoora word)
+  var lastFinalIndex=-1;    // duplicate final results se bachne ke liye (kabhi kabhi engine wahi result dobara bhejta hai)
 
   function resetSilenceTimer(){
     clearTimeout(voiceSilenceTimer);
     voiceSilenceTimer=setTimeout(function(){
-      // 1.5 second se koi nayi awaaz nahi aayi — ab final maan lo
+      // 1.5 second se koi nayi awaaz nahi aayi.
+      // Jo bhi aakhri interim (abhi tak final na hua) text tha usko bhi save kar lo,
+      // warna stop() turant bulaane se aakhri adhoora word chhoot jaata hai.
+      if(lastInterim){
+        voiceAccumulated=(voiceAccumulated+' '+lastInterim).trim();
+        lastInterim='';
+      }
       voiceIntentionalStop=true;
       if(voiceRecognition)try{voiceRecognition.stop();}catch(e){}
     },VOICE_SILENCE_MS);
@@ -1095,11 +1103,17 @@ function startVoiceSearch(inputId,triggerFn){
       var interim='';
       for(var i=event.resultIndex;i<event.results.length;i++){
         if(event.results[i].isFinal){
-          voiceAccumulated=(voiceAccumulated+' '+event.results[i][0].transcript).trim();
+          // Same final result index dobara na jode — kai baar engine ek hi
+          // final result repeat bhej deta hai jisse text galat/double ho jata tha
+          if(i>lastFinalIndex){
+            voiceAccumulated=(voiceAccumulated+' '+event.results[i][0].transcript).trim();
+            lastFinalIndex=i;
+          }
         } else {
           interim+=event.results[i][0].transcript;
         }
       }
+      lastInterim=interim;
       updateInputFromBuffer(interim);
       resetSilenceTimer(); // jab tak bol rahe ho, 1.5s ka timer baar baar reset hota rahega
     };
@@ -1137,7 +1151,14 @@ function startVoiceSearch(inputId,triggerFn){
         return;
       }
       // Browser ne khud hi beech me tod diya (engine ka apna internal timeout) —
-      // user abhi bhi bol sakta hai, isliye chup-chaap dobara shuru karo
+      // user abhi bhi bol sakta hai, isliye chup-chaap dobara shuru karo.
+      // Naya session apna result-index 0 se shuru karega, isliye tracking reset karo,
+      // par jo abhi tak ka adhoora interim tha use accumulated me pehle hi jod do.
+      if(lastInterim){
+        voiceAccumulated=(voiceAccumulated+' '+lastInterim).trim();
+        lastInterim='';
+      }
+      lastFinalIndex=-1;
       try{
         voiceRecognition=getVoiceRecognition();
         if(!voiceRecognition){finalizeAsEnded();return;}
