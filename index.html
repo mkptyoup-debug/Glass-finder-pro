@@ -992,7 +992,11 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
 var voiceRecognition=null;
 var voiceListeningBtnId=null;
 var voiceSilenceTimer=null;
-var VOICE_SILENCE_MS=1400; // itni der chup rehne par khud-b-khud final maan lega
+var voiceSessionTimer=null;
+var voiceAccumulated='';       // ab tak ka poora final transcript (restarts ke aar-paar bhi bacha rehta hai)
+var voiceIntentionalStop=false; // true = humne khud rok diya (silence/manual), false = browser ne beech me tod diya
+var VOICE_SILENCE_MS=1500;      // 1.5 second chup rehne par hi result final maana jayega
+var VOICE_MAX_SESSION_MS=45000; // safety cap — mic hamesha ke liye khula na rahe
 
 function getVoiceRecognition(){
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -1032,9 +1036,11 @@ function startVoiceSearch(inputId,triggerFn){
   var btnId=inputId==='searchInput'?'voiceBtn':'partsVoiceBtn';
   var btn=document.getElementById(btnId);
 
-  // Agar already sun raha hai to stop kar do (toggle)
+  // Agar already sun raha hai to stop kar do (toggle — user ne khud manually roka)
   if(voiceRecognition&&voiceListeningBtnId===btnId){
-    finishVoice();
+    voiceIntentionalStop=true;
+    clearTimeout(voiceSilenceTimer);clearTimeout(voiceSessionTimer);
+    try{voiceRecognition.stop();}catch(e){}
     return;
   }
 
@@ -1045,60 +1051,113 @@ function startVoiceSearch(inputId,triggerFn){
 
   // Pehle se koi aur mic chal raha ho to band karo
   if(voiceRecognition){try{voiceRecognition.stop();}catch(e){}}
-  clearTimeout(voiceSilenceTimer);
-
-  voiceRecognition=getVoiceRecognition();
-  if(!voiceRecognition){showToast('❌ Voice search available nahi',true);return;}
-  voiceListeningBtnId=btnId;
+  clearTimeout(voiceSilenceTimer);clearTimeout(voiceSessionTimer);
+  voiceAccumulated='';
+  voiceIntentionalStop=false;
 
   var input=document.getElementById(inputId);
+  var gotAnySpeech=false;
+  var noSpeechRetries=0;
+  var voiceSessionDeadline=Date.now()+VOICE_MAX_SESSION_MS;
 
   function resetSilenceTimer(){
     clearTimeout(voiceSilenceTimer);
     voiceSilenceTimer=setTimeout(function(){
+      // 1.5 second se koi nayi awaaz nahi aayi — ab final maan lo
+      voiceIntentionalStop=true;
       if(voiceRecognition)try{voiceRecognition.stop();}catch(e){}
     },VOICE_SILENCE_MS);
   }
 
-  function finishVoice(){
-    clearTimeout(voiceSilenceTimer);
-    if(voiceRecognition){try{voiceRecognition.stop();}catch(e){}}
+  function updateInputFromBuffer(interim){
+    var full=(voiceAccumulated+' '+(interim||'')).trim();
+    var cleaned=cleanVoiceTranscript(full);
+    input.value=cleaned||full;
+    if(typeof triggerFn==='function')triggerFn();
   }
 
-  voiceRecognition.onstart=function(){
-    if(btn)btn.classList.add('listening');
-    showToast('🎤 Boliye, sun raha hoon...');
-    resetSilenceTimer();
-  };
-
-  voiceRecognition.onresult=function(event){
-    var transcript='';
-    for(var i=0;i<event.results.length;i++){
-      transcript+=event.results[i][0].transcript;
-    }
-    var cleaned=cleanVoiceTranscript(transcript);
-    input.value=cleaned||transcript;
-    // live typing jaisa effect — bolte hi results update ho
-    if(typeof triggerFn==='function')triggerFn();
-    resetSilenceTimer(); // jab tak bol rahe ho, timer reset hota rahega
-  };
-
-  voiceRecognition.onerror=function(event){
+  function finalizeAsEnded(){
     if(btn)btn.classList.remove('listening');
-    clearTimeout(voiceSilenceTimer);
-    if(event.error==='no-speech')showToast('❌ Kuch sunayi nahi diya, dobara try karo',true);
-    else if(event.error==='not-allowed'||event.error==='service-not-allowed')showToast('❌ Mic permission chahiye',true);
-    else showToast('❌ Voice search me error aaya',true);
-  };
-
-  voiceRecognition.onend=function(){
-    if(btn)btn.classList.remove('listening');
-    clearTimeout(voiceSilenceTimer);
-    voiceListeningBtnId=null;
-    voiceRecognition=null;
-    // Final search trigger — final transcript se poora search chala do
+    voiceListeningBtnId=null;voiceRecognition=null;
+    clearTimeout(voiceSessionTimer);
     if(typeof triggerFn==='function')triggerFn();
-  };
+  }
+
+  function attachHandlers(rec){
+    rec.onstart=function(){
+      if(btn)btn.classList.add('listening');
+      if(!gotAnySpeech)showToast('🎤 Boliye, sun raha hoon...');
+      resetSilenceTimer();
+    };
+
+    rec.onresult=function(event){
+      gotAnySpeech=true;
+      var interim='';
+      for(var i=event.resultIndex;i<event.results.length;i++){
+        if(event.results[i].isFinal){
+          voiceAccumulated=(voiceAccumulated+' '+event.results[i][0].transcript).trim();
+        } else {
+          interim+=event.results[i][0].transcript;
+        }
+      }
+      updateInputFromBuffer(interim);
+      resetSilenceTimer(); // jab tak bol rahe ho, 1.5s ka timer baar baar reset hota rahega
+    };
+
+    rec.onerror=function(event){
+      clearTimeout(voiceSilenceTimer);
+      // 'no-speech' beech mein bhi aa sakta hai jab thoda gap ho — agar kuch bol chuke ho
+      // ya retries bache hain, to chup-chaap dobara try karo, error mat dikhao.
+      if(event.error==='no-speech'){
+        if(gotAnySpeech||noSpeechRetries<2){
+          noSpeechRetries++;
+          return; // onend handle karega restart
+        }
+        voiceIntentionalStop=true;
+        showToast('❌ Kuch sunayi nahi diya, dobara try karo',true);
+        return;
+      }
+      if(event.error==='not-allowed'||event.error==='service-not-allowed'){
+        voiceIntentionalStop=true;
+        showToast('❌ Mic permission chahiye',true);
+        return;
+      }
+      if(event.error==='aborted'){return;} // manual stop se aata hai, ignore karo
+      // network/audio-capture jaisi real dikkat — agar kuch mil chuka hai to chup rakho
+      if(!gotAnySpeech){
+        voiceIntentionalStop=true;
+        showToast('❌ Voice search me error aaya',true);
+      }
+    };
+
+    rec.onend=function(){
+      clearTimeout(voiceSilenceTimer);
+      if(voiceIntentionalStop||Date.now()>=voiceSessionDeadline){
+        finalizeAsEnded();
+        return;
+      }
+      // Browser ne khud hi beech me tod diya (engine ka apna internal timeout) —
+      // user abhi bhi bol sakta hai, isliye chup-chaap dobara shuru karo
+      try{
+        voiceRecognition=getVoiceRecognition();
+        if(!voiceRecognition){finalizeAsEnded();return;}
+        attachHandlers(voiceRecognition);
+        voiceRecognition.start();
+      }catch(e){
+        finalizeAsEnded();
+      }
+    };
+  }
+
+  voiceRecognition=getVoiceRecognition();
+  if(!voiceRecognition){showToast('❌ Voice search available nahi',true);return;}
+  voiceListeningBtnId=btnId;
+  voiceSessionTimer=setTimeout(function(){
+    voiceIntentionalStop=true;
+    if(voiceRecognition)try{voiceRecognition.stop();}catch(e){}
+  },VOICE_MAX_SESSION_MS);
+
+  attachHandlers(voiceRecognition);
 
   try{
     voiceRecognition.start();
