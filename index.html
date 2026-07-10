@@ -28,7 +28,7 @@ body{background:radial-gradient(circle at top right,#d4af6a14,transparent 40%),r
 
 /* BOTTOM NAVIGATION */
 #bottomNav{position:fixed;left:16px;right:16px;bottom:calc(15px + env(safe-area-inset-bottom));z-index:1800;display:flex;padding:0;border-radius:28px;background:rgba(15,18,28,.62);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);border:1px solid rgba(212,175,106,.13);box-shadow:0 8px 28px rgba(0,0,0,.42);max-width:420px;margin:0 auto;height:70px}
-.bnav-item{position:relative;flex:1 1 50%;width:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:none;border:none;color:#5a6180;font-size:10px;font-weight:600;letter-spacing:.02em;overflow:hidden;transition:color .22s ease}
+.bnav-item{position:relative;flex:1 1 33.33%;width:33.33%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:none;border:none;color:#5a6180;font-size:10px;font-weight:600;letter-spacing:.02em;overflow:hidden;transition:color .22s ease}
 .bnav-ic{width:21px;height:21px;display:block;transition:transform .22s cubic-bezier(.34,1.56,.64,1),filter .22s ease;stroke:currentColor;fill:none}
 .bnav-item.active{color:#e8c97a}
 .bnav-item.active .bnav-ic{transform:translateY(-1px);filter:drop-shadow(0 0 5px #d4af6a70)}
@@ -148,6 +148,29 @@ button{cursor:pointer}
 .stat-val{font-size:22px;font-weight:800;color:#eed5a0;line-height:1.1;position:relative}
 .stat-val.sm{font-size:13px;font-weight:700}
 .stat-lbl{font-size:10px;color:#4a5270;font-weight:700;margin-top:4px;text-transform:uppercase;letter-spacing:.07em;position:relative}
+/* UPDATES PAGE */
+#updatesScreen{display:none;position:fixed;inset:0;background:#0a0c14;z-index:1500;overflow-y:auto;padding-bottom:calc(112px + env(safe-area-inset-bottom))}
+#updatesScreen.show{display:block}
+.upd-body{padding:16px;max-width:520px;margin:0 auto}
+.upd-sec-title{font-size:10px;font-weight:800;color:#d4af6a;letter-spacing:.1em;margin:22px 0 12px;text-transform:uppercase}
+.upd-sec-title:first-child{margin-top:0}
+.uhero{position:relative;background:linear-gradient(155deg,rgba(212,175,106,.14),rgba(212,175,106,.03));backdrop-filter:blur(20px);border:1px solid #d4af6a4a;border-radius:20px;padding:18px;display:flex;gap:14px;align-items:flex-start;box-shadow:0 10px 30px rgba(0,0,0,.35),0 0 40px #d4af6a14;opacity:0;animation:fadeUp .45s ease forwards}
+.uhero-ico{width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,#f3e1ab,#d4af6a 55%,#a87f2e);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;box-shadow:0 4px 16px #d4af6a55}
+.uhero-body{flex:1;min-width:0}
+.uhero-title{font-size:15px;font-weight:800;background:linear-gradient(90deg,#f3e1ab,#d4af6a 65%,#c9a45f);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.uhero-desc{color:#c7b783;font-size:12.5px;margin-top:5px;line-height:1.5}
+.uhero-pin{position:absolute;top:14px;right:14px;font-size:12px;opacity:.6}
+.uupd-list .card{padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px}
+.uupd-ico{width:34px;height:34px;border-radius:10px;background:#0d0f18;border:1px solid #1d2336;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.uupd-title{font-size:13.5px;font-weight:700;color:#eaf0ff}
+.uupd-desc{font-size:12px;color:#6a7390;margin-top:2px;line-height:1.4}
+.uupd-date{font-size:10px;color:#333a52;margin-top:5px}
+.udb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.uinfo-card{background:linear-gradient(150deg,#11141f,#161b2a);border:1px solid #d4af6a26;border-radius:16px;padding:18px;margin-top:2px}
+.uinfo-ver{font-size:13.5px;font-weight:800;color:#eed5a0;margin-bottom:8px}
+.uinfo-change{font-size:12.5px;color:#a8b0cf;margin:3px 0;padding-left:2px}
+.uinfo-tip{font-size:12px;color:#c7b783;margin-top:12px;padding-top:12px;border-top:1px solid #d4af6a1f;line-height:1.5}
+.uempty{text-align:center;color:#333a52;font-size:12px;padding:20px 0}
 
 /* PARTS FINDER BUTTON */
 #partsFinderBtn{width:100%;display:flex;align-items:center;gap:14px;padding:16px;margin-bottom:18px;background:linear-gradient(135deg,#1a2a3d,#11141f 60%,#0d1828);border:1px solid #4ab0e840;border-radius:16px;text-align:left;transition:transform .2s;position:relative;overflow:hidden}
@@ -290,8 +313,8 @@ button{cursor:pointer}
 #floatingAdd{display:none;position:fixed;bottom:28px;right:20px;width:56px;height:56px;background:linear-gradient(135deg,#e8c97a,#a87f2e);border:none;border-radius:50%;font-size:26px;color:#1a1305;box-shadow:0 6px 24px #d4af6a6e;z-index:500;align-items:center;justify-content:center;transition:transform .2s}
 #floatingAdd.show{display:flex}
 #floatingAdd:active{transform:scale(.9)}
-#addBtn{width:100%;margin-top:14px;padding:14px;background:linear-gradient(135deg,#d4af6a14,#d4af6a08);border:1px dashed #d4af6a4a;border-radius:13px;color:#d4af6a;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
-#addBtn:active{transform:scale(.97)}
+#addBtn,#uFeedAddBtn,#uInfoEditBtn{width:100%;margin-top:14px;padding:14px;background:linear-gradient(135deg,#d4af6a14,#d4af6a08);border:1px dashed #d4af6a4a;border-radius:13px;color:#d4af6a;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
+#addBtn:active,#uFeedAddBtn:active,#uInfoEditBtn:active{transform:scale(.97)}
 
 /* EMPTY */
 .empty{text-align:center;padding:48px 16px;border:1px dashed #1d2336;border-radius:16px;animation:fadeUp .4s ease}
@@ -547,6 +570,33 @@ button{cursor:pointer}
   </div>
 </div>
 
+<!-- UPDATES SCREEN -->
+<div id="updatesScreen">
+  <div class="pf-header">
+    <span class="pf-htitle">📢 Updates</span>
+  </div>
+  <div class="upd-body">
+    <div class="upd-sec-title">What's New</div>
+    <div id="uHeroWrap"></div>
+
+    <div class="upd-sec-title">Recent Updates</div>
+    <div id="uFeedWrap" class="uupd-list"></div>
+    <button id="uFeedAddBtn" class="hide" onclick="openUFeedModal(null)" style="margin-top:2px">＋ Add Update</button>
+
+    <div class="upd-sec-title">Database Information</div>
+    <div class="udb-grid">
+      <div class="stat"><div class="stat-ico">📱</div><div class="stat-val" id="u1">0</div><div class="stat-lbl">Total Models</div></div>
+      <div class="stat"><div class="stat-ico">🛡️</div><div class="stat-val" id="u2">0</div><div class="stat-lbl">Glass Groups</div></div>
+      <div class="stat"><div class="stat-ico">🔧</div><div class="stat-val" id="u3">0</div><div class="stat-lbl">Spare Parts</div></div>
+      <div class="stat"><div class="stat-ico">🕐</div><div class="stat-val sm" id="u4">—</div><div class="stat-lbl">Last Updated</div></div>
+    </div>
+
+    <div class="upd-sec-title">App Info</div>
+    <div id="uInfoWrap"></div>
+    <button id="uInfoEditBtn" class="hide" onclick="openUInfoModal()" style="margin-top:12px">✏️ Edit App Info</button>
+  </div>
+</div>
+
 <nav id="bottomNav">
   <button class="bnav-item active" id="navHome" onclick="switchPage('home',this,event)">
     <svg class="bnav-ic" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1v-9"/></svg>
@@ -555,6 +605,10 @@ button{cursor:pointer}
   <button class="bnav-item" id="navParts" onclick="switchPage('parts',this,event)">
     <svg class="bnav-ic" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l2.8-2.8a5 5 0 0 1-6.4 6.4L7.4 20.6a2 2 0 0 1-2.8-2.8l7.7-6.7a5 5 0 0 1 6.4-6.4z"/></svg>
     <span>Spare Parts</span><span class="bnav-dot"></span>
+  </button>
+  <button class="bnav-item" id="navUpdates" onclick="switchPage('updates',this,event)">
+    <svg class="bnav-ic" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    <span>Updates</span><span class="bnav-dot"></span>
   </button>
 </nav>
 
@@ -823,6 +877,8 @@ function updateUserUI(){
     fab.classList.add('show');
     addBtn.classList.remove('hide');
     tb.classList.remove('hide');
+    document.getElementById('uFeedAddBtn').classList.remove('hide');
+    document.getElementById('uInfoEditBtn').classList.remove('hide');
     checkPendingRequests();
   } else if(S.user&&!isAdmin()){
     var name2=S.user.displayName||S.user.email.split('@')[0];
@@ -842,6 +898,8 @@ function updateUserUI(){
     fab.classList.remove('show');
     addBtn.classList.add('hide');
     tb.classList.add('hide');
+    document.getElementById('uFeedAddBtn').classList.add('hide');
+    document.getElementById('uInfoEditBtn').classList.add('hide');
   } else {
     // Guest — auto show login
     badge.textContent='🔒 Login';
@@ -856,9 +914,12 @@ function updateUserUI(){
     fab.classList.remove('show');
     addBtn.classList.add('hide');
     tb.classList.add('hide');
+    document.getElementById('uFeedAddBtn').classList.add('hide');
+    document.getElementById('uInfoEditBtn').classList.add('hide');
     if(dataLoaded)showLogin();
   }
   renderCards();
+  renderUHero();renderUFeed();renderUInfo();
   renderPartsAddBtn();
 }
 
@@ -1525,7 +1586,7 @@ function submitGlass(){
   var newDoc={id:id,glassName:name,models:models,confidence:confidence,note:note};
   setSyncDot('syncing');
   db.collection(COLLECTIONS[S.tab]).doc(id).set({glassName:name,models:models,confidence:confidence,note:note}).then(function(){
-    var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
+    var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
     S.log=[entry].concat(S.log).slice(0,20);
     db.collection('meta').doc('log').set({entries:S.log});
     bumpMetaVersion('log');renderRecent();renderStats();
@@ -1548,7 +1609,7 @@ function doDelete(id){
   if(!db)return;
   var g=getList().find(function(x){return x.id===id;});setSyncDot('syncing');
   db.collection(COLLECTIONS[S.tab]).doc(id).delete().then(function(){
-    if(g){var entry={msg:'🗑️ '+g.glassName+' removed',date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})};
+    if(g){var entry={msg:'🗑️ '+g.glassName+' removed',date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
     S.log=[entry].concat(S.log).slice(0,20);
     db.collection('meta').doc('log').set({entries:S.log});
     bumpMetaVersion('log');renderRecent();renderStats();}
@@ -1599,6 +1660,168 @@ function openPartsScreen(){
 }
 function closePartsScreen(){document.getElementById('partsScreen').classList.remove('show');}
 
+// ── UPDATES PAGE ─────────────────────────────────────────────────────────
+var U={hero:null,feed:[],info:null,loaded:false};
+
+function openUpdatesScreen(){
+  document.getElementById('updatesScreen').classList.add('show');
+  if(!U.loaded)loadUpdatesData();else{renderUHero();renderUFeed();renderUInfo();}
+  renderUDbInfo();
+}
+function closeUpdatesScreen(){document.getElementById('updatesScreen').classList.remove('show');}
+
+function loadUpdatesData(){
+  if(!db)return;U.loaded=true;
+  db.collection('meta').doc('updatesHero').get().then(function(s){
+    U.hero=s.exists?s.data():null;renderUHero();
+  },function(){renderUHero();});
+  db.collection('meta').doc('updatesFeed').get().then(function(s){
+    U.feed=(s.exists&&s.data().items)||[];renderUFeed();
+  },function(){renderUFeed();});
+  db.collection('meta').doc('appInfo').get().then(function(s){
+    U.info=s.exists?s.data():null;renderUInfo();
+  },function(){renderUInfo();});
+}
+
+function renderUDbInfo(){
+  var all=S.flat.concat(S.uv);
+  document.getElementById('u1').textContent=all.reduce(function(a,g){return a+parseModels(g.models).length;},0);
+  document.getElementById('u2').textContent=S.flat.length+S.uv.length;
+  var partsTotal=0;PART_TYPES.forEach(function(t){partsTotal+=(PF.data[t.key]||[]).length;});
+  document.getElementById('u3').textContent=partsTotal;
+  document.getElementById('u4').textContent=S.log.length?S.log[0].date:'—';
+}
+
+// -- Hero --
+function renderUHero(){
+  var wrap=document.getElementById('uHeroWrap');
+  if(!U.hero||U.hero.hidden){
+    wrap.innerHTML=isAdmin()?
+      '<button id="uHeroAddBtn" onclick="openUHeroModal()" style="width:100%;padding:14px;background:linear-gradient(135deg,#d4af6a14,#d4af6a08);border:1px dashed #d4af6a4a;border-radius:13px;color:#d4af6a;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px">＋ Add Announcement</button>':
+      '<div class="uempty">No announcements right now</div>';
+    return;
+  }
+  var h=U.hero;
+  var adm=isAdmin()?'<div class="cadmin" style="position:absolute;top:12px;right:12px"><button class="ibtn" onclick="openUHeroModal()">✏️</button><button class="ibtn" onclick="hideUHero()">🙈</button><button class="ibtn" onclick="deleteUHero()">🗑️</button></div>':'';
+  wrap.innerHTML='<div class="uhero">'+
+    '<div class="uhero-ico">'+escHtml(h.icon||'📢')+'</div>'+
+    '<div class="uhero-body"><div class="uhero-title">'+escHtml(h.title||'')+'</div><div class="uhero-desc">'+escHtml(h.desc||'')+'</div></div>'+
+    adm+'</div>';
+}
+function openUHeroModal(){
+  var h=U.hero||{};
+  openModal('<div class="mhead"><span class="mtitle">📢 What\'s New Card</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="fgrp"><label class="flbl">Icon (emoji)</label><input class="finp" id="uhIcon" value="'+escHtml(h.icon||'📢')+'" placeholder="📢"/></div>'+
+    '<div class="fgrp"><label class="flbl">Title</label><input class="finp" id="uhTitle" value="'+escHtml(h.title||'')+'" placeholder="e.g. New Glass Group Added"/></div>'+
+    '<div class="fgrp"><label class="flbl">Description</label><textarea class="finp" id="uhDesc" rows="3" placeholder="e.g. Reno 16 Series is now supported.">'+escHtml(h.desc||'')+'</textarea></div>'+
+    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button><button class="bsave" onclick="submitUHero()">Save</button></div>');
+}
+function submitUHero(){
+  var icon=document.getElementById('uhIcon').value.trim()||'📢';
+  var title=document.getElementById('uhTitle').value.trim();
+  var desc=document.getElementById('uhDesc').value.trim();
+  if(!title){showToast('❌ Title bharo!',true);return;}
+  if(!db){showToast('❌ Firebase nahi',true);return;}
+  U.hero={icon:icon,title:title,desc:desc,hidden:false};
+  db.collection('meta').doc('updatesHero').set(U.hero).then(function(){
+    showToast('✅ Announcement saved');closeModal();renderUHero();
+  },function(){showToast('❌ Save fail hua',true);});
+}
+function hideUHero(){
+  if(!U.hero)return;U.hero.hidden=true;
+  db.collection('meta').doc('updatesHero').set(U.hero).then(function(){renderUHero();showToast('Hidden');});
+}
+function deleteUHero(){
+  if(!confirm('Delete this announcement?'))return;
+  U.hero=null;
+  db.collection('meta').doc('updatesHero').delete().then(function(){renderUHero();showToast('🗑️ Deleted');});
+}
+
+// -- Feed --
+function renderUFeed(){
+  var wrap=document.getElementById('uFeedWrap');
+  var visible=U.feed.filter(function(it){return !it.hidden;});
+  visible.sort(function(a,b){return(b.ts||0)-(a.ts||0);});
+  if(!visible.length){
+    wrap.innerHTML='<div class="uempty">'+(isAdmin()?'Neeche + button dabao update add karne ke liye':'Koi recent update nahi hai')+'</div>';
+    return;
+  }
+  wrap.innerHTML=visible.map(function(it){
+    var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openUFeedModal(\''+it.id+'\')">✏️</button><button class="ibtn" onclick="deleteUFeedItem(\''+it.id+'\')">🗑️</button></div>':'';
+    return '<div class="card"><div class="uupd-ico">'+escHtml(it.icon||'✔')+'</div>'+
+      '<div style="flex:1;min-width:0"><div class="uupd-title">'+escHtml(it.title||'')+'</div>'+
+      (it.desc?'<div class="uupd-desc">'+escHtml(it.desc)+'</div>':'')+
+      '<div class="uupd-date">'+escHtml(it.date||'')+'</div></div>'+adm+'</div>';
+  }).join('');
+}
+function openUFeedModal(id){
+  var it=id?U.feed.find(function(x){return x.id===id;}):null;
+  openModal('<div class="mhead"><span class="mtitle">'+(it?'✏️ Edit Update':'➕ Add Update')+'</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="fgrp"><label class="flbl">Icon (emoji)</label><input class="finp" id="ufIcon" value="'+escHtml(it?it.icon:'✔')+'" placeholder="✔"/></div>'+
+    '<div class="fgrp"><label class="flbl">Title</label><input class="finp" id="ufTitle" value="'+escHtml(it?it.title:'')+'" placeholder="e.g. Added Vivo V60"/></div>'+
+    '<div class="fgrp"><label class="flbl">Short Description (optional)</label><textarea class="finp" id="ufDesc" rows="2" placeholder="Short details...">'+escHtml(it&&it.desc?it.desc:'')+'</textarea></div>'+
+    '<input type="hidden" id="ufId" value="'+(it?it.id:'')+'"/>'+
+    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button><button class="bsave" onclick="submitUFeed()">Save</button></div>');
+}
+function submitUFeed(){
+  var title=document.getElementById('ufTitle').value.trim();
+  var icon=document.getElementById('ufIcon').value.trim()||'✔';
+  var desc=document.getElementById('ufDesc').value.trim();
+  var id=document.getElementById('ufId').value;
+  if(!title){showToast('❌ Title bharo!',true);return;}
+  if(!db){showToast('❌ Firebase nahi',true);return;}
+  var now=new Date();
+  var dateStr=now.toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  if(id){
+    var it=U.feed.find(function(x){return x.id===id;});
+    it.title=title;it.icon=icon;it.desc=desc;
+  } else {
+    U.feed.unshift({id:'u'+Date.now(),icon:icon,title:title,desc:desc,date:dateStr,ts:now.getTime(),hidden:false});
+  }
+  U.feed=U.feed.slice(0,50);
+  db.collection('meta').doc('updatesFeed').set({items:U.feed}).then(function(){
+    showToast('✅ Saved');closeModal();renderUFeed();
+  },function(){showToast('❌ Save fail hua',true);});
+}
+function deleteUFeedItem(id){
+  if(!confirm('Delete this update?'))return;
+  U.feed=U.feed.filter(function(x){return x.id!==id;});
+  db.collection('meta').doc('updatesFeed').set({items:U.feed}).then(function(){renderUFeed();showToast('🗑️ Deleted');});
+}
+
+// -- App Info --
+function renderUInfo(){
+  var wrap=document.getElementById('uInfoWrap');
+  if(!U.info){
+    wrap.innerHTML='<div class="uempty">'+(isAdmin()?'Neeche edit button dabao info add karne ke liye':'App info coming soon')+'</div>';
+    return;
+  }
+  var i=U.info;
+  var changes=(i.changes||[]).map(function(c){return '<div class="uinfo-change">• '+escHtml(c)+'</div>';}).join('');
+  wrap.innerHTML='<div class="uinfo-card"><div class="uinfo-ver">Version '+escHtml(i.version||'')+'</div>'+
+    changes+(i.tip?'<div class="uinfo-tip">💡 Tip: '+escHtml(i.tip)+'</div>':'')+'</div>';
+}
+function openUInfoModal(){
+  var i=U.info||{};
+  openModal('<div class="mhead"><span class="mtitle">ℹ️ App Info</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="fgrp"><label class="flbl">Version</label><input class="finp" id="uiVersion" value="'+escHtml(i.version||'')+'" placeholder="e.g. 2.4"/></div>'+
+    '<div class="fgrp"><label class="flbl">Latest Changes (one per line)</label><textarea class="finp" id="uiChanges" rows="4" placeholder="Faster Search'+'\n'+'Added Spare Parts">'+escHtml((i.changes||[]).join('\n'))+'</textarea></div>'+
+    '<div class="fgrp"><label class="flbl">Useful Tip</label><textarea class="finp" id="uiTip" rows="2" placeholder="You can also search using Battery Code.">'+escHtml(i.tip||'')+'</textarea></div>'+
+    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button><button class="bsave" onclick="submitUInfo()">Save</button></div>');
+}
+function submitUInfo(){
+  var version=document.getElementById('uiVersion').value.trim();
+  var changesRaw=document.getElementById('uiChanges').value;
+  var tip=document.getElementById('uiTip').value.trim();
+  var changes=changesRaw.split('\n').map(function(c){return c.trim();}).filter(Boolean);
+  if(!version){showToast('❌ Version bharo!',true);return;}
+  if(!db){showToast('❌ Firebase nahi',true);return;}
+  U.info={version:version,changes:changes,tip:tip};
+  db.collection('meta').doc('appInfo').set(U.info).then(function(){
+    showToast('✅ App info saved');closeModal();renderUInfo();
+  },function(){showToast('❌ Save fail hua',true);});
+}
+
 // ── BOTTOM NAV PAGE SWITCH ────────────────────────────────────────────────
 var homeScrollPos=0;
 function ripple(btn,evt){
@@ -1614,19 +1837,31 @@ function switchPage(page,btnEl,evt){
   if(btnEl)ripple(btnEl,evt||window.event);
   document.getElementById('navHome').classList.toggle('active',page==='home');
   document.getElementById('navParts').classList.toggle('active',page==='parts');
+  document.getElementById('navUpdates').classList.toggle('active',page==='updates');
   var homeEl=document.getElementById('body');
   var partsEl=document.getElementById('partsScreen');
+  var updatesEl=document.getElementById('updatesScreen');
   var aboutEl=document.getElementById('aboutSeo');
 
   if(page==='parts'){
     homeScrollPos=window.scrollY;
     homeEl.classList.add('hide');
     if(aboutEl)aboutEl.classList.add('hide');
+    closeUpdatesScreen();
     openPartsScreen();
     partsEl.classList.add('page-anim');
     window.scrollTo(0,0);
+  } else if(page==='updates'){
+    homeScrollPos=window.scrollY;
+    homeEl.classList.add('hide');
+    if(aboutEl)aboutEl.classList.add('hide');
+    closePartsScreen();
+    openUpdatesScreen();
+    updatesEl.classList.add('page-anim');
+    window.scrollTo(0,0);
   } else {
     closePartsScreen();
+    closeUpdatesScreen();
     homeEl.classList.remove('hide');
     if(aboutEl)aboutEl.classList.remove('hide');
     homeEl.classList.remove('page-anim');void homeEl.offsetWidth;homeEl.classList.add('page-anim');
@@ -1887,6 +2122,7 @@ function submitParts(){
     var idx=PF.data[typeKey].findIndex(function(x){return x.id===id;});
     if(idx>=0)PF.data[typeKey][idx]=newDoc;else PF.data[typeKey].push(newDoc);
     bumpPartsVersion(typeKey);renderPartsCards();
+    logRecentUpdate((isEdit?'✏️ ':'✨ ')+t.label+': '+partName+(isEdit?' updated':' added'));
     PF.editKey=null;PF.editId=null;
   }).catch(function(e){showToast('❌ '+e.message,true);});
 }
@@ -1915,11 +2151,21 @@ function confirmPartsDelete(typeKey,id){
 function doPartsDelete(typeKey,id){
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   if(!db||!t)return;
+  var g=(PF.data[typeKey]||[]).find(function(x){return x.id===id;});
   db.collection(t.col).doc(id).delete().then(function(){
     PF.data[typeKey]=PF.data[typeKey].filter(function(x){return x.id!==id;});
     bumpPartsVersion(typeKey);renderPartsCards();
+    if(g)logRecentUpdate('🗑️ '+t.label+': '+g.partName+' removed');
     closeModal();showToast('✅ Deleted');
   });
+}
+// Ek hi jagah se Recent Updates log + "Last Updated" dono update karo —
+// glass ya spare parts, kahi se bhi change ho, dashboard turant sahi date/time dikhaye.
+function logRecentUpdate(msg){
+  var entry={msg:msg,date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
+  S.log=[entry].concat(S.log).slice(0,20);
+  if(db)db.collection('meta').doc('log').set({entries:S.log});
+  bumpMetaVersion('log');renderRecent();renderStats();
 }
 
 // ── SIDE MENU ────────────────────────────────────────────────────────────
@@ -2397,5 +2643,3 @@ if('serviceWorker' in navigator){
 </script>
 </body>
   </html>
-
-    
