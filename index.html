@@ -24,7 +24,23 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:radial-gradient(circle at top right,#d4af6a14,transparent 40%),radial-gradient(circle at bottom left,#1b3a5a18,transparent 40%),#0a0c14;color:#eaf0ff;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding-bottom:80px}
+body{background:radial-gradient(circle at top right,#d4af6a14,transparent 40%),radial-gradient(circle at bottom left,#1b3a5a18,transparent 40%),#0a0c14;color:#eaf0ff;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+
+/* BOTTOM NAVIGATION */
+#bottomNav{position:fixed;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:1800;display:flex;gap:4px;padding:8px;border-radius:24px;background:rgba(17,20,31,.72);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);border:1px solid rgba(212,175,106,.22);box-shadow:0 10px 34px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.05);max-width:440px;margin:0 auto;height:70px}
+.bnav-item{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;border-radius:18px;color:#5a6180;font-size:10.5px;font-weight:700;letter-spacing:.02em;overflow:hidden;transition:color .25s ease}
+.bnav-ic{font-size:20px;line-height:1;transition:transform .25s cubic-bezier(.34,1.56,.64,1),filter .25s ease}
+.bnav-item.active{color:#f3e1ab}
+.bnav-item.active .bnav-ic{transform:translateY(-1px) scale(1.08);filter:drop-shadow(0 0 6px #d4af6a99)}
+.bnav-item::before{content:'';position:absolute;inset:4px;border-radius:16px;background:linear-gradient(150deg,#d4af6a26,#d4af6a08);opacity:0;transition:opacity .25s ease}
+.bnav-item.active::before{opacity:1}
+.bnav-item .bnav-dot{position:absolute;bottom:6px;width:4px;height:4px;border-radius:50%;background:#d4af6a;opacity:0;box-shadow:0 0 6px #d4af6a;transition:opacity .25s ease}
+.bnav-item.active .bnav-dot{opacity:1}
+.bnav-ripple{position:absolute;border-radius:50%;background:rgba(212,175,106,.35);transform:scale(0);animation:bnavRipple .5s ease-out}
+@keyframes bnavRipple{to{transform:scale(3.2);opacity:0}}
+.bnav-item:active .bnav-ic{transform:scale(.88)}
+.page-anim{animation:pageIn .28s cubic-bezier(.4,0,.2,1)}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:#d4af6a44;border-radius:4px}
 input,textarea,button,select{font-family:inherit}
@@ -137,8 +153,9 @@ button{cursor:pointer}
 .pf-arrow{margin-left:auto;color:#4ab0e8;font-size:18px;flex-shrink:0}
 
 /* PARTS SCREEN */
-#partsScreen{display:none;position:fixed;inset:0;background:#0a0c14;z-index:1500;overflow-y:auto}
+#partsScreen{display:none;position:fixed;inset:0;background:#0a0c14;z-index:1500;overflow-y:auto;padding-bottom:calc(90px + env(safe-area-inset-bottom))}
 #partsScreen.show{display:block;animation:fadeUp .3s ease}
+.pf-back.hide{display:none!important}
 .pf-header{position:sticky;top:0;z-index:10;background:rgba(10,12,20,0.97);backdrop-filter:blur(20px);border-bottom:1px solid #4ab0e826;padding:16px;display:flex;align-items:center;gap:12px}
 .pf-back{width:38px;height:38px;border-radius:10px;border:1px solid #232a3d;background:#10141f;color:#9aa6c4;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .pf-back:active{transform:scale(.92)}
@@ -421,7 +438,7 @@ button{cursor:pointer}
   </div>
 </div>
 
-<div id="body">
+<div id="body" class="page-anim">
   <div id="loading" class="hide"><div class="spin"></div>Connecting...</div>
   <div id="mainContent" class="hide">
     <div class="stats">
@@ -434,7 +451,7 @@ button{cursor:pointer}
       <div class="rtitle">⚡ Recent Updates</div>
       <div id="recentList"></div>
     </div>
-    <button id="partsFinderBtn" onclick="openPartsScreen()">
+    <button id="partsFinderBtn" class="hide" onclick="openPartsScreen()">
       <div class="pf-icon">🔧</div>
       <div>
         <div class="pf-title">Parts Finder</div>
@@ -503,8 +520,7 @@ button{cursor:pointer}
 <!-- PARTS FINDER SCREEN -->
 <div id="partsScreen">
   <div class="pf-header">
-    <button class="pf-back" onclick="closePartsScreen()">←</button>
-    <span class="pf-htitle">🔧 Parts Finder</span>
+    <span class="pf-htitle">🔧 Spare Parts</span>
   </div>
   <div class="pf-body">
     <div id="partsSearchBox">
@@ -517,6 +533,15 @@ button{cursor:pointer}
     <div id="partsCardList"></div>
   </div>
 </div>
+
+<nav id="bottomNav">
+  <button class="bnav-item active" id="navHome" onclick="switchPage('home',this)">
+    <span class="bnav-ic">🏠</span><span>Home</span><span class="bnav-dot"></span>
+  </button>
+  <button class="bnav-item" id="navParts" onclick="switchPage('parts',this)">
+    <span class="bnav-ic">🔧</span><span>Spare Parts</span><span class="bnav-dot"></span>
+  </button>
+</nav>
 
 <div id="modalBg" onclick="if(event.target===this)closeModal()">
   <div class="modal" id="modalBox"></div>
@@ -1411,6 +1436,41 @@ function openPartsScreen(){
   renderPartsCards();renderPartsAddBtn();
 }
 function closePartsScreen(){document.getElementById('partsScreen').classList.remove('show');}
+
+// ── BOTTOM NAV PAGE SWITCH ────────────────────────────────────────────────
+var homeScrollPos=0;
+function ripple(btn,evt){
+  var r=document.createElement('span');r.className='bnav-ripple';
+  var rect=btn.getBoundingClientRect();
+  var size=Math.max(rect.width,rect.height);
+  var x=(evt&&evt.clientX?evt.clientX-rect.left:rect.width/2)-size/2;
+  var y=(evt&&evt.clientY?evt.clientY-rect.top:rect.height/2)-size/2;
+  r.style.width=r.style.height=size+'px';r.style.left=x+'px';r.style.top=y+'px';
+  btn.appendChild(r);setTimeout(function(){r.remove();},500);
+}
+function switchPage(page,btnEl,evt){
+  if(btnEl)ripple(btnEl,evt||window.event);
+  document.getElementById('navHome').classList.toggle('active',page==='home');
+  document.getElementById('navParts').classList.toggle('active',page==='parts');
+  var homeEl=document.getElementById('body');
+  var partsEl=document.getElementById('partsScreen');
+  var aboutEl=document.getElementById('aboutSeo');
+
+  if(page==='parts'){
+    homeScrollPos=window.scrollY;
+    homeEl.classList.add('hide');
+    if(aboutEl)aboutEl.classList.add('hide');
+    openPartsScreen();
+    partsEl.classList.add('page-anim');
+    window.scrollTo(0,0);
+  } else {
+    closePartsScreen();
+    homeEl.classList.remove('hide');
+    if(aboutEl)aboutEl.classList.remove('hide');
+    homeEl.classList.remove('page-anim');void homeEl.offsetWidth;homeEl.classList.add('page-anim');
+    window.scrollTo(0,homeScrollPos);
+  }
+}
 
 function loadPartsData(){
   if(!db)return;PF.loaded=true;
