@@ -195,11 +195,11 @@ button{cursor:pointer}
 #searchClear{background:none;border:none;color:#454d68;padding:8px;display:none;font-size:16px}
 #searchBtn{padding:10px 18px;background:linear-gradient(135deg,#e8c97a,#a87f2e);border:none;border-radius:11px;color:#1a1305;font-size:13px;font-weight:800;margin:5px 0;flex-shrink:0;transition:transform .15s}
 #searchBtn:active{transform:scale(.94)}
-.voice-btn{width:38px;height:38px;border-radius:50%;border:none;background:linear-gradient(135deg,#d4af6a,#a87f2e);color:#1a1305;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin:5px 0;transition:transform .15s,box-shadow .2s;box-shadow:0 2px 10px #d4af6a44}
+.voice-btn{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:linear-gradient(150deg,#f3e1ab,#d4af6a 55%,#a87f2e);color:#1a1305;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin:5px 0;transition:transform .15s,box-shadow .2s;box-shadow:0 2px 10px #d4af6a44,inset 0 1px 1px rgba(255,255,255,.4)}
 .voice-btn:active{transform:scale(.9)}
 .voice-btn.listening{background:linear-gradient(135deg,#e8718e,#a83a55);animation:voicePulse 1.1s ease-in-out infinite;box-shadow:0 0 0 0 #e8718e66}
 @keyframes voicePulse{0%{box-shadow:0 0 0 0 #e8718e66}70%{box-shadow:0 0 0 12px #e8718e00}100%{box-shadow:0 0 0 0 #e8718e00}}
-#partsSearchBox .voice-btn{background:linear-gradient(135deg,#4ab0e8,#2a6fa0);color:#06121c;box-shadow:0 2px 10px #4ab0e844}
+#partsSearchBox .voice-btn{background:linear-gradient(150deg,#8fd4f5,#4ab0e8 55%,#2a6fa0);color:#06121c;box-shadow:0 2px 10px #4ab0e844,inset 0 1px 1px rgba(255,255,255,.4)}
 #partsSearchBox .voice-btn.listening{background:linear-gradient(135deg,#e8718e,#a83a55)}
 
 /* RESULT BANNER */
@@ -446,7 +446,7 @@ button{cursor:pointer}
         <span class="search-ic-glow">🔍</span>
         <input id="searchInput" placeholder="Model number search karo..." oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused')" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
         <button id="searchClear" onclick="clearSearch()">✕</button>
-        <button id="voiceBtn" class="voice-btn" onclick="startVoiceSearch('searchInput',onSearch)" title="Bol kar search karo">🎤</button>
+        <button id="voiceBtn" class="voice-btn" onclick="startVoiceSearch('searchInput',onSearch)" title="Bol kar search karo"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
         <button id="searchBtn" onclick="onSearch()">Search</button>
       </div>
       <div id="searchSuggest" class="suggest-box hide"></div>
@@ -510,7 +510,7 @@ button{cursor:pointer}
     <div id="partsSearchBox">
       <span class="search-ic-glow" style="background:linear-gradient(135deg,#4ab0e8,#5fc9e8)">🔍</span>
       <input id="partsSearchInput" placeholder="Phone model search karo... Vivo Y21" oninput="onPartsSearch()" onblur="setTimeout(function(){document.getElementById('partsSearchSuggest').classList.add('hide')},150)"/>
-      <button id="partsVoiceBtn" class="voice-btn" onclick="startVoiceSearch('partsSearchInput',onPartsSearch)" title="Bol kar search karo">🎤</button>
+      <button id="partsVoiceBtn" class="voice-btn" onclick="startVoiceSearch('partsSearchInput',onPartsSearch)" title="Bol kar search karo"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
       <button id="partsSearchBtn" onclick="onPartsSearch()">Search</button>
     </div>
     <div id="partsSearchSuggest" class="suggest-box hide"></div>
@@ -1000,7 +1000,7 @@ function getVoiceRecognition(){
   var rec=new SR();
   rec.continuous=false;
   rec.interimResults=true;
-  rec.lang='hi-IN'; // Hindi/Hinglish models bhi pakad leta hai; chahe to 'en-IN' kar sakte ho
+  rec.lang='en-IN'; // English-only — model numbers English me hi match honge
   rec.maxAlternatives=1;
   return rec;
 }
@@ -1977,5 +1977,3 @@ if('serviceWorker' in navigator){
 </script>
 </body>
   </html>
-
-    
