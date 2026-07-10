@@ -1028,7 +1028,30 @@ function cleanVoiceTranscript(text){
   cleaned=cleaned.replace(/\bdouble\s+(\w)/gi,'$1$1');
   cleaned=cleaned.replace(/\btriple\s+(\w)/gi,'$1$1$1');
   cleaned=cleaned.replace(/\s+/g,' ').trim();
+  cleaned=collapseRepeatedPhrases(cleaned);
   return cleaned;
+}
+
+// Jab mic beech me khud restart hoti hai to thoda audio overlap ho jaata hai
+// jisse "Vivo Vivo Y20 Y20" jaisa word/phrase repeat ho jaata tha. Ye function
+// consecutive repeated words ya chhote phrases (2-4 words tak) ko collapse karta hai.
+function collapseRepeatedPhrases(text){
+  var words=text.split(' ').filter(Boolean);
+  var i=0;
+  while(i<words.length){
+    var collapsed=false;
+    for(var len=Math.min(4,Math.floor((words.length-i)/2));len>=1;len--){
+      var a=words.slice(i,i+len).join(' ').toLowerCase();
+      var b=words.slice(i+len,i+2*len).join(' ').toLowerCase();
+      if(a&&a===b){
+        words.splice(i+len,len); // duplicate hissa hata do, pehla wala rakho
+        collapsed=true;
+        break;
+      }
+    }
+    if(!collapsed)i++;
+  }
+  return words.join(' ');
 }
 
 // Voice engine kai baar ek hi cheez ke liye alag-alag alternatives deta hai.
