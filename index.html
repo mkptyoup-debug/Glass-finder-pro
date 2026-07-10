@@ -995,7 +995,7 @@ var voiceSilenceTimer=null;
 var voiceSessionTimer=null;
 var voiceAccumulated='';       // ab tak ka poora final transcript (restarts ke aar-paar bhi bacha rehta hai)
 var voiceIntentionalStop=false; // true = humne khud rok diya (silence/manual), false = browser ne beech me tod diya
-var VOICE_SILENCE_MS=1500;      // 1.5 second chup rehne par hi result final maana jayega
+var VOICE_SILENCE_MS=3500;      // 3.5 second chup rehne par hi result final maana jayega — zyada patience
 var VOICE_MAX_SESSION_MS=45000; // safety cap — mic hamesha ke liye khula na rahe
 
 function getVoiceRecognition(){
@@ -1005,7 +1005,7 @@ function getVoiceRecognition(){
   rec.continuous=true;        // pehle false tha — beech me hi kat jaata tha
   rec.interimResults=true;
   rec.lang='en-IN';           // model numbers English/Roman me hi bole jaate hain
-  rec.maxAlternatives=1;
+  rec.maxAlternatives=4; // ek se zyada option mangwao, taaki known models se match karke sahi wala choose ho sake
   return rec;
 }
 
@@ -1029,6 +1029,31 @@ function cleanVoiceTranscript(text){
   cleaned=cleaned.replace(/\btriple\s+(\w)/gi,'$1$1$1');
   cleaned=cleaned.replace(/\s+/g,' ').trim();
   return cleaned;
+}
+
+// Voice engine kai baar ek hi cheez ke liye alag-alag alternatives deta hai.
+// Agar unme se koi ek humare existing model list se match kar jaaye, to wahi
+// use karo (zyada sahi hoga) — warna engine ka sabse confident (pehla) answer lo.
+function pickBestVoiceAlternative(resultItem){
+  if(resultItem.length<=1)return resultItem[0].transcript;
+  var pool=[];
+  try{
+    pool=pool.concat(getAllModelsForTab());
+  }catch(e){}
+  try{
+    PART_TYPES.forEach(function(t){(PF.data[t.key]||[]).forEach(function(g){pool=pool.concat(parseModels(g.models));});});
+  }catch(e){}
+  if(!pool.length)return resultItem[0].transcript;
+  for(var i=0;i<resultItem.length;i++){
+    var cand=cleanVoiceTranscript(resultItem[i].transcript).toUpperCase();
+    if(!cand)continue;
+    for(var j=0;j<pool.length;j++){
+      if(pool[j].toUpperCase().indexOf(cand)>=0||cand.indexOf(pool[j].toUpperCase())>=0){
+        return resultItem[i].transcript; // known model se match mila — yahi sahi hai
+      }
+    }
+  }
+  return resultItem[0].transcript; // koi match nahi mila to default best-confidence answer
 }
 
 // inputId: jis input box me text daalna hai, triggerFn: search chalane wala function (onSearch / onPartsSearch)
@@ -1106,7 +1131,8 @@ function startVoiceSearch(inputId,triggerFn){
           // Same final result index dobara na jode — kai baar engine ek hi
           // final result repeat bhej deta hai jisse text galat/double ho jata tha
           if(i>lastFinalIndex){
-            voiceAccumulated=(voiceAccumulated+' '+event.results[i][0].transcript).trim();
+            var bestText=pickBestVoiceAlternative(event.results[i]);
+            voiceAccumulated=(voiceAccumulated+' '+bestText).trim();
             lastFinalIndex=i;
           }
         } else {
