@@ -1728,7 +1728,7 @@ function openRequestForm(type){
     '<button class="bsave" onclick="sendUpdateRequest(\''+type+'\')">Send</button></div>');
 }
 function sendUpdateRequest(type){
-  var model=document.gevar model=document.getElementById('reqModel').value.trim();
+  var model=document.getElementById('reqModel').value.trim();
   var details=document.getElementById('reqDetails').value.trim();
   if(!model){showToast('❌ Model likho',true);return;}
   db.collection('update_requests').add({
@@ -1814,3 +1814,168 @@ function checkNotifStatus(){
     if(btn)btn.innerHTML='<span class="menu-ic">✅</span> Notifications ON hain';
   }
 }
+
+// ── FIREBASE ─────────────────────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey:"AIzaSyC_OXACPuxzAerOWiQ6O1BZBL0Du8Axdtg",
+  authDomain:"glass-finder-pro.firebaseapp.com",
+  projectId:"glass-finder-pro",
+  storageBucket:"glass-finder-pro.firebasestorage.app",
+  messagingSenderId:"1082015655381",
+  appId:"1:1082015655381:web:cf24bbc2d7442b10a6c95c"
+});
+db=firebase.firestore();
+auth=firebase.auth();
+
+// Auth state — login screen sirf tab dikhao jab koi session nahi
+auth.onAuthStateChanged(function(user){
+  if(user){
+    S.user=user;
+    // Check if admin email
+    S.role=user.email.toLowerCase().trim()===ADMIN_EMAIL.toLowerCase().trim()?'admin':'staff';
+    hideLogin();
+    updateUserUI();
+  } else {
+    S.user=null;S.role='staff';
+    updateUserUI();
+  }
+});
+
+function markLoaded(){
+  if(dataLoaded)return;dataLoaded=true;
+  document.getElementById('loading').classList.add('hide');
+  document.getElementById('mainContent').classList.remove('hide');
+  hideSplash();
+  if(!S.user)showLogin();
+}
+
+// ── SMART DATA LOADING (version-check + cache, avoids re-reading everything) ──
+// Sirf yeh 3 collections ke liye version-check pattern — 'meta/dataVersion' ek chhota
+// doc hai jisme flat/uv/display ka last-changed timestamp hota hai. Agar wo match
+// karta hai localStorage me saved version se, to poori collection dobara nahi
+// padhi jaati — cache se hi data mil jaata hai. Bill bahut kam ho jaata hai.
+var GLASS_TABS=[{key:'flat',col:'flat_glasses'},{key:'uv',col:'uv_glasses'},{key:'display',col:'display_glasses'}];
+
+function loadGlassData(){
+  db.collection('meta').doc('dataVersion').get().then(function(vSnap){
+    var versions=vSnap.exists?vSnap.data():{};
+    var pending=GLASS_TABS.length;
+    GLASS_TABS.forEach(function(t){
+      var remoteV=versions[t.key]||0;
+      var localV=lsGet('gv_'+t.key);
+      var cached=lsGetJSON('gc_'+t.key);
+      if(cached&&localV&&Number(localV)===Number(remoteV)){
+        S[t.key]=cached;done();
+      } else {
+        db.collection(t.col).get().then(function(snap){
+          S[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+          lsSetJSON('gc_'+t.key,S[t.key]);lsSet('gv_'+t.key,String(remoteV));
+          done();
+        },function(){done();});
+      }
+    });
+    syncLogAndAnnounce(versions);
+    function done(){pending--;if(pending===0){render();setSyncDot('ok');markLoaded();}}
+  },function(){setSyncDot('err');markLoaded();});
+}
+
+// Har collection write (add/edit/delete) ke baad version bump karo — taaki
+// dusre users ki agli visit pe unhe pata chale ki data badla hai.
+function bumpGlassVersion(tabKey){
+  var v={};v[tabKey]=Date.now();
+  db.collection('meta').doc('dataVersion').set(v,{merge:true});
+  lsSet('gv_'+tabKey,String(v[tabKey]));
+  lsSetJSON('gc_'+tabKey,S[tabKey]);
+}
+// 'log' aur 'announcement' ke liye bhi wahi dataVersion doc reuse karte hain —
+// alag se real-time listener khula rakhne ke bajaye, yeh existing 2-min poll
+// cycle me hi check ho jaata hai. Kam open connections, kam cost.
+// Admin ke liye: naye update_requests ka halka check — sirf 1 chhota query (limit 1),
+// existing 2-min poll cycle ke saath piggyback, koi alag interval/cost nahi.
+function checkPendingRequests(){
+  if(!db||!isAdmin())return;
+  var lastSeen=lsGet('req_lastSeen')||'1970-01-01';
+  db.collection('update_requests').where('date','>',lastSeen).limit(1).get().then(function(snap){
+    document.getElementById('menuDot').classList.toggle('show',!snap.empty);
+  }).catch(function(){});
+}
+function bumpMetaVersion(key){
+  var v={};v[key]=Date.now();
+  db.collection('meta').doc('dataVersion').set(v,{merge:true});
+  lsSet('gv_'+key,String(v[key]));
+}
+
+// 'log' aur 'announcement' ke liye version-check — pehle yeh onSnapshot() real-time
+// listener se aate the (2 hamesha-khule connections). Ab dataVersion doc ke andar
+// hi 'log'/'announce' timestamp check hote hain, sirf tab fetch hota hai jab badla ho.
+function syncLogAndAnnounce(versions){
+  var tasks=[
+    {key:'log',doc:'log',apply:function(d){S.log=(d&&d.entries)||[];renderRecent();renderStats();}},
+    {key:'announce',doc:'announcement',apply:function(d){
+      applyAnnounceData(d&&d.active?d:{items:[]});
+    }}
+  ];
+  tasks.forEach(function(t){
+    var remoteV=versions[t.key]||0;
+    var localV=lsGet('gv_'+t.key);
+    var cached=lsGetJSON('gc_'+t.key);
+    if(cached&&localV&&Number(localV)===Number(remoteV)){
+      t.apply(cached);
+    } else {
+      db.collection('meta').doc(t.doc).get().then(function(snap){
+        var d=snap.exists?snap.data():null;
+        if(d){lsSetJSON('gc_'+t.key,d);lsSet('gv_'+t.key,String(remoteV));}
+        t.apply(d);
+      });
+    }
+  });
+}
+
+// Halka periodic check — sirf 1 chhota doc padhta hai (mehenga poori collection
+// padhna nahi), aur sirf tabhi refetch karta hai jab kuch actually badla ho.
+function pollGlassVersion(){
+  if(!db||!dataLoaded)return;
+  db.collection('meta').doc('dataVersion').get().then(function(vSnap){
+    var versions=vSnap.exists?vSnap.data():{};
+    GLASS_TABS.forEach(function(t){
+      var remoteV=versions[t.key]||0;
+      var localV=lsGet('gv_'+t.key);
+      if(!localV||Number(localV)!==Number(remoteV)){
+        db.collection(t.col).get().then(function(snap){
+          S[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+          lsSetJSON('gc_'+t.key,S[t.key]);lsSet('gv_'+t.key,String(remoteV));
+          render();
+        });
+      }
+    });
+    syncLogAndAnnounce(versions);
+    checkPendingRequests();
+  });
+}
+setInterval(pollGlassVersion,120000); // har 2 minute me sirf 1 chhota read
+loadGlassData();
+updateOfflineBar();
+
+setTimeout(function(){markLoaded();},5000);
+</script>
+<script>
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('installBtn').style.display='block';
+});
+document.getElementById('installBtn').addEventListener('click',async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();await deferredPrompt.userChoice;
+  deferredPrompt=null;document.getElementById('installBtn').style.display='none';
+});
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js')
+    .then(()=>{setTimeout(checkNotifStatus,1000);})
+    .catch(e=>console.log('SW error',e));
+}
+</script>
+</body>
+  </html>
+
+    
