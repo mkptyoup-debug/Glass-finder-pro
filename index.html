@@ -195,6 +195,12 @@ button{cursor:pointer}
 #searchClear{background:none;border:none;color:#454d68;padding:8px;display:none;font-size:16px}
 #searchBtn{padding:10px 18px;background:linear-gradient(135deg,#e8c97a,#a87f2e);border:none;border-radius:11px;color:#1a1305;font-size:13px;font-weight:800;margin:5px 0;flex-shrink:0;transition:transform .15s}
 #searchBtn:active{transform:scale(.94)}
+.voice-btn{width:38px;height:38px;border-radius:50%;border:none;background:linear-gradient(135deg,#d4af6a,#a87f2e);color:#1a1305;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin:5px 0;transition:transform .15s,box-shadow .2s;box-shadow:0 2px 10px #d4af6a44}
+.voice-btn:active{transform:scale(.9)}
+.voice-btn.listening{background:linear-gradient(135deg,#e8718e,#a83a55);animation:voicePulse 1.1s ease-in-out infinite;box-shadow:0 0 0 0 #e8718e66}
+@keyframes voicePulse{0%{box-shadow:0 0 0 0 #e8718e66}70%{box-shadow:0 0 0 12px #e8718e00}100%{box-shadow:0 0 0 0 #e8718e00}}
+#partsSearchBox .voice-btn{background:linear-gradient(135deg,#4ab0e8,#2a6fa0);color:#06121c;box-shadow:0 2px 10px #4ab0e844}
+#partsSearchBox .voice-btn.listening{background:linear-gradient(135deg,#e8718e,#a83a55)}
 
 /* RESULT BANNER */
 #resultBanner{display:none;margin-bottom:14px;padding:14px 16px;border-radius:14px;border:1px solid;position:relative;overflow:hidden;animation:fadeUp .35s ease}
@@ -440,6 +446,7 @@ button{cursor:pointer}
         <span class="search-ic-glow">🔍</span>
         <input id="searchInput" placeholder="Model number search karo..." oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused')" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
         <button id="searchClear" onclick="clearSearch()">✕</button>
+        <button id="voiceBtn" class="voice-btn" onclick="startVoiceSearch('searchInput',onSearch)" title="Bol kar search karo">🎤</button>
         <button id="searchBtn" onclick="onSearch()">Search</button>
       </div>
       <div id="searchSuggest" class="suggest-box hide"></div>
@@ -503,6 +510,7 @@ button{cursor:pointer}
     <div id="partsSearchBox">
       <span class="search-ic-glow" style="background:linear-gradient(135deg,#4ab0e8,#5fc9e8)">🔍</span>
       <input id="partsSearchInput" placeholder="Phone model search karo... Vivo Y21" oninput="onPartsSearch()" onblur="setTimeout(function(){document.getElementById('partsSearchSuggest').classList.add('hide')},150)"/>
+      <button id="partsVoiceBtn" class="voice-btn" onclick="startVoiceSearch('partsSearchInput',onPartsSearch)" title="Bol kar search karo">🎤</button>
       <button id="partsSearchBtn" onclick="onPartsSearch()">Search</button>
     </div>
     <div id="partsSearchSuggest" class="suggest-box hide"></div>
@@ -980,6 +988,82 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
     '</div></div>'+adm+'</div>'+matchSection+otherTags+noteHtml+
     '<div class="cbtns"><button class="cbtn" onclick="copyList(\''+g.id+'\')">📋 Share List</button></div>'+
     '</div></div>';
+}
+
+// ── VOICE SEARCH ─────────────────────────────────────────────────────────
+var voiceRecognition=null;
+var voiceListeningBtnId=null;
+
+function getVoiceRecognition(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR)return null;
+  var rec=new SR();
+  rec.continuous=false;
+  rec.interimResults=true;
+  rec.lang='hi-IN'; // Hindi/Hinglish models bhi pakad leta hai; chahe to 'en-IN' kar sakte ho
+  rec.maxAlternatives=1;
+  return rec;
+}
+
+// inputId: jis input box me text daalna hai, triggerFn: search chalane wala function (onSearch / onPartsSearch)
+function startVoiceSearch(inputId,triggerFn){
+  var btnId=inputId==='searchInput'?'voiceBtn':'partsVoiceBtn';
+  var btn=document.getElementById(btnId);
+
+  // Agar already sun raha hai to stop kar do (toggle)
+  if(voiceRecognition&&voiceListeningBtnId===btnId){
+    voiceRecognition.stop();
+    return;
+  }
+
+  if(!('SpeechRecognition' in window)&&!('webkitSpeechRecognition' in window)){
+    showToast('❌ Ye browser voice search support nahi karta',true);
+    return;
+  }
+
+  // Pehle se koi aur mic chal raha ho to band karo
+  if(voiceRecognition){try{voiceRecognition.stop();}catch(e){}}
+
+  voiceRecognition=getVoiceRecognition();
+  if(!voiceRecognition){showToast('❌ Voice search available nahi',true);return;}
+  voiceListeningBtnId=btnId;
+
+  var input=document.getElementById(inputId);
+
+  voiceRecognition.onstart=function(){
+    if(btn)btn.classList.add('listening');
+    showToast('🎤 Sun raha hoon... bolo');
+  };
+
+  voiceRecognition.onresult=function(event){
+    var transcript='';
+    for(var i=0;i<event.results.length;i++){
+      transcript+=event.results[i][0].transcript;
+    }
+    input.value=transcript;
+    // live typing jaisa effect — suggestions/search turant update ho
+    if(typeof triggerFn==='function')triggerFn();
+  };
+
+  voiceRecognition.onerror=function(event){
+    if(btn)btn.classList.remove('listening');
+    if(event.error==='no-speech')showToast('❌ Kuch sunayi nahi diya, dobara try karo',true);
+    else if(event.error==='not-allowed'||event.error==='service-not-allowed')showToast('❌ Mic permission chahiye',true);
+    else showToast('❌ Voice search me error aaya',true);
+  };
+
+  voiceRecognition.onend=function(){
+    if(btn)btn.classList.remove('listening');
+    voiceListeningBtnId=null;
+    // Final search trigger — final transcript se poora search chala do
+    if(typeof triggerFn==='function')triggerFn();
+  };
+
+  try{
+    voiceRecognition.start();
+  }catch(e){
+    showToast('❌ Mic start nahi hua',true);
+  }
 }
 
 // ── CONTROLS ─────────────────────────────────────────────────────────────
@@ -1644,7 +1728,7 @@ function openRequestForm(type){
     '<button class="bsave" onclick="sendUpdateRequest(\''+type+'\')">Send</button></div>');
 }
 function sendUpdateRequest(type){
-  var model=document.getElementById('reqModel').value.trim();
+  var model=document.gevar model=document.getElementById('reqModel').value.trim();
   var details=document.getElementById('reqDetails').value.trim();
   if(!model){showToast('❌ Model likho',true);return;}
   db.collection('update_requests').add({
@@ -1730,166 +1814,3 @@ function checkNotifStatus(){
     if(btn)btn.innerHTML='<span class="menu-ic">✅</span> Notifications ON hain';
   }
 }
-
-// ── FIREBASE ─────────────────────────────────────────────────────────────
-firebase.initializeApp({
-  apiKey:"AIzaSyC_OXACPuxzAerOWiQ6O1BZBL0Du8Axdtg",
-  authDomain:"glass-finder-pro.firebaseapp.com",
-  projectId:"glass-finder-pro",
-  storageBucket:"glass-finder-pro.firebasestorage.app",
-  messagingSenderId:"1082015655381",
-  appId:"1:1082015655381:web:cf24bbc2d7442b10a6c95c"
-});
-db=firebase.firestore();
-auth=firebase.auth();
-
-// Auth state — login screen sirf tab dikhao jab koi session nahi
-auth.onAuthStateChanged(function(user){
-  if(user){
-    S.user=user;
-    // Check if admin email
-    S.role=user.email.toLowerCase().trim()===ADMIN_EMAIL.toLowerCase().trim()?'admin':'staff';
-    hideLogin();
-    updateUserUI();
-  } else {
-    S.user=null;S.role='staff';
-    updateUserUI();
-  }
-});
-
-function markLoaded(){
-  if(dataLoaded)return;dataLoaded=true;
-  document.getElementById('loading').classList.add('hide');
-  document.getElementById('mainContent').classList.remove('hide');
-  hideSplash();
-  if(!S.user)showLogin();
-}
-
-// ── SMART DATA LOADING (version-check + cache, avoids re-reading everything) ──
-// Sirf yeh 3 collections ke liye version-check pattern — 'meta/dataVersion' ek chhota
-// doc hai jisme flat/uv/display ka last-changed timestamp hota hai. Agar wo match
-// karta hai localStorage me saved version se, to poori collection dobara nahi
-// padhi jaati — cache se hi data mil jaata hai. Bill bahut kam ho jaata hai.
-var GLASS_TABS=[{key:'flat',col:'flat_glasses'},{key:'uv',col:'uv_glasses'},{key:'display',col:'display_glasses'}];
-
-function loadGlassData(){
-  db.collection('meta').doc('dataVersion').get().then(function(vSnap){
-    var versions=vSnap.exists?vSnap.data():{};
-    var pending=GLASS_TABS.length;
-    GLASS_TABS.forEach(function(t){
-      var remoteV=versions[t.key]||0;
-      var localV=lsGet('gv_'+t.key);
-      var cached=lsGetJSON('gc_'+t.key);
-      if(cached&&localV&&Number(localV)===Number(remoteV)){
-        S[t.key]=cached;done();
-      } else {
-        db.collection(t.col).get().then(function(snap){
-          S[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-          lsSetJSON('gc_'+t.key,S[t.key]);lsSet('gv_'+t.key,String(remoteV));
-          done();
-        },function(){done();});
-      }
-    });
-    syncLogAndAnnounce(versions);
-    function done(){pending--;if(pending===0){render();setSyncDot('ok');markLoaded();}}
-  },function(){setSyncDot('err');markLoaded();});
-}
-
-// Har collection write (add/edit/delete) ke baad version bump karo — taaki
-// dusre users ki agli visit pe unhe pata chale ki data badla hai.
-function bumpGlassVersion(tabKey){
-  var v={};v[tabKey]=Date.now();
-  db.collection('meta').doc('dataVersion').set(v,{merge:true});
-  lsSet('gv_'+tabKey,String(v[tabKey]));
-  lsSetJSON('gc_'+tabKey,S[tabKey]);
-}
-// 'log' aur 'announcement' ke liye bhi wahi dataVersion doc reuse karte hain —
-// alag se real-time listener khula rakhne ke bajaye, yeh existing 2-min poll
-// cycle me hi check ho jaata hai. Kam open connections, kam cost.
-// Admin ke liye: naye update_requests ka halka check — sirf 1 chhota query (limit 1),
-// existing 2-min poll cycle ke saath piggyback, koi alag interval/cost nahi.
-function checkPendingRequests(){
-  if(!db||!isAdmin())return;
-  var lastSeen=lsGet('req_lastSeen')||'1970-01-01';
-  db.collection('update_requests').where('date','>',lastSeen).limit(1).get().then(function(snap){
-    document.getElementById('menuDot').classList.toggle('show',!snap.empty);
-  }).catch(function(){});
-}
-function bumpMetaVersion(key){
-  var v={};v[key]=Date.now();
-  db.collection('meta').doc('dataVersion').set(v,{merge:true});
-  lsSet('gv_'+key,String(v[key]));
-}
-
-// 'log' aur 'announcement' ke liye version-check — pehle yeh onSnapshot() real-time
-// listener se aate the (2 hamesha-khule connections). Ab dataVersion doc ke andar
-// hi 'log'/'announce' timestamp check hote hain, sirf tab fetch hota hai jab badla ho.
-function syncLogAndAnnounce(versions){
-  var tasks=[
-    {key:'log',doc:'log',apply:function(d){S.log=(d&&d.entries)||[];renderRecent();renderStats();}},
-    {key:'announce',doc:'announcement',apply:function(d){
-      applyAnnounceData(d&&d.active?d:{items:[]});
-    }}
-  ];
-  tasks.forEach(function(t){
-    var remoteV=versions[t.key]||0;
-    var localV=lsGet('gv_'+t.key);
-    var cached=lsGetJSON('gc_'+t.key);
-    if(cached&&localV&&Number(localV)===Number(remoteV)){
-      t.apply(cached);
-    } else {
-      db.collection('meta').doc(t.doc).get().then(function(snap){
-        var d=snap.exists?snap.data():null;
-        if(d){lsSetJSON('gc_'+t.key,d);lsSet('gv_'+t.key,String(remoteV));}
-        t.apply(d);
-      });
-    }
-  });
-}
-
-// Halka periodic check — sirf 1 chhota doc padhta hai (mehenga poori collection
-// padhna nahi), aur sirf tabhi refetch karta hai jab kuch actually badla ho.
-function pollGlassVersion(){
-  if(!db||!dataLoaded)return;
-  db.collection('meta').doc('dataVersion').get().then(function(vSnap){
-    var versions=vSnap.exists?vSnap.data():{};
-    GLASS_TABS.forEach(function(t){
-      var remoteV=versions[t.key]||0;
-      var localV=lsGet('gv_'+t.key);
-      if(!localV||Number(localV)!==Number(remoteV)){
-        db.collection(t.col).get().then(function(snap){
-          S[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-          lsSetJSON('gc_'+t.key,S[t.key]);lsSet('gv_'+t.key,String(remoteV));
-          render();
-        });
-      }
-    });
-    syncLogAndAnnounce(versions);
-    checkPendingRequests();
-  });
-}
-setInterval(pollGlassVersion,120000); // har 2 minute me sirf 1 chhota read
-loadGlassData();
-updateOfflineBar();
-
-setTimeout(function(){markLoaded();},5000);
-</script>
-<script>
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt',(e)=>{
-  e.preventDefault();deferredPrompt=e;
-  document.getElementById('installBtn').style.display='block';
-});
-document.getElementById('installBtn').addEventListener('click',async()=>{
-  if(!deferredPrompt)return;
-  deferredPrompt.prompt();await deferredPrompt.userChoice;
-  deferredPrompt=null;document.getElementById('installBtn').style.display='none';
-});
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/sw.js')
-    .then(()=>{setTimeout(checkNotifStatus,1000);})
-    .catch(e=>console.log('SW error',e));
-}
-</script>
-</body>
-  </html>
