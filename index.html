@@ -46,14 +46,22 @@ button{cursor:pointer}
 .hide{display:none!important}
 
 /* SPLASH */
-#splash{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 30% 20%,#d4af6a22,transparent 45%),radial-gradient(circle at 80% 80%,#2a4a7022,transparent 45%),#08090f;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s ease,visibility .6s ease}
+#splash{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 25% 15%,#d4af6a1c,transparent 42%),radial-gradient(circle at 80% 85%,#2a4a7020,transparent 45%),radial-gradient(circle at 50% 50%,#0d1018,#050609 75%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s ease,visibility .6s ease;overflow:hidden}
 #splash.fade-out{opacity:0;visibility:hidden;pointer-events:none}
-.splash-shield{width:92px;height:92px;border-radius:26px;background:linear-gradient(145deg,#e8c97a,#a87f2e 60%,#7a5f28);display:flex;align-items:center;justify-content:center;font-size:44px;box-shadow:0 0 0 1px #d4af6a33,0 8px 40px #d4af6a44;animation:splashPop .7s cubic-bezier(.34,1.56,.64,1) both}
-.splash-title{margin-top:22px;font-size:24px;font-weight:800;background:linear-gradient(90deg,#f3e1ab,#d4af6a 55%,#a87f2e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:splashRise .6s ease .15s both;opacity:0}
-.splash-tag{margin-top:9px;font-size:13px;color:#9aa6c4;animation:splashRise .6s ease .3s both;opacity:0}
-.splash-bar{margin-top:28px;width:140px;height:3px;border-radius:3px;background:#1a1f30;overflow:hidden;position:relative;animation:splashRise .6s ease .45s both;opacity:0}
-.splash-bar::after{content:'';position:absolute;inset:0;width:40%;border-radius:3px;background:linear-gradient(90deg,transparent,#d4af6a,#f3e1ab,#d4af6a,transparent);animation:barSlide 1.3s ease-in-out infinite}
-@keyframes splashPop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+#splashParticles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.sp-particle{position:absolute;width:3px;height:3px;border-radius:50%;background:#d4af6a;opacity:0;box-shadow:0 0 6px #d4af6a;animation:spFloat 6s ease-in-out infinite}
+@keyframes spFloat{0%{opacity:0;transform:translateY(0)}15%{opacity:.55}85%{opacity:.35}100%{opacity:0;transform:translateY(-90px)}}
+.splash-glow{position:absolute;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,#d4af6a2c,transparent 70%);animation:glowPulse 2.6s ease-in-out infinite;pointer-events:none}
+@keyframes glowPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.9;transform:scale(1.12)}}
+.splash-shield{position:relative;width:92px;height:92px;border-radius:26px;background:linear-gradient(145deg,#e8c97a,#a87f2e 60%,#7a5f28);display:flex;align-items:center;justify-content:center;font-size:44px;box-shadow:0 0 0 1px #d4af6a33,0 8px 40px #d4af6a44;animation:splashPop .6s cubic-bezier(.34,1.56,.64,1) both}
+.splash-title{position:relative;margin-top:22px;font-size:25px;font-weight:800;letter-spacing:-.02em;background:linear-gradient(90deg,#f3e1ab,#d4af6a 55%,#a87f2e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:splashRise .5s ease .12s both;opacity:0}
+.splash-tag{position:relative;margin-top:8px;font-size:12.5px;color:#7e88a6;font-weight:500;animation:splashRise .5s ease .22s both;opacity:0}
+.splash-loader{position:relative;margin-top:34px;width:150px;height:2.5px;border-radius:3px;background:#181c2a;overflow:hidden;animation:splashRise .5s ease .32s both;opacity:0}
+.splash-loader::after{content:'';position:absolute;inset:0;width:38%;border-radius:3px;background:linear-gradient(90deg,transparent,#d4af6a,#f3e1ab,#d4af6a,transparent);animation:barSlide 1.3s ease-in-out infinite}
+.splash-status{position:relative;margin-top:16px;font-size:11.5px;color:#4a5270;font-weight:600;letter-spacing:.04em;height:16px;animation:splashRise .5s ease .4s both;opacity:0}
+.splash-status-text{display:inline-block;animation:statusFade 2.5s ease}
+@keyframes statusFade{0%{opacity:0;transform:translateY(4px)}12%{opacity:1;transform:translateY(0)}88%{opacity:1}100%{opacity:0;transform:translateY(-4px)}}
+@keyframes splashPop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
 @keyframes splashRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes barSlide{0%{left:-40%}100%{left:100%}}
 
@@ -271,6 +279,10 @@ button{cursor:pointer}
 .all-models{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
 .mtag{background:#0d0f18;border:1px solid #1d2336;border-radius:6px;padding:4px 9px;font-size:11px;color:#525c7c}
 .cbtns{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #1d2336}
+.chip-toggle{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:6px 12px;background:#d4af6a12;border:1px solid #d4af6a35;border-radius:8px;color:#d4af6a;font-size:11px;font-weight:700}
+.chip-toggle:active{transform:scale(.95)}
+.all-models{max-height:2000px;overflow:hidden;transition:max-height .35s ease}
+.all-models.collapsed{max-height:74px}
 .cbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;background:#0d0f18;border:1px solid #1d2336;border-radius:10px;color:#7e88a6;font-size:12px;font-weight:600;transition:all .2s}
 .cbtn:active{transform:scale(.95)}
 
@@ -362,10 +374,13 @@ button{cursor:pointer}
 
 <!-- SPLASH -->
 <div id="splash">
+  <div id="splashParticles"></div>
+  <div class="splash-glow"></div>
   <div class="splash-shield">🛡️</div>
   <div class="splash-title">Universal Combo</div>
-  <div class="splash-tag">Aapka Glass Helper</div>
-  <div class="splash-bar"></div>
+  <div class="splash-tag">Find Compatible Glass &amp; Spare Parts</div>
+  <div class="splash-loader"></div>
+  <div class="splash-status"><span class="splash-status-text" id="splashStatusText">Loading Database...</span></div>
 </div>
 
 <!-- LOGIN SCREEN -->
@@ -460,7 +475,7 @@ button{cursor:pointer}
     <div id="searchWrap">
       <div id="searchBox">
         <span class="search-ic-glow">🔍</span>
-        <input id="searchInput" placeholder="Model number search karo..." oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused')" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
+        <input id="searchInput" placeholder="Search Model, Battery Code, Glass Group or Part..." oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused');showSearchHistory()" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
         <button id="searchClear" onclick="clearSearch()">✕</button>
         <button id="voiceBtn" class="voice-btn" onclick="startVoiceSearch('searchInput',onSearch)" title="Bol kar search karo"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
       </div>
@@ -617,11 +632,51 @@ function splitModelsInput(str){
 }
 
 // ── SPLASH ───────────────────────────────────────────────────────────────
-function hideSplash(){
-  if(splashDone)return;splashDone=true;
+var splashStartTime=Date.now();
+var SPLASH_MIN_MS=1000;
+var splashStatusTimer=null;
+var SPLASH_MESSAGES=['Loading Database...','Syncing Latest Models...','Preparing Universal Glass Data...','Almost Ready...'];
+var splashMsgIdx=0;
+
+function spawnSplashParticles(){
+  var wrap=document.getElementById('splashParticles');
+  if(!wrap)return;
+  var n=14;
+  for(var i=0;i<n;i++){
+    var p=document.createElement('div');
+    p.className='sp-particle';
+    p.style.left=(Math.random()*100)+'%';
+    p.style.top=(55+Math.random()*35)+'%';
+    p.style.animationDelay=(Math.random()*6)+'s';
+    p.style.animationDuration=(5+Math.random()*3)+'s';
+    wrap.appendChild(p);
+  }
+}
+function rotateSplashStatus(){
+  var el=document.getElementById('splashStatusText');
+  if(!el)return;
+  splashStatusTimer=setInterval(function(){
+    splashMsgIdx=(splashMsgIdx+1)%SPLASH_MESSAGES.length;
+    el.style.animation='none';void el.offsetWidth;
+    el.textContent=SPLASH_MESSAGES[splashMsgIdx];
+    el.style.animation='statusFade 2.5s ease';
+  },2500);
+}
+spawnSplashParticles();
+rotateSplashStatus();
+
+// cb runs only AFTER splash has fully faded out — login screen (agar zaroori ho)
+// isi ke baad dikhaya jaata hai, taaki wo kabhi bhi splash ke peeche se "flash" na kare
+function hideSplash(cb){
+  if(splashDone){if(cb)cb();return;}
+  splashDone=true;
+  clearInterval(splashStatusTimer);
   var sp=document.getElementById('splash');
   sp.classList.add('fade-out');
-  setTimeout(function(){sp.style.display='none';},650);
+  setTimeout(function(){
+    sp.style.display='none';
+    if(cb)cb();
+  },650);
 }
 window.addEventListener('error',function(e){
   var sp=document.getElementById('splash');
@@ -952,6 +1007,12 @@ function renderCards(){
   document.getElementById('resultClear').style.color=isFuzzy?'#f0d090':(list.length?'#7adf63':'#e8718e');
 
   if(!list.length){
+    var crossHit=findInPartsAcrossTypes(q);
+    if(crossHit){
+      el.innerHTML='<div class="empty"><div class="empty-ico">🔧</div><p class="empty-t">Glass me nahi mila</p><p class="empty-s" style="margin-bottom:14px">"'+escHtml(q)+'" Spare Parts me mila — '+escHtml(crossHit.label)+'</p>'+
+        '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openPartsForModel(\''+escHtml(q).replace(/'/g,"\\'")+'\')">🔧 Open in Spare Parts</button></div>';
+      return;
+    }
     el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div><p class="empty-t">Koi result nahi mila</p><p class="empty-s">Alag model try karo</p></div>';
     return;
   }
@@ -985,6 +1046,7 @@ function confidenceBadge(conf){
   return '<span class="bgg">✅ 100% Sure</span>';
 }
 
+var expandedCards={};
 function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
   var mlist=parseModels(g.models);
   var matchSection='';
@@ -996,11 +1058,23 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
           '<span class="match-tag">'+hlText(m,q)+'</span>';
       }).join('')+'</div></div>';
   }
-  var otherTags=other.length?'<div class="all-models">'+other.map(function(m){return '<span class="mtag">'+escHtml(m)+'</span>';}).join('')+'</div>':'';
+  var CHIP_LIMIT=15;
+  var isExpanded=!!expandedCards[g.id];
+  var needsToggle=other.length>CHIP_LIMIT;
+  var otherTags='';
+  if(other.length){
+    otherTags='<div class="all-models'+(needsToggle&&!isExpanded?' collapsed':'')+'" id="chips_'+g.id+'">'+
+      other.map(function(m){return '<span class="mtag">'+escHtml(m)+'</span>';}).join('')+'</div>';
+    if(needsToggle){
+      otherTags+='<button class="chip-toggle" onclick="toggleChips(\''+g.id+'\')" id="chipBtn_'+g.id+'">'+
+        (isExpanded?'▲ Show Less':'▼ Show All ('+other.length+' Models)')+'</button>';
+    }
+  }
   var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openEditModal(\''+g.id+'\')">✏️</button><button class="ibtn" onclick="confirmDelete(\''+g.id+'\')">🗑️</button></div>':'';
   var delay=Math.min(idx*0.05,0.4);
   var cardClass=isFuzzy?'fuzzy-card':(hasSearch&&matched.length?'match-card':'');
   var noteHtml=g.note?'<div style="font-size:11.5px;color:#9aa6c4;margin-top:8px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px 10px">📝 '+escHtml(g.note)+'</div>':'';
+  var jumpModel=(hasSearch&&matched.length)?matched[0]:(mlist[0]||'');
   return '<div class="card '+cardClass+'" style="animation-delay:'+delay+'s">'+
     '<div class="card-accent"></div><div class="card-inner">'+
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
@@ -1009,8 +1083,38 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
     confidenceBadge(g.confidence)+
     (isFuzzy?'<span class="bgy">🔎 Similar</span>':(hasSearch&&matched.length?'<span class="bgg">✅ '+matched.length+' Match</span>':''))+
     '</div></div>'+adm+'</div>'+matchSection+otherTags+noteHtml+
-    '<div class="cbtns"><button class="cbtn" onclick="copyList(\''+g.id+'\')">📋 Share List</button></div>'+
+    '<div class="cbtns"><button class="cbtn" onclick="copyList(\''+g.id+'\')">📋 Copy Group</button>'+
+    '<button class="cbtn" onclick="shareResult(\''+g.id+'\')">📤 Share</button>'+
+    '<button class="cbtn" onclick="openPartsForModel(\''+escHtml(jumpModel).replace(/'/g,"\\'")+'\')">🔧 Spare Parts</button></div>'+
     '</div></div>';
+}
+function toggleChips(id){
+  expandedCards[id]=!expandedCards[id];
+  var wrap=document.getElementById('chips_'+id);
+  var btn=document.getElementById('chipBtn_'+id);
+  if(!wrap||!btn)return;
+  var count=wrap.children.length;
+  if(expandedCards[id]){
+    wrap.classList.remove('collapsed');
+    btn.innerHTML='▲ Show Less';
+  } else {
+    wrap.classList.add('collapsed');
+    btn.innerHTML='▼ Show All ('+count+' Models)';
+  }
+}
+function shareResult(id){
+  var g=getList().find(function(x){return x.id===id;});if(!g)return;
+  var mlist=parseModels(g.models);
+  var text='🛡️ '+g.glassName+'\n📱 Compatible Models ('+mlist.length+'):\n'+mlist.join(', ');
+  if(navigator.share){navigator.share({title:g.glassName,text:text}).catch(function(){});}
+  else{navigator.clipboard.writeText(text);showToast('✅ Copied! Share manually');}
+}
+function openPartsForModel(model){
+  switchPage('parts',document.getElementById('navParts'));
+  setTimeout(function(){
+    var inp=document.getElementById('partsSearchInput');
+    if(inp){inp.value=model;PF.query=model;onPartsSearch();}
+  },320);
 }
 
 // ── VOICE SEARCH (IMPROVED — auto-stops on silence, cleans Hinglish filler words) ─
@@ -1271,6 +1375,29 @@ function switchTab(t){
   render();
 }
 
+// Smart Universal Search — agar Home tab (glass) me match na mile, Spare Parts
+// (part name ya compatible model) aur battery-jaisi codes (e.g. BLP673) me bhi check karo.
+function findInPartsAcrossTypes(q){
+  if(!q||q.length<2)return null;
+  var qu=q.toUpperCase();
+  for(var i=0;i<PART_TYPES.length;i++){
+    var t=PART_TYPES[i];
+    var groups=PF.data[t.key]||[];
+    for(var j=0;j<groups.length;j++){
+      var g=groups[j];
+      if(g.partName&&g.partName.toUpperCase().indexOf(qu)>=0){
+        return{label:t.label+' — '+g.partName,typeKey:t.key,groupId:g.id};
+      }
+      var ms=parseModels(g.models);
+      for(var k=0;k<ms.length;k++){
+        if(ms[k].toUpperCase().indexOf(qu)>=0){
+          return{label:t.label+' compatible model',typeKey:t.key,groupId:g.id};
+        }
+      }
+    }
+  }
+  return null;
+}
 function getAllModelsForTab(){
   var out=[];getList().forEach(function(g){parseModels(g.models).forEach(function(m){out.push(m);});});
   return out;
@@ -1305,6 +1432,8 @@ function onSearch(){
     searchSuggestTimer=setTimeout(function(){
       showSuggestions('searchSuggest',uniqueMatches(getAllModelsForTab(),qq),'pickGlassSuggestion',qq);
     },25);
+  } else if(qq.length===0){
+    showSearchHistory();
   } else {
     document.getElementById('searchSuggest').classList.add('hide');
   }
@@ -1313,7 +1442,40 @@ function onSearch(){
   clearTimeout(searchDebounceTimer);
   searchDebounceTimer=setTimeout(function(){
     S.query=v;renderCards();
+    if(qq.length>=2)saveSearchHistory(qq);
   },150);
+}
+
+// ── SEARCH HISTORY (last 5, localStorage) ──────────────────────────────────
+function getSearchHistory(){return lsGetJSON('searchHistory')||[];}
+function saveSearchHistory(q){
+  var h=getSearchHistory().filter(function(x){return x.toLowerCase()!==q.toLowerCase();});
+  h.unshift(q);
+  h=h.slice(0,5);
+  lsSetJSON('searchHistory',h);
+}
+function clearSearchHistoryFn(){
+  lsSetJSON('searchHistory',[]);
+  document.getElementById('searchSuggest').classList.add('hide');
+}
+function pickHistoryItem(q){
+  document.getElementById('searchInput').value=q;
+  document.getElementById('searchClear').style.display='block';
+  document.getElementById('searchSuggest').classList.add('hide');
+  S.query=q;renderCards();
+}
+function showSearchHistory(){
+  var input=document.getElementById('searchInput');
+  if(input.value.trim())return;
+  var h=getSearchHistory();
+  var box=document.getElementById('searchSuggest');
+  if(!h.length){box.classList.add('hide');box.innerHTML='';return;}
+  box.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px 6px"><span style="font-size:10px;font-weight:800;color:#d4af6a;letter-spacing:.08em;text-transform:uppercase">Recent Searches</span>'+
+    '<button onmousedown="clearSearchHistoryFn()" style="background:none;border:none;color:#4a5270;font-size:10.5px;font-weight:700">Clear</button></div>'+
+    h.map(function(q){
+      return '<div class="suggest-item" onmousedown="pickHistoryItem(\''+q.replace(/'/g,"\\'")+'\')"><span class="suggest-ic">🕐</span><span>'+escHtml(q)+'</span></div>';
+    }).join('');
+  box.classList.remove('hide');
 }
 
 function clearSearch(){
@@ -2081,8 +2243,13 @@ function markLoaded(){
   if(dataLoaded)return;dataLoaded=true;
   document.getElementById('loading').classList.add('hide');
   document.getElementById('mainContent').classList.remove('hide');
-  hideSplash();
-  if(!S.user)showLogin();
+  var elapsed=Date.now()-splashStartTime;
+  var wait=Math.max(0,SPLASH_MIN_MS-elapsed);
+  setTimeout(function(){
+    hideSplash(function(){
+      if(!S.user)showLogin();
+    });
+  },wait);
 }
 
 // ── SMART DATA LOADING (cache-first + version-check, app khulta hai turant) ──
@@ -2204,6 +2371,7 @@ function pollGlassVersion(){
 }
 setInterval(pollGlassVersion,120000); // har 2 minute me sirf 1 chhota read
 loadGlassData();
+setTimeout(function(){if(!PF.loaded)loadPartsData();},1500);
 updateOfflineBar();
 
 // Safety-net fallback — agar network/firebase bahut slow/atka ho to bhi
@@ -2229,3 +2397,5 @@ if('serviceWorker' in navigator){
 </script>
 </body>
   </html>
+
+    
