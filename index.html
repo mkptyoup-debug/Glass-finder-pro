@@ -372,6 +372,19 @@ button{cursor:pointer}
 .fb-empty{text-align:center;padding:40px 16px;color:#333a52}
 .fb-empty-ico{font-size:36px;margin-bottom:10px}
 .fb-count{font-size:11px;color:#4a5270;margin-bottom:16px;font-weight:600}
+
+/* ADMIN DASHBOARD */
+.adash-wrap{display:flex;flex-direction:column;gap:18px}
+.adash-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.adash-stat{background:linear-gradient(150deg,#11141f,#161b2a);border:1px solid #d4af6a33;border-radius:14px;padding:16px 12px;text-align:center}
+.adash-stat-num{font-size:24px;font-weight:800;color:#eed5a0}
+.adash-stat-lbl{font-size:11px;color:#6a7390;margin-top:4px;font-weight:600}
+.adash-section-title{font-size:12.5px;font-weight:700;color:#d4af6a;margin-bottom:10px}
+.adash-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;background:#11141f;border:1px solid #ffffff0d;border-radius:10px;margin-bottom:6px}
+.adash-row-main{font-size:12.5px;color:#e8ecf5;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.adash-row-sub{font-size:10.5px;color:#6a7390;flex-shrink:0;white-space:nowrap}
+.adash-row-badge{font-size:11px;font-weight:800;color:#0f1218;background:#d4af6a;border-radius:10px;padding:2px 9px;flex-shrink:0}
+.adash-empty{text-align:center;padding:20px 10px;color:#333a52;font-size:12px}
 #menuOverlay{display:none;position:fixed;inset:0;background:rgba(4,5,10,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:2500;opacity:0;transition:opacity .3s ease}
 #menuOverlay.show{display:block}
 #menuOverlay.in{opacity:1}
@@ -624,6 +637,7 @@ button{cursor:pointer}
     <div class="menu-divider hide" id="adminDivider"></div>
     <div class="menu-section" id="adminSection">
       <div class="menu-section-label hide" id="adminSectionLabel">Admin</div>
+      <button class="menu-item hide" id="menuAdminDashBtn" onclick="openAdminDashboard()"><span class="material-symbols-rounded menu-ic">admin_panel_settings</span><span class="menu-item-label">Admin Dashboard</span></button>
       <button class="menu-item hide" id="menuAnnounceBtn" onclick="openAnnounceEditor()"><span class="material-symbols-rounded menu-ic">campaign</span><span class="menu-item-label">Edit Announcement</span></button>
       <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="material-symbols-rounded menu-ic">forum</span><span class="menu-item-label">View Feedback</span></button>
       <button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="material-symbols-rounded menu-ic">move_to_inbox</span><span class="menu-item-label">View Update Requests</span></button>
@@ -743,6 +757,36 @@ function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function lsGetJSON(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
 function lsSetJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+// ── ANALYTICS (minimal data only: email, timestamps, search query, share count) ──
+function trackUserSession(user){
+  if(!db||!user||!user.email)return;
+  var ref=db.collection('app_users').doc(user.uid);
+  ref.get().then(function(doc){
+    var now=new Date().toISOString();
+    if(!doc.exists){
+      ref.set({email:user.email,joinTs:now,lastActiveTs:now});
+    } else {
+      ref.update({lastActiveTs:now,email:user.email});
+    }
+  }).catch(function(){});
+}
+function trackSearch(query){
+  if(!db||!query||query.trim().length<2)return;
+  var key=query.trim().toUpperCase();
+  db.collection('search_stats').doc(key).set({
+    query:query.trim(),
+    count:firebase.firestore.FieldValue.increment(1),
+    lastSearched:new Date().toISOString()
+  },{merge:true}).catch(function(){});
+}
+function trackShare(){
+  if(!db||!S.user||!S.user.email)return;
+  db.collection('share_stats').doc(S.user.uid).set({
+    email:S.user.email,
+    count:firebase.firestore.FieldValue.increment(1)
+  },{merge:true}).catch(function(){});
+}
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function setSyncDot(st){document.getElementById('syncDot').className=st;}
 
@@ -1012,6 +1056,7 @@ function updateUserUI(){
     menuLogout.classList.remove('hide');
     menuLoginBtn.classList.add('hide');
     menuAnnounceBtn.classList.remove('hide');
+    var menuAdminDashBtn=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn)menuAdminDashBtn.classList.remove('hide');
     menuFeedbackBtn.classList.remove('hide');
     menuRequestsBtn.classList.remove('hide');
     menuBackupBtn.classList.remove('hide');
@@ -1037,6 +1082,7 @@ function updateUserUI(){
     menuLogout.classList.remove('hide');
     menuLoginBtn.classList.add('hide');
     menuAnnounceBtn.classList.add('hide');
+    var menuAdminDashBtn2=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn2)menuAdminDashBtn2.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
     menuBackupBtn.classList.add('hide');
@@ -1056,6 +1102,7 @@ function updateUserUI(){
     menuLogout.classList.add('hide');
     menuLoginBtn.classList.add('hide');
     menuAnnounceBtn.classList.add('hide');
+    var menuAdminDashBtn3=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn3)menuAdminDashBtn3.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
     menuBackupBtn.classList.add('hide');
@@ -1683,7 +1730,7 @@ function onSearch(){
   searchDebounceTimer=setTimeout(function(){
     window.__searchT0=performance.now();
     S.query=v;renderCards();
-    if(qq.length>=2){saveSearchHistory(qq);haptic();}
+    if(qq.length>=2){saveSearchHistory(qq);haptic();trackSearch(qq);}
   },150);
 }
 
@@ -2188,6 +2235,7 @@ function onPartsSearch(){
   clearTimeout(partsDebounceTimer);
   partsDebounceTimer=setTimeout(function(){
     PF.query=v;renderPartsCards();
+    if(qq.length>=2)trackSearch(qq);
   },150);
 }
 
@@ -2489,7 +2537,68 @@ function shareApp(){
   var d={title:'Universal Combo',text:'Universal Combo - apne phone model ke liye sahi tempered glass turant dhundo!',url:'https://mkptyoup-debug.github.io/Glass-finder-pro'};
   if(navigator.share)navigator.share(d).catch(function(){});
   else{navigator.clipboard.writeText(d.text+' '+d.url);showToast('✅ Link copied!');}
+  trackShare();
   closeMenu();
+}
+
+function openAdminDashboard(){
+  closeMenu();
+  if(!isAdmin()){showToast('❌ Access denied',true);return;}
+  if(!db){showToast('❌ Connection nahi',true);return;}
+  openModal('<div class="mhead"><span class="mtitle">🛡️ Admin Dashboard</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div id="adminDashContent" class="adash-wrap"><div class="fb-empty"><div class="fb-empty-ico">⏳</div><p style="color:#4a5270">Loading analytics...</p></div></div>');
+  Promise.all([
+    db.collection('app_users').get().catch(function(){return null;}),
+    db.collection('search_stats').orderBy('count','desc').limit(10).get().catch(function(){return null;}),
+    db.collection('share_stats').orderBy('count','desc').limit(20).get().catch(function(){return null;})
+  ]).then(function(r){renderAdminDashboard(r[0],r[1],r[2]);});
+}
+
+function renderAdminDashboard(usersSnap,searchSnap,shareSnap){
+  var el=document.getElementById('adminDashContent');
+  if(!el)return;
+  var users=[];
+  if(usersSnap)usersSnap.forEach(function(d){var v=d.data();v.id=d.id;users.push(v);});
+  var todayStr=new Date().toISOString().slice(0,10);
+  var totalUsers=users.length;
+  var joinedToday=users.filter(function(u){return u.joinTs&&u.joinTs.slice(0,10)===todayStr;}).length;
+  var newUsers=users.slice().sort(function(a,b){return (b.joinTs||'').localeCompare(a.joinTs||'');}).slice(0,20);
+  var lastActive=users.slice().sort(function(a,b){return (b.lastActiveTs||'').localeCompare(a.lastActiveTs||'');}).slice(0,20);
+
+  function dateOnly(ts){if(!ts)return '—';return new Date(ts).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+  function timeOnly(ts){if(!ts)return '—';return new Date(ts).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});}
+  function fmt(ts){if(!ts)return '—';return dateOnly(ts)+' • '+timeOnly(ts);}
+
+  var html='<div class="adash-stats">'+
+    '<div class="adash-stat"><div class="adash-stat-num">'+totalUsers+'</div><div class="adash-stat-lbl">Total Users</div></div>'+
+    '<div class="adash-stat"><div class="adash-stat-num">'+joinedToday+'</div><div class="adash-stat-lbl">Joined Today</div></div>'+
+  '</div>';
+
+  html+='<div class="adash-section"><div class="adash-section-title">🆕 Newly Joined Users</div>'+
+    (newUsers.length?newUsers.map(function(u){
+      return '<div class="adash-row"><span class="adash-row-main">'+escHtml(u.email||'—')+'</span><span class="adash-row-sub">'+dateOnly(u.joinTs)+' • '+timeOnly(u.joinTs)+'</span></div>';
+    }).join(''):'<div class="adash-empty">Koi user nahi mila</div>')+'</div>';
+
+  var searches=[];
+  if(searchSnap)searchSnap.forEach(function(d){searches.push(d.data());});
+  html+='<div class="adash-section"><div class="adash-section-title">🔍 Most Searched Models (Top 10)</div>'+
+    (searches.length?searches.map(function(s,i){
+      return '<div class="adash-row"><span class="adash-row-main">#'+(i+1)+' '+escHtml(s.query||'—')+'</span><span class="adash-row-badge">'+(s.count||0)+'</span></div>';
+    }).join(''):'<div class="adash-empty">Koi search data nahi</div>')+'</div>';
+
+  var shares=[];
+  if(shareSnap)shareSnap.forEach(function(d){shares.push(d.data());});
+  html+='<div class="adash-section"><div class="adash-section-title">📤 App Share Statistics</div>'+
+    (shares.length?shares.map(function(s){
+      return '<div class="adash-row"><span class="adash-row-main">'+escHtml(s.email||'—')+'</span><span class="adash-row-badge">'+(s.count||0)+'x</span></div>';
+    }).join(''):'<div class="adash-empty">Koi share data nahi</div>')+'</div>';
+
+  html+='<div class="adash-section"><div class="adash-section-title">🟢 Last Active Users</div>'+
+    (lastActive.length?lastActive.map(function(u){
+      return '<div class="adash-row"><span class="adash-row-main">'+escHtml(u.email||'—')+'</span><span class="adash-row-sub">'+fmt(u.lastActiveTs)+'</span></div>';
+    }).join(''):'<div class="adash-empty">Koi data nahi</div>')+'</div>';
+
+  el.innerHTML=html;
 }
 
 function openFeedbackDashboard(){
@@ -2802,6 +2911,7 @@ auth.onAuthStateChanged(function(user){
     S.role=user.email.toLowerCase().trim()===ADMIN_EMAIL.toLowerCase().trim()?'admin':'staff';
     hideLogin();
     updateUserUI();
+    trackUserSession(user);
   } else {
     S.user=null;S.role='staff';
     updateUserUI();
