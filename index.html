@@ -22,6 +22,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..600,0..1,-25..0&display=swap">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -370,25 +372,63 @@ button{cursor:pointer}
 .fb-empty{text-align:center;padding:40px 16px;color:#333a52}
 .fb-empty-ico{font-size:36px;margin-bottom:10px}
 .fb-count{font-size:11px;color:#4a5270;margin-bottom:16px;font-weight:600}
-#menuOverlay{display:none;position:fixed;inset:0;background:rgba(4,5,10,.7);backdrop-filter:blur(4px);z-index:2500}
+#menuOverlay{display:none;position:fixed;inset:0;background:rgba(4,5,10,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:2500;opacity:0;transition:opacity .3s ease}
 #menuOverlay.show{display:block}
-#menuPanel{position:fixed;top:0;right:0;height:100%;width:78%;max-width:300px;background:linear-gradient(165deg,#11141f,#0a0c14);border-left:1px solid #d4af6a26;z-index:2600;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);padding:24px 18px;overflow-y:auto}
+#menuOverlay.in{opacity:1}
+#menuPanel{position:fixed;top:0;right:0;height:100%;height:100dvh;width:82%;max-width:320px;background:
+    radial-gradient(circle at 0% 0%,#d4af6a1c,transparent 55%),
+    radial-gradient(circle at 100% 100%,#1b3a5a22,transparent 50%),
+    linear-gradient(165deg,#141827f2,#0a0c14f7);
+  backdrop-filter:blur(28px) saturate(160%);-webkit-backdrop-filter:blur(28px) saturate(160%);
+  border-left:1px solid rgba(212,175,106,.16);z-index:2600;transform:translateX(105%);
+  transition:transform .36s cubic-bezier(.4,0,.2,1);
+  box-shadow:-18px 0 60px rgba(0,0,0,.5);
+  display:flex;flex-direction:column;overflow:hidden}
 #menuPanel.show{transform:translateX(0)}
-.menu-head{font-size:11px;font-weight:800;color:#d4af6a;text-transform:uppercase;letter-spacing:.1em;margin-bottom:18px}
-.menu-item{display:flex;align-items:center;gap:13px;padding:14px 10px;border-radius:12px;color:#cdd6f0;font-size:14.5px;font-weight:600;transition:background .15s ease,transform .15s ease;width:100%;text-align:left;border:none;background:none}
-.menu-item:hover{background:#d4af6a0c}
-.menu-item:active{background:#d4af6a10;transform:scale(.98)}
-#menuLogout{color:#e8718e;margin-top:6px}
-#menuLogout:hover{background:#e8718e12}
-#menuLogout:active{background:#e8718e1c}
-.menu-ic{font-size:18px;width:24px;text-align:center;flex-shrink:0}
-.menu-sep{height:1px;background:#1d2336;margin:10px 0}
-.menu-user{padding:14px;background:#d4af6a0e;border:1px solid #d4af6a26;border-radius:12px;margin-bottom:16px}
-.menu-user-name{font-size:14px;font-weight:700;color:#d4af6a;margin-bottom:2px}
-.menu-user-email{font-size:11px;color:#4a5270}
-.menu-user-role{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:10px;margin-top:6px;text-transform:uppercase}
-.menu-user-role.admin{background:#d4af6a22;color:#d4af6a}
-.menu-user-role.staff{background:#4fc78722;color:#4fc787}
+.menu-header{position:relative;flex-shrink:0;padding:22px 18px 18px;background:linear-gradient(150deg,#d4af6a20,#1b3a5a14 60%,transparent);border-bottom:1px solid rgba(212,175,106,.14);display:flex;align-items:center;gap:13px}
+.menu-close-btn{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:9px;border:1px solid rgba(212,175,106,.18);background:rgba(255,255,255,.03);color:#9aa6c4;display:flex;align-items:center;justify-content:center;transition:background .15s ease,transform .15s ease}
+.menu-close-btn:active{transform:scale(.9);background:rgba(255,255,255,.08)}
+.menu-close-btn .material-symbols-rounded{font-size:17px}
+.menu-avatar{position:relative;width:48px;height:48px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#1a1305;background:linear-gradient(145deg,#e8c97a,#a87f2e);box-shadow:0 4px 16px #d4af6a4a,0 0 0 2px rgba(255,255,255,.06);overflow:hidden}
+.menu-avatar img{width:100%;height:100%;object-fit:cover}
+.menu-user-info{min-width:0;flex:1}
+.menu-user-name{font-size:14.5px;font-weight:700;color:#f1f4ff;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.menu-user-email{font-size:11px;color:#8590b0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:6px}
+.menu-user-role{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:800;letter-spacing:.08em;padding:3px 9px;border-radius:20px;text-transform:uppercase}
+.menu-user-role.admin{background:linear-gradient(90deg,#d4af6a2e,#d4af6a14);color:#e8c97a;box-shadow:0 0 0 1px #d4af6a30}
+.menu-user-role.staff{background:#4fc78722;color:#6fe0a3;box-shadow:0 0 0 1px #4fc78730}
+.menu-body{flex:1;overflow-y:auto;padding:14px 14px 6px;-webkit-overflow-scrolling:touch}
+.menu-section{display:flex;flex-direction:column;gap:5px}
+.menu-section-label{font-size:10.5px;font-weight:800;color:#d4af6a;text-transform:uppercase;letter-spacing:.11em;margin:14px 10px 8px;opacity:.85}
+.menu-section:first-child .menu-section-label{margin-top:2px}
+.menu-divider{height:1px;background:linear-gradient(90deg,transparent,#d4af6a30,transparent);margin:14px 4px}
+.menu-item{position:relative;display:flex;align-items:center;gap:14px;padding:13px 12px;border-radius:14px;color:#cdd6f0;font-size:14.5px;font-weight:600;transition:background .18s ease,transform .12s ease;width:100%;text-align:left;border:none;background:rgba(255,255,255,.015);overflow:hidden;isolation:isolate;letter-spacing:.01em}
+.menu-item+.menu-item{margin-top:2px}
+.menu-item:hover{background:rgba(212,175,106,.09)}
+.menu-item:active{transform:scale(.98)}
+.menu-item.active{background:linear-gradient(90deg,#d4af6a1c,#d4af6a08);box-shadow:inset 0 0 0 1px #d4af6a3a,0 0 18px -4px #d4af6a60}
+.menu-item.active .menu-ic{color:#e8c97a;text-shadow:0 0 10px #d4af6a80}
+.menu-item.active::before{content:"";position:absolute;left:0;top:14%;bottom:14%;width:3px;border-radius:3px;background:linear-gradient(#f3e1ab,#d4af6a);box-shadow:0 0 8px #d4af6a}
+.menu-ic{font-size:20px;width:24px;text-align:center;flex-shrink:0;color:#8f9ac0;transition:color .18s ease}
+.menu-item:hover .menu-ic{color:#d4af6a}
+.menu-item-label{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.menu-badge{flex-shrink:0;font-size:9.5px;font-weight:800;letter-spacing:.06em;padding:3px 7px;border-radius:8px;background:linear-gradient(90deg,#ff6b6b,#e8718e);color:#fff;box-shadow:0 0 10px #e8718e60}
+.menu-ripple{position:absolute;border-radius:50%;background:rgba(212,175,106,.28);transform:scale(0);opacity:1;pointer-events:none;animation:menuRipple .5s ease-out forwards;z-index:-1}
+@keyframes menuRipple{to{transform:scale(2.6);opacity:0}}
+#menuPanel.anim-in .menu-item,#menuPanel.anim-in .menu-section-label{animation:menuItemIn .38s cubic-bezier(.22,1,.36,1) backwards}
+@keyframes menuItemIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+.switch-row{cursor:pointer}
+.switch{position:relative;flex-shrink:0;width:40px;height:23px}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.switch-slider{position:absolute;inset:0;border-radius:20px;background:#2a3049;transition:background .2s ease;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.switch-slider::before{content:"";position:absolute;width:17px;height:17px;left:3px;top:3px;border-radius:50%;background:#c7cede;transition:transform .22s cubic-bezier(.4,0,.2,1),background .2s ease;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.switch input:checked+.switch-slider{background:linear-gradient(90deg,#d4af6a,#a87f2e)}
+.switch input:checked+.switch-slider::before{transform:translateX(17px);background:#fff}
+.menu-footer{flex-shrink:0;padding:14px 16px calc(16px + env(safe-area-inset-bottom));border-top:1px solid rgba(212,175,106,.12);background:rgba(6,7,13,.35)}
+.menu-logout-btn{background:linear-gradient(90deg,#e8718e1c,#e8718e10)!important;box-shadow:inset 0 0 0 1px #e8718e3a;color:#ff8fa8!important;justify-content:center;font-weight:700}
+.menu-logout-btn:hover{background:linear-gradient(90deg,#e8718e2a,#e8718e16)!important}
+.menu-logout-btn .menu-ic{color:#ff8fa8}
+.menu-footer-meta{display:flex;align-items:center;justify-content:center;gap:6px;font-size:10.5px;color:#5a6180;margin-top:10px;letter-spacing:.02em}
 
 /* TOAST */
 #toast{display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#0f2412,#0a160c);border:1px solid #2f7a40;border-radius:12px;padding:12px 20px;color:#7adf63;font-size:14px;font-weight:600;z-index:3000;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.6)}
@@ -541,29 +581,63 @@ button{cursor:pointer}
 <!-- SIDE MENU -->
 <div id="menuOverlay" onclick="closeMenu()"></div>
 <div id="menuPanel">
-  <div id="menuUserInfo" class="menu-user hide">
-    <div class="menu-user-name" id="menuUserName">—</div>
-    <div class="menu-user-email" id="menuUserEmail">—</div>
-    <span class="menu-user-role" id="menuUserRole">Staff</span>
+  <div class="menu-header">
+    <div class="menu-avatar" id="menuUserAvatar">?</div>
+    <div id="menuUserInfo" class="menu-user-info hide">
+      <div class="menu-user-name" id="menuUserName">—</div>
+      <div class="menu-user-email" id="menuUserEmail">—</div>
+      <span class="menu-user-role" id="menuUserRole">Staff</span>
+    </div>
+    <button class="menu-close-btn" onclick="closeMenu()" aria-label="Close menu"><span class="material-symbols-rounded">close</span></button>
   </div>
-  <div class="menu-head">Menu</div>
-  <button class="menu-item" onclick="openRequestForm('display')"><span class="menu-ic">➕</span> Request Display Update</button>
-  <button class="menu-item" onclick="openRequestForm('glass')"><span class="menu-ic">📱</span> Request Glass Update</button>
-  <button class="menu-item" onclick="openFavorites()"><span class="menu-ic">⭐</span> My Favorites</button>
-  <button class="menu-item" onclick="openTrending()"><span class="menu-ic">🔥</span> Trending Today</button>
-  <div class="menu-sep"></div>
-  <button class="menu-item" onclick="shareApp()"><span class="menu-ic">📤</span> Share App</button>
-  <button class="menu-item" id="notifBtn" onclick="setupNotifications()"><span class="menu-ic">🔔</span> Notifications On Karo</button>
-  <button class="menu-item" onclick="openFeedback()"><span class="menu-ic">💬</span> Send Feedback</button>
-  <button class="menu-item" onclick="openAboutLegal()"><span class="menu-ic">ℹ️</span> About &amp; Legal</button>
-  <button class="menu-item hide" id="menuAnnounceBtn" onclick="openAnnounceEditor()"><span class="menu-ic">📢</span> Edit Announcement</button>
-  <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="menu-ic">💬</span> View Feedback</button>
-  <button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="menu-ic">📥</span> View Update Requests</button>
-  <button class="menu-item hide" id="menuBackupBtn" onclick="exportBackup()"><span class="menu-ic">💾</span> Backup Data (JSON)</button>
-  <div class="menu-sep"></div>
-  <button class="menu-item hide" id="menuLogout" onclick="doLogout()"><span class="menu-ic">🚪</span> Logout</button>
-  <button class="menu-item hide" id="menuLoginBtn" onclick="closeMenu();showLogin()"><span class="menu-ic">🔐</span> Login</button>
-  <button class="menu-item" onclick="closeMenu()"><span class="menu-ic">✕</span> Close</button>
+
+  <div class="menu-body">
+    <div class="menu-section">
+      <div class="menu-section-label">Requests</div>
+      <button class="menu-item" onclick="openRequestForm('display')"><span class="material-symbols-rounded menu-ic">add_photo_alternate</span><span class="menu-item-label">Request Display Update</span></button>
+      <button class="menu-item" onclick="openRequestForm('glass')"><span class="material-symbols-rounded menu-ic">smartphone</span><span class="menu-item-label">Request Glass Update</span></button>
+    </div>
+
+    <div class="menu-divider"></div>
+    <div class="menu-section">
+      <div class="menu-section-label">Personal</div>
+      <button class="menu-item" onclick="openFavorites()"><span class="material-symbols-rounded menu-ic">star</span><span class="menu-item-label">My Favorites</span></button>
+      <button class="menu-item" onclick="openTrending()"><span class="material-symbols-rounded menu-ic">local_fire_department</span><span class="menu-item-label">Trending Today</span><span class="menu-badge">HOT</span></button>
+    </div>
+
+    <div class="menu-divider"></div>
+    <div class="menu-section">
+      <div class="menu-section-label">Settings</div>
+      <button class="menu-item" onclick="shareApp()"><span class="material-symbols-rounded menu-ic">ios_share</span><span class="menu-item-label">Share App</span></button>
+      <div class="menu-item switch-row" id="notifBtn" onclick="setupNotifications()">
+        <span class="material-symbols-rounded menu-ic" id="notifIcon">notifications</span>
+        <span class="menu-item-label" id="notifLabel">Notifications</span>
+        <label class="switch" onclick="event.stopPropagation();setupNotifications()">
+          <input type="checkbox" id="notifToggle">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+      <button class="menu-item" onclick="openFeedback()"><span class="material-symbols-rounded menu-ic">chat_bubble</span><span class="menu-item-label">Send Feedback</span></button>
+      <button class="menu-item" onclick="openAboutLegal()"><span class="material-symbols-rounded menu-ic">info</span><span class="menu-item-label">About &amp; Legal</span></button>
+    </div>
+
+    <div class="menu-divider hide" id="adminDivider"></div>
+    <div class="menu-section" id="adminSection">
+      <div class="menu-section-label hide" id="adminSectionLabel">Admin</div>
+      <button class="menu-item hide" id="menuAnnounceBtn" onclick="openAnnounceEditor()"><span class="material-symbols-rounded menu-ic">campaign</span><span class="menu-item-label">Edit Announcement</span></button>
+      <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="material-symbols-rounded menu-ic">forum</span><span class="menu-item-label">View Feedback</span></button>
+      <button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="material-symbols-rounded menu-ic">move_to_inbox</span><span class="menu-item-label">View Update Requests</span></button>
+      <button class="menu-item hide" id="menuBackupBtn" onclick="exportBackup()"><span class="material-symbols-rounded menu-ic">cloud_download</span><span class="menu-item-label">Backup Data (JSON)</span></button>
+      <button class="menu-item hide" id="menuRestoreBtn" onclick="document.getElementById('restoreFileInput').click()"><span class="material-symbols-rounded menu-ic">cloud_upload</span><span class="menu-item-label">Restore Data</span></button>
+      <input type="file" id="restoreFileInput" accept="application/json" class="hide" onchange="restoreBackup(event)">
+    </div>
+  </div>
+
+  <div class="menu-footer">
+    <button class="menu-item hide menu-logout-btn" id="menuLogout" onclick="doLogout()"><span class="material-symbols-rounded menu-ic">logout</span><span class="menu-item-label">Logout</span></button>
+    <button class="menu-item hide" id="menuLoginBtn" onclick="closeMenu();showLogin()"><span class="material-symbols-rounded menu-ic">login</span><span class="menu-item-label">Login</span></button>
+    <div class="menu-footer-meta"><span id="appVersionTxt">v3.0</span><span>·</span><span>Made with ❤️</span></div>
+  </div>
 </div>
 
 <!-- PARTS FINDER SCREEN -->
@@ -932,6 +1006,7 @@ function updateUserUI(){
     menuUserInfo.classList.remove('hide');
     document.getElementById('menuUserName').textContent=name;
     document.getElementById('menuUserEmail').textContent=S.user.email;
+    var avEl=document.getElementById('menuUserAvatar');if(avEl)avEl.textContent=name.charAt(0).toUpperCase();
     var roleEl=document.getElementById('menuUserRole');
     roleEl.textContent='Admin';roleEl.className='menu-user-role admin';
     menuLogout.classList.remove('hide');
@@ -940,6 +1015,9 @@ function updateUserUI(){
     menuFeedbackBtn.classList.remove('hide');
     menuRequestsBtn.classList.remove('hide');
     menuBackupBtn.classList.remove('hide');
+    var restoreBtn=document.getElementById('menuRestoreBtn');if(restoreBtn)restoreBtn.classList.remove('hide');
+    var adminDiv=document.getElementById('adminDivider');if(adminDiv)adminDiv.classList.remove('hide');
+    var adminLbl=document.getElementById('adminSectionLabel');if(adminLbl)adminLbl.classList.remove('hide');
     fab.classList.add('show');
     addBtn.classList.remove('hide');
     tb.classList.remove('hide');
@@ -953,6 +1031,7 @@ function updateUserUI(){
     menuUserInfo.classList.remove('hide');
     document.getElementById('menuUserName').textContent=name2;
     document.getElementById('menuUserEmail').textContent=S.user.email;
+    var avEl2=document.getElementById('menuUserAvatar');if(avEl2)avEl2.textContent=name2.charAt(0).toUpperCase();
     var roleEl2=document.getElementById('menuUserRole');
     roleEl2.textContent='Staff';roleEl2.className='menu-user-role staff';
     menuLogout.classList.remove('hide');
@@ -961,6 +1040,9 @@ function updateUserUI(){
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
     menuBackupBtn.classList.add('hide');
+    var restoreBtn2=document.getElementById('menuRestoreBtn');if(restoreBtn2)restoreBtn2.classList.add('hide');
+    var adminDiv2=document.getElementById('adminDivider');if(adminDiv2)adminDiv2.classList.add('hide');
+    var adminLbl2=document.getElementById('adminSectionLabel');if(adminLbl2)adminLbl2.classList.add('hide');
     fab.classList.remove('show');
     addBtn.classList.add('hide');
     tb.classList.add('hide');
@@ -977,6 +1059,10 @@ function updateUserUI(){
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
     menuBackupBtn.classList.add('hide');
+    var restoreBtn3=document.getElementById('menuRestoreBtn');if(restoreBtn3)restoreBtn3.classList.add('hide');
+    var adminDiv3=document.getElementById('adminDivider');if(adminDiv3)adminDiv3.classList.add('hide');
+    var adminLbl3=document.getElementById('adminSectionLabel');if(adminLbl3)adminLbl3.classList.add('hide');
+    var avEl3=document.getElementById('menuUserAvatar');if(avEl3)avEl3.textContent='?';
     fab.classList.remove('show');
     addBtn.classList.add('hide');
     tb.classList.add('hide');
@@ -2302,8 +2388,19 @@ function logRecentUpdate(msg){
 }
 
 // ── SIDE MENU ────────────────────────────────────────────────────────────
-function openMenu(){haptic();document.getElementById('menuOverlay').classList.add('show');document.getElementById('menuPanel').classList.add('show');}
-function closeMenu(){document.getElementById('menuOverlay').classList.remove('show');document.getElementById('menuPanel').classList.remove('show');}
+function openMenu(){
+  haptic();
+  var ov=document.getElementById('menuOverlay'),panel=document.getElementById('menuPanel');
+  ov.classList.add('show');panel.classList.add('show');
+  requestAnimationFrame(function(){ov.classList.add('in');});
+  var items=panel.querySelectorAll('.menu-item:not(.hide),.menu-section-label:not(.hide)');
+  items.forEach(function(el,i){el.style.animationDelay=(i*28)+'ms';});
+  panel.classList.remove('anim-in');void panel.offsetWidth;panel.classList.add('anim-in');
+}
+function closeMenu(){
+  document.getElementById('menuOverlay').classList.remove('show','in');
+  document.getElementById('menuPanel').classList.remove('show','anim-in');
+}
 // ── ANNOUNCEMENT CAROUSEL (dots ab card ke NICHE, smooth progress animation ke saath) ──
 var annState={items:[],idx:0,timer:null};
 function renderAnnounceCard(){
@@ -2514,6 +2611,39 @@ function exportBackup(){
     showToast('✅ Backup download ho gaya!');
   }).catch(function(e){showToast('❌ '+e.message,true);});
 }
+function restoreBackup(evt){
+  closeMenu();
+  var file=evt.target.files&&evt.target.files[0];
+  if(!file)return;
+  if(!db){showToast('❌ Connection nahi',true);evt.target.value='';return;}
+  if(!confirm('Yeh backup file se data restore karega aur maujooda data ko overwrite kar sakta hai. Continue karein?')){evt.target.value='';return;}
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var data;
+    try{data=JSON.parse(e.target.result);}catch(err){showToast('❌ Invalid backup file',true);evt.target.value='';return;}
+    var cols=['flat_glasses','uv_glasses','display_glasses','parts_display','parts_frame','parts_backdoor','parts_ccboard','parts_battery'];
+    showToast('⏳ Restore ho raha hai...');
+    var batch=db.batch();
+    var count=0;
+    cols.forEach(function(c){
+      var rows=data[c];
+      if(!Array.isArray(rows))return;
+      rows.forEach(function(row){
+        var id=row.id;var payload=Object.assign({},row);delete payload.id;
+        var ref=id?db.collection(c).doc(String(id)):db.collection(c).doc();
+        batch.set(ref,payload,{merge:true});
+        count++;
+      });
+    });
+    if(count===0){showToast('❌ Backup file mein data nahi mila',true);evt.target.value='';return;}
+    batch.commit().then(function(){
+      showToast('✅ Restore ho gaya! ('+count+' records)');
+      evt.target.value='';
+      pollGlassVersion();
+    }).catch(function(err){showToast('❌ '+err.message,true);evt.target.value='';});
+  };
+  reader.readAsText(file);
+}
 function openRequestForm(type,prefill){
   closeMenu();
   var title=type==='display'?'➕ Request Display Update':'📱 Request Glass Update';
@@ -2611,17 +2741,23 @@ function registerForPush(){
       notifMessaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:reg}).then(function(token){
         if(token)db.collection('fcm_tokens').doc(token).set({token:token,createdAt:new Date().toISOString()}).then(function(){
           showToast('✅ Notifications ON!');
-          var btn=document.getElementById('notifBtn');
-          if(btn)btn.innerHTML='<span class="menu-ic">✅</span> Notifications ON hain';
+          setNotifSwitch(true);
         });
       });
     }catch(e){showToast('❌ '+e.message,true);}
   });
 }
+function setNotifSwitch(on){
+  var toggle=document.getElementById('notifToggle');
+  var label=document.getElementById('notifLabel');
+  var icon=document.getElementById('notifIcon');
+  if(toggle)toggle.checked=!!on;
+  if(label)label.textContent=on?'Notifications ON':'Notifications';
+  if(icon)icon.textContent=on?'notifications_active':'notifications';
+}
 function checkNotifStatus(){
   if('Notification' in window&&Notification.permission==='granted'){
-    var btn=document.getElementById('notifBtn');
-    if(btn)btn.innerHTML='<span class="menu-ic">✅</span> Notifications ON hain';
+    setNotifSwitch(true);
   }
 }
 
@@ -2824,6 +2960,25 @@ if('serviceWorker' in navigator){
   },{passive:true});
 })();
 function scrollToTop(){haptic();window.scrollTo({top:0,behavior:'smooth'});}
+
+// Drawer menu-item ripple effect
+(function(){
+  var panel=document.getElementById('menuPanel');
+  if(!panel)return;
+  panel.addEventListener('pointerdown',function(e){
+    var item=e.target.closest('.menu-item');
+    if(!item)return;
+    var r=item.getBoundingClientRect();
+    var d=Math.max(r.width,r.height);
+    var span=document.createElement('span');
+    span.className='menu-ripple';
+    span.style.width=span.style.height=d+'px';
+    span.style.left=(e.clientX-r.left-d/2)+'px';
+    span.style.top=(e.clientY-r.top-d/2)+'px';
+    item.appendChild(span);
+    setTimeout(function(){span.remove();},500);
+  });
+})();
 </script>
 </body>
   </html>
