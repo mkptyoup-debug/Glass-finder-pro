@@ -1075,9 +1075,52 @@ function updateUserUI(){
   renderPartsAddBtn();
 }
 
-// ── SEARCH — EXACT FIRST, FUZZY FALLBACK ─────────────────────────────────
-// KEY FIX: Fuzzy only fires when ZERO exact results found.
-// This prevents Y20 showing up when searching Y21 exactly.
+// ── SEARCH — RANKED PRIORITY MATCHING, FUZZY FALLBACK ────────────────────
+// Priority 0 Exact | 1 StartsWith | 2 Full-string prefix | 3 Word match | 4 Contains | 5 No match (fuzzy candidate)
+// Numeric-continuation guard: "Y20" must NOT rank as StartsWith against "Y200"
+// (query ends in a digit + next char in candidate is also a digit => treated as Contains, priority 4).
+function normStr(s){
+  return String(s||'').toUpperCase().replace(/[-_]+/g,' ').replace(/[^A-Z0-9 ]+/g,'').replace(/\s+/g,' ').trim();
+}
+function escRegex(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+function validBoundaryAfter(str,idx,qLen,qLastChar){
+  var after=str.charAt(idx+qLen);
+  if(/[0-9]/.test(qLastChar)&&/[0-9]/.test(after))return false;
+  return true;
+}
+function rankScore(candidate,query){
+  var m=normStr(candidate),q=normStr(query);
+  if(!q)return 5;
+  if(m===q)return 0;
+  var qLast=q.charAt(q.length-1);
+  var mWords=m.split(' ');
+  if(q.indexOf(' ')<0){
+    for(var i=0;i<mWords.length;i++){if(mWords[i]===q)return 0;}
+    for(var i=0;i<mWords.length;i++){
+      if(mWords[i].indexOf(q)===0&&validBoundaryAfter(mWords[i],0,q.length,qLast))return 1;
+    }
+  }
+  if(m.indexOf(q)===0&&validBoundaryAfter(m,0,q.length,qLast))return 2;
+  var re=new RegExp('(^|\\s)'+escRegex(q));
+  var wm=re.exec(m);
+  if(wm){
+    var startIdx=wm.index+(wm[1]?wm[1].length:0);
+    if(validBoundaryAfter(m,startIdx,q.length,qLast))return 3;
+  }
+  if(m.indexOf(q)>=0)return 4;
+  return 5;
+}
+function bestGroupScore(g,query){
+  var cands=parseModels(g.models).slice();
+  if(g.glassName)cands.push(g.glassName);
+  if(g.partName)cands.push(g.partName);
+  var best=5;
+  cands.forEach(function(c){var s=rankScore(c,query);if(s<best)best=s;});
+  return best;
+}
+function groupSortKey(g){
+  return String(g.glassName||g.partName||(parseModels(g.models)[0])||'');
+}
 function hlText(text,q){
   if(!q)return escHtml(text);
   var result='';var i=0;var tu=text.toUpperCase();var qu=q.toUpperCase();
@@ -1088,14 +1131,6 @@ function hlText(text,q){
     i=idx+q.length;
   }
   return result;
-}
-
-function exactSearch(list,q){
-  var qu=q.toUpperCase();
-  return list.filter(function(g){
-    return g.glassName.toUpperCase().indexOf(qu)>=0 ||
-      parseModels(g.models).some(function(m){return m.toUpperCase().indexOf(qu)>=0;});
-  });
 }
 
 function fuzzySearchModels(list,query){
@@ -1115,14 +1150,19 @@ function fuzzySearchModels(list,query){
 }
 
 function findMatchingGroups(list,query){
-  var qu=query.toUpperCase();
-  // Exact match first
-  var exact=list.filter(function(g){
-    return parseModels(g.models).some(function(m){return m.toUpperCase().indexOf(qu)>=0;});
-  });
-  if(exact.length)return{groups:exact,fuzzy:false,fuzzyMap:null};
-  // Fuzzy only if zero exact results
-  var fuzzyMap=fuzzySearchModels(list,query);
+  var q=query||'';
+  // Priority-ranked match (exact / startsWith / prefix / word / contains)
+  var scored=list.map(function(g){return{g:g,score:bestGroupScore(g,q)};}).filter(function(x){return x.score<5;});
+  if(scored.length){
+    scored.sort(function(a,b){
+      if(a.score!==b.score)return a.score-b.score;
+      return groupSortKey(a.g).localeCompare(groupSortKey(b.g));
+    });
+    return{groups:scored.map(function(x){return x.g;}),fuzzy:false,fuzzyMap:null};
+  }
+  // Fuzzy only if zero ranked results
+  if(q.length<2)return{groups:[],fuzzy:false,fuzzyMap:null};
+  var fuzzyMap=fuzzySearchModels(list,q);
   var ids=Object.keys(fuzzyMap);
   if(!ids.length)return{groups:[],fuzzy:false,fuzzyMap:null};
   var groups=ids.map(function(id){return list.find(function(x){return x.id===id;});}).filter(Boolean);
@@ -1170,36 +1210,11 @@ function renderCards(){
     return;
   }
 
-  // Exact search first
-  var exactList=exactSearch(getList(),q);
-  var isFuzzy=false;
-  var fuzzyMap={};
-  var list=exactList;
-
-  // Only use fuzzy if zero exact results
-  if(!exactList.length&&q.length>=2){
-    fuzzyMap=fuzzySearchModels(getList(),q);
-    var fids=Object.keys(fuzzyMap);
-    if(fids.length){
-      isFuzzy=true;
-      list=fids.map(function(id){return getList().find(function(x){return x.id===id;});}).filter(Boolean);
-      list.sort(function(a,b){return fuzzyMap[a.id].score-fuzzyMap[b.id].score;});
-    }
-  }
-
-  // Sort exact results
-  if(!isFuzzy&&list.length){
-    var qu=q.toUpperCase();
-    list.sort(function(a,b){
-      function score(g){
-        var ms=parseModels(g.models);
-        if(ms.some(function(m){return m.toUpperCase()===qu;}))return 0;
-        if(ms.some(function(m){return m.toUpperCase().indexOf(qu)===0;}))return 1;
-        return 2;
-      }
-      return score(a)-score(b);
-    });
-  }
+  // Ranked priority search (exact > startsWith > prefix > word > contains), fuzzy fallback if nothing matches
+  var res=findMatchingGroups(getList(),q);
+  var isFuzzy=res.fuzzy;
+  var fuzzyMap=res.fuzzyMap||{};
+  var list=res.groups;
 
   // Banner
   banner.style.display='block';
@@ -1622,9 +1637,15 @@ function getAllModelsForTab(){
   return out;
 }
 function uniqueMatches(all,q){
-  var qu=q.toUpperCase();var seen={};var out=[];
-  all.forEach(function(m){var mu=m.toUpperCase();if(mu.indexOf(qu)>=0&&!seen[mu]){seen[mu]=1;out.push(m);}});
-  return out.slice(0,6);
+  var seen={};var scored=[];
+  all.forEach(function(m){
+    var mu=m.toUpperCase();
+    if(seen[mu])return;
+    var s=rankScore(m,q);
+    if(s<5){seen[mu]=1;scored.push({m:m,score:s});}
+  });
+  scored.sort(function(a,b){return a.score-b.score||a.m.localeCompare(b.m);});
+  return scored.slice(0,6).map(function(x){return x.m;});
 }
 function showSuggestions(boxId,items,onPick,query){
   var box=document.getElementById(boxId);
