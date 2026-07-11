@@ -312,6 +312,8 @@ button{cursor:pointer}
 .chip-toggle:active{transform:scale(.95)}
 .all-models.collapsed{max-height:74px}
 .cbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;background:#0d0f18;border:1px solid #1d2336;border-radius:10px;color:#7e88a6;font-size:12px;font-weight:600;transition:all .2s}
+.cbtn.fav-btn{flex:0 0 42px;padding:10px 0;font-size:15px}
+.cbtn.fav-btn.active{border-color:#d4af6a6a;background:#d4af6a14;color:#e8c97a}
 .cbtn:active{transform:scale(.95)}
 
 /* FAB */
@@ -547,7 +549,8 @@ button{cursor:pointer}
   <div class="menu-head">Menu</div>
   <button class="menu-item" onclick="openRequestForm('display')"><span class="menu-ic">➕</span> Request Display Update</button>
   <button class="menu-item" onclick="openRequestForm('glass')"><span class="menu-ic">📱</span> Request Glass Update</button>
-  <button class="menu-item" onclick="openTrending()"><span class="menu-ic">⭐</span> Trending Today</button>
+  <button class="menu-item" onclick="openFavorites()"><span class="menu-ic">⭐</span> My Favorites</button>
+  <button class="menu-item" onclick="openTrending()"><span class="menu-ic">🔥</span> Trending Today</button>
   <div class="menu-sep"></div>
   <button class="menu-item" onclick="shareApp()"><span class="menu-ic">📤</span> Share App</button>
   <button class="menu-item" id="notifBtn" onclick="setupNotifications()"><span class="menu-ic">🔔</span> Notifications On Karo</button>
@@ -592,6 +595,10 @@ button{cursor:pointer}
     <div class="upd-sec-title">Recent Updates</div>
     <div id="uFeedWrap" class="uupd-list"></div>
     <button id="uFeedAddBtn" class="hide" onclick="openUFeedModal(null)" style="margin-top:2px">＋ Add Update</button>
+
+    <div class="upd-sec-title">Version History</div>
+    <div id="uVerWrap"></div>
+    <button id="uVerAddBtn" class="hide" onclick="openUVerModal(null)" style="margin-top:2px">＋ Add Version</button>
 
     <div class="upd-sec-title">Database Information</div>
     <div class="udb-grid">
@@ -676,6 +683,50 @@ window.addEventListener('offline',function(){updateOfflineBar();showToast('❌ I
 
 function haptic(ms){
   try{if(navigator.vibrate)navigator.vibrate(ms||12);}catch(e){}
+}
+
+// ── FAVORITES (local-only, offline-friendly, zero DB cost) ────────────────
+function getFavorites(){return lsGetJSON('favGroups')||[];}
+function isFavorited(id,tab){return getFavorites().some(function(f){return f.id===id&&f.tab===tab;});}
+function toggleFavorite(id,tab,name){
+  haptic();
+  var favs=getFavorites();
+  var idx=favs.findIndex(function(f){return f.id===id&&f.tab===tab;});
+  var btn=document.getElementById('fav_'+id);
+  if(idx>=0){
+    favs.splice(idx,1);
+    if(btn){btn.classList.remove('active');btn.innerHTML='☆';}
+    showToast('Favorites se hata diya');
+  } else {
+    favs.unshift({id:id,tab:tab,name:name});
+    if(btn){btn.classList.add('active');btn.innerHTML='⭐';}
+    showToast('⭐ Saved to Favorites');
+  }
+  lsSetJSON('favGroups',favs);
+}
+function openFavorites(){
+  closeMenu();
+  var favs=getFavorites();
+  var body=!favs.length?
+    '<div class="fb-empty"><div class="fb-empty-ico">⭐</div><p style="color:#4a5270;font-size:14px">Abhi koi favorite nahi hai — card ke ☆ button se add karo</p></div>':
+    favs.map(function(f){
+      return '<div class="fb-card" id="favrow_'+f.tab+'_'+f.id+'">'+
+        '<div class="fb-card-top"><span class="fb-user">🛡️ '+escHtml(f.name)+'</span>'+
+        '<span class="fb-tab-badge">'+f.tab.toUpperCase()+'</span></div>'+
+        '<button class="menu-item" style="display:inline-block;width:auto;padding:6px 12px;margin-top:8px;font-size:12px;color:#d4af6a" onclick="jumpToFavorite(\''+f.tab+'\',\''+escHtml(f.name).replace(/'/g,"\\'")+'\');closeModal()">🔎 Open</button> '+
+        '<button class="menu-item" style="display:inline-block;width:auto;padding:6px 12px;margin-top:8px;font-size:12px;color:#e8718e" onclick="toggleFavorite(\''+f.id+'\',\''+f.tab+'\',\''+escHtml(f.name).replace(/'/g,"\\'")+'\');document.getElementById(\'favrow_'+f.tab+'_'+f.id+'\').remove()">✕ Remove</button>'+
+        '</div>';
+    }).join('');
+  openModal('<div class="mhead"><span class="mtitle">⭐ My Favorites</span><button class="mclose" onclick="closeModal()">✕</button></div>'+body);
+}
+function jumpToFavorite(tab,name){
+  if(tab==='flat'||tab==='uv'){
+    switchTab(tab);
+  } else {
+    S.tab=tab;render();
+  }
+  document.getElementById('searchInput').value=name;
+  S.query=name;renderCards();
 }
 
 function showToast(msg,err){
@@ -1090,7 +1141,7 @@ function renderCards(){
       return;
     }
     el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div><p class="empty-t">Model Not Found</p><p class="empty-s" style="margin-bottom:14px">Try another model name</p>'+
-      '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openRequestForm(\'glass\')">➕ Request Update</button></div>';
+      '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openRequestForm(\'glass\',\''+escHtml(q).replace(/'/g,"\\'")+'\')">➕ Request Update</button></div>';
     return;
   }
 
@@ -1163,6 +1214,7 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
     (isFuzzy?'<span class="bgy">🔎 Similar</span>':(hasSearch&&matched.length?'<span class="bgg">✅ '+matched.length+' Match</span>':''))+
     '</div></div>'+adm+'</div>'+matchSection+otherTags+noteHtml+
     '<div class="cbtns"><button class="cbtn" onclick="copyList(\''+g.id+'\')">📋 Copy Group</button>'+
+    '<button class="cbtn fav-btn'+(isFavorited(g.id,S.tab)?' active':'')+'" id="fav_'+g.id+'" onclick="toggleFavorite(\''+g.id+'\',\''+S.tab+'\',\''+escHtml(g.glassName).replace(/'/g,"\\'")+'\')">'+(isFavorited(g.id,S.tab)?'⭐':'☆')+'</button>'+
     '<button class="cbtn" onclick="shareResult(\''+g.id+'\')">📤 Share</button>'+
     '<button class="cbtn" onclick="openPartsForModel(\''+escHtml(jumpModel).replace(/'/g,"\\'")+'\')">🔧 Spare Parts</button></div>'+
     '</div></div>';
@@ -1616,6 +1668,7 @@ function submitGlass(){
     var idx=S[S.tab].findIndex(function(x){return x.id===id;});
     if(idx>=0)S[S.tab][idx]=newDoc;else S[S.tab].push(newDoc);
     bumpGlassVersion(S.tab);render();
+    autoResolveRequests(models.concat([name]));
     setSyncDot('ok');closeModal();showToast(isEdit?'✅ Updated!':'✅ Added!');S.editId=null;
   }).catch(function(e){setSyncDot('err');showToast('❌ '+e.message,true);});
 }
@@ -1683,11 +1736,11 @@ function openPartsScreen(){
 function closePartsScreen(){document.getElementById('partsScreen').classList.remove('show');}
 
 // ── UPDATES PAGE ─────────────────────────────────────────────────────────
-var U={hero:null,feed:[],info:null,loaded:false};
+var U={hero:null,feed:[],info:null,changelog:[],loaded:false};
 
 function openUpdatesScreen(){
   document.getElementById('updatesScreen').classList.add('show');
-  if(!U.loaded)loadUpdatesData();else{renderUHero();renderUFeed();renderUInfo();}
+  if(!U.loaded)loadUpdatesData();else{renderUHero();renderUFeed();renderUInfo();renderUVer();}
   renderUDbInfo();
 }
 function closeUpdatesScreen(){document.getElementById('updatesScreen').classList.remove('show');}
@@ -1703,6 +1756,9 @@ function loadUpdatesData(){
   db.collection('meta').doc('appInfo').get().then(function(s){
     U.info=s.exists?s.data():null;renderUInfo();
   },function(){renderUInfo();});
+  db.collection('meta').doc('changelog').get().then(function(s){
+    U.changelog=(s.exists&&s.data().items)||[];renderUVer();
+  },function(){renderUVer();});
 }
 
 function renderUDbInfo(){
@@ -1813,6 +1869,56 @@ function deleteUFeedItem(id){
   if(!confirm('Delete this update?'))return;
   U.feed=U.feed.filter(function(x){return x.id!==id;});
   db.collection('meta').doc('updatesFeed').set({items:U.feed}).then(function(){renderUFeed();showToast('🗑️ Deleted');});
+}
+
+// -- Version Changelog --
+function renderUVer(){
+  var wrap=document.getElementById('uVerWrap');
+  var btn=document.getElementById('uVerAddBtn');
+  if(btn)btn.classList.toggle('hide',!isAdmin());
+  var list=(U.changelog||[]).slice(0,5); // latest versions only
+  if(!list.length){
+    wrap.innerHTML='<div class="uempty">'+(isAdmin()?'Neeche + button dabao version add karne ke liye':'Koi version history nahi hai abhi')+'</div>';
+    return;
+  }
+  wrap.innerHTML=list.map(function(v){
+    var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openUVerModal(\''+v.id+'\')">✏️</button><button class="ibtn" onclick="deleteUVer(\''+v.id+'\')">🗑️</button></div>':'';
+    var lines=(v.notes||[]).map(function(n){return '<div style="font-size:12px;color:#9aa6c4;margin-top:3px">✓ '+escHtml(n)+'</div>';}).join('');
+    return '<div class="card" style="padding:14px 16px"><div style="display:flex;justify-content:space-between;align-items:center">'+
+      '<div class="uupd-title">Version '+escHtml(v.version||'')+'</div>'+adm+'</div>'+lines+
+      '<div class="uupd-date">'+escHtml(v.date||'')+'</div></div>';
+  }).join('');
+}
+function openUVerModal(id){
+  var v=id?U.changelog.find(function(x){return x.id===id;}):null;
+  openModal('<div class="mhead"><span class="mtitle">'+(v?'✏️ Edit Version':'➕ Add Version')+'</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="fgrp"><label class="flbl">Version (e.g. 2.1.0)</label><input class="finp" id="uvVersion" value="'+escHtml(v?v.version:'')+'" placeholder="2.1.0"/></div>'+
+    '<div class="fgrp"><label class="flbl">Changes (one per line)</label><textarea class="finp" id="uvNotes" rows="5" placeholder="Added 32 Models\nAdded 5 Glass Groups\nImproved Search Speed">'+escHtml(v&&v.notes?v.notes.join('\n'):'')+'</textarea></div>'+
+    '<input type="hidden" id="uvId" value="'+(v?v.id:'')+'"/>'+
+    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button><button class="bsave" onclick="submitUVer()">Save</button></div>');
+}
+function submitUVer(){
+  var version=document.getElementById('uvVersion').value.trim();
+  var notes=document.getElementById('uvNotes').value.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  var id=document.getElementById('uvId').value;
+  if(!version){showToast('❌ Version number bharo!',true);return;}
+  if(!db){showToast('❌ Firebase nahi',true);return;}
+  var dateStr=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  if(id){
+    var v=U.changelog.find(function(x){return x.id===id;});
+    v.version=version;v.notes=notes;
+  } else {
+    U.changelog.unshift({id:'v'+Date.now(),version:version,notes:notes,date:dateStr});
+  }
+  U.changelog=U.changelog.slice(0,20); // storage stays tiny; UI only shows latest 5 anyway
+  db.collection('meta').doc('changelog').set({items:U.changelog}).then(function(){
+    showToast('✅ Saved');closeModal();renderUVer();
+  },function(){showToast('❌ Save fail hua',true);});
+}
+function deleteUVer(id){
+  if(!confirm('Delete this version entry?'))return;
+  U.changelog=U.changelog.filter(function(x){return x.id!==id;});
+  db.collection('meta').doc('changelog').set({items:U.changelog}).then(function(){renderUVer();showToast('🗑️ Deleted');});
 }
 
 // -- App Info --
@@ -2349,8 +2455,10 @@ function openRequestsDashboard(){
           '<span class="fb-date">'+date+'</span>'+
         '</div>'+
         '<div class="fb-text"><b>'+escHtml(d.model)+'</b>'+(d.details?'<br>'+escHtml(d.details):'')+'</div>'+
-        '<span class="fb-tab-badge">'+(d.type==='display'?'Display':'Glass')+'</span> '+
-        '<button class="menu-item" style="display:inline-block;width:auto;padding:6px 12px;margin-top:8px;font-size:12px;color:#e8718e" onclick="resolveRequest(\''+doc.id+'\')">🗑 Done / Remove</button>'+
+        '<span class="fb-tab-badge">'+(d.type==='display'?'Display':'Glass')+'</span>'+
+        (d.count>1?' <span class="fb-tab-badge" style="background:#d4af6a22;color:#d4af6a">×'+d.count+' requested</span>':'')+'<br>'+
+        '<button class="menu-item" style="display:inline-block;width:auto;padding:6px 12px;margin-top:8px;font-size:12px;color:#7adf63" onclick="acceptRequest(\''+doc.id+'\')">✓ Accept</button> '+
+        '<button class="menu-item" style="display:inline-block;width:auto;padding:6px 12px;margin-top:8px;font-size:12px;color:#e8718e" onclick="resolveRequest(\''+doc.id+'\')">✕ Reject</button>'+
       '</div>';
     });
     el.innerHTML=html;
@@ -2359,12 +2467,32 @@ function openRequestsDashboard(){
     if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">❌</div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
   });
 }
+function acceptRequest(id){
+  db.collection('update_requests').doc(id).delete().then(function(){
+    var el=document.getElementById('req_'+id);
+    if(el)el.remove();
+    showToast('✅ Accepted — ab model add karo');
+  });
+}
 function resolveRequest(id){
   db.collection('update_requests').doc(id).delete().then(function(){
     var el=document.getElementById('req_'+id);
     if(el)el.remove();
     showToast('✅ Request clear ho gaya');
   });
+}
+// Naya model save hone par jo bhi pending requests uss naam se match karte hain, auto-clear ho jaate hain
+function autoResolveRequests(modelsAdded){
+  if(!db||!modelsAdded||!modelsAdded.length)return;
+  var up=modelsAdded.map(function(m){return m.toUpperCase();});
+  db.collection('update_requests').get().then(function(snap){
+    snap.forEach(function(doc){
+      var rm=(doc.data().model||'').toUpperCase();
+      if(up.some(function(m){return m.indexOf(rm)>=0||rm.indexOf(m)>=0;})){
+        db.collection('update_requests').doc(doc.id).delete().catch(function(){});
+      }
+    });
+  }).catch(function(){});
 }
 function exportBackup(){
   closeMenu();
@@ -2386,13 +2514,13 @@ function exportBackup(){
     showToast('✅ Backup download ho gaya!');
   }).catch(function(e){showToast('❌ '+e.message,true);});
 }
-function openRequestForm(type){
+function openRequestForm(type,prefill){
   closeMenu();
   var title=type==='display'?'➕ Request Display Update':'📱 Request Glass Update';
   var modelLbl=type==='display'?'Phone Model':'Phone Model / Glass Name';
   openModal('<div class="mhead"><span class="mtitle">'+title+'</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
     '<div class="fgrp"><label class="flbl">'+modelLbl+'</label>'+
-    '<input class="finp" id="reqModel" placeholder="e.g. Redmi Note 12"/></div>'+
+    '<input class="finp" id="reqModel" value="'+escHtml(prefill||'')+'" placeholder="e.g. Redmi Note 12"/></div>'+
     '<div class="fgrp"><label class="flbl">Details</label>'+
     '<textarea class="finp" id="reqDetails" rows="4" placeholder="Kya update chahiye, batao..."></textarea></div>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
@@ -2402,12 +2530,23 @@ function sendUpdateRequest(type){
   var model=document.getElementById('reqModel').value.trim();
   var details=document.getElementById('reqDetails').value.trim();
   if(!model){showToast('❌ Model likho',true);return;}
-  db.collection('update_requests').add({
-    type:type,model:model,details:details,
-    date:new Date().toISOString(),
-    userEmail:S.user?S.user.email:'Anonymous',
-    userName:S.user?(S.user.displayName||S.user.email.split('@')[0]):'Anonymous'
-  }).then(function(){closeModal();showToast('✅ Request bhej diya!');});
+  if(!db){showToast('❌ Firebase nahi',true);return;}
+  var mu=model.toUpperCase();
+  db.collection('update_requests').where('type','==',type).get().then(function(snap){
+    var dup=null;
+    snap.forEach(function(d){if((d.data().model||'').toUpperCase()===mu)dup=d;});
+    if(dup){
+      db.collection('update_requests').doc(dup.id).update({count:firebase.firestore.FieldValue.increment(1),date:new Date().toISOString()})
+        .then(function(){closeModal();showToast('✅ Request bhej diya! (pehle se maujood, count badha)');});
+    } else {
+      db.collection('update_requests').add({
+        type:type,model:model,details:details,count:1,status:'pending',
+        date:new Date().toISOString(),
+        userEmail:S.user?S.user.email:'Anonymous',
+        userName:S.user?(S.user.displayName||S.user.email.split('@')[0]):'Anonymous'
+      }).then(function(){closeModal();showToast('✅ Request bhej diya!');});
+    }
+  }).catch(function(e){showToast('❌ '+e.message,true);});
 }
 function openTrending(){
   closeMenu();
