@@ -28,6 +28,9 @@ html{scroll-behavior:smooth}
 body{background:radial-gradient(circle at top right,#d4af6a14,transparent 40%),radial-gradient(circle at bottom left,#1b3a5a18,transparent 40%),#0a0c14;color:#eaf0ff;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding-bottom:calc(112px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;overscroll-behavior-y:none;text-rendering:optimizeSpeed}
 #header{will-change:box-shadow;transition:box-shadow .25s ease}
 #header.scrolled{box-shadow:0 8px 24px rgba(0,0,0,.35)}
+#backToTop{position:fixed;right:16px;bottom:calc(100px + env(safe-area-inset-bottom));z-index:1700;width:42px;height:42px;border-radius:50%;background:linear-gradient(145deg,#e8c97a,#a87f2e);color:#1a1305;font-size:18px;font-weight:800;border:none;box-shadow:0 6px 20px #d4af6a55;opacity:0;visibility:hidden;transform:translateY(10px) scale(.9);transition:opacity .2s ease,transform .2s ease,visibility .2s}
+#backToTop.show{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
+#backToTop:active{transform:scale(.9)}
 
 /* BOTTOM NAVIGATION */
 #bottomNav{position:fixed;left:16px;right:16px;bottom:calc(15px + env(safe-area-inset-bottom));z-index:1800;display:flex;padding:0;border-radius:28px;background:rgba(15,18,28,.62);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);border:1px solid rgba(212,175,106,.13);box-shadow:0 8px 28px rgba(0,0,0,.42);max-width:420px;margin:0 auto;height:70px}
@@ -516,6 +519,7 @@ button{cursor:pointer}
         <button id="resultClear" onclick="clearSearch()">Clear</button>
       </div>
       <div class="rb-query" id="rbQuery"></div>
+      <div class="rb-query" id="rbTime" style="font-size:10.5px;color:#4a5270;margin-top:2px"></div>
     </div>
     <div class="toolbar hide" id="toolbarWrap">
       <button class="tbtn" onclick="openCodeModal()">💾 Data Code</button>
@@ -603,6 +607,7 @@ button{cursor:pointer}
   </div>
 </div>
 
+<button id="backToTop" onclick="scrollToTop()" aria-label="Back to top">↑</button>
 <nav id="bottomNav">
   <button class="bnav-item active" id="navHome" onclick="switchPage('home',this,event)">
     <svg class="bnav-ic" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1v-9"/></svg>
@@ -669,11 +674,15 @@ function updateOfflineBar(){
 window.addEventListener('online',function(){updateOfflineBar();showToast('✅ Internet wapas aa gaya');pollGlassVersion();});
 window.addEventListener('offline',function(){updateOfflineBar();showToast('❌ Internet chala gaya',true);});
 
+function haptic(ms){
+  try{if(navigator.vibrate)navigator.vibrate(ms||12);}catch(e){}
+}
+
 function showToast(msg,err){
   var t=document.getElementById('toast');
   t.textContent=msg;t.className='show'+(err?' err':'');
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(function(){t.className='';},2800);
+  toastTimer=setTimeout(function(){t.className='';},2000);
 }
 
 function parseModels(models){
@@ -1080,7 +1089,8 @@ function renderCards(){
         '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openPartsForModel(\''+escHtml(q).replace(/'/g,"\\'")+'\')">🔧 Open in Spare Parts</button></div>';
       return;
     }
-    el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div><p class="empty-t">Koi result nahi mila</p><p class="empty-s">Alag model try karo</p></div>';
+    el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div><p class="empty-t">Model Not Found</p><p class="empty-s" style="margin-bottom:14px">Try another model name</p>'+
+      '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openRequestForm(\'glass\')">➕ Request Update</button></div>';
     return;
   }
 
@@ -1098,6 +1108,8 @@ function renderCards(){
     }
     return buildCard(g,matched,other,true,isFuzzy,idx,q);
   }).join('');
+  var rbTime=document.getElementById('rbTime');
+  if(rbTime)rbTime.textContent='⚡ Found in '+((performance.now()-(window.__searchT0||performance.now()))/1000).toFixed(2)+'s';
 }
 
 function confidenceOptions(val){
@@ -1160,6 +1172,7 @@ function toggleChips(id){
   var wrap=document.getElementById('chips_'+id);
   var btn=document.getElementById('chipBtn_'+id);
   if(!wrap||!btn)return;
+  haptic();
   var count=wrap.children.length;
   if(expandedCards[id]){
     wrap.classList.remove('collapsed');
@@ -1173,6 +1186,7 @@ function shareResult(id){
   var g=getList().find(function(x){return x.id===id;});if(!g)return;
   var mlist=parseModels(g.models);
   var text='🛡️ '+g.glassName+'\n📱 Compatible Models ('+mlist.length+'):\n'+mlist.join(', ');
+  haptic();
   if(navigator.share){navigator.share({title:g.glassName,text:text}).catch(function(){});}
   else{navigator.clipboard.writeText(text);showToast('✅ Copied! Share manually');}
 }
@@ -1508,8 +1522,9 @@ function onSearch(){
   // Full card list (fuzzy search etc.) — slightly debounced since it's heavier
   clearTimeout(searchDebounceTimer);
   searchDebounceTimer=setTimeout(function(){
+    window.__searchT0=performance.now();
     S.query=v;renderCards();
-    if(qq.length>=2)saveSearchHistory(qq);
+    if(qq.length>=2){saveSearchHistory(qq);haptic();}
   },150);
 }
 
@@ -1518,7 +1533,7 @@ function getSearchHistory(){return lsGetJSON('searchHistory')||[];}
 function saveSearchHistory(q){
   var h=getSearchHistory().filter(function(x){return x.toLowerCase()!==q.toLowerCase();});
   h.unshift(q);
-  h=h.slice(0,5);
+  h=h.slice(0,10);
   lsSetJSON('searchHistory',h);
 }
 function clearSearchHistoryFn(){
@@ -1557,7 +1572,8 @@ function copyList(id){
   var g=getList().find(function(x){return x.id===id;});if(!g)return;
   var mlist=parseModels(g.models);
   navigator.clipboard.writeText('🛡️ '+g.glassName+'\n📱 Compatible Models ('+mlist.length+'):\n'+mlist.join(', '));
-  showToast('✅ List copied! WhatsApp pe share karo');
+  haptic();
+  showToast('📋 Group Copied Successfully');
   db.collection(COLLECTIONS[S.tab]).doc(id).update({shares:firebase.firestore.FieldValue.increment(1)}).catch(function(){});
 }
 
@@ -1845,6 +1861,7 @@ function ripple(btn,evt){
 }
 function switchPage(page,btnEl,evt){
   if(btnEl)ripple(btnEl,evt||window.event);
+  haptic();
   document.getElementById('navHome').classList.toggle('active',page==='home');
   document.getElementById('navParts').classList.toggle('active',page==='parts');
   document.getElementById('navUpdates').classList.toggle('active',page==='updates');
@@ -2179,7 +2196,7 @@ function logRecentUpdate(msg){
 }
 
 // ── SIDE MENU ────────────────────────────────────────────────────────────
-function openMenu(){document.getElementById('menuOverlay').classList.add('show');document.getElementById('menuPanel').classList.add('show');}
+function openMenu(){haptic();document.getElementById('menuOverlay').classList.add('show');document.getElementById('menuPanel').classList.add('show');}
 function closeMenu(){document.getElementById('menuOverlay').classList.remove('show');document.getElementById('menuPanel').classList.remove('show');}
 // ── ANNOUNCEMENT CAROUSEL (dots ab card ke NICHE, smooth progress animation ke saath) ──
 var annState={items:[],idx:0,timer:null};
@@ -2655,16 +2672,19 @@ if('serviceWorker' in navigator){
 (function(){
   var hdr=document.getElementById('header');
   if(!hdr)return;
+  var btt=document.getElementById('backToTop');
   var ticking=false;
   window.addEventListener('scroll',function(){
     if(ticking)return;
     ticking=true;
     requestAnimationFrame(function(){
       hdr.classList.toggle('scrolled',window.scrollY>4);
+      if(btt)btt.classList.toggle('show',window.scrollY>500);
       ticking=false;
     });
   },{passive:true});
 })();
+function scrollToTop(){haptic();window.scrollTo({top:0,behavior:'smooth'});}
 </script>
 </body>
   </html>
