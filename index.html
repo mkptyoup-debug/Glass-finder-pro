@@ -2548,9 +2548,9 @@ function openAdminDashboard(){
   openModal('<div class="mhead"><span class="mtitle">🛡️ Admin Dashboard</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
     '<div id="adminDashContent" class="adash-wrap"><div class="fb-empty"><div class="fb-empty-ico">⏳</div><p style="color:#4a5270">Loading analytics...</p></div></div>');
   Promise.all([
-    db.collection('app_users').get().catch(function(){return null;}),
-    db.collection('search_stats').orderBy('count','desc').limit(10).get().catch(function(){return null;}),
-    db.collection('share_stats').orderBy('count','desc').limit(20).get().catch(function(){return null;})
+    db.collection('app_users').get().catch(function(e){console.error('app_users read failed:',e);return null;}),
+    db.collection('search_stats').orderBy('count','desc').limit(10).get().catch(function(e){console.error('search_stats read failed:',e);return null;}),
+    db.collection('share_stats').orderBy('count','desc').limit(20).get().catch(function(e){console.error('share_stats read failed:',e);return null;})
   ]).then(function(r){renderAdminDashboard(r[0],r[1],r[2]);});
 }
 
