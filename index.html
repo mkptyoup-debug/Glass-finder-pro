@@ -202,6 +202,17 @@ button{cursor:pointer}
 #partsSearchInput{flex:1;background:none;border:none;outline:none;color:#f0f4ff;font-size:16px;font-weight:500;padding:16px 0}
 #partsSearchInput::placeholder{color:#333a52}
 #partsAddBtn{width:100%;padding:14px;margin-bottom:16px;background:linear-gradient(135deg,#4ab0e814,#4ab0e808);border:1px dashed #4ab0e84a;border-radius:13px;color:#4ab0e8;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
+.pf-type-tabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:14px;padding-bottom:2px}
+.pf-type-tabs::-webkit-scrollbar{display:none}
+.pf-type-tab{flex:0 0 auto;display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:12px;border:1px solid #1d2336;background:#10141f;color:#5a6f85;font-size:12.5px;font-weight:700;white-space:nowrap;transition:all .25s cubic-bezier(.4,0,.2,1)}
+.pf-type-tab .ptc{font-size:10px;font-weight:800;opacity:.75;padding:1px 5px;border-radius:6px;background:rgba(255,255,255,.08)}
+.pf-type-tab.active{transform:scale(1.04)}
+.pf-swipe-area{position:relative;overflow:hidden}
+.pf-swipe-inner{will-change:transform,opacity}
+.pf-slide-next{animation:pfSlideNext .32s cubic-bezier(.22,1,.36,1)}
+.pf-slide-prev{animation:pfSlidePrev .32s cubic-bezier(.22,1,.36,1)}
+@keyframes pfSlideNext{from{transform:translateX(28px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes pfSlidePrev{from{transform:translateX(-28px);opacity:0}to{transform:translateX(0);opacity:1}}
 /* PARTS FINDER — PREMIUM REDESIGN */
 .pf-type-block{margin-bottom:20px}
 .pf-type-heading{font-size:11px;font-weight:800;letter-spacing:.12em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;text-transform:uppercase;padding:0 2px}
@@ -666,9 +677,9 @@ button{cursor:pointer}
       <button id="partsVoiceBtn" class="voice-btn" onclick="startVoiceSearch('partsSearchInput',onPartsSearch)" title="Bol kar search karo"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
     </div>
     <div id="partsSearchSuggest" class="suggest-box hide"></div>
+    <div id="partsTypeTabs" class="pf-type-tabs hide"></div>
     <button id="partsAddBtn" class="hide" onclick="openPartsAddModal()">＋ Add New Part Group</button>
-    <button id="partsBulkBtn" class="hide" style="width:100%;padding:14px;margin-bottom:16px;background:linear-gradient(135deg,#e8d54a14,#e8d54a08);border:1px dashed #e8d54a4a;border-radius:13px;color:#e8d54a;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px" onclick="openBulkBatteryModal()">📥 Bulk Add Battery List</button>
-    <div id="partsCardList"></div>
+    <div id="partsCardList" class="pf-swipe-area"></div>
   </div>
 </div>
 
@@ -748,7 +759,7 @@ var PART_TYPES=[
   {key:'ccboard',label:'CC Board',icon:'🔌',col:'parts_ccboard',color:'#4ae8a2'},
   {key:'battery',label:'Battery',icon:'🔋',col:'parts_battery',color:'#e8d54a'}
 ];
-var PF={data:{},query:'',editKey:null,editId:null,loaded:false,ready:false};
+var PF={data:{},query:'',editKey:null,editId:null,loaded:false,ready:false,activeType:'display'};
 PART_TYPES.forEach(function(t){PF.data[t.key]=[];});
 
 // ── HELPERS ──────────────────────────────────────────────────────────────
@@ -2208,9 +2219,7 @@ setInterval(pollPartsVersion,120000);
 
 function renderPartsAddBtn(){
   var btn=document.getElementById('partsAddBtn');
-  var bulkBtn=document.getElementById('partsBulkBtn');
-  if(isAdmin()){btn.classList.remove('hide');bulkBtn.classList.remove('hide');}
-  else{btn.classList.add('hide');bulkBtn.classList.add('hide');}
+  if(isAdmin())btn.classList.remove('hide');else btn.classList.add('hide');
 }
 
 function getAllPartsModels(){
@@ -2242,11 +2251,13 @@ function onPartsSearch(){
   },150);
 }
 
-function renderPartsCards(){
+function renderPartsCards(dir){
   var el=document.getElementById('partsCardList');
+  var tabsEl=document.getElementById('partsTypeTabs');
   var q=PF.query.trim();
 
   if(!q){
+    tabsEl.classList.add('hide');
     if(!isAdmin()){
       el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div>'+
         '<p class="empty-t">Model search karo</p>'+
@@ -2302,64 +2313,107 @@ function renderPartsCards(){
     return;
   }
 
-  // Search mode
-  var sections=[];
-  PART_TYPES.forEach(function(t){
-    var res=findMatchingGroups(PF.data[t.key]||[],q);
-    if(res.groups.length)sections.push({type:t,res:res});
-  });
+  // Search mode — single active category tab, model query stays fixed across tabs
+  var qu=q.toUpperCase();
+  var counts={};
+  PART_TYPES.forEach(function(t){counts[t.key]=findMatchingGroups(PF.data[t.key]||[],q).groups.length;});
+  var anyCount=PART_TYPES.some(function(t){return counts[t.key]>0;});
 
-  if(!sections.length){
+  tabsEl.classList.remove('hide');
+  tabsEl.innerHTML=PART_TYPES.map(function(t){
+    var active=t.key===PF.activeType;
+    return '<button class="pf-type-tab'+(active?' active':'')+'" style="'+(active?'border-color:'+t.color+'88;background:'+t.color+'1c;color:'+t.color:'')+'" onclick="switchPartsTab(\''+t.key+'\')">'+t.icon+' '+t.label+(counts[t.key]?' <span class="ptc">'+counts[t.key]+'</span>':'')+'</button>';
+  }).join('');
+
+  var activeT=PART_TYPES.find(function(t){return t.key===PF.activeType;})||PART_TYPES[0];
+  var res=findMatchingGroups(PF.data[activeT.key]||[],q);
+
+  var innerCls='pf-swipe-inner'+(dir===1?' pf-slide-next':dir===-1?' pf-slide-prev':'');
+
+  if(!res.groups.length){
     if(!PF.ready){
-      el.innerHTML='<div class="skel-wrap"><div class="skel-card"></div><div class="skel-card"></div></div>';
+      el.innerHTML='<div class="'+innerCls+'"><div class="skel-wrap"><div class="skel-card"></div><div class="skel-card"></div></div></div>';
       return;
     }
-    el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div>'+
-      '<p class="empty-t">Koi parts nahi mila</p>'+
-      '<p class="empty-s">"'+escHtml(q)+'" ke liye data add nahi hua abhi</p></div>';
+    if(!anyCount){
+      el.innerHTML='<div class="'+innerCls+'"><div class="empty"><div class="empty-ico">🔍</div>'+
+        '<p class="empty-t">Koi parts nahi mila</p>'+
+        '<p class="empty-s">"'+escHtml(q)+'" ke liye data add nahi hua abhi</p></div></div>';
+      return;
+    }
+    el.innerHTML='<div class="'+innerCls+'"><div class="empty" style="border-color:'+activeT.color+'33">'+
+      '<div class="empty-ico">'+activeT.icon+'</div>'+
+      '<p class="empty-t">'+activeT.label+' me nahi mila</p>'+
+      '<p class="empty-s">"'+escHtml(q)+'" iss category me nahi hai — dusra tab try karo</p></div></div>';
     return;
   }
 
-  var qu=q.toUpperCase();
-  el.innerHTML=sections.map(function(sec){
-    var t=sec.type,res=sec.res;
-    return res.groups.map(function(g){
-      var mlist=parseModels(g.models);
-      var isFuzzy=res.fuzzy;
-      var matchedModel=isFuzzy&&res.fuzzyMap[g.id]?res.fuzzyMap[g.id].matchedModel:null;
-      var tagsHtml=mlist.map(function(m){
-        var isMatch=isFuzzy?(m===matchedModel):(m.toUpperCase().indexOf(qu)>=0);
-        return isMatch?
-          '<span class="match-tag'+(isFuzzy?' fuzzy':'')+'">'+(isFuzzy?escHtml(m):hlText(m,q))+'</span>':
-          '<span class="pf-model-chip">'+escHtml(m)+'</span>';
-      }).join('');
-      var adm=isAdmin()?
-        '<div class="pf-result-actions">'+
-          '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
-          '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
-        '</div>':'';
-      var noteHtml=g.note?'<div style="font-size:11px;color:#9aa6c4;margin-top:10px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
-      return '<div class="pf-result-card" style="border-color:'+t.color+'33">'+
-        '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,'+t.color+',transparent)"></div>'+
-        '<div class="pf-result-header">'+
-          '<div class="pf-result-type-icon" style="background:'+t.color+'14;border:1px solid '+t.color+'33;color:'+t.color+'">'+t.icon+'</div>'+
-          '<span class="pf-result-type-label" style="color:'+t.color+'">'+t.label+'</span>'+
-          (isFuzzy?'<span class="pf-fuzzy-tag">similar</span>':'')+
-        '</div>'+
-        '<div class="pf-result-top">'+
-          '<div>'+
-            '<div class="pf-result-name">'+escHtml(g.partName)+'</div>'+
-            '<div class="pf-result-meta">'+mlist.length+' model'+(mlist.length>1?'s':'')+' compatible</div>'+
-          '</div>'+
-          adm+
-        '</div>'+
-        '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
-        '<div class="pf-models-wrap">'+tagsHtml+'</div>'+
-        noteHtml+
-        '</div>';
+  var isFuzzy=res.fuzzy;
+  var cardsHtml=res.groups.map(function(g){
+    var mlist=parseModels(g.models);
+    var matchedModel=isFuzzy&&res.fuzzyMap[g.id]?res.fuzzyMap[g.id].matchedModel:null;
+    var tagsHtml=mlist.map(function(m){
+      var isMatch=isFuzzy?(m===matchedModel):(m.toUpperCase().indexOf(qu)>=0);
+      return isMatch?
+        '<span class="match-tag'+(isFuzzy?' fuzzy':'')+'">'+(isFuzzy?escHtml(m):hlText(m,q))+'</span>':
+        '<span class="pf-model-chip">'+escHtml(m)+'</span>';
     }).join('');
+    var adm=isAdmin()?
+      '<div class="pf-result-actions">'+
+        '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+activeT.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
+        '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+activeT.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
+      '</div>':'';
+    var noteHtml=g.note?'<div style="font-size:11px;color:#9aa6c4;margin-top:10px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
+    return '<div class="pf-result-card" style="border-color:'+activeT.color+'33">'+
+      '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,'+activeT.color+',transparent)"></div>'+
+      '<div class="pf-result-header">'+
+        '<div class="pf-result-type-icon" style="background:'+activeT.color+'14;border:1px solid '+activeT.color+'33;color:'+activeT.color+'">'+activeT.icon+'</div>'+
+        '<span class="pf-result-type-label" style="color:'+activeT.color+'">'+activeT.label+'</span>'+
+        (isFuzzy?'<span class="pf-fuzzy-tag">similar</span>':'')+
+      '</div>'+
+      '<div class="pf-result-top">'+
+        '<div>'+
+          '<div class="pf-result-name">'+escHtml(g.partName)+'</div>'+
+          '<div class="pf-result-meta">'+mlist.length+' model'+(mlist.length>1?'s':'')+' compatible</div>'+
+        '</div>'+
+        adm+
+      '</div>'+
+      '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(activeT.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
+      '<div class="pf-models-wrap">'+tagsHtml+'</div>'+
+      noteHtml+
+      '</div>';
   }).join('');
+
+  el.innerHTML='<div class="'+innerCls+'">'+cardsHtml+'</div>';
 }
+
+function switchPartsTab(key){
+  if(PF.activeType===key)return;
+  var oldIdx=PART_TYPES.findIndex(function(t){return t.key===PF.activeType;});
+  var newIdx=PART_TYPES.findIndex(function(t){return t.key===key;});
+  var dir=newIdx>oldIdx?1:-1;
+  PF.activeType=key;
+  renderPartsCards(dir);
+}
+
+(function(){
+  var startX=0,startY=0,tracking=false;
+  document.addEventListener('touchstart',function(e){
+    if(!e.target.closest('#partsCardList'))return;
+    startX=e.touches[0].clientX;startY=e.touches[0].clientY;tracking=true;
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(!tracking)return;tracking=false;
+    if(!PF.query.trim())return;
+    var dx=e.changedTouches[0].clientX-startX;
+    var dy=e.changedTouches[0].clientY-startY;
+    if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.4){
+      var idx=PART_TYPES.findIndex(function(t){return t.key===PF.activeType;});
+      if(dx<0&&idx<PART_TYPES.length-1)switchPartsTab(PART_TYPES[idx+1].key);
+      else if(dx>0&&idx>0)switchPartsTab(PART_TYPES[idx-1].key);
+    }
+  },{passive:true});
+})();
 
 function partsFormHtml(typeKey,it){
   var typeSelectHtml;
@@ -2428,66 +2482,6 @@ function togglePanelWrap(){
   if(cwrap)cwrap.style.display=show;
 }
 function openPartsAddModal(){PF.editKey=null;PF.editId=null;openModal(partsFormHtml(null,null));}
-
-function openBulkBatteryModal(){
-  openModal('<div class="mhead"><span class="mtitle">📥 Bulk Add Battery List</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<div class="fgrp"><label class="flbl">Paste List</label>'+
-    '<textarea class="finp" id="bulkBatteryTA" rows="12" placeholder="Battery model B-K6:- V17, V19,\nBattery model BA45:- Vivo T3x, Y58 5G, Y38 5G,"></textarea>'+
-    '<div class="fhint">💡 Ek line ek battery: <b>Battery model CODE:- model1, model2,</b></div></div>'+
-    '<div id="bulkBatteryStatus" style="color:#9aa6c4;font-size:13px;margin-bottom:10px"></div>'+
-    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
-    '<button class="bsave" onclick="submitBulkBattery()">Import All</button></div>');
-}
-
-function parseBulkBatteryText(text){
-  var lines=text.split('\n');
-  var out=[];
-  lines.forEach(function(line){
-    line=line.trim();
-    if(!line)return;
-    // "Battery model B-K6:- V17, V19," ya sirf "B-K6:- V17, V19," dono chalega
-    var m=line.match(/^(?:battery\s*model\s*)?([^\:]+?)\s*:-?\s*(.+)$/i);
-    if(!m)return;
-    var code=m[1].trim();
-    var modelsRaw=m[2].trim().replace(/,\s*$/,'');
-    var models=splitModelsInput(modelsRaw);
-    if(code&&models.length)out.push({partName:code,models:models});
-  });
-  return out;
-}
-
-function submitBulkBattery(){
-  var text=document.getElementById('bulkBatteryTA').value;
-  var parsed=parseBulkBatteryText(text);
-  var statusEl=document.getElementById('bulkBatteryStatus');
-  if(!parsed.length){statusEl.textContent='❌ Koi valid line nahi mili.';statusEl.style.color='#f08a8a';return;}
-  if(!db){statusEl.textContent='❌ Firebase connection nahi.';statusEl.style.color='#f08a8a';return;}
-  var t=PART_TYPES.find(function(x){return x.key==='battery';});
-  var total=parsed.length,done=0,failed=0;
-  statusEl.textContent='⏳ 0/'+total+' saved...';statusEl.style.color='#9aa6c4';
-  parsed.forEach(function(p){
-    var id=db.collection(t.col).doc().id;
-    var newDoc={id:id,partName:p.partName,models:p.models,confidence:'100',note:'',panel:'',curve:''};
-    db.collection(t.col).doc(id).set({partName:p.partName,models:p.models,confidence:'100',note:'',panel:'',curve:''}).then(function(){
-      done++;PF.data.battery.push(newDoc);
-      statusEl.textContent='⏳ '+done+'/'+total+' saved...';
-      if(done+failed===total)finishBulkBattery(done,failed);
-    }).catch(function(){
-      failed++;
-      if(done+failed===total)finishBulkBattery(done,failed);
-    });
-  });
-}
-
-function finishBulkBattery(done,failed){
-  var statusEl=document.getElementById('bulkBatteryStatus');
-  statusEl.textContent='✅ '+done+' saved'+(failed?', ❌ '+failed+' failed':'');
-  statusEl.style.color=failed?'#f0c05a':'#8af0a0';
-  bumpPartsVersion('battery');renderPartsCards();
-  logRecentUpdate('📥 Bulk added '+done+' battery models');
-  showToast('✅ '+done+' battery models added!');
-  setTimeout(closeModal,1200);
-}
 function openPartsEditModal(typeKey,id){
   PF.editKey=typeKey;PF.editId=id;
   var it=(PF.data[typeKey]||[]).find(function(x){return x.id===id;});
