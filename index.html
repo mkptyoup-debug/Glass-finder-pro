@@ -667,6 +667,7 @@ button{cursor:pointer}
     </div>
     <div id="partsSearchSuggest" class="suggest-box hide"></div>
     <button id="partsAddBtn" class="hide" onclick="openPartsAddModal()">＋ Add New Part Group</button>
+    <button id="partsBulkBtn" class="hide" style="width:100%;padding:14px;margin-bottom:16px;background:linear-gradient(135deg,#e8d54a14,#e8d54a08);border:1px dashed #e8d54a4a;border-radius:13px;color:#e8d54a;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px" onclick="openBulkBatteryModal()">📥 Bulk Add Battery List</button>
     <div id="partsCardList"></div>
   </div>
 </div>
@@ -2207,7 +2208,9 @@ setInterval(pollPartsVersion,120000);
 
 function renderPartsAddBtn(){
   var btn=document.getElementById('partsAddBtn');
-  if(isAdmin())btn.classList.remove('hide');else btn.classList.add('hide');
+  var bulkBtn=document.getElementById('partsBulkBtn');
+  if(isAdmin()){btn.classList.remove('hide');bulkBtn.classList.remove('hide');}
+  else{btn.classList.add('hide');bulkBtn.classList.add('hide');}
 }
 
 function getAllPartsModels(){
@@ -2425,6 +2428,66 @@ function togglePanelWrap(){
   if(cwrap)cwrap.style.display=show;
 }
 function openPartsAddModal(){PF.editKey=null;PF.editId=null;openModal(partsFormHtml(null,null));}
+
+function openBulkBatteryModal(){
+  openModal('<div class="mhead"><span class="mtitle">📥 Bulk Add Battery List</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="fgrp"><label class="flbl">Paste List</label>'+
+    '<textarea class="finp" id="bulkBatteryTA" rows="12" placeholder="Battery model B-K6:- V17, V19,\nBattery model BA45:- Vivo T3x, Y58 5G, Y38 5G,"></textarea>'+
+    '<div class="fhint">💡 Ek line ek battery: <b>Battery model CODE:- model1, model2,</b></div></div>'+
+    '<div id="bulkBatteryStatus" style="color:#9aa6c4;font-size:13px;margin-bottom:10px"></div>'+
+    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
+    '<button class="bsave" onclick="submitBulkBattery()">Import All</button></div>');
+}
+
+function parseBulkBatteryText(text){
+  var lines=text.split('\n');
+  var out=[];
+  lines.forEach(function(line){
+    line=line.trim();
+    if(!line)return;
+    // "Battery model B-K6:- V17, V19," ya sirf "B-K6:- V17, V19," dono chalega
+    var m=line.match(/^(?:battery\s*model\s*)?([^\:]+?)\s*:-?\s*(.+)$/i);
+    if(!m)return;
+    var code=m[1].trim();
+    var modelsRaw=m[2].trim().replace(/,\s*$/,'');
+    var models=splitModelsInput(modelsRaw);
+    if(code&&models.length)out.push({partName:code,models:models});
+  });
+  return out;
+}
+
+function submitBulkBattery(){
+  var text=document.getElementById('bulkBatteryTA').value;
+  var parsed=parseBulkBatteryText(text);
+  var statusEl=document.getElementById('bulkBatteryStatus');
+  if(!parsed.length){statusEl.textContent='❌ Koi valid line nahi mili.';statusEl.style.color='#f08a8a';return;}
+  if(!db){statusEl.textContent='❌ Firebase connection nahi.';statusEl.style.color='#f08a8a';return;}
+  var t=PART_TYPES.find(function(x){return x.key==='battery';});
+  var total=parsed.length,done=0,failed=0;
+  statusEl.textContent='⏳ 0/'+total+' saved...';statusEl.style.color='#9aa6c4';
+  parsed.forEach(function(p){
+    var id=db.collection(t.col).doc().id;
+    var newDoc={id:id,partName:p.partName,models:p.models,confidence:'100',note:'',panel:'',curve:''};
+    db.collection(t.col).doc(id).set({partName:p.partName,models:p.models,confidence:'100',note:'',panel:'',curve:''}).then(function(){
+      done++;PF.data.battery.push(newDoc);
+      statusEl.textContent='⏳ '+done+'/'+total+' saved...';
+      if(done+failed===total)finishBulkBattery(done,failed);
+    }).catch(function(){
+      failed++;
+      if(done+failed===total)finishBulkBattery(done,failed);
+    });
+  });
+}
+
+function finishBulkBattery(done,failed){
+  var statusEl=document.getElementById('bulkBatteryStatus');
+  statusEl.textContent='✅ '+done+' saved'+(failed?', ❌ '+failed+' failed':'');
+  statusEl.style.color=failed?'#f0c05a':'#8af0a0';
+  bumpPartsVersion('battery');renderPartsCards();
+  logRecentUpdate('📥 Bulk added '+done+' battery models');
+  showToast('✅ '+done+' battery models added!');
+  setTimeout(closeModal,1200);
+}
 function openPartsEditModal(typeKey,id){
   PF.editKey=typeKey;PF.editId=id;
   var it=(PF.data[typeKey]||[]).find(function(x){return x.id===id;});
