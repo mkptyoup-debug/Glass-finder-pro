@@ -203,13 +203,58 @@ button{cursor:pointer}
 #partsSearchInput::placeholder{color:#333a52}
 #partsAddBtn{width:100%;padding:14px;margin-bottom:16px;background:linear-gradient(135deg,#4ab0e814,#4ab0e808);border:1px dashed #4ab0e84a;border-radius:13px;color:#4ab0e8;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
 
-/* PARTS FINDER — SWIPEABLE TABS */
-.pf-tabbar{position:relative;display:flex;gap:2px;margin-bottom:16px;background:#0d0f18;border:1px solid #1d2336;border-radius:14px;padding:4px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+/* PARTS FINDER — PREMIUM GLASS CATEGORY CARDS */
+.pf-tabbar{display:flex;gap:10px;margin-bottom:18px;overflow-x:auto;padding:4px 2px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .pf-tabbar::-webkit-scrollbar{display:none}
-.pf-tab{flex:1;min-width:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:9px 4px;border-radius:11px;font-size:10.5px;font-weight:700;color:#5a6f85;white-space:nowrap;position:relative;z-index:2;transition:color .3s ease;background:none;border:none;-webkit-tap-highlight-color:transparent;cursor:pointer}
-.pf-tab.active{color:#0a0c14}
-.pf-tab-ic{font-size:16px;line-height:1}
-.pf-tab-indicator{position:absolute;top:4px;bottom:4px;left:4px;border-radius:11px;z-index:1;box-shadow:0 4px 14px rgba(74,176,232,.35)}
+.pf-tab{flex:0 0 auto;width:76px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px 11px;border-radius:18px;
+  background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.015));
+  border:1px solid rgba(120,160,220,.16);
+  box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 8px 18px rgba(0,0,0,.35);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative;
+  opacity:0;transform:translateY(8px);
+  animation:pfCardIn .5s cubic-bezier(.22,1,.36,1) forwards;
+  transition:transform .32s cubic-bezier(.34,1.56,.64,1),border-color .3s ease,background .3s ease,box-shadow .3s ease}
+.pf-tab-ic-wrap{width:38px;height:38px;display:flex;align-items:center;justify-content:center}
+.pf-tab-ic-wrap svg{width:100%;height:100%;overflow:visible;display:block}
+.pf-tab-lbl{font-size:10.5px;font-weight:700;color:#7a86a3;letter-spacing:.01em;transition:color .3s ease;white-space:nowrap}
+.pf-tab.active{border-color:var(--tc);background:linear-gradient(160deg,color-mix(in srgb,var(--tc) 18%,transparent),rgba(255,255,255,.02));
+  box-shadow:0 1px 0 rgba(255,255,255,.07) inset,0 0 0 1px color-mix(in srgb,var(--tc) 45%,transparent),0 10px 24px color-mix(in srgb,var(--tc) 24%,transparent),0 0 22px color-mix(in srgb,var(--tc) 30%,transparent);
+  transform:translateY(-3px)}
+.pf-tab.active .pf-tab-lbl{color:#eef3ff}
+.pf-tab.pulse{animation:pfTabPulse .2s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pfTabPulse{0%{transform:translateY(-3px) scale(1)}55%{transform:translateY(-3px) scale(1.06)}100%{transform:translateY(-3px) scale(1)}}
+@keyframes pfCardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* icon micro-interactions — only play while .anim-<type> class is present */
+.pf-ic-reflect{stroke-dasharray:11;stroke-dashoffset:0;opacity:.85}
+.pf-ic-reflect.r2{opacity:.5}
+.pf-tab.anim-display .pf-ic-reflect{animation:pfReflect .6s cubic-bezier(.22,1,.36,1)}
+.pf-tab.anim-display .pf-ic-reflect.r2{animation-delay:.08s}
+@keyframes pfReflect{0%{stroke-dashoffset:11;opacity:0}45%{opacity:1}100%{stroke-dashoffset:0;opacity:.85}}
+
+.pf-batt-cell{transform-origin:center bottom;transform:scaleY(1)}
+.pf-tab.anim-battery .pf-batt-cell{animation:pfBattFill .35s cubic-bezier(.22,1,.36,1) backwards}
+.pf-tab.anim-battery .pf-batt-cell[data-idx="0"]{animation-delay:0ms}
+.pf-tab.anim-battery .pf-batt-cell[data-idx="1"]{animation-delay:60ms}
+.pf-tab.anim-battery .pf-batt-cell[data-idx="2"]{animation-delay:120ms}
+.pf-tab.anim-battery .pf-batt-cell[data-idx="3"]{animation-delay:180ms}
+@keyframes pfBattFill{0%{transform:scaleY(0);opacity:.25}100%{transform:scaleY(1);opacity:1}}
+
+.pf-ic-pins{stroke-dasharray:1.6 1.6;stroke-dashoffset:0}
+.pf-tab.anim-ccboard .pf-ic-pins{animation:pfPinFlow .7s ease-in-out}
+.pf-tab.anim-ccboard .pf-ic-ribbon{animation:pfRibbonGlow .7s ease-in-out}
+@keyframes pfPinFlow{0%{stroke-dashoffset:0;opacity:.7}50%{stroke-dashoffset:-10;opacity:1}100%{stroke-dashoffset:-20;opacity:.7}}
+@keyframes pfRibbonGlow{0%{opacity:.8}50%{opacity:1;filter:drop-shadow(0 0 3px #e8c25a)}100%{opacity:.9}}
+
+.pf-ic-camlight path{opacity:0}
+.pf-tab.anim-backdoor .pf-ic-camlight{animation:pfCamSpin .8s cubic-bezier(.22,1,.36,1)}
+.pf-tab.anim-backdoor .pf-ic-camlight path{animation:pfCamFade .8s ease}
+@keyframes pfCamSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes pfCamFade{0%{opacity:0}15%{opacity:1}85%{opacity:1}100%{opacity:0}}
+
+.pf-tab.anim-frame .pf-ic-frame-btn{animation:pfFrameGlow .5s ease}
+@keyframes pfFrameGlow{0%{opacity:.5}50%{opacity:1;filter:drop-shadow(0 0 3px #a87bf7)}100%{opacity:1}}
+
 .pf-type-count-row{display:flex;justify-content:flex-end;margin-bottom:8px}
 
 .pf-swipe-viewport{overflow:hidden;position:relative;touch-action:pan-y}
@@ -766,6 +811,53 @@ var PART_TYPES=[
 ];
 var PF={data:{},query:'',editKey:null,editId:null,loaded:false,ready:false,activeIdx:0,tabsInit:false};
 PART_TYPES.forEach(function(t){PF.data[t.key]=[];});
+
+// ── ORIGINAL VECTOR ICONS (hand-built, no icon library) ─────────────────
+var PF_ICONS={
+  display:'<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+    '<rect x="13" y="4" width="22" height="40" rx="7" stroke="white" stroke-width="2.2"/>'+
+    '<circle cx="24" cy="10.5" r="1.3" fill="white"/>'+
+    '<path class="pf-ic-reflect r1" d="M19 22 L25 13" stroke="white" stroke-width="2.2" stroke-linecap="round"/>'+
+    '<path class="pf-ic-reflect r2" d="M23.5 26 L29 16.5" stroke="white" stroke-width="2.2" stroke-linecap="round"/>'+
+    '</svg>',
+  frame:'<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+    '<rect x="12" y="4" width="24" height="40" rx="7" stroke="white" stroke-width="2.2"/>'+
+    '<line class="pf-ic-frame-btn" x1="36.4" y1="14" x2="39" y2="14" stroke="white" stroke-width="2.2" stroke-linecap="round"/>'+
+    '<line class="pf-ic-frame-btn" x1="36.4" y1="20" x2="39" y2="20" stroke="white" stroke-width="2.2" stroke-linecap="round"/>'+
+    '<line class="pf-ic-frame-btn" x1="9" y1="17" x2="11.6" y2="17" stroke="white" stroke-width="2.2" stroke-linecap="round"/>'+
+    '</svg>',
+  backdoor:'<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+    '<rect x="10" y="4" width="28" height="40" rx="7" stroke="white" stroke-width="2.2"/>'+
+    '<circle cx="18.5" cy="13" r="4.1" stroke="white" stroke-width="2.2"/>'+
+    '<circle cx="18.5" cy="22" r="4.1" stroke="white" stroke-width="2.2"/>'+
+    '<circle cx="18.5" cy="29.3" r="1.5" stroke="white" stroke-width="1.6"/>'+
+    '<g class="pf-ic-camlight" style="transform-origin:18.5px 13px;transform-box:view-box">'+
+      '<path d="M18.5 8.9 A4.1 4.1 0 0 1 22.6 13" stroke="#bcdcff" stroke-width="2.2" stroke-linecap="round" fill="none"/>'+
+    '</g>'+
+    '<g opacity=".32" fill="white">'+
+      '<circle cx="28" cy="16" r=".55"/><circle cx="31.4" cy="16" r=".55"/>'+
+      '<circle cx="28" cy="19.4" r=".55"/><circle cx="31.4" cy="19.4" r=".55"/>'+
+      '<circle cx="28" cy="22.8" r=".55"/><circle cx="31.4" cy="22.8" r=".55"/>'+
+      '<circle cx="28" cy="26.2" r=".55"/><circle cx="31.4" cy="26.2" r=".55"/>'+
+    '</g>'+
+    '</svg>',
+  ccboard:'<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+    '<rect x="13" y="5" width="20" height="7" rx="2.2" stroke="white" stroke-width="2.2"/>'+
+    '<path class="pf-ic-pins" d="M16.5 8.5h13" stroke="#e8c25a" stroke-width="1.6" stroke-linecap="round"/>'+
+    '<path class="pf-ic-ribbon" d="M18 12c0 6 11 7 11 13s-11 7-11 13" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>'+
+    '<rect x="13" y="36" width="20" height="7" rx="2.2" stroke="white" stroke-width="2.2"/>'+
+    '<path class="pf-ic-pins" d="M16.5 39.5h13" stroke="#e8c25a" stroke-width="1.6" stroke-linecap="round"/>'+
+    '</svg>',
+  battery:'<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+    '<rect x="19" y="6" width="10" height="4.5" rx="1.6" stroke="white" stroke-width="2.2"/>'+
+    '<rect x="11" y="10" width="26" height="32" rx="7" stroke="white" stroke-width="2.2"/>'+
+    '<rect class="pf-batt-cell" data-idx="0" x="15.5" y="33" width="17" height="5.4" rx="1.6" fill="#4ecf7a"/>'+
+    '<rect class="pf-batt-cell" data-idx="1" x="15.5" y="26.2" width="17" height="5.4" rx="1.6" fill="#4ecf7a"/>'+
+    '<rect class="pf-batt-cell" data-idx="2" x="15.5" y="19.4" width="17" height="5.4" rx="1.6" fill="#4ecf7a"/>'+
+    '<rect class="pf-batt-cell" data-idx="3" x="15.5" y="12.6" width="17" height="5.4" rx="1.6" fill="#4ecf7a"/>'+
+    '</svg>'
+};
+var PF_ANIM_MS={display:600,frame:500,backdoor:800,ccboard:700,battery:350};
 
 // ── HELPERS ──────────────────────────────────────────────────────────────
 function isAdmin(){return S.role==='admin';}
@@ -2359,8 +2451,11 @@ function initPartsTabs(){
   PF.tabsInit=true;
   var tabBar=document.getElementById('pfTabBar');
   tabBar.innerHTML=PART_TYPES.map(function(t,i){
-    return '<button class="pf-tab" onclick="switchPartsTab('+i+')"><span class="pf-tab-ic">'+t.icon+'</span>'+t.label+'</button>';
-  }).join('')+'<div class="pf-tab-indicator" id="pfTabIndicator"></div>';
+    return '<button class="pf-tab" style="--tc:'+t.color+';animation-delay:'+(i*70)+'ms" onclick="switchPartsTab('+i+')">'+
+      '<span class="pf-tab-ic-wrap">'+(PF_ICONS[t.key]||'')+'</span>'+
+      '<span class="pf-tab-lbl">'+t.label+'</span>'+
+    '</button>';
+  }).join('');
 
   var n=PART_TYPES.length;
   var track=document.getElementById('pfSwipeTrack');
@@ -2371,15 +2466,15 @@ function initPartsTabs(){
 
   attachSwipeHandlers();
   moveSwipeTrack(false);
-  requestAnimationFrame(function(){updateTabIndicator(false);});
-  window.addEventListener('resize',function(){updateTabIndicator(false);});
+  requestAnimationFrame(function(){updateActiveTabVisual(false);});
+  window.addEventListener('resize',function(){updateActiveTabVisual(false);});
 }
 
 function switchPartsTab(idx){
   if(idx===PF.activeIdx)return;
   PF.activeIdx=idx;
   moveSwipeTrack(true);
-  updateTabIndicator(true);
+  updateActiveTabVisual(true);
 }
 
 function moveSwipeTrack(animate){
@@ -2391,23 +2486,31 @@ function moveSwipeTrack(animate){
   track.style.transform='translateX(-'+(PF.activeIdx*(100/n))+'%)';
 }
 
-function updateTabIndicator(animate){
+// Selection ka poora visual feedback ek jagah: glow/border/lift + icon micro-animation + haptic
+function updateActiveTabVisual(animate){
   var tabBar=document.getElementById('pfTabBar');
   if(!tabBar)return;
   var tabs=tabBar.querySelectorAll('.pf-tab');
-  var ind=document.getElementById('pfTabIndicator');
-  var el=tabs[PF.activeIdx];
-  if(!el||!ind)return;
-  var barRect=tabBar.getBoundingClientRect();
-  var elRect=el.getBoundingClientRect();
-  var left=elRect.left-barRect.left+tabBar.scrollLeft;
-  ind.style.transition=animate?'transform .32s cubic-bezier(.22,1,.36,1),width .32s cubic-bezier(.22,1,.36,1),background .3s ease':'none';
-  ind.style.transform='translateX('+left+'px)';
-  ind.style.width=elRect.width+'px';
-  var c=PART_TYPES[PF.activeIdx].color;
-  ind.style.background='linear-gradient(135deg,'+c+','+c+'cc)';
   for(var i=0;i<tabs.length;i++)tabs[i].classList.toggle('active',i===PF.activeIdx);
-  if(el.scrollIntoView)el.scrollIntoView({block:'nearest',inline:'nearest'});
+  var el=tabs[PF.activeIdx];
+  if(!el)return;
+  if(el.scrollIntoView)el.scrollIntoView({block:'nearest',inline:'center',behavior:animate?'smooth':'auto'});
+  if(!animate)return;
+
+  var key=PART_TYPES[PF.activeIdx].key;
+  el.classList.remove('pulse');
+  void el.offsetWidth; // reflow — restart animation har baar
+  el.classList.add('pulse');
+
+  var animClass='anim-'+key;
+  el.classList.remove(animClass);
+  void el.offsetWidth;
+  el.classList.add(animClass);
+  clearTimeout(el._pfAnimTimer);
+  var dur=PF_ANIM_MS[key]||500;
+  el._pfAnimTimer=setTimeout(function(){el.classList.remove(animClass);},dur+60);
+
+  if(navigator.vibrate)navigator.vibrate(10); // light haptic
 }
 
 var pfSwipe={startX:0,startY:0,dragging:false,deltaX:0,axis:null};
@@ -2460,7 +2563,7 @@ function onPfSwipeEnd(){
     else if(pfSwipe.deltaX>=threshold&&PF.activeIdx>0)PF.activeIdx--;
   }
   moveSwipeTrack(true);
-  updateTabIndicator(true);
+  updateActiveTabVisual(true);
   pfSwipe.deltaX=0;pfSwipe.axis=null;
 }
 
