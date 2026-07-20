@@ -827,7 +827,13 @@ var PART_TYPES=[
   {key:'ccboard',label:'CC Board',icon:'🔌',col:'parts_ccboard',color:'#4ae8a2'},
   {key:'battery',label:'Battery',icon:'🔋',col:'parts_battery',color:'#e8d54a'}
 ];
-var PF={data:{},query:'',editKey:null,editId:null,loaded:false,ready:false,activeIdx:0,tabsInit:false};
+var PF={data:{},query:'',editKey:null,editId:null,loaded:false,ready:false,activeIdx:0,tabsInit:false,currentCategory:PART_TYPES[0].key};
+// Single source of truth: har jagah jahan Add Group ke liye category chahiye,
+// isi function se lo. Top tabs (click ya swipe) jab bhi badlein, syncCurrentCategory() call hota hai.
+function syncCurrentCategory(){
+  PF.currentCategory=PART_TYPES[PF.activeIdx].key;
+  renderPartsAddBtn();
+}
 PART_TYPES.forEach(function(t){PF.data[t.key]=[];});
 
 // ── ORIGINAL VECTOR ICONS (hand-built, no icon library) ─────────────────
@@ -2344,6 +2350,8 @@ setInterval(pollPartsVersion,120000);
 function renderPartsAddBtn(){
   var btn=document.getElementById('partsAddBtn');
   if(isAdmin())btn.classList.remove('hide');else btn.classList.add('hide');
+  var t=PART_TYPES.find(function(x){return x.key===PF.currentCategory;})||PART_TYPES[PF.activeIdx];
+  if(t)btn.textContent='＋ Add '+t.label+' Group';
 }
 
 function getAllPartsModels(){
@@ -2382,6 +2390,14 @@ function renderPartsCards(){
     var page=document.getElementById('pfPage-'+t.key);
     if(page)page.innerHTML=renderPartsPageHtml(t,q);
   });
+}
+// Sirf ek category ka page refresh karo — baaki tabs/sections ko touch mat karo,
+// aur na hi active tab ko switch karo. Add/Edit save ke baad yehi use hota hai.
+function refreshPartsPage(typeKey){
+  initPartsTabs();
+  var page=document.getElementById('pfPage-'+typeKey);
+  var t=PART_TYPES.find(function(x){return x.key===typeKey;});
+  if(page&&t)page.innerHTML=renderPartsPageHtml(t,PF.query.trim());
 }
 
 function renderPartsPageHtml(t,q){
@@ -2493,6 +2509,7 @@ function initPartsTabs(){
 
   attachSwipeHandlers();
   moveSwipeTrack(false);
+  syncCurrentCategory();
   requestAnimationFrame(function(){updateActiveTabVisual(false);});
   // NOTE: intentionally no window 'resize' listener here — on mobile Chrome
   // the URL bar hiding/showing while the user scrolls or types fires resize
@@ -2503,6 +2520,7 @@ function initPartsTabs(){
 function switchPartsTab(idx){
   if(idx===PF.activeIdx)return;
   PF.activeIdx=idx;
+  syncCurrentCategory();
   moveSwipeTrack(true);
   updateActiveTabVisual(true);
 }
@@ -2602,6 +2620,7 @@ function onPfSwipeEnd(){
     if(pfSwipe.deltaX<=-threshold&&PF.activeIdx<n-1)PF.activeIdx++;
     else if(pfSwipe.deltaX>=threshold&&PF.activeIdx>0)PF.activeIdx--;
   }
+  syncCurrentCategory();
   moveSwipeTrack(true);
   updateActiveTabVisual(true);
   pfSwipe.deltaX=0;pfSwipe.axis=null;
@@ -2609,7 +2628,7 @@ function onPfSwipeEnd(){
 
 function partsFormHtml(typeKey,it){
   var typeSelectHtml;
-  if(it){
+  if(typeKey){
     var t=PART_TYPES.find(function(x){return x.key===typeKey;});
     typeSelectHtml='<div class="fgrp"><label class="flbl">Part Type</label>'+
       '<div style="padding:12px 14px;background:#0d0f18;border:1px solid #1d2336;border-radius:11px;color:'+t.color+';font-weight:700">'+t.icon+' '+t.label+'</div></div>';
@@ -2640,7 +2659,7 @@ function partsFormHtml(typeKey,it){
 }
 
 function submitParts(){
-  var typeKey=PF.editKey||(document.getElementById('pf_typeSelect')?document.getElementById('pf_typeSelect').value:null);
+  var typeKey=PF.editKey||PF.currentCategory||(document.getElementById('pf_typeSelect')?document.getElementById('pf_typeSelect').value:null);
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   var partName=document.getElementById('pf_partName').value.trim();
   var models=splitModelsInput(document.getElementById('pf_models').value);
@@ -2658,7 +2677,7 @@ function submitParts(){
     closeModal();showToast(isEdit?'✅ Updated!':'✅ Part Group Added!');
     var idx=PF.data[typeKey].findIndex(function(x){return x.id===id;});
     if(idx>=0)PF.data[typeKey][idx]=newDoc;else PF.data[typeKey].push(newDoc);
-    bumpPartsVersion(typeKey);renderPartsCards();
+    bumpPartsVersion(typeKey);refreshPartsPage(typeKey);
     logRecentUpdate((isEdit?'✏️ ':'✨ ')+t.label+': '+partName+(isEdit?' updated':' added'));
     PF.editKey=null;PF.editId=null;
   }).catch(function(e){showToast('❌ '+e.message,true);});
@@ -2673,7 +2692,7 @@ function togglePanelWrap(){
   if(wrap)wrap.style.display=show;
   if(cwrap)cwrap.style.display=show;
 }
-function openPartsAddModal(){PF.editKey=null;PF.editId=null;openModal(partsFormHtml(null,null));}
+function openPartsAddModal(){PF.editKey=null;PF.editId=null;openModal(partsFormHtml(PF.currentCategory,null));}
 function openPartsEditModal(typeKey,id){
   PF.editKey=typeKey;PF.editId=id;
   var it=(PF.data[typeKey]||[]).find(function(x){return x.id===id;});
