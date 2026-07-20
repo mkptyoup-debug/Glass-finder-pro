@@ -2489,7 +2489,10 @@ function initPartsTabs(){
   attachSwipeHandlers();
   moveSwipeTrack(false);
   requestAnimationFrame(function(){updateActiveTabVisual(false);});
-  window.addEventListener('resize',function(){updateActiveTabVisual(false);});
+  // NOTE: intentionally no window 'resize' listener here — on mobile Chrome
+  // the URL bar hiding/showing while the user scrolls or types fires resize
+  // repeatedly, which previously kept re-centering (scrollIntoView) the tab
+  // row and looked like it was auto-scrolling on its own.
 }
 
 function switchPartsTab(idx){
@@ -2516,7 +2519,17 @@ function updateActiveTabVisual(animate){
   for(var i=0;i<tabs.length;i++)tabs[i].classList.toggle('active',i===PF.activeIdx);
   var el=tabs[PF.activeIdx];
   if(!el)return;
-  if(el.scrollIntoView)el.scrollIntoView({block:'nearest',inline:'center',behavior:animate?'smooth':'auto'});
+  // Horizontal-only centering of the active tab inside the tab bar.
+  // Deliberately NOT using el.scrollIntoView() here: it scrolls on the
+  // "block" (vertical) axis too, and since it doesn't know about our
+  // position:sticky header, it can decide the tab is "hidden" behind it
+  // and yank the whole page up/down to compensate. Computing scrollLeft
+  // ourselves guarantees the page's vertical scroll is never touched.
+  if(animate){
+    var target=el.offsetLeft-(tabBar.clientWidth-el.clientWidth)/2;
+    target=Math.max(0,Math.min(target,tabBar.scrollWidth-tabBar.clientWidth));
+    tabBar.scrollTo({left:target,behavior:'smooth'});
+  }
   if(!animate)return;
 
   var key=PART_TYPES[PF.activeIdx].key;
