@@ -202,17 +202,20 @@ button{cursor:pointer}
 #partsSearchInput{flex:1;background:none;border:none;outline:none;color:#f0f4ff;font-size:16px;font-weight:500;padding:16px 0}
 #partsSearchInput::placeholder{color:#333a52}
 #partsAddBtn{width:100%;padding:14px;margin-bottom:16px;background:linear-gradient(135deg,#4ab0e814,#4ab0e808);border:1px dashed #4ab0e84a;border-radius:13px;color:#4ab0e8;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
-.pf-type-tabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:14px;padding-bottom:2px}
-.pf-type-tabs::-webkit-scrollbar{display:none}
-.pf-type-tab{flex:0 0 auto;display:flex;align-items:center;gap:6px;padding:9px 14px;border-radius:12px;border:1px solid #1d2336;background:#10141f;color:#5a6f85;font-size:12.5px;font-weight:700;white-space:nowrap;transition:all .25s cubic-bezier(.4,0,.2,1)}
-.pf-type-tab .ptc{font-size:10px;font-weight:800;opacity:.75;padding:1px 5px;border-radius:6px;background:rgba(255,255,255,.08)}
-.pf-type-tab.active{transform:scale(1.04)}
-.pf-swipe-area{position:relative;overflow:hidden}
-.pf-swipe-inner{will-change:transform,opacity}
-.pf-slide-next{animation:pfSlideNext .32s cubic-bezier(.22,1,.36,1)}
-.pf-slide-prev{animation:pfSlidePrev .32s cubic-bezier(.22,1,.36,1)}
-@keyframes pfSlideNext{from{transform:translateX(28px);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes pfSlidePrev{from{transform:translateX(-28px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* PARTS FINDER — SWIPEABLE TABS */
+.pf-tabbar{position:relative;display:flex;gap:2px;margin-bottom:16px;background:#0d0f18;border:1px solid #1d2336;border-radius:14px;padding:4px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.pf-tabbar::-webkit-scrollbar{display:none}
+.pf-tab{flex:1;min-width:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:9px 4px;border-radius:11px;font-size:10.5px;font-weight:700;color:#5a6f85;white-space:nowrap;position:relative;z-index:2;transition:color .3s ease;background:none;border:none;-webkit-tap-highlight-color:transparent;cursor:pointer}
+.pf-tab.active{color:#0a0c14}
+.pf-tab-ic{font-size:16px;line-height:1}
+.pf-tab-indicator{position:absolute;top:4px;bottom:4px;left:4px;border-radius:11px;z-index:1;box-shadow:0 4px 14px rgba(74,176,232,.35)}
+.pf-type-count-row{display:flex;justify-content:flex-end;margin-bottom:8px}
+
+.pf-swipe-viewport{overflow:hidden;position:relative;touch-action:pan-y}
+.pf-swipe-track{display:flex;will-change:transform}
+.pf-swipe-track.dragging{transition:none!important}
+.pf-swipe-page{flex-shrink:0;box-sizing:border-box;padding:0 1px;min-height:160px}
 /* PARTS FINDER — PREMIUM REDESIGN */
 .pf-type-block{margin-bottom:20px}
 .pf-type-heading{font-size:11px;font-weight:800;letter-spacing:.12em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;text-transform:uppercase;padding:0 2px}
@@ -677,9 +680,11 @@ button{cursor:pointer}
       <button id="partsVoiceBtn" class="voice-btn" onclick="startVoiceSearch('partsSearchInput',onPartsSearch)" title="Bol kar search karo"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
     </div>
     <div id="partsSearchSuggest" class="suggest-box hide"></div>
-    <div id="partsTypeTabs" class="pf-type-tabs hide"></div>
     <button id="partsAddBtn" class="hide" onclick="openPartsAddModal()">＋ Add New Part Group</button>
-    <div id="partsCardList" class="pf-swipe-area"></div>
+    <div id="pfTabBar" class="pf-tabbar"></div>
+    <div id="pfSwipeViewport" class="pf-swipe-viewport">
+      <div id="pfSwipeTrack" class="pf-swipe-track"></div>
+    </div>
   </div>
 </div>
 
@@ -759,7 +764,7 @@ var PART_TYPES=[
   {key:'ccboard',label:'CC Board',icon:'🔌',col:'parts_ccboard',color:'#4ae8a2'},
   {key:'battery',label:'Battery',icon:'🔋',col:'parts_battery',color:'#e8d54a'}
 ];
-var PF={data:{},query:'',editKey:null,editId:null,loaded:false,ready:false,activeType:'display'};
+var PF={data:{},query:'',editKey:null,editId:null,loaded:false,ready:false,activeIdx:0,tabsInit:false};
 PART_TYPES.forEach(function(t){PF.data[t.key]=[];});
 
 // ── HELPERS ──────────────────────────────────────────────────────────────
@@ -2251,169 +2256,213 @@ function onPartsSearch(){
   },150);
 }
 
-function renderPartsCards(dir){
-  var el=document.getElementById('partsCardList');
-  var tabsEl=document.getElementById('partsTypeTabs');
+function renderPartsCards(){
+  initPartsTabs();
   var q=PF.query.trim();
+  PART_TYPES.forEach(function(t){
+    var page=document.getElementById('pfPage-'+t.key);
+    if(page)page.innerHTML=renderPartsPageHtml(t,q);
+  });
+}
 
+function renderPartsPageHtml(t,q){
+  var groups=PF.data[t.key]||[];
   if(!q){
-    tabsEl.classList.add('hide');
     if(!isAdmin()){
-      el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div>'+
+      return '<div class="empty"><div class="empty-ico">🔍</div>'+
         '<p class="empty-t">Model search karo</p>'+
         '<p class="empty-s">Y20, A14, Redmi 9A jaisa model type karo upar</p></div>';
-      return;
     }
-    var anyData=PART_TYPES.some(function(t){return(PF.data[t.key]||[]).length;});
-    if(!anyData&&!PF.ready){
-      el.innerHTML='<div class="skel-wrap">'+
-        '<div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div></div>';
-      return;
+    if(!groups.length&&!PF.ready){
+      return '<div class="skel-wrap"><div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div></div>';
     }
-    if(!anyData){
-      el.innerHTML='<div class="empty"><div class="empty-ico">🔧</div>'+
-        '<p class="empty-t">Koi part group nahi hai</p>'+
+    if(!groups.length){
+      return '<div class="empty"><div class="empty-ico">'+t.icon+'</div>'+
+        '<p class="empty-t">Koi '+t.label+' group nahi hai</p>'+
         '<p class="empty-s">Upar + button dabao group add karne ke liye</p></div>';
-      return;
     }
-    // Admin management view — premium design
-    el.innerHTML=PART_TYPES.map(function(t){
-      var groups=PF.data[t.key]||[];
-      if(!groups.length)return '';
-      var body=groups.map(function(g){
-        var mlist=parseModels(g.models);
-        var noteHtml=g.note?'<div style="font-size:11px;color:#9aa6c4;margin-top:8px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
-        return '<div class="pf-group-card" style="border-left:3px solid '+t.color+'44">'+
-          '<div class="pf-group-top">'+
-            '<div class="pf-group-left">'+
-              '<div class="pf-group-dot" style="background:'+t.color+';box-shadow:0 0 8px '+t.color+'88"></div>'+
-              '<span class="pf-group-name">'+escHtml(g.partName)+'</span>'+
-            '</div>'+
-            '<div class="pf-group-actions">'+
-              '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
-              '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
-            '</div>'+
-          '</div>'+
-          '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
-          '<div class="pf-models-count">'+mlist.length+' compatible model'+(mlist.length>1?'s':'')+'</div>'+
-          '<div class="pf-models-wrap">'+mlist.map(function(m){return '<span class="pf-model-chip">'+escHtml(m)+'</span>';}).join('')+'</div>'+
-          noteHtml+
-          '</div>';
-      }).join('');
-      return '<div class="pf-type-block">'+
-        '<div class="pf-type-heading">'+
-          '<div class="pf-type-left">'+
-            '<div class="pf-type-icon" style="background:'+t.color+'18;border:1px solid '+t.color+'33;color:'+t.color+'">'+t.icon+'</div>'+
-            '<span style="color:'+t.color+'">'+t.label+'</span>'+
-          '</div>'+
-          '<span class="pf-type-count">'+groups.length+' group'+(groups.length>1?'s':'')+'</span>'+
-        '</div>'+
-        body+'</div>';
-    }).join('');
-    return;
+    return '<div class="pf-type-count-row"><span class="pf-type-count">'+groups.length+' group'+(groups.length>1?'s':'')+'</span></div>'+
+      groups.map(function(g){return buildGroupCard(g,t);}).join('');
   }
-
-  // Search mode — single active category tab, model query stays fixed across tabs
-  var qu=q.toUpperCase();
-  var counts={};
-  PART_TYPES.forEach(function(t){counts[t.key]=findMatchingGroups(PF.data[t.key]||[],q).groups.length;});
-  var anyCount=PART_TYPES.some(function(t){return counts[t.key]>0;});
-
-  tabsEl.classList.remove('hide');
-  tabsEl.innerHTML=PART_TYPES.map(function(t){
-    var active=t.key===PF.activeType;
-    return '<button class="pf-type-tab'+(active?' active':'')+'" style="'+(active?'border-color:'+t.color+'88;background:'+t.color+'1c;color:'+t.color:'')+'" onclick="switchPartsTab(\''+t.key+'\')">'+t.icon+' '+t.label+(counts[t.key]?' <span class="ptc">'+counts[t.key]+'</span>':'')+'</button>';
-  }).join('');
-
-  var activeT=PART_TYPES.find(function(t){return t.key===PF.activeType;})||PART_TYPES[0];
-  var res=findMatchingGroups(PF.data[activeT.key]||[],q);
-
-  var innerCls='pf-swipe-inner'+(dir===1?' pf-slide-next':dir===-1?' pf-slide-prev':'');
-
+  // Search mode — same shared query, sirf is tab ke data pe filter
+  var res=findMatchingGroups(groups,q);
   if(!res.groups.length){
-    if(!PF.ready){
-      el.innerHTML='<div class="'+innerCls+'"><div class="skel-wrap"><div class="skel-card"></div><div class="skel-card"></div></div></div>';
-      return;
-    }
-    if(!anyCount){
-      el.innerHTML='<div class="'+innerCls+'"><div class="empty"><div class="empty-ico">🔍</div>'+
-        '<p class="empty-t">Koi parts nahi mila</p>'+
-        '<p class="empty-s">"'+escHtml(q)+'" ke liye data add nahi hua abhi</p></div></div>';
-      return;
-    }
-    el.innerHTML='<div class="'+innerCls+'"><div class="empty" style="border-color:'+activeT.color+'33">'+
-      '<div class="empty-ico">'+activeT.icon+'</div>'+
-      '<p class="empty-t">'+activeT.label+' me nahi mila</p>'+
-      '<p class="empty-s">"'+escHtml(q)+'" iss category me nahi hai — dusra tab try karo</p></div></div>';
-    return;
+    if(!PF.ready)return '<div class="skel-wrap"><div class="skel-card"></div><div class="skel-card"></div></div>';
+    return '<div class="empty"><div class="empty-ico">🔍</div>'+
+      '<p class="empty-t">Koi '+t.label+' nahi mila</p>'+
+      '<p class="empty-s">"'+escHtml(q)+'" ke liye data add nahi hua abhi</p></div>';
   }
+  var qu=q.toUpperCase();
+  return res.groups.map(function(g){return buildResultCard(g,t,q,qu,res);}).join('');
+}
 
+function buildGroupCard(g,t){
+  var mlist=parseModels(g.models);
+  var noteHtml=g.note?'<div style="font-size:11px;color:#9aa6c4;margin-top:8px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
+  return '<div class="pf-group-card" style="border-left:3px solid '+t.color+'44">'+
+    '<div class="pf-group-top">'+
+      '<div class="pf-group-left">'+
+        '<div class="pf-group-dot" style="background:'+t.color+';box-shadow:0 0 8px '+t.color+'88"></div>'+
+        '<span class="pf-group-name">'+escHtml(g.partName)+'</span>'+
+      '</div>'+
+      '<div class="pf-group-actions">'+
+        '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
+        '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
+      '</div>'+
+    '</div>'+
+    '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
+    '<div class="pf-models-count">'+mlist.length+' compatible model'+(mlist.length>1?'s':'')+'</div>'+
+    '<div class="pf-models-wrap">'+mlist.map(function(m){return '<span class="pf-model-chip">'+escHtml(m)+'</span>';}).join('')+'</div>'+
+    noteHtml+
+    '</div>';
+}
+
+function buildResultCard(g,t,q,qu,res){
+  var mlist=parseModels(g.models);
   var isFuzzy=res.fuzzy;
-  var cardsHtml=res.groups.map(function(g){
-    var mlist=parseModels(g.models);
-    var matchedModel=isFuzzy&&res.fuzzyMap[g.id]?res.fuzzyMap[g.id].matchedModel:null;
-    var tagsHtml=mlist.map(function(m){
-      var isMatch=isFuzzy?(m===matchedModel):(m.toUpperCase().indexOf(qu)>=0);
-      return isMatch?
-        '<span class="match-tag'+(isFuzzy?' fuzzy':'')+'">'+(isFuzzy?escHtml(m):hlText(m,q))+'</span>':
-        '<span class="pf-model-chip">'+escHtml(m)+'</span>';
-    }).join('');
-    var adm=isAdmin()?
-      '<div class="pf-result-actions">'+
-        '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+activeT.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
-        '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+activeT.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
-      '</div>':'';
-    var noteHtml=g.note?'<div style="font-size:11px;color:#9aa6c4;margin-top:10px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
-    return '<div class="pf-result-card" style="border-color:'+activeT.color+'33">'+
-      '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,'+activeT.color+',transparent)"></div>'+
-      '<div class="pf-result-header">'+
-        '<div class="pf-result-type-icon" style="background:'+activeT.color+'14;border:1px solid '+activeT.color+'33;color:'+activeT.color+'">'+activeT.icon+'</div>'+
-        '<span class="pf-result-type-label" style="color:'+activeT.color+'">'+activeT.label+'</span>'+
-        (isFuzzy?'<span class="pf-fuzzy-tag">similar</span>':'')+
+  var matchedModel=isFuzzy&&res.fuzzyMap[g.id]?res.fuzzyMap[g.id].matchedModel:null;
+  var tagsHtml=mlist.map(function(m){
+    var isMatch=isFuzzy?(m===matchedModel):(m.toUpperCase().indexOf(qu)>=0);
+    return isMatch?
+      '<span class="match-tag'+(isFuzzy?' fuzzy':'')+'">'+(isFuzzy?escHtml(m):hlText(m,q))+'</span>':
+      '<span class="pf-model-chip">'+escHtml(m)+'</span>';
+  }).join('');
+  var adm=isAdmin()?
+    '<div class="pf-result-actions">'+
+      '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
+      '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
+    '</div>':'';
+  var noteHtml=g.note?'<div style="font-size:11px;color:#9aa6c4;margin-top:10px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
+  return '<div class="pf-result-card" style="border-color:'+t.color+'33">'+
+    '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,'+t.color+',transparent)"></div>'+
+    '<div class="pf-result-header">'+
+      '<div class="pf-result-type-icon" style="background:'+t.color+'14;border:1px solid '+t.color+'33;color:'+t.color+'">'+t.icon+'</div>'+
+      '<span class="pf-result-type-label" style="color:'+t.color+'">'+t.label+'</span>'+
+      (isFuzzy?'<span class="pf-fuzzy-tag">similar</span>':'')+
+    '</div>'+
+    '<div class="pf-result-top">'+
+      '<div>'+
+        '<div class="pf-result-name">'+escHtml(g.partName)+'</div>'+
+        '<div class="pf-result-meta">'+mlist.length+' model'+(mlist.length>1?'s':'')+' compatible</div>'+
       '</div>'+
-      '<div class="pf-result-top">'+
-        '<div>'+
-          '<div class="pf-result-name">'+escHtml(g.partName)+'</div>'+
-          '<div class="pf-result-meta">'+mlist.length+' model'+(mlist.length>1?'s':'')+' compatible</div>'+
-        '</div>'+
-        adm+
-      '</div>'+
-      '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(activeT.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
-      '<div class="pf-models-wrap">'+tagsHtml+'</div>'+
-      noteHtml+
-      '</div>';
+      adm+
+    '</div>'+
+    '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
+    '<div class="pf-models-wrap">'+tagsHtml+'</div>'+
+    noteHtml+
+    '</div>';
+}
+
+// ── SWIPEABLE TABS (Display / Frame / Back Door / CC Board / Battery) ────
+function initPartsTabs(){
+  if(PF.tabsInit)return;
+  PF.tabsInit=true;
+  var tabBar=document.getElementById('pfTabBar');
+  tabBar.innerHTML=PART_TYPES.map(function(t,i){
+    return '<button class="pf-tab" onclick="switchPartsTab('+i+')"><span class="pf-tab-ic">'+t.icon+'</span>'+t.label+'</button>';
+  }).join('')+'<div class="pf-tab-indicator" id="pfTabIndicator"></div>';
+
+  var n=PART_TYPES.length;
+  var track=document.getElementById('pfSwipeTrack');
+  track.style.width=(n*100)+'%';
+  track.innerHTML=PART_TYPES.map(function(t){
+    return '<div class="pf-swipe-page" style="width:'+(100/n)+'%" id="pfPage-'+t.key+'"></div>';
   }).join('');
 
-  el.innerHTML='<div class="'+innerCls+'">'+cardsHtml+'</div>';
+  attachSwipeHandlers();
+  moveSwipeTrack(false);
+  requestAnimationFrame(function(){updateTabIndicator(false);});
+  window.addEventListener('resize',function(){updateTabIndicator(false);});
 }
 
-function switchPartsTab(key){
-  if(PF.activeType===key)return;
-  var oldIdx=PART_TYPES.findIndex(function(t){return t.key===PF.activeType;});
-  var newIdx=PART_TYPES.findIndex(function(t){return t.key===key;});
-  var dir=newIdx>oldIdx?1:-1;
-  PF.activeType=key;
-  renderPartsCards(dir);
+function switchPartsTab(idx){
+  if(idx===PF.activeIdx)return;
+  PF.activeIdx=idx;
+  moveSwipeTrack(true);
+  updateTabIndicator(true);
 }
 
-(function(){
-  var startX=0,startY=0,tracking=false;
-  document.addEventListener('touchstart',function(e){
-    if(!e.target.closest('#partsCardList'))return;
-    startX=e.touches[0].clientX;startY=e.touches[0].clientY;tracking=true;
-  },{passive:true});
-  document.addEventListener('touchend',function(e){
-    if(!tracking)return;tracking=false;
-    if(!PF.query.trim())return;
-    var dx=e.changedTouches[0].clientX-startX;
-    var dy=e.changedTouches[0].clientY-startY;
-    if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.4){
-      var idx=PART_TYPES.findIndex(function(t){return t.key===PF.activeType;});
-      if(dx<0&&idx<PART_TYPES.length-1)switchPartsTab(PART_TYPES[idx+1].key);
-      else if(dx>0&&idx>0)switchPartsTab(PART_TYPES[idx-1].key);
-    }
-  },{passive:true});
-})();
+function moveSwipeTrack(animate){
+  var track=document.getElementById('pfSwipeTrack');
+  if(!track)return;
+  var n=PART_TYPES.length;
+  track.classList.toggle('dragging',!animate);
+  track.style.transition=animate?'transform .38s cubic-bezier(.22,1,.36,1)':'none';
+  track.style.transform='translateX(-'+(PF.activeIdx*(100/n))+'%)';
+}
+
+function updateTabIndicator(animate){
+  var tabBar=document.getElementById('pfTabBar');
+  if(!tabBar)return;
+  var tabs=tabBar.querySelectorAll('.pf-tab');
+  var ind=document.getElementById('pfTabIndicator');
+  var el=tabs[PF.activeIdx];
+  if(!el||!ind)return;
+  var barRect=tabBar.getBoundingClientRect();
+  var elRect=el.getBoundingClientRect();
+  var left=elRect.left-barRect.left+tabBar.scrollLeft;
+  ind.style.transition=animate?'transform .32s cubic-bezier(.22,1,.36,1),width .32s cubic-bezier(.22,1,.36,1),background .3s ease':'none';
+  ind.style.transform='translateX('+left+'px)';
+  ind.style.width=elRect.width+'px';
+  var c=PART_TYPES[PF.activeIdx].color;
+  ind.style.background='linear-gradient(135deg,'+c+','+c+'cc)';
+  for(var i=0;i<tabs.length;i++)tabs[i].classList.toggle('active',i===PF.activeIdx);
+  if(el.scrollIntoView)el.scrollIntoView({block:'nearest',inline:'nearest'});
+}
+
+var pfSwipe={startX:0,startY:0,dragging:false,deltaX:0,axis:null};
+function attachSwipeHandlers(){
+  var viewport=document.getElementById('pfSwipeViewport');
+  if(!viewport||viewport._swipeBound)return;
+  viewport._swipeBound=true;
+  viewport.addEventListener('touchstart',onPfSwipeStart,{passive:true});
+  viewport.addEventListener('touchmove',onPfSwipeMove,{passive:false});
+  viewport.addEventListener('touchend',onPfSwipeEnd,{passive:true});
+  viewport.addEventListener('touchcancel',onPfSwipeEnd,{passive:true});
+}
+function onPfSwipeStart(e){
+  var t=e.touches[0];
+  pfSwipe.startX=t.clientX;pfSwipe.startY=t.clientY;
+  pfSwipe.dragging=true;pfSwipe.deltaX=0;pfSwipe.axis=null;
+  var track=document.getElementById('pfSwipeTrack');
+  if(track)track.style.transition='none';
+}
+function onPfSwipeMove(e){
+  if(!pfSwipe.dragging)return;
+  var t=e.touches[0];
+  var dx=t.clientX-pfSwipe.startX,dy=t.clientY-pfSwipe.startY;
+  if(pfSwipe.axis===null&&(Math.abs(dx)>6||Math.abs(dy)>6)){
+    pfSwipe.axis=Math.abs(dx)>Math.abs(dy)?'x':'y';
+  }
+  if(pfSwipe.axis==='y')return; // vertical scroll ko priority do
+  e.preventDefault();
+  pfSwipe.deltaX=dx;
+  var n=PART_TYPES.length;
+  var viewport=document.getElementById('pfSwipeViewport');
+  var vw=viewport?viewport.offsetWidth:1;
+  var deltaPercent=(dx/vw)*(100/n);
+  var basePercent=-(PF.activeIdx*(100/n));
+  var atStart=PF.activeIdx===0&&dx>0;
+  var atEnd=PF.activeIdx===n-1&&dx<0;
+  var resist=(atStart||atEnd)?0.32:1;
+  var track=document.getElementById('pfSwipeTrack');
+  if(track)track.style.transform='translateX('+(basePercent+deltaPercent*resist)+'%)';
+}
+function onPfSwipeEnd(){
+  if(!pfSwipe.dragging)return;
+  pfSwipe.dragging=false;
+  var n=PART_TYPES.length;
+  var viewport=document.getElementById('pfSwipeViewport');
+  var vw=viewport?viewport.offsetWidth:1;
+  var threshold=vw*0.16;
+  if(pfSwipe.axis==='x'){
+    if(pfSwipe.deltaX<=-threshold&&PF.activeIdx<n-1)PF.activeIdx++;
+    else if(pfSwipe.deltaX>=threshold&&PF.activeIdx>0)PF.activeIdx--;
+  }
+  moveSwipeTrack(true);
+  updateTabIndicator(true);
+  pfSwipe.deltaX=0;pfSwipe.axis=null;
+}
 
 function partsFormHtml(typeKey,it){
   var typeSelectHtml;
