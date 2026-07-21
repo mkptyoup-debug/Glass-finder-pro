@@ -10,12 +10,12 @@
 <meta name="robots" content="index, follow">
 <meta name="geo.region" content="IN">
 <meta name="geo.placename" content="India">
-<link rel="canonical" href="https://universalcombo.netlify.app/">
+<link rel="canonical" href="https://mkptyoup-debug.github.io/Glass-finder-pro/">
 <meta property="og:title" content="Universal Combo - Mobile Screen Guard Model Finder">
 <meta property="og:description" content="Apne phone model ke liye sahi tempered glass turant dhundo. Flat Glass, UV Curved, Display - sab ek jagah.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_IN">
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#d4af6a">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -3212,7 +3212,9 @@ db=firebase.firestore();
 auth=firebase.auth();
 
 // Auth state — login screen sirf tab dikhao jab koi session nahi
+var authReady=false,uiReady=false;
 auth.onAuthStateChanged(function(user){
+  authReady=true;
   if(user){
     S.user=user;
     // Check if admin email
@@ -3224,7 +3226,16 @@ auth.onAuthStateChanged(function(user){
     S.user=null;S.role='staff';
     updateUserUI();
   }
+  maybeShowLogin();
 });
+
+// Login screen sirf tabhi decide hoti hai jab (a) splash/loading khatam ho chuka ho
+// AUR (b) Firebase ne confirm kar diya ho user login hai ya nahi. Pehle yeh dono
+// independently chalte the, isliye slow connection pe login screen galat se
+// dikh jaati thi jabki user already logged in tha. Ab dono ka wait hota hai.
+function maybeShowLogin(){
+  if(uiReady&&authReady&&!S.user)showLogin();
+}
 
 function markLoaded(){
   if(dataLoaded)return;dataLoaded=true;
@@ -3234,7 +3245,8 @@ function markLoaded(){
   var wait=Math.max(0,SPLASH_MIN_MS-elapsed);
   setTimeout(function(){
     hideSplash(function(){
-      if(!S.user)showLogin();
+      uiReady=true;
+      maybeShowLogin();
     });
   },wait);
 }
@@ -3377,7 +3389,7 @@ document.getElementById('installBtn').addEventListener('click',async()=>{
   deferredPrompt=null;document.getElementById('installBtn').style.display='none';
 });
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/sw.js')
+  navigator.serviceWorker.register('./sw.js')
     .then(()=>{setTimeout(checkNotifStatus,1000);})
     .catch(e=>console.log('SW error',e));
 }
