@@ -321,11 +321,16 @@ button{cursor:pointer}
 .pf-result-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
 
 /* RECENT */
-#recentBox{background:linear-gradient(150deg,#11141f,#161b2a);border:1px solid #d4af6a26;border-radius:14px;padding:16px;margin-bottom:18px;position:relative;overflow:hidden}
-#recentBox::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#d4af6a55,transparent)}
-.rtitle{font-size:10px;font-weight:800;color:#d4af6a;letter-spacing:.1em;margin-bottom:13px;text-transform:uppercase}
-.ritem{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.rdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+#quickAccess{background:linear-gradient(150deg,#11141f,#161b2a);border:1px solid #d4af6a26;border-radius:14px;padding:12px 12px 13px;margin-bottom:16px;position:relative;overflow:hidden}
+#quickAccess::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#d4af6a55,transparent)}
+.qa-title{font-size:10px;font-weight:800;color:#d4af6a;letter-spacing:.1em;margin-bottom:11px;text-transform:uppercase}
+.qa-grid{display:flex;gap:8px}
+.qa-tile{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px 9px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;transition:transform .15s;min-width:0}
+.qa-tile:active{transform:scale(.94)}
+.qa-icon{width:32px;height:32px;border-radius:10px;background:linear-gradient(145deg,#f3e1ab,#d4af6a 55%,#a87f2e);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px #d4af6a3a}
+.qa-icon .material-symbols-rounded{font-size:17px;color:#1a1305;font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24}
+.qa-label{font-size:9.5px;font-weight:700;color:#9aa6c4;text-align:center;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.qa-count{position:absolute;top:5px;right:7px;background:#d4af6a;color:#1a1305;font-size:8.5px;font-weight:800;border-radius:7px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1}
 
 /* SEARCH */
 #searchWrap{margin-bottom:14px}
@@ -383,22 +388,22 @@ button{cursor:pointer}
 .match-tag{background:#3a2c0f;border:1px solid #d4af6a55;border-radius:7px;padding:5px 11px;font-size:12px;font-weight:700;color:#fff}
 .match-tag.fuzzy{background:#332608;border:1px solid #c9962f55;color:#fff}
 .mhl{background:#d4af6a;color:#1a1305;border-radius:3px;padding:0 3px;font-weight:800}
-.cname{font-weight:800;font-size:15px;color:#f0f4ff;margin-bottom:6px}
-.cbadges{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.cname{font-weight:800;font-size:15px;color:#f0f4ff;margin-bottom:9px}
+.cbadges{display:flex;gap:7px;flex-wrap:wrap;align-items:center;row-gap:6px}
 .bg{background:#d4af6a17;border:1px solid #d4af6a3d;border-radius:6px;padding:3px 10px;color:#d4af6a;font-size:11px;font-weight:700}
 .bgg{background:#0e1a0c;border:1px solid #3a6b4550;border-radius:6px;padding:3px 10px;color:#8fd48a;font-size:11px;font-weight:700}
 .bgy{background:#241a08;border:1px solid #c9962f60;border-radius:6px;padding:3px 10px;color:#f0d090;font-size:11px;font-weight:700}
 .cadmin{display:flex;gap:6px;flex-shrink:0;margin-left:8px}
 .ibtn{background:#0d0f18;border:1px solid #1d2336;border-radius:8px;padding:8px 10px;font-size:13px;transition:transform .15s}
 .ibtn:active{transform:scale(.9)}
-.all-models{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;max-height:2000px;overflow:hidden;transition:max-height .22s cubic-bezier(.4,0,.2,1)}
-.mtag{background:#0b0d14;border:1px solid rgba(255,255,255,.05);border-radius:6px;padding:4px 9px;font-size:11px;color:#6b7699}
+.all-models{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;max-height:2000px;overflow:hidden;transition:max-height .22s cubic-bezier(.4,0,.2,1)}
+.mtag{background:#0b0d14;border:1px solid rgba(255,255,255,.05);border-radius:6px;padding:5px 10px;font-size:11px;color:#6b7699}
 .cbtns{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #1d2336}
 .chip-toggle{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:6px 12px;background:#d4af6a12;border:1px solid #d4af6a35;border-radius:8px;color:#d4af6a;font-size:11px;font-weight:700}
 .chip-toggle:active{transform:scale(.95)}
 .all-models.collapsed{max-height:74px}
-.cbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;background:#0d0f18;border:1px solid #1d2336;border-radius:10px;color:#7e88a6;font-size:12px;font-weight:600;transition:all .2s}
-.cbtn.fav-btn{flex:0 0 42px;padding:10px 0;font-size:15px}
+.cbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:11px 6px;background:#0d0f18;border:1px solid #1d2336;border-radius:10px;color:#7e88a6;font-size:12px;font-weight:600;transition:all .2s;min-height:40px}
+.cbtn.fav-btn{font-size:16px}
 .cbtn.fav-btn.active{border-color:#d4af6a6a;background:#d4af6a14;color:#e8c97a}
 .cbtn:active{transform:scale(.95)}
 
@@ -622,9 +627,9 @@ button{cursor:pointer}
       <div class="statItem"><div class="stat-val" id="s3">0</div><div class="stat-lbl">Categories</div></div>
       <div class="statItem"><div class="stat-val sm" id="s4">—</div><div class="stat-lbl">Updated</div></div>
     </div>
-    <div id="recentBox" class="hide">
-      <div class="rtitle">⚡ Recent Updates</div>
-      <div id="recentList"></div>
+    <div id="quickAccess" class="hide">
+      <div class="qa-title">Quick Access</div>
+      <div class="qa-grid" id="qaGrid"></div>
     </div>
     <button id="partsFinderBtn" class="hide" onclick="openPartsScreen()">
       <div class="pf-icon">🔧</div>
@@ -959,8 +964,10 @@ function toggleFavorite(id,tab,name){
     favs.unshift({id:id,tab:tab,name:name});
     if(btn){btn.classList.add('active');btn.innerHTML='⭐';}
     showToast('⭐ Saved to Favorites');
+    trackCardUsage(id,tab,name);
   }
   lsSetJSON('favGroups',favs);
+  renderQuickAccess();
 }
 function openFavorites(){
   closeMenu();
@@ -1368,15 +1375,75 @@ function renderStats(){
   document.getElementById('s4').textContent=S.log.length?S.log[0].date:'—';
 }
 
-function renderRecent(){
-  var box=document.getElementById('recentBox');
-  if(!S.log.length){box.classList.add('hide');return;}
+function renderQuickAccess(){
+  var box=document.getElementById('quickAccess');
+  var tiles=[];
+  var favs=getFavorites();
+  if(favs.length){
+    tiles.push('<div class="qa-tile" onclick="openFavorites()"><div class="qa-icon"><span class="material-symbols-rounded">star</span></div><div class="qa-label">Favorites</div><div class="qa-count">'+favs.length+'</div></div>');
+  }
+  var ro=getRecentOpened();
+  if(ro.length){
+    tiles.push('<div class="qa-tile" onclick="openRecentlyOpened()"><div class="qa-icon"><span class="material-symbols-rounded">history</span></div><div class="qa-label">Recent</div></div>');
+  }
+  var mu=getMostUsed();
+  if(mu.length){
+    tiles.push('<div class="qa-tile" onclick="openMostUsed()"><div class="qa-icon"><span class="material-symbols-rounded">local_fire_department</span></div><div class="qa-label">Most Used</div></div>');
+  }
+  if(S.log&&S.log.length){
+    tiles.push('<div class="qa-tile" onclick="openNewlyAdded()"><div class="qa-icon"><span class="material-symbols-rounded">auto_awesome</span></div><div class="qa-label">New</div></div>');
+  }
+  if(!tiles.length){box.classList.add('hide');return;}
   box.classList.remove('hide');
-  document.getElementById('recentList').innerHTML=S.log.slice(0,5).map(function(l,i){
-    return '<div class="ritem"><div class="rdot" style="background:'+(i===0?'#d4af6a':'#454d68')+';'+(i===0?'box-shadow:0 0 8px #d4af6a88':'')+'"></div>'+
-      '<span style="font-size:13px;flex:1;color:'+(i===0?'#eed5a0':'#6a7390')+'">'+l.msg+'</span>'+
-      '<span style="font-size:10px;color:#333a52;flex-shrink:0">'+l.date+'</span></div>';
-  }).join('');
+  document.getElementById('qaGrid').innerHTML=tiles.join('');
+}
+// ── QUICK ACCESS DATA (local-only, offline-friendly, zero DB cost) ────────
+function getRecentOpened(){return lsGetJSON('recentOpened')||[];}
+function getMostUsed(){
+  var mu=lsGetJSON('usageCounts')||{};
+  return Object.keys(mu).map(function(k){return mu[k];}).sort(function(a,b){return b.count-a.count;}).slice(0,5);
+}
+function trackCardUsage(id,tab,name){
+  var ro=getRecentOpened().filter(function(r){return !(r.id===id&&r.tab===tab);});
+  ro.unshift({id:id,tab:tab,name:name,ts:Date.now()});
+  lsSetJSON('recentOpened',ro.slice(0,8));
+  var mu=lsGetJSON('usageCounts')||{};
+  var key=tab+'_'+id;
+  if(!mu[key])mu[key]={id:id,tab:tab,name:name,count:0};
+  mu[key].count++;mu[key].name=name;
+  lsSetJSON('usageCounts',mu);
+  renderQuickAccess();
+}
+function openRecentlyOpened(){
+  var items=getRecentOpened();
+  var body=!items.length?
+    '<div class="fb-empty"><div class="fb-empty-ico">🕒</div><p style="color:#4a5270;font-size:14px">Abhi koi recently opened item nahi hai</p></div>':
+    items.map(function(f){
+      return '<div class="fb-card"><div class="fb-card-top"><span class="fb-user">🛡️ '+escHtml(f.name)+'</span>'+
+        '<span class="fb-tab-badge">'+f.tab.toUpperCase()+'</span></div>'+
+        '<button class="menu-item" style="display:inline-block;width:auto;padding:6px 12px;margin-top:8px;font-size:12px;color:#d4af6a" onclick="jumpToFavorite(\''+f.tab+'\',\''+escHtml(f.name).replace(/'/g,"\\'")+'\');closeModal()">🔎 Open</button></div>';
+    }).join('');
+  openModal('<div class="mhead"><span class="mtitle">🕒 Recently Opened</span><button class="mclose" onclick="closeModal()">✕</button></div>'+body);
+}
+function openMostUsed(){
+  var items=getMostUsed();
+  var body=!items.length?
+    '<div class="fb-empty"><div class="fb-empty-ico">🔥</div><p style="color:#4a5270;font-size:14px">Abhi koi most used item nahi hai</p></div>':
+    items.map(function(f){
+      return '<div class="fb-card"><div class="fb-card-top"><span class="fb-user">🛡️ '+escHtml(f.name)+'</span>'+
+        '<span class="fb-tab-badge">'+f.count+'x used</span></div>'+
+        '<button class="menu-item" style="display:inline-block;width:auto;padding:6px 12px;margin-top:8px;font-size:12px;color:#d4af6a" onclick="jumpToFavorite(\''+f.tab+'\',\''+escHtml(f.name).replace(/'/g,"\\'")+'\');closeModal()">🔎 Open</button></div>';
+    }).join('');
+  openModal('<div class="mhead"><span class="mtitle">🔥 Most Used</span><button class="mclose" onclick="closeModal()">✕</button></div>'+body);
+}
+function openNewlyAdded(){
+  var body=!S.log.length?
+    '<div class="fb-empty"><div class="fb-empty-ico">🆕</div><p style="color:#4a5270;font-size:14px">Koi recent update nahi hai</p></div>':
+    S.log.slice(0,8).map(function(l){
+      return '<div class="fb-card"><div class="fb-card-top"><span class="fb-user">'+escHtml(l.msg)+'</span>'+
+        '<span class="fb-date">'+escHtml(l.date)+'</span></div></div>';
+    }).join('');
+  openModal('<div class="mhead"><span class="mtitle">🆕 Newly Added</span><button class="mclose" onclick="closeModal()">✕</button></div>'+body);
 }
 
 function renderCards(){
@@ -1492,7 +1559,6 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
   var delay=Math.min(idx*0.05,0.4);
   var cardClass=isFuzzy?'fuzzy-card':(hasSearch&&matched.length?'match-card':'');
   var noteHtml=g.note?'<div style="font-size:11.5px;color:#9aa6c4;margin-top:8px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px 10px">📝 '+escHtml(g.note)+'</div>':'';
-  var jumpModel=(hasSearch&&matched.length)?matched[0]:(mlist[0]||'');
   return '<div class="card '+cardClass+'" style="animation-delay:'+delay+'s">'+
     '<div class="card-accent"></div><div class="card-inner">'+
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
@@ -1503,8 +1569,7 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
     '</div></div>'+adm+'</div>'+matchSection+otherTags+noteHtml+
     '<div class="cbtns"><button class="cbtn" onclick="copyList(\''+g.id+'\')">📋 Copy Group</button>'+
     '<button class="cbtn fav-btn'+(isFavorited(g.id,S.tab)?' active':'')+'" id="fav_'+g.id+'" onclick="toggleFavorite(\''+g.id+'\',\''+S.tab+'\',\''+escHtml(g.glassName).replace(/'/g,"\\'")+'\')">'+(isFavorited(g.id,S.tab)?'⭐':'☆')+'</button>'+
-    '<button class="cbtn" onclick="shareResult(\''+g.id+'\')">📤 Share</button>'+
-    '<button class="cbtn" onclick="openPartsForModel(\''+escHtml(jumpModel).replace(/'/g,"\\'")+'\')">🔧 Spare Parts</button></div>'+
+    '<button class="cbtn" onclick="shareResult(\''+g.id+'\')">📤 Share</button></div>'+
     '</div></div>';
 }
 function toggleChips(id){
@@ -1527,6 +1592,7 @@ function shareResult(id){
   var mlist=parseModels(g.models);
   var text='🛡️ '+g.glassName+'\n📱 Compatible Models ('+mlist.length+'):\n'+mlist.join(', ');
   haptic();
+  trackCardUsage(g.id,S.tab,g.glassName);
   if(navigator.share){navigator.share({title:g.glassName,text:text}).catch(function(){});}
   else{navigator.clipboard.writeText(text);showToast('✅ Copied! Share manually');}
 }
@@ -1920,6 +1986,7 @@ function copyList(id){
   navigator.clipboard.writeText('🛡️ '+g.glassName+'\n📱 Compatible Models ('+mlist.length+'):\n'+mlist.join(', '));
   haptic();
   showToast('📋 Group Copied Successfully');
+  trackCardUsage(g.id,S.tab,g.glassName);
   db.collection(COLLECTIONS[S.tab]).doc(id).update({shares:firebase.firestore.FieldValue.increment(1)}).catch(function(){});
 }
 
@@ -1957,7 +2024,7 @@ function submitGlass(){
     var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
     S.log=[entry].concat(S.log).slice(0,20);
     db.collection('meta').doc('log').set({entries:S.log});
-    bumpMetaVersion('log');renderRecent();renderStats();
+    bumpMetaVersion('log');renderQuickAccess();renderStats();
     // Apni list turant update karo (live listener hata diya, isliye manually)
     var idx=S[S.tab].findIndex(function(x){return x.id===id;});
     if(idx>=0)S[S.tab][idx]=newDoc;else S[S.tab].push(newDoc);
@@ -1981,7 +2048,7 @@ function doDelete(id){
     if(g){var entry={msg:'🗑️ '+g.glassName+' removed',date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
     S.log=[entry].concat(S.log).slice(0,20);
     db.collection('meta').doc('log').set({entries:S.log});
-    bumpMetaVersion('log');renderRecent();renderStats();}
+    bumpMetaVersion('log');renderQuickAccess();renderStats();}
     S[S.tab]=S[S.tab].filter(function(x){return x.id!==id;});
     bumpGlassVersion(S.tab);render();
     setSyncDot('ok');closeModal();showToast('✅ Deleted');
@@ -2757,7 +2824,7 @@ function logRecentUpdate(msg){
   var entry={msg:msg,date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
   S.log=[entry].concat(S.log).slice(0,20);
   if(db)db.collection('meta').doc('log').set({entries:S.log});
-  bumpMetaVersion('log');renderRecent();renderStats();
+  bumpMetaVersion('log');renderQuickAccess();renderStats();
 }
 
 // ── SIDE MENU ────────────────────────────────────────────────────────────
@@ -3265,7 +3332,7 @@ function loadGlassData(){
     GLASS_TABS.forEach(function(t){S[t.key]=lsGetJSON('gc_'+t.key)||[];});
     var cachedLog=lsGetJSON('gc_log');if(cachedLog)S.log=cachedLog;
     var cachedAnn=lsGetJSON('gc_announce');if(cachedAnn)applyAnnounceData(cachedAnn);
-    render();renderRecent();
+    render();renderQuickAccess();
     setSyncDot('ok');markLoaded();
   }
 
@@ -3323,7 +3390,7 @@ function bumpMetaVersion(key){
 // hi 'log'/'announce' timestamp check hote hain, sirf tab fetch hota hai jab badla ho.
 function syncLogAndAnnounce(versions){
   var tasks=[
-    {key:'log',doc:'log',apply:function(d){S.log=(d&&d.entries)||[];renderRecent();renderStats();}},
+    {key:'log',doc:'log',apply:function(d){S.log=(d&&d.entries)||[];renderQuickAccess();renderStats();}},
     {key:'announce',doc:'announcement',apply:function(d){
       applyAnnounceData(d&&d.active?d:{items:[]});
     }}
