@@ -1,7 +1,8 @@
 {
   "name": "Glass Finder Pro",
   "short_name": "GlassFinder",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#07090f",
   "theme_color": "#c9a84c",
