@@ -152,11 +152,17 @@ button{cursor:pointer}
 /* STATS */
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
 .stat{background:linear-gradient(150deg,#11141f,#161b2a);border:1px solid #d4af6a20;border-radius:16px;padding:15px 16px;position:relative;overflow:hidden;transition:transform .18s cubic-bezier(.22,1,.36,1)}
+.stat-ico{position:absolute;top:-4px;right:2px;font-size:32px;opacity:.045}
+.statsStrip{display:flex;align-items:center;background:linear-gradient(150deg,#11141f,#161b2a);border:1px solid #d4af6a20;border-radius:14px;padding:11px 6px;margin-bottom:16px}
+.statItem{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;padding:0 4px}
+.statItem+.statItem::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:1px;background:#d4af6a20}
+.statItem .stat-val{font-size:16px;font-weight:800;color:#eed5a0;line-height:1.1}
+.statItem .stat-val.sm{font-size:11.5px;font-weight:700}
+.statItem .stat-lbl{font-size:8.5px;color:#4a5270;font-weight:700;margin-top:3px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
 .stat:active{transform:scale(.98)}
 .stat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#d4af6a55,transparent)}
 .stat::after{content:'';position:absolute;inset:0;border-radius:14px;background:radial-gradient(circle at 100% 0%,#d4af6a12,transparent 60%)}
 .stat:active{transform:scale(.97)}
-.stat-ico{position:absolute;top:-4px;right:2px;font-size:32px;opacity:.045}
 .stat-val{font-size:22px;font-weight:800;color:#eed5a0;line-height:1.1;position:relative}
 .stat-val.sm{font-size:13px;font-weight:700}
 .stat-lbl{font-size:10px;color:#4a5270;font-weight:700;margin-top:4px;text-transform:uppercase;letter-spacing:.07em;position:relative}
@@ -601,15 +607,6 @@ button{cursor:pointer}
     </div>
   </div>
 
-  <div id="announceCard" onclick="checkAnnounce()">
-    <div class="ann-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a2 2 0 0 0 2 2h1l3 5V4l-3 5H5a2 2 0 0 0-2 2z"/><path d="M13 8.5a4 4 0 0 1 0 7"/><path d="M16.5 6a8 8 0 0 1 0 12"/></svg></div>
-    <div class="ann-body">
-      <div class="ann-title" id="annCardTitle"></div>
-      <div class="ann-desc" id="annCardDesc"></div>
-    </div>
-  </div>
-  <div id="annDotsWrap"><div id="annDots" style="display:flex;gap:7px"></div></div>
-
   <div class="tabs" style="margin-top:14px">
     <button class="tab af" id="tabFlat" onclick="switchTab('flat')"><span class="tab-ic">▭</span> Flat Glass</button>
     <button class="tab" id="tabUv" onclick="switchTab('uv')"><span class="tab-ic">◐</span> UV Curved</button>
@@ -619,11 +616,11 @@ button{cursor:pointer}
 <div id="body" class="page-anim">
   <div id="loading" class="hide"><div class="spin"></div>Connecting...</div>
   <div id="mainContent" class="hide">
-    <div class="stats">
-      <div class="stat"><div class="stat-ico">🛡️</div><div class="stat-val" id="s1">0</div><div class="stat-lbl">Glass Groups</div></div>
-      <div class="stat"><div class="stat-ico">📱</div><div class="stat-val" id="s2">0</div><div class="stat-lbl">Total Models</div></div>
-      <div class="stat"><div class="stat-ico">📂</div><div class="stat-val" id="s3">0</div><div class="stat-lbl">Categories</div></div>
-      <div class="stat"><div class="stat-ico">🕐</div><div class="stat-val sm" id="s4">—</div><div class="stat-lbl">Last Updated</div></div>
+    <div class="statsStrip">
+      <div class="statItem"><div class="stat-val" id="s1">0</div><div class="stat-lbl">Groups</div></div>
+      <div class="statItem"><div class="stat-val" id="s2">0</div><div class="stat-lbl">Models</div></div>
+      <div class="statItem"><div class="stat-val" id="s3">0</div><div class="stat-lbl">Categories</div></div>
+      <div class="statItem"><div class="stat-val sm" id="s4">—</div><div class="stat-lbl">Updated</div></div>
     </div>
     <div id="recentBox" class="hide">
       <div class="rtitle">⚡ Recent Updates</div>
@@ -716,7 +713,6 @@ button{cursor:pointer}
     <div class="menu-section" id="adminSection">
       <div class="menu-section-label hide" id="adminSectionLabel">Admin</div>
       <button class="menu-item hide" id="menuAdminDashBtn" onclick="openAdminDashboard()"><span class="material-symbols-rounded menu-ic">admin_panel_settings</span><span class="menu-item-label">Admin Dashboard</span></button>
-      <button class="menu-item hide" id="menuAnnounceBtn" onclick="openAnnounceEditor()"><span class="material-symbols-rounded menu-ic">campaign</span><span class="menu-item-label">Edit Announcement</span></button>
       <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="material-symbols-rounded menu-ic">forum</span><span class="menu-item-label">View Feedback</span></button>
       <button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="material-symbols-rounded menu-ic">move_to_inbox</span><span class="menu-item-label">View Update Requests</span></button>
       <button class="menu-item hide" id="menuBackupBtn" onclick="exportBackup()"><span class="material-symbols-rounded menu-ic">cloud_download</span><span class="menu-item-label">Backup Data (JSON)</span></button>
@@ -1179,7 +1175,7 @@ function updateUserUI(){
   var menuUserInfo=document.getElementById('menuUserInfo');
   var menuLogout=document.getElementById('menuLogout');
   var menuLoginBtn=document.getElementById('menuLoginBtn');
-  var menuAnnounceBtn=document.getElementById('menuAnnounceBtn');
+  var menuAnnounceBtn=document.getElementById('menuAnnounceBtn');if(menuAnnounceBtn)menuAnnounceBtn.remove();
   var menuFeedbackBtn=document.getElementById('menuFeedbackBtn');
   var menuRequestsBtn=document.getElementById('menuRequestsBtn');
   var menuBackupBtn=document.getElementById('menuBackupBtn');
@@ -1199,7 +1195,7 @@ function updateUserUI(){
     roleEl.textContent='Admin';roleEl.className='menu-user-role admin';
     menuLogout.classList.remove('hide');
     menuLoginBtn.classList.add('hide');
-    menuAnnounceBtn.classList.remove('hide');
+    if(menuAnnounceBtn)menuAnnounceBtn.classList.remove('hide');
     var menuAdminDashBtn=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn)menuAdminDashBtn.classList.remove('hide');
     menuFeedbackBtn.classList.remove('hide');
     menuRequestsBtn.classList.remove('hide');
@@ -1225,7 +1221,7 @@ function updateUserUI(){
     roleEl2.textContent='Staff';roleEl2.className='menu-user-role staff';
     menuLogout.classList.remove('hide');
     menuLoginBtn.classList.add('hide');
-    menuAnnounceBtn.classList.add('hide');
+    if(menuAnnounceBtn)menuAnnounceBtn.classList.add('hide');
     var menuAdminDashBtn2=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn2)menuAdminDashBtn2.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
@@ -1245,7 +1241,7 @@ function updateUserUI(){
     menuUserInfo.classList.add('hide');
     menuLogout.classList.add('hide');
     menuLoginBtn.classList.add('hide');
-    menuAnnounceBtn.classList.add('hide');
+    if(menuAnnounceBtn)menuAnnounceBtn.classList.add('hide');
     var menuAdminDashBtn3=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn3)menuAdminDashBtn3.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
@@ -2782,6 +2778,7 @@ function closeMenu(){
 var annState={items:[],idx:0,timer:null};
 function renderAnnounceCard(){
   var card=document.getElementById('announceCard');
+  if(!card)return;
   var dotsWrap=document.getElementById('annDotsWrap');
   if(!annState.items.length){card.classList.remove('show');dotsWrap.classList.remove('show');return;}
   card.classList.add('show');
