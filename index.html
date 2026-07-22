@@ -1642,6 +1642,77 @@ function getVoiceRecognition(){
   return rec;
 }
 
+// Bole gaye number-words ko digit mein badalne ke liye mapping
+// (jaise "fifty three" bolne par "53" ban jaaye)
+var NUMBER_WORDS={
+  'zero':0,'one':1,'two':2,'three':3,'four':4,'five':5,'six':6,'seven':7,'eight':8,'nine':9,
+  'ten':10,'eleven':11,'twelve':12,'thirteen':13,'fourteen':14,'fifteen':15,'sixteen':16,
+  'seventeen':17,'eighteen':18,'nineteen':19,'twenty':20,'thirty':30,'forty':40,'fifty':50,
+  'sixty':60,'seventy':70,'eighty':80,'ninety':90,'hundred':100
+};
+
+// "fifty three" -> "53", "y two hundred" -> "y 200" jaisa combine karta hai
+function convertSpokenNumbers(text){
+  var words=text.split(' ');
+  var out=[];
+  for(var i=0;i<words.length;i++){
+    var w=words[i].toLowerCase().replace(/[^a-z]/g,'');
+    if(NUMBER_WORDS.hasOwnProperty(w)){
+      var val=NUMBER_WORDS[w];
+      var j=i+1;
+      // agle word bhi number-word hai to combine karte raho (tens+units ya x-hundred)
+      while(j<words.length){
+        var w2=words[j].toLowerCase().replace(/[^a-z]/g,'');
+        if(!NUMBER_WORDS.hasOwnProperty(w2))break;
+        var val2=NUMBER_WORDS[w2];
+        if(w2==='hundred'){val=val*100;j++;}
+        else if(val>=20&&val<100&&val2<10){val=val+val2;j++;break;}
+        else break;
+      }
+      out.push(String(val));
+      i=j-1;
+    } else {
+      out.push(words[i]);
+    }
+  }
+  return out.join(' ');
+}
+
+// Common galat pronunciation → sahi brand naam (case-insensitive).
+// Naya brand add karna ho to bas yahan ek entry add kar do.
+var BRAND_CORRECTIONS={
+  'wevo':'VIVO','vevo':'VIVO','vivoo':'VIVO','vivo':'VIVO',
+  'opo':'OPPO','opoo':'OPPO','oppo':'OPPO',
+  'real me':'REALME','realmi':'REALME','realme':'REALME',
+  'red me':'REDMI','redmy':'REDMI','redmi':'REDMI',
+  'one plus':'ONEPLUS','oneplus':'ONEPLUS','1 plus':'ONEPLUS',
+  'motorola':'MOTO','moto':'MOTO',
+  'sam sung':'SAMSUNG','samsang':'SAMSUNG','samsung':'SAMSUNG',
+  'shaomi':'XIAOMI','xiomi':'XIAOMI','xiaomi':'XIAOMI',
+  'poko':'POCO','poco':'POCO',
+  'nathing':'NOTHING','nothing':'NOTHING',
+  'ivoo':'IQOO','iqoo':'IQOO',
+  'lava':'LAVA','infinix':'INFINIX','tecno':'TECNO','nokia':'NOKIA','honor':'HONOR'
+};
+
+// Brand ke galat-bole-gaye naam ko sahi brand se replace karta hai
+function correctBrandNames(text){
+  var t=' '+text.toLowerCase()+' ';
+  // pehle multi-word phrases (jaise "one plus","real me") replace karo
+  Object.keys(BRAND_CORRECTIONS).forEach(function(k){
+    if(k.indexOf(' ')>=0){
+      var re=new RegExp('\\b'+k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','gi');
+      t=t.replace(re,' '+BRAND_CORRECTIONS[k]+' ');
+    }
+  });
+  var words=t.split(' ').filter(Boolean);
+  words=words.map(function(w){
+    var lw=w.toLowerCase();
+    return BRAND_CORRECTIONS.hasOwnProperty(lw)?BRAND_CORRECTIONS[lw]:w;
+  });
+  return words.join(' ');
+}
+
 // Hinglish filler words hatao aur spacing/casing normalize karo taaki
 // "vivo y twenty one" jaisa bola gaya bhi turant "Y21" jaisa clean text bane
 function cleanVoiceTranscript(text){
@@ -1660,6 +1731,9 @@ function cleanVoiceTranscript(text){
   // bole gaye numbers ("double zero", "triple" etc.) yahan chhote se common cases:
   cleaned=cleaned.replace(/\bdouble\s+(\w)/gi,'$1$1');
   cleaned=cleaned.replace(/\btriple\s+(\w)/gi,'$1$1$1');
+  cleaned=correctBrandNames(cleaned);       // wevo/opo/real me jaisi galtiyan sahi brand mein badlo
+  cleaned=convertSpokenNumbers(cleaned);     // "fifty three" jaisa bola gaya word ko "53" banao
+  cleaned=cleaned.replace(/\b([A-Za-z])\s+(\d+)/g,'$1$2'); // "Y 20" -> "Y20" (letter+number jodo)
   cleaned=cleaned.replace(/\s+/g,' ').trim();
   cleaned=collapseRepeatedPhrases(cleaned);
   return cleaned;
@@ -1701,10 +1775,12 @@ function pickBestVoiceAlternative(resultItem){
   }catch(e){}
   if(!pool.length)return resultItem[0].transcript;
   for(var i=0;i<resultItem.length;i++){
-    var cand=cleanVoiceTranscript(resultItem[i].transcript).toUpperCase();
+    // spaces/dashes/punctuation hata do taaki "A 53","A-53","A53" sab ek jaisa match ho
+    var cand=cleanVoiceTranscript(resultItem[i].transcript).toUpperCase().replace(/[^A-Z0-9]/g,'');
     if(!cand)continue;
     for(var j=0;j<pool.length;j++){
-      if(pool[j].toUpperCase().indexOf(cand)>=0||cand.indexOf(pool[j].toUpperCase())>=0){
+      var poolClean=pool[j].toUpperCase().replace(/[^A-Z0-9]/g,'');
+      if(poolClean.indexOf(cand)>=0||cand.indexOf(poolClean)>=0){
         return resultItem[i].transcript; // known model se match mila — yahi sahi hai
       }
     }
