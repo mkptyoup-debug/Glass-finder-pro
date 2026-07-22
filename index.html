@@ -87,26 +87,8 @@ button{cursor:pointer}
 .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#e8c97a,#a87f2e);border:none;border-radius:12px;color:#1a1305;font-size:15px;font-weight:800;margin-top:6px;transition:transform .15s;box-shadow:0 4px 18px #d4af6a44}
 .login-btn:active{transform:scale(.97)}
 .login-err{color:#e8718e;font-size:12px;text-align:center;margin-top:10px;min-height:18px}
-.login-skip{width:100%;padding:11px;background:transparent;border:1px solid #1d2336;border-radius:12px;color:#4a5270;font-size:13px;font-weight:600;margin-top:10px;transition:all .2s}
-.login-skip:hover{border-color:#4a5270;color:#7e88a6}
-
 /* HEADER */
 #header{position:sticky;top:0;z-index:200;background:rgba(10,12,20,0.97);backdrop-filter:blur(20px);border-bottom:1px solid #d4af6a1f;padding:14px 16px 0}
-#announceCard{display:none;margin:0;padding:15px 16px;border-radius:18px;background:linear-gradient(135deg,#1c1810,#15130d 55%,#100e09);border:1px solid #d4af6a4a;align-items:center;gap:13px;position:relative;overflow:hidden;box-shadow:0 0 24px #d4af6a1a,inset 0 1px 0 #ffffff08}
-#announceCard::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,#d4af6a14,transparent 70%);pointer-events:none}
-#announceCard.show{display:flex}
-.ann-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,#f3e1ab,#d4af6a 55%,#a87f2e);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 12px #d4af6a44;color:#1a1305}
-.ann-icon svg{width:20px;height:20px}
-.ann-body{flex:1;min-width:0}
-.ann-title{font-size:14.5px;font-weight:800;letter-spacing:.01em;background:linear-gradient(90deg,#f3e1ab,#d4af6a 65%,#c9a45f);-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ann-desc{color:#a89968;font-size:12px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* Dots now sit BELOW the announcement card, as their own smooth progress row */
-#annDotsWrap{display:none;justify-content:center;align-items:center;gap:7px;padding:9px 0 3px}
-#annDotsWrap.show{display:flex}
-.ann-dot{position:relative;height:4px;width:4px;border-radius:3px;background:#2a2618;overflow:hidden;transition:width .45s cubic-bezier(.4,0,.2,1),background .45s ease}
-.ann-dot.active{width:26px;background:#2a2410}
-.ann-dot.active::after{content:'';position:absolute;top:0;left:0;bottom:0;width:100%;border-radius:3px;background:linear-gradient(90deg,#d4af6a,#f3e1ab);transform:scaleX(0);transform-origin:left;animation:dotFill 4s linear forwards}
-@keyframes dotFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 .search-ic-glow{width:31px;height:31px;border-radius:50%;background:linear-gradient(135deg,#d4af6a80,#e8c98a80);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:0 0 8px #d4af6a30}
 #offlineBar{display:none;position:sticky;top:0;z-index:202;background:#5a1a24;color:#ffd6dc;font-size:12.5px;font-weight:700;text-align:center;padding:8px 12px}
 #offlineBar.show{display:block}
@@ -179,7 +161,6 @@ button{cursor:pointer}
 .uhero-body{flex:1;min-width:0}
 .uhero-title{font-size:15px;font-weight:800;background:linear-gradient(90deg,#f3e1ab,#d4af6a 65%,#c9a45f);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .uhero-desc{color:#c7b783;font-size:12.5px;margin-top:5px;line-height:1.5}
-.uhero-pin{position:absolute;top:14px;right:14px;font-size:12px;opacity:.6}
 .uupd-list .card{padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px}
 .uupd-ico{width:34px;height:34px;border-radius:10px;background:#0d0f18;border:1px solid #1d2336;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
 .uupd-title{font-size:13.5px;font-weight:700;color:#eaf0ff;overflow-wrap:anywhere;word-break:break-word}
@@ -288,10 +269,6 @@ button{cursor:pointer}
 .pf-swipe-track.dragging{transition:none!important}
 .pf-swipe-page{flex-shrink:0;box-sizing:border-box;padding:0 1px;min-height:160px}
 /* PARTS FINDER — PREMIUM REDESIGN */
-.pf-type-block{margin-bottom:20px}
-.pf-type-heading{font-size:11px;font-weight:800;letter-spacing:.12em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;text-transform:uppercase;padding:0 2px}
-.pf-type-left{display:flex;align-items:center;gap:8px}
-.pf-type-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
 .pf-type-count{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.06);color:#4a5270;border:1px solid rgba(255,255,255,.07)}
 
 .pf-group-card{background:linear-gradient(145deg,#13161f,#0f1118);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:14px 16px;margin-bottom:8px;transition:transform .2s}
@@ -1116,13 +1093,6 @@ function showLogin(){
 
 function hideLogin(){
   document.getElementById('loginScreen').classList.remove('show');
-}
-
-// Staff mode — bina login ke search karo
-function skipLogin(){
-  hideLogin();
-  S.user=null;S.role='staff';
-  updateUserUI();
 }
 
 function doLogin(){
@@ -2139,19 +2109,35 @@ function submitGlass(){
   }
   var id=S.editId||db.collection(COLLECTIONS[targetKey]).doc().id;
   var newDoc={id:id,glassName:name,models:models,confidence:confidence,note:note};
+
+  // OPTIMISTIC UPDATE — pehle turant list update karo, modal band karo, aur
+  // toast dikhao. Firestore write background me chalta hai. Isse "Save" click
+  // karte hi turant response milta hai, chahe internet slow ho ya server thoda
+  // der le — pehle yahan tak sab cheezein Firestore write complete hone ke
+  // baad hoti thi, isliye har edit "der se" hota mehsoos hota tha.
+  var idx=S[targetKey].findIndex(function(x){return x.id===id;});
+  var prevDoc=idx>=0?Object.assign({},S[targetKey][idx]):null; // fail hone par wapas lagane ke liye
+  var savedEditId=S.editId;
+  if(idx>=0)S[targetKey][idx]=newDoc;else S[targetKey].push(newDoc);
+  render();closeModal();showToast(isEdit?'✅ Updated!':'✅ Added!');S.editId=null;
   setSyncDot('syncing');
+
   db.collection(COLLECTIONS[targetKey]).doc(id).set({glassName:name,models:models,confidence:confidence,note:note}).then(function(){
     var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
     S.log=[entry].concat(S.log).slice(0,20);
     db.collection('meta').doc('log').set({entries:S.log});
     bumpMetaVersion('log');renderQuickAccess();renderStats();
-    // Apni list turant update karo (live listener hata diya, isliye manually)
-    var idx=S[targetKey].findIndex(function(x){return x.id===id;});
-    if(idx>=0)S[targetKey][idx]=newDoc;else S[targetKey].push(newDoc);
-    bumpGlassVersion(targetKey);render();
+    bumpGlassVersion(targetKey);
     autoResolveRequests(models.concat([name]));
-    setSyncDot('ok');closeModal();showToast(isEdit?'✅ Updated!':'✅ Added!');S.editId=null;
-  }).catch(function(e){setSyncDot('err');showToast('❌ '+e.message,true);});
+    setSyncDot('ok');
+  }).catch(function(e){
+    // Save fail ho gaya — local change wapas purani state pe le jao aur batao
+    var idx2=S[targetKey].findIndex(function(x){return x.id===id;});
+    if(prevDoc){if(idx2>=0)S[targetKey][idx2]=prevDoc;}
+    else if(idx2>=0){S[targetKey].splice(idx2,1);}
+    render();setSyncDot('err');S.editId=savedEditId;
+    showToast('❌ Save fail hua, dobara try karo: '+e.message,true);
+  });
 }
 
 function confirmDelete(id){
@@ -2869,14 +2855,29 @@ function submitParts(){
   if(!db){showToast('❌ Connection nahi',true);return;}
   var id=PF.editId||db.collection(t.col).doc().id;var isEdit=!!PF.editId;
   var newDoc={id:id,partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve};
+
+  // OPTIMISTIC UPDATE — turant list update + modal band + toast, taaki "Save"
+  // click karte hi turant response mile, chahe internet slow ho.
+  var idx=PF.data[typeKey].findIndex(function(x){return x.id===id;});
+  var prevDoc=idx>=0?Object.assign({},PF.data[typeKey][idx]):null;
+  var savedEditKey=PF.editKey,savedEditId=PF.editId;
+  if(idx>=0)PF.data[typeKey][idx]=newDoc;else PF.data[typeKey].push(newDoc);
+  closeModal();showToast(isEdit?'✅ Updated!':'✅ Part Group Added!');
+  refreshPartsPage(typeKey);
+  PF.editKey=null;PF.editId=null;
+
   db.collection(t.col).doc(id).set({partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve}).then(function(){
-    closeModal();showToast(isEdit?'✅ Updated!':'✅ Part Group Added!');
-    var idx=PF.data[typeKey].findIndex(function(x){return x.id===id;});
-    if(idx>=0)PF.data[typeKey][idx]=newDoc;else PF.data[typeKey].push(newDoc);
-    bumpPartsVersion(typeKey);refreshPartsPage(typeKey);
+    bumpPartsVersion(typeKey);
     logRecentUpdate((isEdit?'✏️ ':'✨ ')+t.label+': '+partName+(isEdit?' updated':' added'));
-    PF.editKey=null;PF.editId=null;
-  }).catch(function(e){showToast('❌ '+e.message,true);});
+  }).catch(function(e){
+    // Save fail ho gaya — list wapas purani state pe le jao
+    var idx2=PF.data[typeKey].findIndex(function(x){return x.id===id;});
+    if(prevDoc){if(idx2>=0)PF.data[typeKey][idx2]=prevDoc;}
+    else if(idx2>=0){PF.data[typeKey].splice(idx2,1);}
+    refreshPartsPage(typeKey);
+    showToast('❌ Save fail hua, dobara try karo: '+e.message,true);
+    PF.editKey=savedEditKey;PF.editId=savedEditId;
+  });
 }
 
 function togglePanelWrap(){
@@ -2970,70 +2971,6 @@ function closeMenu(){
   document.getElementById('menuOverlay').classList.remove('show','in');
   document.getElementById('menuPanel').classList.remove('show','anim-in');
 }
-// ── ANNOUNCEMENT CAROUSEL (dots ab card ke NICHE, smooth progress animation ke saath) ──
-var annState={items:[],idx:0,timer:null};
-function renderAnnounceCard(){
-  var card=document.getElementById('announceCard');
-  if(!card)return;
-  var dotsWrap=document.getElementById('annDotsWrap');
-  if(!annState.items.length){card.classList.remove('show');dotsWrap.classList.remove('show');return;}
-  card.classList.add('show');
-  var it=annState.items[annState.idx];
-  document.getElementById('annCardTitle').textContent=it.title;
-  document.getElementById('annCardDesc').textContent=it.desc||'';
-  if(annState.items.length>1){
-    dotsWrap.classList.add('show');
-    document.getElementById('annDots').innerHTML=annState.items.map(function(_,i){
-      return '<span class="ann-dot'+(i===annState.idx?' active':'')+'"></span>';
-    }).join('');
-  } else {
-    dotsWrap.classList.remove('show');
-  }
-  if(annState.timer)clearInterval(annState.timer);
-  if(annState.items.length>1){
-    annState.timer=setInterval(function(){
-      annState.idx=(annState.idx+1)%annState.items.length;renderAnnounceCard();
-    },4000);
-  }
-}
-function checkAnnounce(){
-  if(!annState.items.length)return;
-  var it=annState.items[annState.idx];
-  openModal('<div class="mhead"><span class="mtitle">📢 '+escHtml(it.title)+'</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<div style="color:#cdd6f0;font-size:13.5px;line-height:1.7">'+escHtml(it.desc||it.title)+'</div>');
-}
-function applyAnnounceData(d){
-  annState.items=(d&&d.items)||[];annState.idx=0;renderAnnounceCard();
-}
-
-function openAnnounceEditor(){
-  closeMenu();if(!db){showToast('❌ Connection nahi',true);return;}
-  db.collection('meta').doc('announcement').get().then(function(snap){
-    var cur=snap.exists?snap.data():{items:[],active:false};
-    var lines=(cur.items||[]).map(function(it){return it.title+(it.desc?' | '+it.desc:'');}).join('\n');
-    openModal('<div class="mhead"><span class="mtitle">📢 Announcements</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-      '<div class="fgrp"><label class="flbl">Ek line = ek announcement. Format: Title | Description</label>'+
-      '<textarea class="finp" id="annText" rows="5" placeholder="Naya Update | Sabhi glass prices update ho gaye hain">'+(lines?escHtml(lines):'')+'</textarea></div>'+
-      '<div class="fgrp" style="display:flex;align-items:center;gap:10px">'+
-      '<input type="checkbox" id="annActive" '+(cur.active?'checked':'')+' style="width:18px;height:18px"/>'+
-      '<label style="color:#cdd6f0;font-size:13px;font-weight:600">Card dikhana hai (ON)</label></div>'+
-      '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
-      '<button class="bsave" onclick="saveAnnounce()">Save</button></div>');
-  });
-}
-function saveAnnounce(){
-  var raw=document.getElementById('annText').value.trim();
-  var active=document.getElementById('annActive').checked;
-  var items=raw.split('\n').map(function(l){l=l.trim();if(!l)return null;
-    var p=l.split('|');return{title:p[0].trim(),desc:(p[1]||'').trim()};
-  }).filter(Boolean);
-  db.collection('meta').doc('announcement').set({items:items,active:active}).then(function(){
-    bumpMetaVersion('announce');
-    applyAnnounceData(active?{items:items}:{items:[]});
-    closeModal();showToast('✅ Updated!');
-  });
-}
-
 function shareApp(){
   var d={title:'Universal Combo',text:'Universal Combo - apne phone model ke liye sahi tempered glass turant dhundo!',url:'https://mkptyoup-debug.github.io/Glass-finder-pro'};
   if(navigator.share)navigator.share(d).catch(function(){});
@@ -3460,7 +3397,6 @@ function loadGlassData(){
   if(hasFullCache){
     GLASS_TABS.forEach(function(t){S[t.key]=lsGetJSON('gc_'+t.key)||[];});
     var cachedLog=lsGetJSON('gc_log');if(cachedLog)S.log=cachedLog;
-    var cachedAnn=lsGetJSON('gc_announce');if(cachedAnn)applyAnnounceData(cachedAnn);
     render();renderQuickAccess();
     setSyncDot('ok');markLoaded();
   }
@@ -3480,12 +3416,29 @@ function loadGlassData(){
           S[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
           lsSetJSON('gc_'+t.key,S[t.key]);lsSet('gv_'+t.key,String(remoteV));
           done();
-        },function(){done();});
+        },function(){
+          // Pehli koshish fail hui (jaise app abhi long idle ke baad resume hua ho
+          // aur network cold ho) — 3 second baad khud ek retry karo, warna yeh tab
+          // khaali (0 models) hi dikhta rehta jab tak agla 2-min poll na aaye
+          setTimeout(function(){
+            db.collection(t.col).get().then(function(snap2){
+              S[t.key]=snap2.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+              lsSetJSON('gc_'+t.key,S[t.key]);lsSet('gv_'+t.key,String(remoteV));
+              render();
+            }).catch(function(){});
+          },3000);
+          done();
+        });
       }
     });
     syncLogAndAnnounce(versions);
     function done(){pending--;if(pending===0){render();setSyncDot('ok');markLoaded();}}
-  },function(){setSyncDot('err');markLoaded();});
+  },function(){
+    setSyncDot('err');markLoaded();
+    // Version-check hi fail ho gaya (network abhi stabilize ho raha hai) —
+    // thodi der baad khud retry karo, user ko manually kuch karne ki zarurat nahi
+    setTimeout(loadGlassData,4000);
+  });
 }
 
 // Har collection write (add/edit/delete) ke baad version bump karo — taaki
@@ -3514,15 +3467,12 @@ function bumpMetaVersion(key){
   lsSet('gv_'+key,String(v[key]));
 }
 
-// 'log' aur 'announcement' ke liye version-check — pehle yeh onSnapshot() real-time
-// listener se aate the (2 hamesha-khule connections). Ab dataVersion doc ke andar
-// hi 'log'/'announce' timestamp check hote hain, sirf tab fetch hota hai jab badla ho.
+// 'log' ke liye version-check — pehle yeh onSnapshot() real-time listener se
+// aata tha (hamesha-khula connection). Ab dataVersion doc ke andar hi 'log'
+// timestamp check hota hai, sirf tab fetch hota hai jab badla ho.
 function syncLogAndAnnounce(versions){
   var tasks=[
-    {key:'log',doc:'log',apply:function(d){S.log=(d&&d.entries)||[];renderQuickAccess();renderStats();}},
-    {key:'announce',doc:'announcement',apply:function(d){
-      applyAnnounceData(d&&d.active?d:{items:[]});
-    }}
+    {key:'log',doc:'log',apply:function(d){S.log=(d&&d.entries)||[];renderQuickAccess();renderStats();}}
   ];
   tasks.forEach(function(t){
     var remoteV=versions[t.key]||0;
@@ -3563,6 +3513,16 @@ function pollGlassVersion(){
 }
 setInterval(pollGlassVersion,120000); // har 2 minute me sirf 1 chhota read
 loadGlassData();
+
+// App bahut der baad (background se) wapas foreground me aaye to turant check
+// karo — warna user ko 2-min poll ka wait karna padta ya data khaali dikhta
+// rehta jab tak wo khud kuch na karta
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&db){
+    var isEmpty=GLASS_TABS.some(function(t){return !S[t.key]||!S[t.key].length;});
+    if(isEmpty)loadGlassData();else pollGlassVersion();
+  }
+});
 setTimeout(function(){if(!PF.loaded)loadPartsData();},1500);
 updateOfflineBar();
 
