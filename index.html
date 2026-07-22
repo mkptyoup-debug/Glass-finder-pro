@@ -137,12 +137,12 @@ button{cursor:pointer}
 #menuBtn:active{transform:scale(.92)}
 
 /* TABS */
-.tabs{display:flex;gap:4px;background:#070811;border-radius:14px 14px 0 0;padding:6px 6px 0}
-.tab{flex:1;padding:11px 3px;background:transparent;border:1px solid transparent;border-bottom:2px solid transparent;border-radius:12px 12px 0 0;color:#454d68;font-size:11.5px;font-weight:600;transition:background .3s cubic-bezier(.22,1,.36,1),border-color .3s cubic-bezier(.22,1,.36,1),color .3s cubic-bezier(.22,1,.36,1),transform .15s ease;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+.tabs{display:flex;gap:6px;background:#070811;border-radius:14px 14px 0 0;padding:6px 6px 0}
+.tab{flex:1;padding:13px 6px;background:transparent;border:1px solid transparent;border-bottom:2px solid transparent;border-radius:12px 12px 0 0;color:#454d68;font-size:13px;font-weight:600;transition:background .3s cubic-bezier(.22,1,.36,1),border-color .3s cubic-bezier(.22,1,.36,1),color .3s cubic-bezier(.22,1,.36,1),transform .15s ease;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
 .tab:active{transform:scale(.97)}
 .tab:active{transform:scale(.96)}
 .tab-ic{font-size:15px;line-height:1}
-.tab-ic-ms{font-size:16px;line-height:1;font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 20}
+.tab-ic-ms{font-size:17px;line-height:1;font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 20}
 .tab.af{background:linear-gradient(180deg,#161c2c,#0e1119);border-color:#d4af6a3d;border-bottom-color:#d4af6a;color:#e8c97a;font-weight:800}
 .tab.au{background:linear-gradient(180deg,#161c2c,#0e1119);border-color:#a87bf73d;border-bottom-color:#a87bf7;color:#c4a0fa;font-weight:800}
 .tab.ab{background:linear-gradient(180deg,#161c2c,#0e1119);border-color:#3ec9d63d;border-bottom-color:#3ec9d6;color:#8de6f0;font-weight:800}
@@ -393,6 +393,7 @@ button{cursor:pointer}
 .cname{font-weight:800;font-size:15px;color:#f0f4ff;margin-bottom:9px}
 .cbadges{display:flex;gap:7px;flex-wrap:wrap;align-items:center;row-gap:6px}
 .bg{background:#d4af6a17;border:1px solid #d4af6a3d;border-radius:6px;padding:3px 10px;color:#d4af6a;font-size:11px;font-weight:700}
+.bgp{background:#a87bf717;border:1px solid #a87bf73d;border-radius:6px;padding:3px 10px;color:#c4a0fa;font-size:11px;font-weight:700}
 .bgg{background:#0e1a0c;border:1px solid #3a6b4550;border-radius:6px;padding:3px 10px;color:#8fd48a;font-size:11px;font-weight:700}
 .bgy{background:#241a08;border:1px solid #c9962f60;border-radius:6px;padding:3px 10px;color:#f0d090;font-size:11px;font-weight:700}
 .cadmin{display:flex;gap:6px;flex-shrink:0;margin-left:8px}
@@ -615,8 +616,7 @@ button{cursor:pointer}
   </div>
 
   <div class="tabs" style="margin-top:14px">
-    <button class="tab af" id="tabFlat" onclick="switchTab('flat')"><span class="tab-ic">▭</span> Flat Glass</button>
-    <button class="tab" id="tabUv" onclick="switchTab('uv')"><span class="tab-ic">◐</span> UV Curved</button>
+    <button class="tab af" id="tabGlass" onclick="switchTab('glass')"><span class="material-symbols-rounded tab-ic-ms">diamond</span> Glass</button>
     <button class="tab" id="tabBackcover" onclick="switchTab('backcover')"><span class="material-symbols-rounded tab-ic-ms">flip_to_back</span> Back Cover</button>
   </div>
 </div>
@@ -816,7 +816,7 @@ button{cursor:pointer}
 var ADMIN_EMAIL = 'm.k.p.tyoup@gmail.com';
 
 // ── STATE ────────────────────────────────────────────────────────────────
-var S={tab:'flat',flat:[],uv:[],display:[],backcover:[],log:[],query:'',editId:null,user:null,role:'staff'};
+var S={tab:'glass',flat:[],uv:[],display:[],backcover:[],log:[],query:'',editId:null,user:null,role:'staff'};
 var COLLECTIONS={flat:'flat_glasses',uv:'uv_glasses',display:'display_glasses',backcover:'backcover_glasses'};
 var searchDebounceTimer=null;
 var partsDebounceTimer=null;
@@ -900,7 +900,14 @@ var PF_ANIM_MS={display:600,frame:500,backdoor:800,ccboard:700,battery:350};
 
 // ── HELPERS ──────────────────────────────────────────────────────────────
 function isAdmin(){return S.role==='admin';}
-function getList(){return S[S.tab];}
+function getList(){
+  if(S.tab==='glass'){
+    S.flat.forEach(function(g){g._type='flat';});
+    S.uv.forEach(function(g){g._type='uv';});
+    return S.flat.concat(S.uv);
+  }
+  return S[S.tab];
+}
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function lsGetJSON(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
@@ -953,7 +960,7 @@ function haptic(ms){
 
 // ── FAVORITES (local-only, offline-friendly, zero DB cost) ────────────────
 function tabLabel(tab){
-  return {flat:'FLAT',uv:'UV',backcover:'BACK COVER',display:'DISPLAY'}[tab]||String(tab).toUpperCase();
+  return {flat:'FLAT',uv:'UV',backcover:'BACK COVER',display:'DISPLAY',glass:'GLASS'}[tab]||String(tab).toUpperCase();
 }
 function getFavorites(){return lsGetJSON('favGroups')||[];}
 function isFavorited(id,tab){return getFavorites().some(function(f){return f.id===id&&f.tab===tab;});}
@@ -991,7 +998,9 @@ function openFavorites(){
   openModal('<div class="mhead"><span class="mtitle">⭐ My Favorites</span><button class="mclose" onclick="closeModal()">✕</button></div>'+body);
 }
 function jumpToFavorite(tab,name){
-  if(tab==='flat'||tab==='uv'||tab==='backcover'){
+  if(tab==='flat'||tab==='uv'){
+    switchTab('glass');
+  } else if(tab==='backcover'){
     switchTab(tab);
   } else {
     S.tab=tab;render();
@@ -1377,7 +1386,7 @@ function renderStats(){
   var all=S.flat.concat(S.uv).concat(S.backcover);
   document.getElementById('s1').textContent=S.flat.length+S.uv.length+S.backcover.length;
   document.getElementById('s2').textContent=all.reduce(function(a,g){return a+parseModels(g.models).length;},0);
-  document.getElementById('s3').textContent=(S.flat.length?1:0)+(S.uv.length?1:0)+(S.backcover.length?1:0);
+  document.getElementById('s3').textContent=((S.flat.length||S.uv.length)?1:0)+(S.backcover.length?1:0);
   document.getElementById('s4').textContent=S.log.length?S.log[0].date:'—';
 }
 
@@ -1565,16 +1574,18 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
   var delay=Math.min(idx*0.05,0.4);
   var cardClass=isFuzzy?'fuzzy-card':(hasSearch&&matched.length?'match-card':'');
   var noteHtml=g.note?'<div style="font-size:11.5px;color:#9aa6c4;margin-top:8px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px 10px">📝 '+escHtml(g.note)+'</div>':'';
+  var favTab=g._type||S.tab;
+  var typeBadge=S.tab==='glass'?(g._type==='uv'?'<span class="bgp">◐ Curved Glass</span>':'<span class="bg">▭ Flat Glass</span>'):'';
   return '<div class="card '+cardClass+'" style="animation-delay:'+delay+'s">'+
     '<div class="card-accent"></div><div class="card-inner">'+
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
     '<div style="flex:1"><div class="cname">🛡️ '+escHtml(g.glassName)+'</div>'+
-    '<div class="cbadges"><span class="bg">'+mlist.length+' Models</span>'+
+    '<div class="cbadges">'+typeBadge+'<span class="bg">'+mlist.length+' Models</span>'+
     confidenceBadge(g.confidence)+
     (isFuzzy?'<span class="bgy">🔎 Similar</span>':(hasSearch&&matched.length?'<span class="bgg">✅ '+matched.length+' Match</span>':''))+
     '</div></div>'+adm+'</div>'+matchSection+otherTags+noteHtml+
     '<div class="cbtns"><button class="cbtn" onclick="copyList(\''+g.id+'\')">📋 Copy Group</button>'+
-    '<button class="cbtn fav-btn'+(isFavorited(g.id,S.tab)?' active':'')+'" id="fav_'+g.id+'" onclick="toggleFavorite(\''+g.id+'\',\''+S.tab+'\',\''+escHtml(g.glassName).replace(/'/g,"\\'")+'\')">'+(isFavorited(g.id,S.tab)?'⭐':'☆')+'</button>'+
+    '<button class="cbtn fav-btn'+(isFavorited(g.id,favTab)?' active':'')+'" id="fav_'+g.id+'" onclick="toggleFavorite(\''+g.id+'\',\''+favTab+'\',\''+escHtml(g.glassName).replace(/'/g,"\\'")+'\')">'+(isFavorited(g.id,favTab)?'⭐':'☆')+'</button>'+
     '<button class="cbtn" onclick="shareResult(\''+g.id+'\')">📤 Share</button></div>'+
     '</div></div>';
 }
@@ -1598,7 +1609,7 @@ function shareResult(id){
   var mlist=parseModels(g.models);
   var text='🛡️ '+g.glassName+'\n📱 Compatible Models ('+mlist.length+'):\n'+mlist.join(', ');
   haptic();
-  trackCardUsage(g.id,S.tab,g.glassName);
+  trackCardUsage(g.id,g._type||S.tab,g.glassName);
   if(navigator.share){navigator.share({title:g.glassName,text:text}).catch(function(){});}
   else{navigator.clipboard.writeText(text);showToast('✅ Copied! Share manually');}
 }
@@ -1863,8 +1874,7 @@ function switchTab(t){
   S.tab=t;S.query='';
   document.getElementById('searchInput').value='';
   document.getElementById('searchClear').style.display='none';
-  document.getElementById('tabFlat').className='tab'+(t==='flat'?' af':'');
-  document.getElementById('tabUv').className='tab'+(t==='uv'?' au':'');
+  document.getElementById('tabGlass').className='tab'+(t==='glass'?' af':'');
   document.getElementById('tabBackcover').className='tab'+(t==='backcover'?' ab':'');
   render();
 }
@@ -1993,8 +2003,9 @@ function copyList(id){
   navigator.clipboard.writeText('🛡️ '+g.glassName+'\n📱 Compatible Models ('+mlist.length+'):\n'+mlist.join(', '));
   haptic();
   showToast('📋 Group Copied Successfully');
-  trackCardUsage(g.id,S.tab,g.glassName);
-  db.collection(COLLECTIONS[S.tab]).doc(id).update({shares:firebase.firestore.FieldValue.increment(1)}).catch(function(){});
+  var targetKey=g._type||S.tab;
+  trackCardUsage(g.id,targetKey,g.glassName);
+  db.collection(COLLECTIONS[targetKey]).doc(id).update({shares:firebase.firestore.FieldValue.increment(1)}).catch(function(){});
 }
 
 // ── GLASS CRUD ───────────────────────────────────────────────────────────
@@ -2002,10 +2013,27 @@ function openAddModal(){S.editId=null;openModal(glassFormHtml(null));}
 function openEditModal(id){S.editId=id;var g=getList().find(function(x){return x.id===id;});openModal(glassFormHtml(g));}
 
 function glassFormHtml(g){
+  var typeField='';
+  if(S.tab==='glass'){
+    if(g){
+      var curType=g._type||'flat';
+      typeField='<div class="fgrp"><label class="flbl">Glass Type</label>'+
+        '<div style="padding:10px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;font-size:13px;color:#9aa6c4">'+
+        (curType==='uv'?'◐ Curved Glass':'▭ Flat Glass')+
+        '</div><div class="fhint">💡 Type badalne ke liye is entry ko delete karke naya add karo.</div></div>';
+    } else {
+      typeField='<div class="fgrp"><label class="flbl">Glass Type</label>'+
+        '<select class="finp" id="gType">'+
+        '<option value="flat">▭ Flat Glass</option>'+
+        '<option value="uv">◐ Curved Glass</option>'+
+        '</select></div>';
+    }
+  }
   return '<div class="mhead"><span class="mtitle">'+(g?'✏️ Edit Glass':'➕ Add New Glass')+'</span>'+
     '<button class="mclose" onclick="closeModal()">✕</button></div>'+
     '<div class="fgrp"><label class="flbl">Glass Name</label>'+
     '<input class="finp" id="gName" value="'+(g?escHtml(g.glassName):'')+'" placeholder="e.g. 9D Matte Glass..."/></div>'+
+    typeField+
     '<div class="fgrp"><label class="flbl">Compatible Models</label>'+
     '<textarea class="finp" id="gModels" rows="6" placeholder="Samsung A14, Vivo Y20, Redmi 9A...">'+(g?parseModels(g.models).join(', '):'')+'</textarea>'+
     '<div class="fhint">💡 Comma se alag karo.</div></div>'+
@@ -2024,18 +2052,27 @@ function submitGlass(){
   var note=document.getElementById('gNote').value.trim();
   if(!name||!models.length){showToast('❌ Name aur models dono bharo!',true);return;}
   if(!db){showToast('❌ Firebase nahi',true);return;}
-  var id=S.editId||db.collection(COLLECTIONS[S.tab]).doc().id;var isEdit=!!S.editId;
+  var isEdit=!!S.editId;
+  var targetKey;
+  if(isEdit){
+    var existing=getList().find(function(x){return x.id===S.editId;});
+    targetKey=(existing&&existing._type)||S.tab;
+  } else {
+    var typeSel=document.getElementById('gType');
+    targetKey=typeSel?typeSel.value:S.tab;
+  }
+  var id=S.editId||db.collection(COLLECTIONS[targetKey]).doc().id;
   var newDoc={id:id,glassName:name,models:models,confidence:confidence,note:note};
   setSyncDot('syncing');
-  db.collection(COLLECTIONS[S.tab]).doc(id).set({glassName:name,models:models,confidence:confidence,note:note}).then(function(){
+  db.collection(COLLECTIONS[targetKey]).doc(id).set({glassName:name,models:models,confidence:confidence,note:note}).then(function(){
     var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
     S.log=[entry].concat(S.log).slice(0,20);
     db.collection('meta').doc('log').set({entries:S.log});
     bumpMetaVersion('log');renderQuickAccess();renderStats();
     // Apni list turant update karo (live listener hata diya, isliye manually)
-    var idx=S[S.tab].findIndex(function(x){return x.id===id;});
-    if(idx>=0)S[S.tab][idx]=newDoc;else S[S.tab].push(newDoc);
-    bumpGlassVersion(S.tab);render();
+    var idx=S[targetKey].findIndex(function(x){return x.id===id;});
+    if(idx>=0)S[targetKey][idx]=newDoc;else S[targetKey].push(newDoc);
+    bumpGlassVersion(targetKey);render();
     autoResolveRequests(models.concat([name]));
     setSyncDot('ok');closeModal();showToast(isEdit?'✅ Updated!':'✅ Added!');S.editId=null;
   }).catch(function(e){setSyncDot('err');showToast('❌ '+e.message,true);});
@@ -2051,13 +2088,14 @@ function confirmDelete(id){
 function doDelete(id){
   if(!db)return;
   var g=getList().find(function(x){return x.id===id;});setSyncDot('syncing');
-  db.collection(COLLECTIONS[S.tab]).doc(id).delete().then(function(){
+  var targetKey=(g&&g._type)||S.tab;
+  db.collection(COLLECTIONS[targetKey]).doc(id).delete().then(function(){
     if(g){var entry={msg:'🗑️ '+g.glassName+' removed',date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
     S.log=[entry].concat(S.log).slice(0,20);
     db.collection('meta').doc('log').set({entries:S.log});
     bumpMetaVersion('log');renderQuickAccess();renderStats();}
-    S[S.tab]=S[S.tab].filter(function(x){return x.id!==id;});
-    bumpGlassVersion(S.tab);render();
+    S[targetKey]=S[targetKey].filter(function(x){return x.id!==id;});
+    bumpGlassVersion(targetKey);render();
     setSyncDot('ok');closeModal();showToast('✅ Deleted');
   }).catch(function(){setSyncDot('err');});
 }
@@ -2075,16 +2113,24 @@ function importCode(){
     var data=JSON.parse(document.getElementById('codeTA').value);
     if(!Array.isArray(data))throw new Error('Array chahiye');
     if(!db){showToast('❌ Firebase nahi',true);return;}
-    setSyncDot('syncing');var col=COLLECTIONS[S.tab];var done=0,total=data.length;
+    var total=data.length;
     if(!total){showToast('❌ Empty',true);return;}
+    setSyncDot('syncing');var done=0;var touchedKeys={};
     data.forEach(function(g){
+      var targetKey=g._type||S.tab;
+      var col=COLLECTIONS[targetKey];
+      touchedKeys[targetKey]=true;
       var docId=g.id||db.collection(col).doc().id;
       db.collection(col).doc(docId).set({glassName:g.glassName,models:g.models,confidence:g.confidence||'100',note:g.note||''}).then(function(){
         done++;if(done===total){
-          db.collection(col).get().then(function(snap){
-            S[S.tab]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-            bumpGlassVersion(S.tab);render();
-            setSyncDot('ok');showToast('✅ Imported!');closeModal();
+          var keys=Object.keys(touchedKeys);
+          Promise.all(keys.map(function(k){
+            return db.collection(COLLECTIONS[k]).get().then(function(snap){
+              S[k]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+              bumpGlassVersion(k);
+            });
+          })).then(function(){
+            render();setSyncDot('ok');showToast('✅ Imported!');closeModal();
           });
         }
       });
