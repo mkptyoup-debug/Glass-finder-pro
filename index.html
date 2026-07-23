@@ -2185,26 +2185,47 @@ function importCode(){
     var data=JSON.parse(document.getElementById('codeTA').value);
     if(!Array.isArray(data))throw new Error('Array chahiye');
     if(!db){showToast('❌ Firebase nahi',true);return;}
+    if(!isAdmin()){showToast('❌ Sirf admin import kar sakta hai',true);return;}
     var total=data.length;
     if(!total){showToast('❌ Empty',true);return;}
-    setSyncDot('syncing');var done=0;var touchedKeys={};
+    setSyncDot('syncing');var settled=0;var failCount=0;var firstErr='';var touchedKeys={};
+    function finishOne(){
+      settled++;
+      if(settled===total){
+        if(failCount===total){
+          setSyncDot('err');
+          showToast('❌ Import fail: '+(firstErr||'Permission/network error'),true);
+          return;
+        }
+        var keys=Object.keys(touchedKeys);
+        Promise.all(keys.map(function(k){
+          return db.collection(COLLECTIONS[k]).get().then(function(snap){
+            S[k]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+            bumpGlassVersion(k);
+          });
+        })).then(function(){
+          render();
+          if(failCount>0){
+            setSyncDot('err');
+            showToast('⚠️ '+(total-failCount)+'/'+total+' import hui, '+failCount+' fail ('+firstErr+')',true);
+          } else {
+            setSyncDot('ok');showToast('✅ Imported!');
+          }
+          closeModal();
+        });
+      }
+    }
     data.forEach(function(g){
       var targetKey=g._type||S.tab;
       var col=COLLECTIONS[targetKey];
+      if(!col){failCount++;if(!firstErr)firstErr='Unknown type: '+targetKey;finishOne();return;}
       touchedKeys[targetKey]=true;
       var docId=g.id||db.collection(col).doc().id;
       db.collection(col).doc(docId).set({glassName:g.glassName,models:g.models,confidence:g.confidence||'100',note:g.note||''}).then(function(){
-        done++;if(done===total){
-          var keys=Object.keys(touchedKeys);
-          Promise.all(keys.map(function(k){
-            return db.collection(COLLECTIONS[k]).get().then(function(snap){
-              S[k]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-              bumpGlassVersion(k);
-            });
-          })).then(function(){
-            render();setSyncDot('ok');showToast('✅ Imported!');closeModal();
-          });
-        }
+        finishOne();
+      }).catch(function(e){
+        failCount++;if(!firstErr)firstErr=e.message||String(e);
+        finishOne();
       });
     });
   }catch(e){showToast('❌ '+e.message,true);}
