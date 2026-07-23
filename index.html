@@ -939,6 +939,11 @@ function haptic(ms){
 function tabLabel(tab){
   return {flat:'FLAT',uv:'UV',backcover:'BACK COVER',display:'DISPLAY',glass:'GLASS'}[tab]||String(tab).toUpperCase();
 }
+// Home tab pe do hi views hote hain — Glass aur Back Cover. Add button, empty
+// state, aur modal title sab isi se apna label lete hain (tab ke hisaab se).
+function itemLabel(tab){
+  return tab==='backcover'?'Back Cover':'Glass';
+}
 function getFavorites(){return lsGetJSON('favGroups')||[];}
 function isFavorited(id,tab){return getFavorites().some(function(f){return f.id===id&&f.tab===tab;});}
 function toggleFavorite(id,tab,name){
@@ -1174,6 +1179,7 @@ function updateUserUI(){
   var fab=document.getElementById('floatingAdd');
   var addBtn=document.getElementById('addBtn');
   var tb=document.getElementById('toolbarWrap');
+  addBtn.innerHTML='＋ Add New '+itemLabel(S.tab);
 
   if(S.user&&isAdmin()){
     var name=S.user.displayName||S.user.email.split('@')[0];
@@ -1440,7 +1446,11 @@ function renderCards(){
     banner.style.display='none';
     var list=getList();
     if(!list.length){
-      el.innerHTML='<div class="empty"><div class="empty-ico">📦</div><p class="empty-t">Koi glass nahi hai</p><p class="empty-s">'+(isAdmin()?'Neeche + button dabao glass add karne ke liye':'Data load ho raha hai...')+'</p></div>';
+      if(!dataLoaded){
+        el.innerHTML='<div class="empty"><div class="empty-ico"><div class="spin" style="margin:0 auto 10px"></div></div><p class="empty-t">Data load ho raha hai...</p><p class="empty-s">Thoda intezaar karein</p></div>';
+      } else {
+        el.innerHTML='<div class="empty"><div class="empty-ico">📦</div><p class="empty-t">Koi '+itemLabel(S.tab)+' nahi hai</p><p class="empty-s">'+(isAdmin()?'Neeche + button dabao '+itemLabel(S.tab)+' add karne ke liye':'Abhi koi '+itemLabel(S.tab)+' add nahi hui hai')+'</p></div>';
+      }
       return;
     }
     el.innerHTML=list.map(function(g,idx){
@@ -2075,9 +2085,10 @@ function glassFormHtml(g){
         '</select></div>';
     }
   }
-  return '<div class="mhead"><span class="mtitle">'+(g?'✏️ Edit Glass':'➕ Add New Glass')+'</span>'+
+  var iLbl=itemLabel(S.tab);
+  return '<div class="mhead"><span class="mtitle">'+(g?'✏️ Edit '+iLbl:'➕ Add New '+iLbl)+'</span>'+
     '<button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<div class="fgrp"><label class="flbl">Glass Name</label>'+
+    '<div class="fgrp"><label class="flbl">'+iLbl+' Name</label>'+
     '<input class="finp" id="gName" value="'+(g?escHtml(g.glassName):'')+'" placeholder="e.g. 9D Matte Glass..."/></div>'+
     typeField+
     '<div class="fgrp"><label class="flbl">Compatible Models</label>'+
@@ -2088,7 +2099,7 @@ function glassFormHtml(g){
     '<div class="fgrp"><label class="flbl">Note (Optional)</label>'+
     '<textarea class="finp" id="gNote" rows="2" placeholder="e.g. Universal fit, camera cutout thoda alag ho sakta hai...">'+(g&&g.note?escHtml(g.note):'')+'</textarea></div>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
-    '<button class="bsave" onclick="submitGlass()">Save Glass</button></div>';
+    '<button class="bsave" onclick="submitGlass()">Save '+iLbl+'</button></div>';
 }
 
 function submitGlass(){
