@@ -2180,7 +2180,7 @@ function openCodeModal(){
     '<button class="bsave" onclick="importCode()">📥 Import</button></div>');
 }
 function copyCode(){navigator.clipboard.writeText(document.getElementById('codeTA').value);showToast('✅ Copied!');}
-function importCode(){
+async function importCode(){
   try{
     var data=JSON.parse(document.getElementById('codeTA').value);
     if(!Array.isArray(data))throw new Error('Array chahiye');
@@ -2188,47 +2188,55 @@ function importCode(){
     if(!isAdmin()){showToast('❌ Sirf admin import kar sakta hai',true);return;}
     var total=data.length;
     if(!total){showToast('❌ Empty',true);return;}
-    setSyncDot('syncing');var settled=0;var failCount=0;var firstErr='';var touchedKeys={};
-    function finishOne(){
-      settled++;
-      if(settled===total){
-        if(failCount===total){
-          setSyncDot('err');
-          showToast('❌ Import fail: '+(firstErr||'Permission/network error'),true);
-          return;
-        }
-        var keys=Object.keys(touchedKeys);
-        Promise.all(keys.map(function(k){
-          return db.collection(COLLECTIONS[k]).get().then(function(snap){
-            S[k]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-            bumpGlassVersion(k);
-          });
-        })).then(function(){
-          render();
-          if(failCount>0){
-            setSyncDot('err');
-            showToast('⚠️ '+(total-failCount)+'/'+total+' import hui, '+failCount+' fail ('+firstErr+')',true);
-          } else {
-            setSyncDot('ok');showToast('✅ Imported!');
-          }
-          closeModal();
-        });
-      }
+    setSyncDot('syncing');
+    // PEHLE: sabhi entries ek saath (parallel) Firestore ko bhej di jaati thi.
+    // Zyada entries (jaise 100+) hone par kabhi-kabhi mobile network pe kuch
+    // requests atak jaati thi — na success, na fail, koi response hi nahi
+    // aata tha. AB: chhote-chhote batch (25-25) me bhejte hain, aur har write
+    // ke liye 20-second ka timeout hai — isliye ab kabhi hamesha ke liye
+    // "atakna" nahi ho sakta, aur beech-beech me progress bhi dikhta hai.
+    var BATCH_SIZE=25,TIMEOUT_MS=20000;
+    var failCount=0,okCount=0,firstErr='',touchedKeys={};
+    function withTimeout(p){
+      return Promise.race([p,new Promise(function(_,rej){
+        setTimeout(function(){rej(new Error('Timeout — network slow'));},TIMEOUT_MS);
+      })]);
     }
-    data.forEach(function(g){
-      var targetKey=g._type||S.tab;
-      var col=COLLECTIONS[targetKey];
-      if(!col){failCount++;if(!firstErr)firstErr='Unknown type: '+targetKey;finishOne();return;}
-      touchedKeys[targetKey]=true;
-      var docId=g.id||db.collection(col).doc().id;
-      db.collection(col).doc(docId).set({glassName:g.glassName,models:g.models,confidence:g.confidence||'100',note:g.note||''}).then(function(){
-        finishOne();
-      }).catch(function(e){
-        failCount++;if(!firstErr)firstErr=e.message||String(e);
-        finishOne();
+    for(var i=0;i<total;i+=BATCH_SIZE){
+      var batch=data.slice(i,i+BATCH_SIZE);
+      showToast('⏳ '+Math.min(i+BATCH_SIZE,total)+'/'+total+' import ho raha hai...');
+      var results=await Promise.all(batch.map(function(g){
+        var targetKey=g._type||S.tab;
+        var col=COLLECTIONS[targetKey];
+        if(!col)return Promise.resolve({ok:false,err:'Unknown type: '+targetKey});
+        touchedKeys[targetKey]=true;
+        var docId=g.id||db.collection(col).doc().id;
+        return withTimeout(db.collection(col).doc(docId).set({glassName:g.glassName,models:g.models,confidence:g.confidence||'100',note:g.note||''}))
+          .then(function(){return{ok:true};})
+          .catch(function(e){return{ok:false,err:e.message||String(e)};});
+      }));
+      results.forEach(function(r){
+        if(r.ok)okCount++;else{failCount++;if(!firstErr)firstErr=r.err;}
       });
-    });
-  }catch(e){showToast('❌ '+e.message,true);}
+    }
+    var keys=Object.keys(touchedKeys);
+    await Promise.all(keys.map(function(k){
+      return db.collection(COLLECTIONS[k]).get().then(function(snap){
+        S[k]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+        bumpGlassVersion(k);
+      });
+    }));
+    render();
+    if(failCount===total){
+      setSyncDot('err');
+      showToast('❌ Import fail: '+(firstErr||'Permission/network error'),true);
+    } else if(failCount>0){
+      setSyncDot('err');
+      showToast('⚠️ '+okCount+'/'+total+' import hui, '+failCount+' fail ('+firstErr+')',true);
+    } else {
+      setSyncDot('ok');showToast('✅ Imported!');closeModal();
+    }
+  }catch(e){setSyncDot('err');showToast('❌ '+e.message,true);}
 }
 
 function openModal(html){document.getElementById('modalBox').innerHTML=html;document.getElementById('modalBg').classList.add('show');}
