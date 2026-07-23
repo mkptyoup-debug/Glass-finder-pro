@@ -281,7 +281,13 @@ button{cursor:pointer}
 .pf-action-btn{width:32px;height:32px;border-radius:9px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#4a5270;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .pf-action-btn:active{transform:scale(.9)}
 .pf-action-btn.edit:hover{border-color:#d4af6a55;color:#d4af6a;background:#d4af6a0a}
+.pf-action-btn.copy:hover{border-color:#6ea8ff55;color:#6ea8ff;background:#6ea8ff0a}
 .pf-action-btn.del:hover{border-color:#e8718e55;color:#e8718e;background:#e8718e0a}
+/* Hold-to-delete: admin must press & hold ~600ms — a filling red bar shows progress so a stray tap never deletes anything */
+.del-hold{position:relative;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
+.del-hold::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,#e8718e55,#e8718e33)}
+.del-hold.holding::before{width:100%;transition:width .6s linear}
+.del-hold.holding{border-color:#e8718e88!important;color:#ff8fa8!important}
 .pf-models-count{font-size:10px;color:#333a52;font-weight:600;margin-bottom:8px;letter-spacing:.03em}
 .pf-models-wrap{display:flex;flex-wrap:wrap;gap:5px}
 .pf-model-chip{font-size:11px;font-weight:500;padding:4px 9px;border-radius:6px;background:#0b0d14;border:1px solid rgba(255,255,255,.05);color:#6b7699;letter-spacing:.02em}
@@ -373,7 +379,7 @@ button{cursor:pointer}
 .bgp{background:#a87bf717;border:1px solid #a87bf73d;border-radius:6px;padding:3px 10px;color:#c4a0fa;font-size:11px;font-weight:700}
 .bgg{background:#0e1a0c;border:1px solid #3a6b4550;border-radius:6px;padding:3px 10px;color:#8fd48a;font-size:11px;font-weight:700}
 .bgy{background:#241a08;border:1px solid #c9962f60;border-radius:6px;padding:3px 10px;color:#f0d090;font-size:11px;font-weight:700}
-.cadmin{display:flex;gap:6px;flex-shrink:0;margin-left:8px}
+.cadmin{display:flex;gap:9px;flex-shrink:0;margin-left:8px}
 .ibtn{background:#0d0f18;border:1px solid #1d2336;border-radius:8px;padding:8px 10px;font-size:13px;transition:transform .15s}
 .ibtn:active{transform:scale(.9)}
 .all-models{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;max-height:2000px;overflow:hidden;transition:max-height .22s cubic-bezier(.4,0,.2,1)}
@@ -1013,6 +1019,53 @@ function haptic(ms){
   try{if(navigator.vibrate)navigator.vibrate(ms||12);}catch(e){}
 }
 
+// ── HOLD-TO-DELETE (accidental-touch protection) ───────────────────────────
+// Every delete icon in the app (glass cards, parts cards, update feed, changelog,
+// announcement) uses class "del-hold" + data-kind/data-id/data-tkey instead of a
+// plain onclick. A normal tap does nothing — admin must press & hold ~600ms
+// (progress shown as a filling red bar) before the existing confirm-delete modal
+// even opens. This is a deliberate 2-step safety: hold, then still confirm in modal.
+var HD_MS=600,hdTimer=null,hdBtn=null,hdFired=false;
+function hdStart(e){
+  var btn=e.target.closest&&e.target.closest('.del-hold');
+  if(!btn)return;
+  if(e.type==='touchstart')e.preventDefault();
+  hdBtn=btn;hdFired=false;
+  btn.classList.add('holding');
+  clearTimeout(hdTimer);
+  hdTimer=setTimeout(function(){
+    hdFired=true;
+    btn.classList.remove('holding');
+    haptic(35);
+    var kind=btn.getAttribute('data-kind'),id=btn.getAttribute('data-id'),tkey=btn.getAttribute('data-tkey');
+    if(kind==='glass')confirmDelete(id);
+    else if(kind==='parts')confirmPartsDelete(tkey,id);
+    else if(kind==='uhero')deleteUHero();
+    else if(kind==='ufeed')deleteUFeedItem(id);
+    else if(kind==='uver')deleteUVer(id);
+  },HD_MS);
+}
+function hdEnd(e){
+  clearTimeout(hdTimer);
+  if(hdBtn)hdBtn.classList.remove('holding');
+  hdBtn=null;
+}
+function initHoldDelete(){
+  document.addEventListener('mousedown',hdStart);
+  document.addEventListener('touchstart',hdStart,{passive:false});
+  document.addEventListener('mouseup',hdEnd);
+  document.addEventListener('mouseleave',hdEnd,true);
+  document.addEventListener('touchend',hdEnd);
+  document.addEventListener('touchcancel',hdEnd);
+  // Block the ghost "click" that browsers fire after touchend/mouseup so a
+  // completed or cancelled hold can never also register as a click.
+  document.addEventListener('click',function(e){
+    var btn=e.target.closest&&e.target.closest('.del-hold');
+    if(btn){e.preventDefault();e.stopPropagation();}
+  },true);
+}
+initHoldDelete();
+
 // ── FAVORITES (local-only, offline-friendly, zero DB cost) ────────────────
 function tabLabel(tab){
   return {flat:'FLAT',uv:'UV',backcover:'BACK COVER',display:'DISPLAY',glass:'GLASS'}[tab]||String(tab).toUpperCase();
@@ -1627,7 +1680,7 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
         (isExpanded?'▲ Show Less':'▼ Show All ('+other.length+' Models)')+'</button>';
     }
   }
-  var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openEditModal(\''+g.id+'\')">✏️</button><button class="ibtn" onclick="confirmDelete(\''+g.id+'\')">🗑️</button></div>':'';
+  var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openEditModal(\''+g.id+'\')">✏️</button><button class="ibtn del-hold" data-kind="glass" data-id="'+g.id+'" title="Delete karne ke liye dabake rakho">🗑️</button></div>':'';
   var delay=Math.min(idx*0.05,0.4);
   var cardClass=isFuzzy?'fuzzy-card':(hasSearch&&matched.length?'match-card':'');
   var noteHtml=g.note?'<div style="font-size:11.5px;color:#9aa6c4;margin-top:8px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px 10px">📝 '+escHtml(g.note)+'</div>':'';
@@ -2141,6 +2194,15 @@ function copyList(id){
   db.collection(COLLECTIONS[targetKey]).doc(id).update({shares:firebase.firestore.FieldValue.increment(1)}).catch(function(){});
 }
 
+function copyPartsGroup(typeKey,id){
+  var list=(PF.data&&PF.data[typeKey])||[];
+  var g=list.find(function(x){return x.id===id;});if(!g)return;
+  var mlist=parseModels(g.models);
+  navigator.clipboard.writeText('🔧 '+g.partName+'\n📱 Compatible Models ('+mlist.length+'):\n'+mlist.join(', '));
+  haptic();
+  showToast('📋 Copied Successfully');
+}
+
 // ── GLASS CRUD ───────────────────────────────────────────────────────────
 function openAddModal(){S.editId=null;openModal(glassFormHtml(null));}
 function openEditModal(id){S.editId=id;var g=getList().find(function(x){return x.id===id;});openModal(glassFormHtml(g));}
@@ -2381,7 +2443,7 @@ function renderUHero(){
     return;
   }
   var h=U.hero;
-  var adm=isAdmin()?'<div class="cadmin" style="position:absolute;top:12px;right:12px"><button class="ibtn" onclick="openUHeroModal()">✏️</button><button class="ibtn" onclick="hideUHero()">🙈</button><button class="ibtn" onclick="deleteUHero()">🗑️</button></div>':'';
+  var adm=isAdmin()?'<div class="cadmin" style="position:absolute;top:12px;right:12px"><button class="ibtn" onclick="openUHeroModal()">✏️</button><button class="ibtn" onclick="hideUHero()">🙈</button><button class="ibtn del-hold" data-kind="uhero" title="Delete karne ke liye dabake rakho">🗑️</button></div>':'';
   wrap.innerHTML='<div class="uhero">'+
     '<div class="uhero-ico">'+escHtml(h.icon||'📢')+'</div>'+
     '<div class="uhero-body"><div class="uhero-title">'+escHtml(h.title||'')+'</div><div class="uhero-desc">'+escHtml(h.desc||'')+'</div></div>'+
@@ -2430,7 +2492,7 @@ function renderUFeed(){
     return;
   }
   wrap.innerHTML=visible.map(function(it){
-    var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openUFeedModal(\''+it.id+'\')">✏️</button><button class="ibtn" onclick="deleteUFeedItem(\''+it.id+'\')">🗑️</button></div>':'';
+    var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openUFeedModal(\''+it.id+'\')">✏️</button><button class="ibtn del-hold" data-kind="ufeed" data-id="'+it.id+'" title="Delete karne ke liye dabake rakho">🗑️</button></div>':'';
     return '<div class="card"><div class="uupd-ico">'+escHtml(it.icon||'✔')+'</div>'+
       '<div style="flex:1;min-width:0"><div class="uupd-title">'+escHtml(it.title||'')+'</div>'+
       (it.desc?'<div class="uupd-desc">'+escHtml(it.desc)+'</div>':'')+
@@ -2483,7 +2545,7 @@ function renderUVer(){
     return;
   }
   wrap.innerHTML=list.map(function(v){
-    var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openUVerModal(\''+v.id+'\')">✏️</button><button class="ibtn" onclick="deleteUVer(\''+v.id+'\')">🗑️</button></div>':'';
+    var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openUVerModal(\''+v.id+'\')">✏️</button><button class="ibtn del-hold" data-kind="uver" data-id="'+v.id+'" title="Delete karne ke liye dabake rakho">🗑️</button></div>':'';
     var lines=(v.notes||[]).map(function(n){return '<div style="font-size:12px;color:#9aa6c4;margin-top:3px">✓ '+escHtml(n)+'</div>';}).join('');
     return '<div class="card" style="padding:14px 16px"><div style="display:flex;justify-content:space-between;align-items:center">'+
       '<div class="uupd-title">Version '+escHtml(v.version||'')+'</div>'+adm+'</div>'+lines+
@@ -2748,8 +2810,9 @@ function buildGroupCard(g,t){
         '<span class="pf-group-name">'+escHtml(g.partName)+'</span>'+
       '</div>'+
       '<div class="pf-group-actions">'+
-        '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
-        '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
+        (isAdmin()?'<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
+        '<button class="pf-action-btn copy" onclick="copyPartsGroup(\''+t.key+'\',\''+g.id+'\')" title="Copy">📋</button>'+
+        '<button class="pf-action-btn del del-hold" data-kind="parts" data-tkey="'+t.key+'" data-id="'+g.id+'" title="Delete karne ke liye dabake rakho">✕</button>':'')+
       '</div>'+
     '</div>'+
     '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
@@ -2772,7 +2835,8 @@ function buildResultCard(g,t,q,qu,res){
   var adm=isAdmin()?
     '<div class="pf-result-actions">'+
       '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
-      '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
+      '<button class="pf-action-btn copy" onclick="copyPartsGroup(\''+t.key+'\',\''+g.id+'\')" title="Copy">📋</button>'+
+      '<button class="pf-action-btn del del-hold" data-kind="parts" data-tkey="'+t.key+'" data-id="'+g.id+'" title="Delete karne ke liye dabake rakho">✕</button>'+
     '</div>':'';
   var noteHtml=g.note?'<div style="font-size:11px;color:#9aa6c4;margin-top:10px;line-height:1.5;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
   return '<div class="pf-result-card" style="border-color:'+t.color+'33">'+
