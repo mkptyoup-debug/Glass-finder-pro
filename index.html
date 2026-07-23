@@ -454,6 +454,52 @@ button{cursor:pointer}
 .adash-row-sub{font-size:10.5px;color:#6a7390;flex-shrink:0;white-space:nowrap}
 .adash-row-badge{font-size:11px;font-weight:800;color:#0f1218;background:#d4af6a;border-radius:10px;padding:2px 9px;flex-shrink:0}
 .adash-empty{text-align:center;padding:20px 10px;color:#333a52;font-size:12px}
+
+/* ADMIN DASHBOARD v2 — upgraded analytics */
+.adash-filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:2px;scrollbar-width:none}
+.adash-filters::-webkit-scrollbar{display:none}
+.adash-chip{flex-shrink:0;padding:7px 14px;border-radius:20px;background:#11141f;border:1px solid #ffffff14;color:#7e88a6;font-size:11.5px;font-weight:700;white-space:nowrap;transition:all .18s ease}
+.adash-chip.active{background:linear-gradient(135deg,#e8c97a,#a87f2e);color:#1a1305;border-color:transparent;box-shadow:0 4px 14px #d4af6a3a}
+.adash-hdr{font-size:11px;color:#4a5270;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin:4px 0 2px;display:flex;align-items:center;gap:6px}
+.adash-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.adash-card{position:relative;background:linear-gradient(150deg,#141926cc,#0e1119cc);backdrop-filter:blur(10px);border:1px solid #d4af6a2a;border-radius:16px;padding:14px 13px;overflow:hidden}
+.adash-card::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 100% 0%,#d4af6a14,transparent 60%);pointer-events:none}
+.adash-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.adash-card-ico{width:26px;height:26px;border-radius:8px;background:#d4af6a1c;display:flex;align-items:center;justify-content:center;font-size:14px}
+.adash-card-growth{font-size:10px;font-weight:800;padding:2px 6px;border-radius:8px}
+.adash-card-growth.up{color:#4fc787;background:#4fc78718}
+.adash-card-growth.down{color:#e8718e;background:#e8718e18}
+.adash-card-growth.flat{color:#7e88a6;background:#7e88a614}
+.adash-card-val{font-size:21px;font-weight:800;color:#eed5a0;line-height:1.15}
+.adash-card-lbl{font-size:10.5px;color:#6a7390;font-weight:600;margin-top:2px}
+.adash-insight{display:flex;gap:10px;align-items:flex-start;background:linear-gradient(120deg,#d4af6a14,#11141f);border:1px solid #d4af6a2e;border-radius:14px;padding:12px 13px;margin-bottom:8px}
+.adash-insight-ico{font-size:17px;flex-shrink:0}
+.adash-insight-txt{font-size:12px;color:#e0e4f0;font-weight:600;line-height:1.5}
+.adash-chart-box{background:#11141f;border:1px solid #ffffff0d;border-radius:14px;padding:14px 10px 8px}
+.adash-chart-box canvas{width:100%;display:block}
+.adash-progress-row{margin-bottom:12px}
+.adash-progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px}
+.adash-progress-name{font-size:12px;font-weight:700;color:#e8ecf5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adash-progress-count{font-size:11px;font-weight:800;color:#d4af6a;flex-shrink:0}
+.adash-progress-bar{height:7px;border-radius:6px;background:#ffffff0a;overflow:hidden}
+.adash-progress-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#a87f2e,#e8c97a);transition:width .5s cubic-bezier(.4,0,.2,1)}
+.adash-brand-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.adash-brand-card{background:#11141f;border:1px solid #ffffff0d;border-radius:12px;padding:11px 12px}
+.adash-brand-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.adash-brand-name{font-size:12px;font-weight:800;color:#eaf0ff}
+.adash-brand-pct{font-size:10.5px;font-weight:700;color:#d4af6a}
+.adash-feed-item{display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border-radius:10px;margin-bottom:5px;background:#11141f;border:1px solid #ffffff0a}
+.adash-feed-dot{font-size:9px;margin-top:3px;flex-shrink:0}
+.adash-feed-main{flex:1;min-width:0}
+.adash-feed-txt{font-size:12px;color:#e8ecf5;font-weight:600}
+.adash-feed-txt b{color:#eed5a0;font-weight:800}
+.adash-feed-email{font-size:10.5px;color:#5a6180;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adash-feed-time{font-size:10px;color:#4a5270;font-weight:700;flex-shrink:0;white-space:nowrap}
+.adash-mini{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.adash-mini-box{background:#11141f;border:1px solid #ffffff0d;border-radius:12px;padding:12px;text-align:center}
+.adash-mini-val{font-size:17px;font-weight:800;color:#eed5a0}
+.adash-mini-lbl{font-size:10px;color:#6a7390;font-weight:600;margin-top:3px}
+.adash-skel{height:70px;border-radius:14px;background:linear-gradient(90deg,#11141f 25%,#1c2135 37%,#11141f 63%);background-size:400% 100%;animation:skelShine 1.4s ease-in-out infinite;margin-bottom:10px}
 #menuOverlay{display:none;position:fixed;inset:0;background:rgba(4,5,10,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:2500;opacity:0;transition:opacity .3s ease}
 #menuOverlay.show{display:block}
 #menuOverlay.in{opacity:1}
@@ -890,7 +936,18 @@ function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function lsGetJSON(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
 function lsSetJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 
-// ── ANALYTICS (minimal data only: email, timestamps, search query, share count) ──
+// ── ANALYTICS (email, timestamps, search query, share count + lightweight
+// daily rollups & activity log used to power the admin dashboard) ──
+var ADASH_BRANDS=['REALME','VIVO','OPPO','SAMSUNG','REDMI','MOTO','ONEPLUS','XIAOMI','POCO','NOTHING','IQOO','LAVA','INFINIX','TECNO','NOKIA','HONOR'];
+function detectSearchBrand(text){
+  var up=' '+String(text).toUpperCase()+' ';
+  for(var i=0;i<ADASH_BRANDS.length;i++){if(up.indexOf(' '+ADASH_BRANDS[i])>=0)return ADASH_BRANDS[i];}
+  return null;
+}
+function logActivity(type,detail){
+  if(!db||!S.user||!S.user.email)return;
+  db.collection('activity_log').add({type:type,email:S.user.email,detail:detail||'',ts:new Date().toISOString()}).catch(function(){});
+}
 function trackUserSession(user){
   if(!db||!user||!user.email)return;
   var ref=db.collection('app_users').doc(user.uid);
@@ -898,26 +955,47 @@ function trackUserSession(user){
     var now=new Date().toISOString();
     if(!doc.exists){
       ref.set({email:user.email,joinTs:now,lastActiveTs:now});
+      db.collection('activity_log').add({type:'signup',email:user.email,detail:'New user registered',ts:now}).catch(function(){});
     } else {
       ref.update({lastActiveTs:now,email:user.email});
     }
+    try{
+      if(!sessionStorage.getItem('adash_open_logged')){
+        sessionStorage.setItem('adash_open_logged','1');
+        db.collection('activity_log').add({type:'open',email:user.email,detail:'Opened app',ts:now}).catch(function(){});
+      }
+    }catch(e){}
   }).catch(function(){});
 }
 function trackSearch(query){
   if(!db||!query||query.trim().length<2)return;
   var key=query.trim().toUpperCase();
-  db.collection('search_stats').doc(key).set({
+  var brand=detectSearchBrand(key);
+  var today=new Date().toISOString().slice(0,10);
+  var docUpdate={
     query:query.trim(),
+    brand:brand,
     count:firebase.firestore.FieldValue.increment(1),
     lastSearched:new Date().toISOString()
-  },{merge:true}).catch(function(){});
+  };
+  docUpdate['d_'+today]=firebase.firestore.FieldValue.increment(1);
+  db.collection('search_stats').doc(key).set(docUpdate,{merge:true}).catch(function(){});
+  var dailyUpdate={date:today,total:firebase.firestore.FieldValue.increment(1)};
+  if(brand)dailyUpdate['b_'+brand]=firebase.firestore.FieldValue.increment(1);
+  db.collection('search_daily').doc(today).set(dailyUpdate,{merge:true}).catch(function(){});
+  db.collection('meta').doc('counters').set({totalSearches:firebase.firestore.FieldValue.increment(1)},{merge:true}).catch(function(){});
+  logActivity('search','searched "'+query.trim()+'"');
 }
 function trackShare(){
   if(!db||!S.user||!S.user.email)return;
+  var today=new Date().toISOString().slice(0,10);
   db.collection('share_stats').doc(S.user.uid).set({
     email:S.user.email,
     count:firebase.firestore.FieldValue.increment(1)
   },{merge:true}).catch(function(){});
+  db.collection('share_daily').doc(today).set({date:today,total:firebase.firestore.FieldValue.increment(1)},{merge:true}).catch(function(){});
+  db.collection('meta').doc('counters').set({totalShares:firebase.firestore.FieldValue.increment(1)},{merge:true}).catch(function(){});
+  logActivity('share','shared the app');
 }
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function setSyncDot(st){document.getElementById('syncDot').className=st;}
@@ -3026,64 +3104,249 @@ function shareApp(){
   closeMenu();
 }
 
+// ── ADMIN DASHBOARD v2 — smart cards, insights, trend charts, brand/user/share analytics, live feed ──
+var ADASH={raw:null,filter:'7d'};
+
 function openAdminDashboard(){
   closeMenu();
   if(!isAdmin()){showToast('❌ Access denied',true);return;}
   if(!db){showToast('❌ Connection nahi',true);return;}
   openModal('<div class="mhead"><span class="mtitle">🛡️ Admin Dashboard</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<div id="adminDashContent" class="adash-wrap"><div class="fb-empty"><div class="fb-empty-ico">⏳</div><p style="color:#4a5270">Loading analytics...</p></div></div>');
+    '<div id="adminDashContent" class="adash-wrap">'+
+      '<div class="adash-skel"></div><div class="adash-skel"></div><div class="adash-skel"></div><div class="adash-skel"></div>'+
+    '</div>');
   Promise.all([
     db.collection('app_users').get().catch(function(e){console.error('app_users read failed:',e);return null;}),
     db.collection('search_stats').orderBy('count','desc').limit(10).get().catch(function(e){console.error('search_stats read failed:',e);return null;}),
-    db.collection('share_stats').orderBy('count','desc').limit(20).get().catch(function(e){console.error('share_stats read failed:',e);return null;})
-  ]).then(function(r){renderAdminDashboard(r[0],r[1],r[2]);});
+    db.collection('share_stats').orderBy('count','desc').limit(20).get().catch(function(e){console.error('share_stats read failed:',e);return null;}),
+    db.collection('search_daily').orderBy('date','desc').limit(30).get().catch(function(e){console.error('search_daily read failed:',e);return null;}),
+    db.collection('share_daily').orderBy('date','desc').limit(30).get().catch(function(e){console.error('share_daily read failed:',e);return null;}),
+    db.collection('activity_log').orderBy('ts','desc').limit(30).get().catch(function(e){console.error('activity_log read failed:',e);return null;}),
+    db.collection('meta').doc('counters').get().catch(function(e){return null;})
+  ]).then(function(r){
+    var users=[];if(r[0])r[0].forEach(function(d){var v=d.data();v.id=d.id;users.push(v);});
+    var searchTop=[];if(r[1])r[1].forEach(function(d){var v=d.data();v.id=d.id;searchTop.push(v);});
+    var shares=[];if(r[2])r[2].forEach(function(d){var v=d.data();v.id=d.id;shares.push(v);});
+    var searchDaily=[];if(r[3])r[3].forEach(function(d){searchDaily.push(d.data());});
+    var shareDaily=[];if(r[4])r[4].forEach(function(d){shareDaily.push(d.data());});
+    var activity=[];if(r[5])r[5].forEach(function(d){var v=d.data();v.id=d.id;activity.push(v);});
+    var counters=(r[6]&&r[6].exists)?r[6].data():{};
+    ADASH.raw={users:users,searchTop:searchTop,shares:shares,searchDaily:searchDaily,shareDaily:shareDaily,activity:activity,counters:counters};
+    adashRender();
+  });
 }
 
-function renderAdminDashboard(usersSnap,searchSnap,shareSnap){
+function adashSetFilter(f){ADASH.filter=f;adashRender();}
+function adashDateStr(offsetDays){var d=new Date();d.setDate(d.getDate()-offsetDays);return d.toISOString().slice(0,10);}
+function adashDayList(n){var out=[];for(var i=n-1;i>=0;i--)out.push(adashDateStr(i));return out;}
+function adashPct(cur,prev){
+  if(!prev&&!cur)return {v:0,dir:'flat'};
+  if(!prev)return {v:100,dir:'up'};
+  var d=((cur-prev)/prev)*100;
+  return {v:Math.round(Math.abs(d)),dir:d>0.5?'up':(d<-0.5?'down':'flat')};
+}
+function adashGrowthBadge(g){
+  if(!g||g.dir==='flat')return '<span class="adash-card-growth flat">–</span>';
+  return '<span class="adash-card-growth '+g.dir+'">'+(g.dir==='up'?'▲':'▼')+' '+g.v+'%</span>';
+}
+function adashTimeAgo(ts){
+  if(!ts)return '—';
+  var diff=(Date.now()-new Date(ts).getTime())/1000;
+  if(diff<60)return 'just now';
+  if(diff<3600)return Math.floor(diff/60)+'m ago';
+  if(diff<86400)return Math.floor(diff/3600)+'h ago';
+  if(diff<604800)return Math.floor(diff/86400)+'d ago';
+  return new Date(ts).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+}
+function adashDailyMap(list){var m={};list.forEach(function(d){if(d&&d.date)m[d.date]=d;});return m;}
+
+function adashRender(){
   var el=document.getElementById('adminDashContent');
-  if(!el)return;
-  var users=[];
-  if(usersSnap)usersSnap.forEach(function(d){var v=d.data();v.id=d.id;users.push(v);});
-  var todayStr=new Date().toISOString().slice(0,10);
+  if(!el||!ADASH.raw)return;
+  var raw=ADASH.raw,users=raw.users,searchTop=raw.searchTop,shares=raw.shares;
+  var todayStr=adashDateStr(0),yestStr=adashDateStr(1);
+  var last7=adashDayList(7),last30=adashDayList(30);
+  var sdMap=adashDailyMap(raw.searchDaily),shdMap=adashDailyMap(raw.shareDaily);
+
+  // Users
   var totalUsers=users.length;
   var joinedToday=users.filter(function(u){return u.joinTs&&u.joinTs.slice(0,10)===todayStr;}).length;
-  var newUsers=users.slice().sort(function(a,b){return (b.joinTs||'').localeCompare(a.joinTs||'');}).slice(0,20);
-  var lastActive=users.slice().sort(function(a,b){return (b.lastActiveTs||'').localeCompare(a.lastActiveTs||'');}).slice(0,20);
+  var joinedYest=users.filter(function(u){return u.joinTs&&u.joinTs.slice(0,10)===yestStr;}).length;
+  var joinedWeek=users.filter(function(u){return u.joinTs&&last7.indexOf(u.joinTs.slice(0,10))>=0;}).length;
+  var joinedPrevWeek=users.filter(function(u){var d=u.joinTs&&u.joinTs.slice(0,10);return d&&d<last7[0]&&d>=adashDateStr(13);}).length;
+  var activeToday=users.filter(function(u){return u.lastActiveTs&&u.lastActiveTs.slice(0,10)===todayStr;}).length;
+  var activeWeek=users.filter(function(u){return u.lastActiveTs&&last7.indexOf(u.lastActiveTs.slice(0,10))>=0;}).length;
 
-  function dateOnly(ts){if(!ts)return '—';return new Date(ts).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
-  function timeOnly(ts){if(!ts)return '—';return new Date(ts).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});}
-  function fmt(ts){if(!ts)return '—';return dateOnly(ts)+' • '+timeOnly(ts);}
+  // Searches / Shares
+  var searchesToday=(sdMap[todayStr]&&sdMap[todayStr].total)||0;
+  var searchesYest=(sdMap[yestStr]&&sdMap[yestStr].total)||0;
+  var totalSearches=raw.counters.totalSearches!=null?raw.counters.totalSearches:searchTop.reduce(function(s,d){return s+(d.count||0);},0);
+  var sharesToday=(shdMap[todayStr]&&shdMap[todayStr].total)||0;
+  var sharesYest=(shdMap[yestStr]&&shdMap[yestStr].total)||0;
+  var totalShares=raw.counters.totalShares!=null?raw.counters.totalShares:shares.reduce(function(s,d){return s+(d.count||0);},0);
 
-  var html='<div class="adash-stats">'+
-    '<div class="adash-stat"><div class="adash-stat-num">'+totalUsers+'</div><div class="adash-stat-lbl">Total Users</div></div>'+
-    '<div class="adash-stat"><div class="adash-stat-num">'+joinedToday+'</div><div class="adash-stat-lbl">Joined Today</div></div>'+
+  var gJoinedToday=adashPct(joinedToday,joinedYest);
+  var gSearchToday=adashPct(searchesToday,searchesYest);
+  var gJoinedWeek=adashPct(joinedWeek,joinedPrevWeek);
+
+  var cards=[
+    {ic:'👥',val:totalUsers,lbl:'Total Users',g:null},
+    {ic:'🟢',val:activeToday,lbl:'Active Today',g:null},
+    {ic:'📅',val:activeWeek,lbl:'Active This Week',g:null},
+    {ic:'🆕',val:joinedToday,lbl:'Joined Today',g:gJoinedToday},
+    {ic:'📈',val:joinedWeek,lbl:'Joined This Week',g:gJoinedWeek},
+    {ic:'🔍',val:totalSearches,lbl:'Total Searches',g:null},
+    {ic:'⚡',val:searchesToday,lbl:'Searches Today',g:gSearchToday},
+    {ic:'📤',val:totalShares,lbl:'Total App Shares',g:null}
+  ];
+  var cardsHtml=cards.map(function(c){
+    return '<div class="adash-card"><div class="adash-card-top"><div class="adash-card-ico">'+c.ic+'</div>'+(c.g?adashGrowthBadge(c.g):'')+'</div>'+
+      '<div class="adash-card-val">'+c.val+'</div><div class="adash-card-lbl">'+c.lbl+'</div></div>';
+  }).join('');
+
+  // Brand analytics (built from tracked brand field on top-10 search_stats docs)
+  var brandTotals={};
+  searchTop.forEach(function(s){var b=s.brand||'OTHER';brandTotals[b]=(brandTotals[b]||0)+(s.count||0);});
+  var brandList=Object.keys(brandTotals).filter(function(b){return b!=='OTHER';}).map(function(b){return {name:b,count:brandTotals[b]};}).sort(function(a,b){return b.count-a.count;});
+  var brandSum=brandList.reduce(function(s,b){return s+b.count;},0)||1;
+  var brandHtml=brandList.length?brandList.slice(0,6).map(function(b){
+    var p=Math.round((b.count/brandSum)*100);
+    return '<div class="adash-brand-card"><div class="adash-brand-top"><span class="adash-brand-name">'+b.name+'</span><span class="adash-brand-pct">'+p+'%</span></div>'+
+      '<div class="adash-progress-bar"><div class="adash-progress-fill" style="width:'+p+'%"></div></div></div>';
+  }).join(''):'<div class="adash-empty">Brand data build hoga jaise-jaise nayi searches track hongi</div>';
+
+  // Search analytics
+  var top10Html=searchTop.length?searchTop.map(function(s,i){
+    var p=searchTop[0].count?Math.round((s.count/searchTop[0].count)*100):0;
+    return '<div class="adash-progress-row"><div class="adash-progress-top"><span class="adash-progress-name">#'+(i+1)+' '+escHtml(s.query||s.id)+'</span><span class="adash-progress-count">'+(s.count||0)+'</span></div>'+
+      '<div class="adash-progress-bar"><div class="adash-progress-fill" style="width:'+p+'%"></div></div></div>';
+  }).join(''):'<div class="adash-empty">Koi search data nahi</div>';
+
+  var trendToday=searchTop.map(function(s){return {q:s.query||s.id,c:s['d_'+todayStr]||0,doc:s};}).filter(function(x){return x.c>0;}).sort(function(a,b){return b.c-a.c;});
+  var trendWeek=searchTop.map(function(s){var c=last7.reduce(function(sum,d){return sum+(s['d_'+d]||0);},0);return {q:s.query||s.id,c:c};}).filter(function(x){return x.c>0;}).sort(function(a,b){return b.c-a.c;});
+  function trendListHtml(list,emptyMsg){
+    return list.length?list.slice(0,5).map(function(x,i){
+      return '<div class="adash-row"><span class="adash-row-main">#'+(i+1)+' '+escHtml(x.q)+'</span><span class="adash-row-badge">'+x.c+'</span></div>';
+    }).join(''):'<div class="adash-empty">'+emptyMsg+'</div>';
+  }
+
+  // User analytics
+  var newUsers=users.slice().sort(function(a,b){return (b.joinTs||'').localeCompare(a.joinTs||'');}).slice(0,10);
+  var lastActive=users.slice().sort(function(a,b){return (b.lastActiveTs||'').localeCompare(a.lastActiveTs||'');});
+  var mostActive=lastActive.slice(0,8);
+  var oldUsers=users.filter(function(u){return u.joinTs&&u.joinTs.slice(0,10)<last7[0];});
+  var returningWeek=oldUsers.filter(function(u){return u.lastActiveTs&&last7.indexOf(u.lastActiveTs.slice(0,10))>=0;}).length;
+  var retentionPct=oldUsers.length?Math.round((returningWeek/oldUsers.length)*100):0;
+  var avgSearchesPerUser=totalUsers?(totalSearches/totalUsers).toFixed(1):'0';
+  var fourteenAgo=adashDateStr(14);
+  var inactiveUsers=users.filter(function(u){return (!u.lastActiveTs||u.lastActiveTs.slice(0,10)<fourteenAgo);}).length;
+
+  // Shares
+  var topSharers=shares.slice(0,8);
+  var shareConversion=totalUsers?Math.round((shares.length/totalUsers)*100):0;
+
+  // Live activity feed
+  var actIco={search:'🔍',share:'📤',signup:'🆕',open:'📲'};
+  var actVerb={share:'shared the app',signup:'joined the app',open:'opened the app'};
+  var feedHtml=raw.activity.length?raw.activity.map(function(a){
+    var verb=(a.type==='search'&&a.detail)?escHtml(a.detail):(actVerb[a.type]||escHtml(a.detail||'did something'));
+    return '<div class="adash-feed-item"><span class="adash-feed-dot">'+(actIco[a.type]||'🟢')+'</span>'+
+      '<div class="adash-feed-main"><div class="adash-feed-txt"><b>'+escHtml((a.email||'user').split('@')[0])+'</b> '+verb+'</div>'+
+      '<div class="adash-feed-email">'+escHtml(a.email||'')+'</div></div>'+
+      '<div class="adash-feed-time">'+adashTimeAgo(a.ts)+'</div></div>';
+  }).join(''):'<div class="adash-empty">Abhi koi activity nahi — naya data track hote hi yahan dikhega</div>';
+
+  // AI Insights
+  var insights=[];
+  if(trendToday.length){
+    var topToday=trendToday[0];
+    var yestVal=(topToday.doc&&topToday.doc['d_'+yestStr])||0;
+    var g=adashPct(topToday.c,yestVal);
+    if(g.dir==='up')insights.push({ic:'🔥',txt:'<b>'+escHtml(topToday.q)+'</b> searches are up '+g.v+'% today.'});
+  }
+  if(brandList.length)insights.push({ic:'📈',txt:'<b>'+brandList[0].name+'</b> is your most searched brand overall ('+Math.round((brandList[0].count/brandSum)*100)+'% share).'});
+  if(oldUsers.length)insights.push({ic:'⚡',txt:retentionPct+'% of eligible users returned within the last 7 days.'});
+  if(gJoinedWeek.dir!=='flat')insights.push({ic:'👥',txt:'New signups are '+gJoinedWeek.dir+' '+gJoinedWeek.v+'% vs last week.'});
+  if(!insights.length)insights.push({ic:'✨',txt:'Insights will appear here once more usage data is tracked.'});
+  var insightsHtml=insights.map(function(x){return '<div class="adash-insight"><span class="adash-insight-ico">'+x.ic+'</span><span class="adash-insight-txt">'+x.txt+'</span></div>';}).join('');
+
+  // Chart data
+  var chartDays=ADASH.filter==='30d'?last30:(ADASH.filter==='today'?[todayStr]:last7);
+  var chartVals=chartDays.map(function(d){return (sdMap[d]&&sdMap[d].total)||0;});
+  var chartLabels=chartDays.map(function(d){return d.slice(5);});
+  var shareChartVals=chartDays.map(function(d){return (shdMap[d]&&shdMap[d].total)||0;});
+
+  var filters=[['today','Today'],['7d','7 Days'],['30d','30 Days'],['all','All Time']];
+  var filterHtml=filters.map(function(f){return '<button class="adash-chip'+(ADASH.filter===f[0]?' active':'')+'" onclick="adashSetFilter(\''+f[0]+'\')">'+f[1]+'</button>';}).join('');
+
+  var html='';
+  html+='<div class="adash-filters">'+filterHtml+'</div>';
+  html+='<div class="adash-hdr">📊 Overview</div><div class="adash-cards">'+cardsHtml+'</div>';
+  html+='<div class="adash-hdr">✨ AI Insights</div>'+insightsHtml;
+  html+='<div class="adash-hdr">📈 Search Trend</div><div class="adash-chart-box"><canvas id="adashSearchChart" height="130"></canvas></div>';
+  html+='<div class="adash-hdr">🔍 Most Searched Models (Top 10)</div>'+top10Html;
+  html+='<div class="adash-hdr">🔥 Today\'s Trending Searches</div>'+trendListHtml(trendToday,'Aaj koi search nahi hui');
+  html+='<div class="adash-hdr">📅 Weekly Trending Searches</div>'+trendListHtml(trendWeek,'Is week koi search track nahi hui');
+  html+='<div class="adash-hdr">🏷️ Brand Analytics</div><div class="adash-brand-grid">'+brandHtml+'</div>';
+  html+='<div class="adash-hdr">👤 User Analytics</div><div class="adash-mini">'+
+    '<div class="adash-mini-box"><div class="adash-mini-val">'+retentionPct+'%</div><div class="adash-mini-lbl">Retention (7d)</div></div>'+
+    '<div class="adash-mini-box"><div class="adash-mini-val">'+avgSearchesPerUser+'</div><div class="adash-mini-lbl">Avg Searches/User</div></div>'+
+    '<div class="adash-mini-box"><div class="adash-mini-val">'+returningWeek+'</div><div class="adash-mini-lbl">Returning Users</div></div>'+
+    '<div class="adash-mini-box"><div class="adash-mini-val">'+inactiveUsers+'</div><div class="adash-mini-lbl">Inactive (14d+)</div></div>'+
   '</div>';
-
-  html+='<div class="adash-section"><div class="adash-section-title">🆕 Newly Joined Users</div>'+
-    (newUsers.length?newUsers.map(function(u){
-      return '<div class="adash-row"><span class="adash-row-main">'+escHtml(u.email||'—')+'</span><span class="adash-row-sub">'+dateOnly(u.joinTs)+' • '+timeOnly(u.joinTs)+'</span></div>';
-    }).join(''):'<div class="adash-empty">Koi user nahi mila</div>')+'</div>';
-
-  var searches=[];
-  if(searchSnap)searchSnap.forEach(function(d){searches.push(d.data());});
-  html+='<div class="adash-section"><div class="adash-section-title">🔍 Most Searched Models (Top 10)</div>'+
-    (searches.length?searches.map(function(s,i){
-      return '<div class="adash-row"><span class="adash-row-main">#'+(i+1)+' '+escHtml(s.query||'—')+'</span><span class="adash-row-badge">'+(s.count||0)+'</span></div>';
-    }).join(''):'<div class="adash-empty">Koi search data nahi</div>')+'</div>';
-
-  var shares=[];
-  if(shareSnap)shareSnap.forEach(function(d){shares.push(d.data());});
-  html+='<div class="adash-section"><div class="adash-section-title">📤 App Share Statistics</div>'+
-    (shares.length?shares.map(function(s){
-      return '<div class="adash-row"><span class="adash-row-main">'+escHtml(s.email||'—')+'</span><span class="adash-row-badge">'+(s.count||0)+'x</span></div>';
-    }).join(''):'<div class="adash-empty">Koi share data nahi</div>')+'</div>';
-
-  html+='<div class="adash-section"><div class="adash-section-title">🟢 Last Active Users</div>'+
-    (lastActive.length?lastActive.map(function(u){
-      return '<div class="adash-row"><span class="adash-row-main">'+escHtml(u.email||'—')+'</span><span class="adash-row-sub">'+fmt(u.lastActiveTs)+'</span></div>';
-    }).join(''):'<div class="adash-empty">Koi data nahi</div>')+'</div>';
+  html+='<div class="adash-hdr">🆕 Newly Joined Users</div>'+(newUsers.length?newUsers.map(function(u){
+    return '<div class="adash-row"><span class="adash-row-main">'+escHtml(u.email||'—')+'</span><span class="adash-row-sub">'+adashTimeAgo(u.joinTs)+'</span></div>';
+  }).join(''):'<div class="adash-empty">Koi user nahi mila</div>');
+  html+='<div class="adash-hdr">⭐ Most Active Users</div>'+(mostActive.length?mostActive.map(function(u){
+    return '<div class="adash-row"><span class="adash-row-main">'+escHtml(u.email||'—')+'</span><span class="adash-row-sub">'+adashTimeAgo(u.lastActiveTs)+'</span></div>';
+  }).join(''):'<div class="adash-empty">Koi data nahi</div>');
+  html+='<div class="adash-hdr">🟢 Live Activity Feed</div>'+feedHtml;
+  html+='<div class="adash-hdr">📤 App Share Analytics</div><div class="adash-mini">'+
+    '<div class="adash-mini-box"><div class="adash-mini-val">'+totalShares+'</div><div class="adash-mini-lbl">Total Shares</div></div>'+
+    '<div class="adash-mini-box"><div class="adash-mini-val">'+sharesToday+'</div><div class="adash-mini-lbl">Shares Today</div></div>'+
+    '<div class="adash-mini-box"><div class="adash-mini-val">'+shareConversion+'%</div><div class="adash-mini-lbl">Share Conversion</div></div>'+
+    '<div class="adash-mini-box"><div class="adash-mini-val">'+shares.length+'</div><div class="adash-mini-lbl">Users Who Shared</div></div>'+
+  '</div>';
+  html+='<div class="adash-chart-box" style="margin-top:8px"><canvas id="adashShareChart" height="110"></canvas></div>';
+  html+='<div class="adash-hdr">🏆 Top Sharers</div>'+(topSharers.length?topSharers.map(function(s){
+    return '<div class="adash-row"><span class="adash-row-main">'+escHtml(s.email||'—')+'</span><span class="adash-row-badge">'+(s.count||0)+'x</span></div>';
+  }).join(''):'<div class="adash-empty">Koi share data nahi</div>');
 
   el.innerHTML=html;
+  adashDrawChart('adashSearchChart',chartVals,chartLabels,'#d4af6a');
+  adashDrawChart('adashShareChart',shareChartVals,chartLabels,'#7aa8e8');
+}
+
+// Lightweight dependency-free line chart — keeps the PWA offline-friendly with no extra network request
+function adashDrawChart(canvasId,values,labels,color){
+  var cv=document.getElementById(canvasId);
+  if(!cv)return;
+  var dpr=window.devicePixelRatio||1;
+  var w=cv.clientWidth||300,h=cv.height||130;
+  cv.width=w*dpr;cv.height=h*dpr;
+  var ctx=cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+  var max=Math.max.apply(null,values.concat([1]));
+  var padL=8,padR=8,padT=10,padB=20;
+  var plotW=w-padL-padR,plotH=h-padT-padB;
+  var stepX=values.length>1?plotW/(values.length-1):0;
+  function xy(i){var x=padL+i*stepX;var y=padT+plotH-(values[i]/max)*plotH;return [x,y];}
+  var grad=ctx.createLinearGradient(0,padT,0,padT+plotH);
+  grad.addColorStop(0,color+'55');grad.addColorStop(1,color+'02');
+  ctx.beginPath();
+  values.forEach(function(v,i){var p=xy(i);if(i===0)ctx.moveTo(p[0],p[1]);else ctx.lineTo(p[0],p[1]);});
+  ctx.lineTo(padL+(values.length-1)*stepX,padT+plotH);ctx.lineTo(padL,padT+plotH);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();
+  values.forEach(function(v,i){var p=xy(i);if(i===0)ctx.moveTo(p[0],p[1]);else ctx.lineTo(p[0],p[1]);});
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.lineJoin='round';ctx.stroke();
+  values.forEach(function(v,i){var p=xy(i);ctx.beginPath();ctx.arc(p[0],p[1],2.2,0,7);ctx.fillStyle=color;ctx.fill();});
+  ctx.fillStyle='#5a6180';ctx.font='9px Segoe UI';ctx.textAlign='center';
+  [0,Math.floor((values.length-1)/2),values.length-1].forEach(function(i){
+    if(i<0||i>=labels.length)return;
+    var p=xy(i);ctx.fillText(labels[i],p[0],h-6);
+  });
 }
 
 function openFeedbackDashboard(){
