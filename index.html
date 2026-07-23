@@ -351,7 +351,7 @@ button{cursor:pointer}
 
 /* CARDS */
 #cardList{display:flex;flex-direction:column;gap:14px}
-.card{transition:transform .2s;background:linear-gradient(155deg,rgba(255,255,255,.045),rgba(255,255,255,.02));backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.085);border-radius:22px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;animation:fadeUp .3s ease forwards;contain:content}
+.card{transition:transform .2s;background:linear-gradient(155deg,rgba(255,255,255,.065),rgba(255,255,255,.028));border:1px solid rgba(255,255,255,.09);border-radius:22px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;animation:fadeUp .3s ease forwards;contain:content}
 .card-accent{height:3px;background:linear-gradient(90deg,#d4af6a,#a87f2e,transparent)}
 .card-inner{padding:16px}
 .card.match-card{border-color:#d4af6a3d;box-shadow:0 4px 24px #d4af6a14}
@@ -1179,7 +1179,6 @@ function updateUserUI(){
   var fab=document.getElementById('floatingAdd');
   var addBtn=document.getElementById('addBtn');
   var tb=document.getElementById('toolbarWrap');
-  addBtn.innerHTML='＋ Add New '+itemLabel(S.tab);
 
   if(S.user&&isAdmin()){
     var name=S.user.displayName||S.user.email.split('@')[0];
@@ -1356,7 +1355,7 @@ function findMatchingGroups(list,query){
 }
 
 // ── RENDER ───────────────────────────────────────────────────────────────
-function render(){renderStats();renderCards();}
+function render(){renderStats();renderCards();var addBtn=document.getElementById('addBtn');if(addBtn)addBtn.innerHTML='＋ Add New '+itemLabel(S.tab);}
 
 function renderStats(){
   var all=S.flat.concat(S.uv).concat(S.backcover);
@@ -2217,8 +2216,16 @@ function closeModal(){document.getElementById('modalBg').classList.remove('show'
 // ── PARTS FINDER ─────────────────────────────────────────────────────────
 function openPartsScreen(){
   document.getElementById('partsScreen').classList.add('show');
-  if(!PF.loaded)loadPartsData();
-  renderPartsCards();renderPartsAddBtn();
+  // PEHLE: har baar Spare Parts pe switch karte hi, sabhi 5 category (Display,
+  // Frame, Back Door, CC Board, Battery) ki poori list dobara se HTML me
+  // rebuild ho jaati thi — chahe data bilkul same ho. Isi wajah se tab switch
+  // pe jhatka/lag mehsoos hota tha, khaaskar zyada groups hone par.
+  // AB: sirf pehli baar (jab data load ho raha ho) render karo. Uske baad
+  // list already DOM me maujood hai — add/edit/delete/version-poll khud apni
+  // jagah refresh kar dete hain (refreshPartsPage / renderPartsCards), isliye
+  // yahan dobara poora rebuild karne ki zaroorat nahi.
+  if(!PF.loaded){loadPartsData();renderPartsCards();}
+  renderPartsAddBtn();
 }
 function closePartsScreen(){document.getElementById('partsScreen').classList.remove('show');}
 
