@@ -570,6 +570,33 @@ button{cursor:pointer}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
 #installBtn{position:fixed;bottom:20px;right:20px;padding:12px 20px;background:linear-gradient(135deg,#e8c97a,#a87f2e);color:#1a1305;border:none;border-radius:10px;font-weight:bold;display:none;z-index:9999;box-shadow:0 6px 20px #d4af6a4a}
+/* PREMIUM — paywall, plan cards, lock badges, trial banner */
+.menu-premium-card{margin:14px 14px 4px;padding:14px;border-radius:16px;background:linear-gradient(135deg,#2a2210,#1a1508);border:1px solid #d4af6a55;position:relative;overflow:hidden;cursor:pointer}
+.menu-premium-card::after{content:"";position:absolute;top:-30%;right:-20%;width:140px;height:140px;background:radial-gradient(circle,#d4af6a33,transparent 70%)}
+.menu-premium-top{display:flex;align-items:center;gap:8px;font-weight:800;color:#f0d38a;font-size:13.5px}
+.menu-premium-sub{margin-top:4px;font-size:11.5px;color:#c9c2ad;line-height:1.4}
+.menu-premium-btn{margin-top:10px;display:inline-block;padding:6px 14px;border-radius:20px;background:linear-gradient(145deg,#e8c97a,#a87f2e);color:#1a1305;font-size:11.5px;font-weight:800}
+.trial-days-chip{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:10px;background:#d4af6a22;color:#f0d38a;font-size:10px;font-weight:700;border:1px solid #d4af6a44}
+.lock-badge{display:inline-flex;align-items:center;gap:3px;margin-left:6px;padding:1px 7px;border-radius:9px;background:#d4af6a1f;color:#e8c97a;font-size:9.5px;font-weight:800;letter-spacing:.3px;vertical-align:middle}
+.pw-wrap{padding:4px 2px 10px}
+.pw-hero{text-align:center;padding:6px 8px 14px}
+.pw-hero-ic{font-size:34px}
+.pw-hero-title{font-size:17px;font-weight:800;color:#f0d38a;margin-top:6px}
+.pw-hero-sub{font-size:12.5px;color:#a9b2c8;margin-top:4px;line-height:1.5}
+.pw-features{display:flex;flex-direction:column;gap:8px;margin:10px 4px 16px}
+.pw-feat-row{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;color:#dbe3f5}
+.pw-feat-ic{color:#7ee0a8;font-size:16px;line-height:1.3}
+.pw-plans{display:flex;gap:10px;margin:0 2px}
+.pw-plan{flex:1;border-radius:16px;padding:14px 10px;text-align:center;background:#12141f;border:1.5px solid #2a3350;position:relative;cursor:pointer;transition:.15s}
+.pw-plan.sel{border-color:#d4af6a;background:#1c1808}
+.pw-plan-badge{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:linear-gradient(145deg,#e8c97a,#a87f2e);color:#1a1305;font-size:9px;font-weight:800;padding:2px 9px;border-radius:8px;white-space:nowrap}
+.pw-plan-name{font-size:11.5px;color:#9aa4bd;font-weight:700;margin-top:4px}
+.pw-plan-price{font-size:20px;font-weight:800;color:#eaf0ff;margin-top:4px}
+.pw-plan-price span{font-size:11px;color:#8a93ac;font-weight:600}
+.pw-plan-note{font-size:10px;color:#7ee0a8;margin-top:3px;font-weight:700}
+.pw-cta{display:block;width:100%;margin-top:16px;padding:13px;border:none;border-radius:14px;background:linear-gradient(145deg,#e8c97a,#a87f2e);color:#1a1305;font-size:14px;font-weight:800;cursor:pointer}
+.pw-fine{text-align:center;font-size:10.5px;color:#6a7290;margin-top:10px;line-height:1.5}
+.pw-trial-banner{margin:0 2px 14px;padding:10px 12px;border-radius:12px;background:#152a1c;border:1px solid #2e6b45;font-size:12px;color:#8fe0ac;text-align:center;font-weight:700}
 </style>
 </head>
 <body>
@@ -711,6 +738,12 @@ button{cursor:pointer}
   </div>
 
   <div class="menu-body">
+    <div class="menu-premium-card" id="menuPremiumCard" onclick="openUpgradeModal()">
+      <div class="menu-premium-top"><span class="material-symbols-rounded" style="font-size:18px">workspace_premium</span><span id="menuPremiumTitle">Go Premium</span></div>
+      <div class="menu-premium-sub" id="menuPremiumSub">Bulk export, WhatsApp share aur zyada unlock karo</div>
+      <div class="menu-premium-btn" id="menuPremiumBtn">Upgrade karo →</div>
+    </div>
+
     <div class="menu-section">
       <div class="menu-section-label">Requests</div>
       <button class="menu-item" onclick="openRequestForm('display')"><span class="material-symbols-rounded menu-ic">add_photo_alternate</span><span class="menu-item-label">Request Display Update</span></button>
@@ -722,6 +755,7 @@ button{cursor:pointer}
       <div class="menu-section-label">Personal</div>
       <button class="menu-item" onclick="openFavorites()"><span class="material-symbols-rounded menu-ic">star</span><span class="menu-item-label">My Favorites</span></button>
       <button class="menu-item" onclick="openTrending()"><span class="material-symbols-rounded menu-ic">local_fire_department</span><span class="menu-item-label">Trending Today</span><span class="menu-badge">HOT</span></button>
+      <button class="menu-item" onclick="handleExportListClick()"><span class="material-symbols-rounded menu-ic">file_download</span><span class="menu-item-label">Export List (CSV)</span><span class="lock-badge" id="exportLockBadge">🔒 PRO</span></button>
     </div>
 
     <div class="menu-divider"></div>
@@ -840,7 +874,7 @@ button{cursor:pointer}
 var ADMIN_EMAIL = 'm.k.p.tyoup@gmail.com';
 
 // ── STATE ────────────────────────────────────────────────────────────────
-var S={tab:'glass',flat:[],uv:[],display:[],backcover:[],log:[],query:'',editId:null,user:null,role:'staff'};
+var S={tab:'glass',flat:[],uv:[],display:[],backcover:[],log:[],query:'',editId:null,user:null,role:'staff',premium:{isPremium:false,plan:null,trialEnd:null,premiumExpiry:null,loaded:false}};
 var COLLECTIONS={flat:'flat_glasses',uv:'uv_glasses',display:'display_glasses',backcover:'backcover_glasses'};
 var searchDebounceTimer=null;
 var partsDebounceTimer=null;
@@ -955,10 +989,14 @@ function trackUserSession(user){
   ref.get().then(function(doc){
     var now=new Date().toISOString();
     if(!doc.exists){
-      ref.set({email:user.email,joinTs:now,lastActiveTs:now});
+      var trialEnd=new Date(Date.now()+7*24*60*60*1000).toISOString();
+      var newUserData={email:user.email,joinTs:now,lastActiveTs:now,trialEnd:trialEnd,premiumExpiry:null,plan:'trial'};
+      ref.set(newUserData);
       db.collection('activity_log').add({type:'signup',email:user.email,detail:'New user registered',ts:now}).catch(function(){});
+      applyPremiumData(newUserData);
     } else {
       ref.update({lastActiveTs:now,email:user.email});
+      applyPremiumData(doc.data());
     }
     try{
       if(!sessionStorage.getItem('adash_open_logged')){
@@ -967,6 +1005,131 @@ function trackUserSession(user){
       }
     }catch(e){}
   }).catch(function(){});
+}
+
+// ── PREMIUM ──────────────────────────────────────────────────────────────
+function applyPremiumData(data){
+  data=data||{};
+  S.premium.trialEnd=data.trialEnd||null;
+  S.premium.premiumExpiry=data.premiumExpiry||null;
+  S.premium.plan=data.plan||null;
+  S.premium.loaded=true;
+  updatePremiumUI();
+}
+function isPremiumActive(){
+  if(isAdmin())return true; // admin ko sab kuch mil jaata hai
+  var p=S.premium;
+  if(!p.loaded)return false;
+  var now=Date.now();
+  if(p.trialEnd&&new Date(p.trialEnd).getTime()>now)return true;
+  if(p.premiumExpiry&&new Date(p.premiumExpiry).getTime()>now)return true;
+  return false;
+}
+function trialDaysLeft(){
+  if(!S.premium.trialEnd)return 0;
+  var ms=new Date(S.premium.trialEnd).getTime()-Date.now();
+  return Math.max(0,Math.ceil(ms/(24*60*60*1000)));
+}
+function isOnTrial(){
+  var p=S.premium;
+  if(!p.trialEnd)return false;
+  var trialActive=new Date(p.trialEnd).getTime()>Date.now();
+  var paidActive=p.premiumExpiry&&new Date(p.premiumExpiry).getTime()>Date.now();
+  return trialActive&&!paidActive;
+}
+function updatePremiumUI(){
+  var card=document.getElementById('menuPremiumCard');
+  var title=document.getElementById('menuPremiumTitle');
+  var sub=document.getElementById('menuPremiumSub');
+  var btn=document.getElementById('menuPremiumBtn');
+  var lockBadge=document.getElementById('exportLockBadge');
+  if(!card)return;
+  if(!S.user){
+    title.textContent='Go Premium';
+    sub.textContent='Login karke 7-din free trial shuru karo';
+    btn.textContent='Sign Up →';
+    if(lockBadge)lockBadge.classList.remove('hide');
+    return;
+  }
+  if(isPremiumActive()){
+    if(isOnTrial()){
+      title.innerHTML='Free Trial Active<span class="trial-days-chip">'+trialDaysLeft()+' din baaki</span>';
+      sub.textContent='Sab premium features unlocked hain — upgrade karke continue rakho';
+      btn.textContent='Plans dekho →';
+    } else {
+      title.textContent='⭐ Premium Member';
+      sub.textContent='Sab features unlocked — shukriya!';
+      btn.textContent='Manage Plan →';
+    }
+    if(lockBadge)lockBadge.classList.add('hide');
+  } else {
+    title.textContent='Go Premium';
+    sub.textContent='Bulk export, WhatsApp share aur zyada unlock karo';
+    btn.textContent='Upgrade karo →';
+    if(lockBadge)lockBadge.classList.remove('hide');
+  }
+}
+function openUpgradeModal(){
+  closeMenu();
+  var trialHtml=S.user&&isOnTrial()?'<div class="pw-trial-banner">🎁 Aapka free trial chal raha hai — '+trialDaysLeft()+' din baaki hain</div>':'';
+  var notLoggedInHtml=!S.user?'<div class="pw-trial-banner" style="background:#2a2210;border-color:#a87f2e;color:#f0d38a">👋 Pehle login/sign up karo — naye users ko 7 din FREE milte hain</div>':'';
+  openModal(
+    '<div class="mhead"><span class="mtitle">⭐ Premium Plan</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="pw-wrap">'+
+      '<div class="pw-hero"><div class="pw-hero-ic">🚀</div><div class="pw-hero-title">Apna business tez karo</div><div class="pw-hero-sub">Zyada time bachao, zyada customers handle karo</div></div>'+
+      notLoggedInHtml+trialHtml+
+      '<div class="pw-features">'+
+        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Bulk Export</b> — poori list Excel/CSV mein ek click mein download</span></div>'+
+        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>WhatsApp Share</b> — customer ko formatted message turant bhejo</span></div>'+
+        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Early Access</b> — naye models sabse pehle</span></div>'+
+        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Ad-Free</b> experience hamesha</span></div>'+
+      '</div>'+
+      '<div class="pw-plans">'+
+        '<div class="pw-plan sel" id="planMonthly" onclick="selectPlan(\'monthly\')">'+
+          '<div class="pw-plan-name">MONTHLY</div><div class="pw-plan-price">₹49<span>/mo</span></div><div class="pw-plan-note">&nbsp;</div>'+
+        '</div>'+
+        '<div class="pw-plan" id="planYearly" onclick="selectPlan(\'yearly\')">'+
+          '<div class="pw-plan-badge">SAVE ₹89</div><div class="pw-plan-name">YEARLY</div><div class="pw-plan-price">₹499<span>/yr</span></div><div class="pw-plan-note">≈ ₹41.6/mo</div>'+
+        '</div>'+
+      '</div>'+
+      '<button class="pw-cta" onclick="startCheckout()">'+(S.user?'Continue':'Login karke Continue karo')+'</button>'+
+      '<div class="pw-fine">Kabhi bhi cancel karo. Payment secure Razorpay se hota hai.</div>'+
+    '</div>'
+  );
+}
+var selectedPlan='monthly';
+function selectPlan(p){
+  selectedPlan=p;
+  document.getElementById('planMonthly').classList.toggle('sel',p==='monthly');
+  document.getElementById('planYearly').classList.toggle('sel',p==='yearly');
+}
+function startCheckout(){
+  if(!S.user){closeModal();showLogin();return;}
+  // NOTE: Razorpay Payment Button ID yahan plug karna hai jab account ready ho jaaye.
+  // Abhi ke liye placeholder — real integration ke liye Razorpay dashboard se
+  // Payment Button banao aur uska data-payment_button_id yahan daalo.
+  showToast('⚙️ Payment setup jald aa raha hai — Razorpay account ready hote hi ye button live ho jaayega',true);
+}
+function handleExportListClick(){
+  closeMenu();
+  if(!isPremiumActive()){openUpgradeModal();return;}
+  exportListCSV();
+}
+function exportListCSV(){
+  var items=(getList()||[]).slice();
+  if(!items.length){showToast('Is list mein abhi koi item nahi hai',true);return;}
+  var rows=[['Model Name','Type','Notes']];
+  items.forEach(function(g){
+    rows.push([g.glassName||g.name||'',tabLabel(g._type||S.tab),(g.note||'').replace(/[\r\n,]+/g,' ')]);
+  });
+  var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;a.download='universal-combo-'+tab+'-list.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('✅ List export ho gayi!');
 }
 function trackSearch(query){
   if(!db||!query||query.trim().length<2)return;
@@ -3719,7 +3882,9 @@ auth.onAuthStateChanged(function(user){
     trackUserSession(user);
   } else {
     S.user=null;S.role='staff';
+    S.premium={isPremium:false,plan:null,trialEnd:null,premiumExpiry:null,loaded:false};
     updateUserUI();
+    updatePremiumUI();
   }
   maybeShowLogin();
 });
