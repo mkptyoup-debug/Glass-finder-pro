@@ -773,6 +773,7 @@ button{cursor:pointer}
     <div id="partsSearchSuggest" class="suggest-box hide"></div>
     <button id="partsAddBtn" class="hide" onclick="openPartsAddModal()">＋ Add New Part Group</button>
     <button id="partsBulkBtn" class="hide" style="margin-top:8px" onclick="openPartsBulkModal()">📋 Bulk Add</button>
+    <button id="partsCodeBtn" class="hide" style="margin-top:8px" onclick="openPartsCodeModal()">💾 Data Code</button>
     <div id="pfTabBar" class="pf-tabbar"></div>
     <div id="pfSwipeViewport" class="pf-swipe-viewport">
       <div id="pfSwipeTrack" class="pf-swipe-track"></div>
@@ -2655,8 +2656,9 @@ setInterval(pollPartsVersion,120000);
 function renderPartsAddBtn(){
   var btn=document.getElementById('partsAddBtn');
   var bulkBtn=document.getElementById('partsBulkBtn');
-  if(isAdmin()){btn.classList.remove('hide');if(bulkBtn)bulkBtn.classList.remove('hide');}
-  else{btn.classList.add('hide');if(bulkBtn)bulkBtn.classList.add('hide');}
+  var codeBtn=document.getElementById('partsCodeBtn');
+  if(isAdmin()){btn.classList.remove('hide');if(bulkBtn)bulkBtn.classList.remove('hide');if(codeBtn)codeBtn.classList.remove('hide');}
+  else{btn.classList.add('hide');if(bulkBtn)bulkBtn.classList.add('hide');if(codeBtn)codeBtn.classList.add('hide');}
   var t=PART_TYPES.find(function(x){return x.key===PF.currentCategory;})||PART_TYPES[PF.activeIdx];
   if(t){btn.textContent='＋ Add '+t.label+' Group';if(bulkBtn)bulkBtn.textContent='📋 Bulk Add '+t.label;}
 }
@@ -3050,6 +3052,59 @@ function submitPartsBulk(typeKey){
     bumpPartsVersion(typeKey);refreshPartsPage(typeKey);
     logRecentUpdate('✨ '+t.label+': '+newDocs.length+' bulk added');
   }).catch(function(e){showToast('❌ '+e.message,true);});
+}
+function openPartsCodeModal(){
+  var t=PART_TYPES.find(function(x){return x.key===PF.currentCategory;})||PART_TYPES[PF.activeIdx];
+  var list=PF.data[t.key]||[];
+  openModal('<div class="mhead"><span class="mtitle">📋 '+t.label+' Data Export</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<textarea id="pfCodeTA" style="width:100%;height:220px;background:#05060a;border:1px solid #1d2336;border-radius:11px;color:#7cb8e0;font-size:11px;font-family:monospace;padding:13px;box-sizing:border-box;resize:vertical;outline:none">'+JSON.stringify(list,null,2)+'</textarea>'+
+    '<div class="brow"><button class="bcancel" onclick="copyPartsCode()">📋 Copy</button>'+
+    '<button class="bsave" onclick="importPartsCode(\''+t.key+'\')">📥 Import</button></div>');
+}
+function copyPartsCode(){navigator.clipboard.writeText(document.getElementById('pfCodeTA').value);showToast('✅ Copied!');}
+async function importPartsCode(typeKey){
+  try{
+    var t=PART_TYPES.find(function(x){return x.key===typeKey;});
+    var data=JSON.parse(document.getElementById('pfCodeTA').value);
+    if(!Array.isArray(data))throw new Error('Array chahiye');
+    if(!db||!t){showToast('❌ Firebase nahi',true);return;}
+    if(!isAdmin()){showToast('❌ Sirf admin import kar sakta hai',true);return;}
+    var total=data.length;
+    if(!total){showToast('❌ Empty',true);return;}
+    setSyncDot('syncing');
+    var BATCH_SIZE=25,TIMEOUT_MS=20000;
+    var failCount=0,okCount=0,firstErr='';
+    function withTimeout(p){
+      return Promise.race([p,new Promise(function(_,rej){
+        setTimeout(function(){rej(new Error('Timeout — network slow'));},TIMEOUT_MS);
+      })]);
+    }
+    for(var i=0;i<total;i+=BATCH_SIZE){
+      var batch=data.slice(i,i+BATCH_SIZE);
+      showToast('⏳ '+Math.min(i+BATCH_SIZE,total)+'/'+total+' import ho raha hai...');
+      var results=await Promise.all(batch.map(function(it){
+        var docId=it.id||db.collection(t.col).doc().id;
+        return withTimeout(db.collection(t.col).doc(docId).set({partName:it.partName,models:it.models,confidence:it.confidence||'100',note:it.note||'',panel:it.panel||'',curve:it.curve||''}))
+          .then(function(){return{ok:true};})
+          .catch(function(e){return{ok:false,err:e.message||String(e)};});
+      }));
+      results.forEach(function(r){
+        if(r.ok)okCount++;else{failCount++;if(!firstErr)firstErr=r.err;}
+      });
+    }
+    var snap=await db.collection(t.col).get();
+    PF.data[typeKey]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    bumpPartsVersion(typeKey);refreshPartsPage(typeKey);
+    if(failCount===total){
+      setSyncDot('err');
+      showToast('❌ Import fail: '+(firstErr||'Permission/network error'),true);
+    } else if(failCount>0){
+      setSyncDot('err');
+      showToast('⚠️ '+okCount+'/'+total+' import hui, '+failCount+' fail ('+firstErr+')',true);
+    } else {
+      setSyncDot('ok');showToast('✅ Imported!');closeModal();
+    }
+  }catch(e){setSyncDot('err');showToast('❌ '+e.message,true);}
 }
 function openPartsEditModal(typeKey,id){
   PF.editKey=typeKey;PF.editId=id;
