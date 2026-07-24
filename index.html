@@ -740,7 +740,7 @@ button{cursor:pointer}
   <div class="menu-body">
     <div class="menu-premium-card" id="menuPremiumCard" onclick="openUpgradeModal()">
       <div class="menu-premium-top"><span class="material-symbols-rounded" style="font-size:18px">workspace_premium</span><span id="menuPremiumTitle">Go Premium</span></div>
-      <div class="menu-premium-sub" id="menuPremiumSub">Bulk export, WhatsApp share aur zyada unlock karo</div>
+      <div class="menu-premium-sub" id="menuPremiumSub">Unlimited search, Back Cover/Parts unlock aur Bulk Export lo</div>
       <div class="menu-premium-btn" id="menuPremiumBtn">Upgrade karo →</div>
     </div>
 
@@ -1114,7 +1114,7 @@ function updatePremiumUI(){
     if(lockBadge)lockBadge.classList.add('hide');
   } else {
     title.textContent='Go Premium';
-    sub.textContent='Bulk export, WhatsApp share aur zyada unlock karo';
+    sub.textContent='Unlimited search, Back Cover/Parts unlock aur Bulk Export lo';
     btn.textContent='Upgrade karo →';
     if(lockBadge)lockBadge.classList.remove('hide');
   }
@@ -1132,9 +1132,6 @@ function openUpgradeModal(){
         '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Unlimited Glass Search</b> — roz ki 5 free limit hatao</span></div>'+
         '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Back Cover + Spare Parts</b> — poora unlock (Display, Frame, Battery, sab)</span></div>'+
         '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Bulk Export</b> — poori list Excel/CSV mein ek click mein download</span></div>'+
-        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>WhatsApp Share</b> — customer ko formatted message turant bhejo</span></div>'+
-        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Early Access</b> — naye models sabse pehle</span></div>'+
-        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Ad-Free</b> experience hamesha</span></div>'+
       '</div>'+
       '<div class="pw-plans">'+
         '<div class="pw-plan sel" id="planMonthly" onclick="selectPlan(\'monthly\')">'+
