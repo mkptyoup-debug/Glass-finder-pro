@@ -1037,6 +1037,56 @@ function isOnTrial(){
   var paidActive=p.premiumExpiry&&new Date(p.premiumExpiry).getTime()>Date.now();
   return trialActive&&!paidActive;
 }
+
+// ── FREEMIUM GATING ─────────────────────────────────────────────────────
+// Glass: hamesha free, lekin sirf search se hi dikhta hai — full list kabhi
+// browse nahi hoti (admin ke alawa). Non-premium ko din mein GLASS_FREE_SEARCHES
+// distinct searches milte hain. Back Cover + Parts Finder categories trial
+// khatam hone ke baad poori tarah lock — search karne par sirf result count
+// (teaser) dikhta hai, taaki upgrade karne ka reason bane.
+var GLASS_FREE_SEARCHES=5;
+var lastCountedGlassQuery='';
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function getGlassSearchUsage(){
+  var u=lsGetJSON('glassSearchUsage');
+  if(!u||u.date!==todayStr())u={date:todayStr(),count:0};
+  return u;
+}
+function glassSearchesLeft(){
+  if(isAdmin()||isPremiumActive())return Infinity;
+  return Math.max(0,GLASS_FREE_SEARCHES-getGlassSearchUsage().count);
+}
+// true = search allowed (aur agar naya distinct query hai to count ho jaata hai)
+function registerGlassSearch(q){
+  if(isAdmin()||isPremiumActive())return true;
+  if(q===lastCountedGlassQuery)return true; // same query dobara — dobara mat gino
+  var u=getGlassSearchUsage();
+  if(u.count>=GLASS_FREE_SEARCHES)return false;
+  u.count++;lsSetJSON('glassSearchUsage',u);
+  lastCountedGlassQuery=q;
+  return true;
+}
+function glassLimitReachedHtml(){
+  return '<div class="empty"><div class="empty-ico">🔒</div><p class="empty-t">Aaj ke '+GLASS_FREE_SEARCHES+' free searches khatam</p>'+
+    '<p class="empty-s" style="margin-bottom:14px">Kal wapas free milenge, ya abhi Premium lekar unlimited search karo</p>'+
+    '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openUpgradeModal()">⭐ Upgrade karo</button></div>';
+}
+function glassSearchPromptHtml(){
+  return '<div class="empty"><div class="empty-ico">🔍</div><p class="empty-t">Apna model search karo</p>'+
+    '<p class="empty-s">Upar search box mein model naam type karo</p></div>';
+}
+function categoryLockedBrowseHtml(label){
+  return '<div class="empty"><div class="empty-ico">🔒</div><p class="empty-t">'+label+' Premium mein hai</p>'+
+    '<p class="empty-s" style="margin-bottom:14px">Free trial khatam ho chuka hai — upgrade karke poora access lo</p>'+
+    '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openUpgradeModal()">⭐ Upgrade karo</button></div>';
+}
+function categoryTeaserHtml(count,label){
+  return '<div class="empty" style="padding-top:26px">'+
+    '<div class="empty-ico">🔒</div>'+
+    '<p class="empty-t">'+count+' '+label+' result'+(count>1?'s':'')+' mile!</p>'+
+    '<p class="empty-s" style="margin-bottom:14px">Dekhne ke liye Premium unlock karo</p>'+
+    '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openUpgradeModal()">⭐ Unlock karo</button></div>';
+}
 function updatePremiumUI(){
   var card=document.getElementById('menuPremiumCard');
   var title=document.getElementById('menuPremiumTitle');
@@ -1079,6 +1129,8 @@ function openUpgradeModal(){
       '<div class="pw-hero"><div class="pw-hero-ic">🚀</div><div class="pw-hero-title">Apna business tez karo</div><div class="pw-hero-sub">Zyada time bachao, zyada customers handle karo</div></div>'+
       notLoggedInHtml+trialHtml+
       '<div class="pw-features">'+
+        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Unlimited Glass Search</b> — roz ki 5 free limit hatao</span></div>'+
+        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Back Cover + Spare Parts</b> — poora unlock (Display, Frame, Battery, sab)</span></div>'+
         '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Bulk Export</b> — poori list Excel/CSV mein ek click mein download</span></div>'+
         '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>WhatsApp Share</b> — customer ko formatted message turant bhejo</span></div>'+
         '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Early Access</b> — naye models sabse pehle</span></div>'+
@@ -1685,6 +1737,14 @@ function renderCards(){
 
   if(!q){
     banner.style.display='none';
+    if(S.tab==='glass'&&!isAdmin()){
+      el.innerHTML=glassSearchPromptHtml();
+      return;
+    }
+    if(S.tab==='backcover'&&!isAdmin()&&!isPremiumActive()){
+      el.innerHTML=categoryLockedBrowseHtml('Back Cover');
+      return;
+    }
     var list=getList();
     if(!list.length){
       if(!dataLoaded){
@@ -1697,6 +1757,12 @@ function renderCards(){
     el.innerHTML=list.map(function(g,idx){
       return buildCard(g,[],parseModels(g.models),false,false,idx,'');
     }).join('');
+    return;
+  }
+
+  if(S.tab==='glass'&&q.length>=2&&!registerGlassSearch(q)){
+    banner.style.display='none';
+    el.innerHTML=glassLimitReachedHtml();
     return;
   }
 
@@ -1723,6 +1789,11 @@ function renderCards(){
   }
   document.getElementById('rbQuery').innerHTML='Model: <strong style="color:#eed5a0">'+escHtml(q)+'</strong>';
   document.getElementById('resultClear').style.color=isFuzzy?'#f0d090':(list.length?'#7adf63':'#e8718e');
+
+  if(S.tab==='backcover'&&!isAdmin()&&!isPremiumActive()&&list.length){
+    el.innerHTML=categoryTeaserHtml(list.length,'Back Cover');
+    return;
+  }
 
   if(!list.length){
     var crossHit=findInPartsAcrossTypes(q);
@@ -2898,6 +2969,9 @@ function renderPartsPageHtml(t,q){
     return '<div class="empty"><div class="empty-ico">🔍</div>'+
       '<p class="empty-t">Koi '+t.label+' nahi mila</p>'+
       '<p class="empty-s">"'+escHtml(q)+'" ke liye data add nahi hua abhi</p></div>';
+  }
+  if(!isAdmin()&&!isPremiumActive()){
+    return categoryTeaserHtml(res.groups.length,t.label);
   }
   var qu=q.toUpperCase();
   return res.groups.map(function(g){return buildResultCard(g,t,q,qu,res);}).join('');
