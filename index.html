@@ -386,6 +386,11 @@ button{cursor:pointer}
 .cbtn.fav-btn{font-size:16px}
 .cbtn.fav-btn.active{border-color:#d4af6a6a;background:#d4af6a14;color:#e8c97a}
 .cbtn:active{transform:scale(.95)}
+.vote-row{display:flex;gap:8px;margin-top:10px}
+.vbtn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 6px;background:#0d0f18;border:1px solid #1d2336;border-radius:10px;color:#7e88a6;font-size:12.5px;font-weight:700;transition:all .2s;min-height:36px}
+.vbtn:active{transform:scale(.95)}
+.vbtn.active-like{border-color:#4fc78766;background:#4fc78714;color:#7adf63}
+.vbtn.active-dislike{border-color:#e8718e66;background:#e8718e14;color:#f08aa0}
 
 /* FAB */
 #floatingAdd{display:none;position:fixed;bottom:28px;right:20px;width:56px;height:56px;background:linear-gradient(135deg,#e8c97a,#a87f2e);border:none;border-radius:50%;font-size:26px;color:#1a1305;box-shadow:0 6px 24px #d4af6a6e;z-index:500;align-items:center;justify-content:center;transition:transform .2s}
@@ -399,6 +404,13 @@ button{cursor:pointer}
 .empty-ico{font-size:40px;margin-bottom:12px}
 .empty-t{font-weight:700;color:#525c7c;margin-bottom:5px;font-size:15px}
 .empty-s{font-size:13px;color:#333a52}
+.pf-cross-wrap{margin-top:18px;display:flex;flex-direction:column;gap:8px;text-align:left}
+.pf-cross-hint{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:color-mix(in srgb,var(--tc) 12%,#161b2c);border:1px solid color-mix(in srgb,var(--tc) 40%,#232B3D);
+  border-radius:12px;padding:12px 14px;color:#e7ecff;font-size:13px;font-weight:600;cursor:pointer;
+  animation:fadeUp .35s ease}
+.pf-cross-hint b{color:var(--tc)}
+.pf-cross-arrow{color:var(--tc);font-size:16px;font-weight:800;flex:0 0 auto}
 
 /* MODAL */
 #modalBg{display:none;position:fixed;inset:0;background:rgba(4,5,10,.88);backdrop-filter:blur(8px);z-index:2000;align-items:center;justify-content:center;padding:16px}
@@ -874,7 +886,7 @@ button{cursor:pointer}
 var ADMIN_EMAIL = 'm.k.p.tyoup@gmail.com';
 
 // ── STATE ────────────────────────────────────────────────────────────────
-var S={tab:'glass',flat:[],uv:[],display:[],backcover:[],log:[],query:'',editId:null,user:null,role:'staff',premium:{isPremium:false,plan:null,trialEnd:null,premiumExpiry:null,loaded:false}};
+var S={tab:'glass',flat:[],uv:[],display:[],backcover:[],log:[],query:'',editId:null,user:null,role:'staff',premium:{isPremium:false,plan:null,trialEnd:null,premiumExpiry:null,loaded:false},myVotes:{}};
 var COLLECTIONS={flat:'flat_glasses',uv:'uv_glasses',display:'display_glasses',backcover:'backcover_glasses'};
 var searchDebounceTimer=null;
 var partsDebounceTimer=null;
@@ -1255,6 +1267,84 @@ function toggleFavorite(id,tab,name){
   lsSetJSON('favGroups',favs);
   renderQuickAccess();
 }
+
+// ── LIKE / DISLIKE VOTING ────────────────────────────────────────────────
+// Har user ek group ko sirf ek baar like YA dislike kar sakta hai (dono nahi).
+// Vote Firestore 'votes' collection me uid+group ke hisaab se unique store
+// hota hai, isliye ek hi user dobara vote nahi daal sakta — sirf switch ya
+// toggle-off kar sakta hai. Counts sabko dikhte hain (trust ke liye).
+function collectionForTab(tabKey){
+  if(COLLECTIONS[tabKey])return COLLECTIONS[tabKey];
+  var t=PART_TYPES.find(function(x){return x.key===tabKey;});
+  return t?t.col:null;
+}
+function findGroupObj(tabKey,groupId){
+  var arr=(tabKey==='flat'||tabKey==='uv'||tabKey==='backcover'||tabKey==='display')?S[tabKey]:(PF.data?PF.data[tabKey]:null);
+  return arr?arr.find(function(x){return x.id===groupId;}):null;
+}
+function bumpVersionForTab(tabKey){
+  if(tabKey==='flat'||tabKey==='uv'||tabKey==='backcover'||tabKey==='display')bumpGlassVersion(tabKey);
+  else bumpPartsVersion(tabKey);
+}
+function refreshCurrentView(tabKey){
+  if(tabKey==='flat'||tabKey==='uv'||tabKey==='backcover'||tabKey==='display'){renderCards();}
+  else{refreshPartsPage(tabKey);}
+}
+function loadMyVotes(uid){
+  if(!db||!uid)return;
+  db.collection('votes').where('uid','==',uid).get().then(function(snap){
+    var m={};
+    snap.forEach(function(d){var v=d.data();m[v.tabKey+':'+v.groupId]=v.vote;});
+    S.myVotes=m;
+    render();
+  }).catch(function(){});
+}
+function voteButtonsHtml(tabKey,g){
+  var mkey=tabKey+':'+g.id;
+  var mine=S.myVotes[mkey];
+  var lc=g.likeCount||0,dc=g.dislikeCount||0;
+  return '<div class="vote-row">'+
+    '<button class="vbtn'+(mine==='like'?' active-like':'')+'" onclick="castVote(\''+tabKey+'\',\''+g.id+'\',\'like\')">👍 '+lc+'</button>'+
+    '<button class="vbtn'+(mine==='dislike'?' active-dislike':'')+'" onclick="castVote(\''+tabKey+'\',\''+g.id+'\',\'dislike\')">👎 '+dc+'</button>'+
+    '</div>';
+}
+function castVote(tabKey,groupId,voteType){
+  if(!S.user){showToast('❌ Pehle login karo',true);return;}
+  if(!db)return;
+  var uid=S.user.uid;
+  var col=collectionForTab(tabKey);
+  if(!col)return;
+  var voteRef=db.collection('votes').doc(uid+'_'+tabKey+'_'+groupId);
+  var groupRef=db.collection(col).doc(groupId);
+  var mkey=tabKey+':'+groupId;
+  var prevVote=S.myVotes[mkey]||null;
+  var newVote=(prevVote===voteType)?null:voteType; // dobara same button dabao to vote hat jaata hai
+  haptic();
+  db.runTransaction(function(tx){
+    return tx.get(groupRef).then(function(gdoc){
+      if(!gdoc.exists)throw new Error('no-group');
+      var data=gdoc.data();
+      var likeCount=data.likeCount||0,dislikeCount=data.dislikeCount||0;
+      if(prevVote==='like')likeCount=Math.max(0,likeCount-1);
+      if(prevVote==='dislike')dislikeCount=Math.max(0,dislikeCount-1);
+      if(newVote==='like')likeCount++;
+      if(newVote==='dislike')dislikeCount++;
+      tx.update(groupRef,{likeCount:likeCount,dislikeCount:dislikeCount});
+      if(newVote)tx.set(voteRef,{uid:uid,tabKey:tabKey,groupId:groupId,vote:newVote,ts:new Date().toISOString()});
+      else tx.delete(voteRef);
+      return{likeCount:likeCount,dislikeCount:dislikeCount};
+    });
+  }).then(function(res){
+    if(newVote)S.myVotes[mkey]=newVote;else delete S.myVotes[mkey];
+    var g=findGroupObj(tabKey,groupId);
+    if(g){g.likeCount=res.likeCount;g.dislikeCount=res.dislikeCount;}
+    bumpVersionForTab(tabKey);
+    refreshCurrentView(tabKey);
+  }).catch(function(){
+    showToast('❌ Vote save nahi hua, dubara try karo',true);
+  });
+}
+
 function openFavorites(){
   closeMenu();
   var favs=getFavorites();
@@ -1645,6 +1735,33 @@ function findMatchingGroups(list,query){
   return{groups:groups,fuzzy:true,fuzzyMap:fuzzyMap};
 }
 
+// PEHLE: Spare Parts mein search sirf active tab (jaise Display) ke andar hoti
+// thi. Agar user battery code (jaise "BL 49 N") search karta tha jab tab
+// "Display" khula ho, to "kuch nahi mila" dikhta tha — jabki data "Battery"
+// tab mein maujood hota tha. User ko lagta tha data missing hai.
+// AB: jab active tab mein 0 results milein, baaki sabhi tabs bhi (jo already
+// silently render ho chuke hain) check karo ki kahin match hai kya, aur agar
+// hai to "✅ X match mila <Tab> mein" jaisa clickable hint dikhao jo seedha
+// us tab pe le jaye.
+function findMatchesInOtherTypes(q,excludeKey){
+  var out=[];
+  for(var i=0;i<PART_TYPES.length;i++){
+    var t=PART_TYPES[i];
+    if(t.key===excludeKey)continue;
+    var groups=PF.data[t.key]||[];
+    if(!groups.length)continue;
+    var res=findMatchingGroups(groups,q);
+    if(res.groups.length){
+      out.push({idx:i,key:t.key,label:t.label,color:t.color,count:res.groups.length});
+    }
+  }
+  return out;
+}
+function jumpToPartsTab(idx){
+  switchPartsTab(idx);
+  haptic();
+}
+
 // ── RENDER ───────────────────────────────────────────────────────────────
 function render(){renderStats();renderCards();var addBtn=document.getElementById('addBtn');if(addBtn)addBtn.innerHTML='＋ Add New '+itemLabel(S.tab);}
 
@@ -1738,8 +1855,8 @@ function renderCards(){
       el.innerHTML=glassSearchPromptHtml();
       return;
     }
-    if(S.tab==='backcover'&&!isAdmin()&&!isPremiumActive()){
-      el.innerHTML=categoryLockedBrowseHtml('Back Cover');
+    if(S.tab==='backcover'&&!isAdmin()){
+      el.innerHTML=glassSearchPromptHtml();
       return;
     }
     var list=getList();
@@ -1786,11 +1903,6 @@ function renderCards(){
   }
   document.getElementById('rbQuery').innerHTML='Model: <strong style="color:#eed5a0">'+escHtml(q)+'</strong>';
   document.getElementById('resultClear').style.color=isFuzzy?'#f0d090':(list.length?'#7adf63':'#e8718e');
-
-  if(S.tab==='backcover'&&!isAdmin()&&!isPremiumActive()&&list.length){
-    el.innerHTML=categoryTeaserHtml(list.length,'Back Cover');
-    return;
-  }
 
   if(!list.length){
     var crossHit=findInPartsAcrossTypes(q);
@@ -1873,9 +1985,10 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
     confidenceBadge(g.confidence)+
     (isFuzzy?'<span class="bgy">🔎 Similar</span>':(hasSearch&&matched.length?'<span class="bgg">✅ '+matched.length+' Match</span>':''))+
     '</div></div>'+adm+'</div>'+matchSection+otherTags+noteHtml+
-    '<div class="cbtns"><button class="cbtn" onclick="copyList(\''+g.id+'\')">📋 Copy Group</button>'+
+    '<div class="cbtns">'+(isAdmin()?'<button class="cbtn" onclick="copyList(\''+g.id+'\')">📋 Copy Group</button>':'')+
     '<button class="cbtn fav-btn'+(isFavorited(g.id,favTab)?' active':'')+'" id="fav_'+g.id+'" onclick="toggleFavorite(\''+g.id+'\',\''+favTab+'\',\''+escHtml(g.glassName).replace(/'/g,"\\'")+'\')">'+(isFavorited(g.id,favTab)?'⭐':'☆')+'</button>'+
-    '<button class="cbtn" onclick="shareResult(\''+g.id+'\')">📤 Share</button></div>'+
+    (isAdmin()?'<button class="cbtn" onclick="shareResult(\''+g.id+'\')">📤 Share</button>':'')+'</div>'+
+    voteButtonsHtml(favTab,g)+
     '</div></div>';
 }
 function toggleChips(id){
@@ -2963,12 +3076,19 @@ function renderPartsPageHtml(t,q){
   var res=findMatchingGroups(groups,q);
   if(!res.groups.length){
     if(!PF.ready)return '<div class="skel-wrap"><div class="skel-card"></div><div class="skel-card"></div></div>';
+    var elsewhere=findMatchesInOtherTypes(q,t.key);
+    var crossHtml='';
+    if(elsewhere.length){
+      crossHtml='<div class="pf-cross-wrap">'+elsewhere.map(function(e){
+        return '<button class="pf-cross-hint" style="--tc:'+e.color+'" onclick="jumpToPartsTab('+e.idx+')">'+
+          '<span>✅ '+e.count+' match mila <b>'+e.label+'</b> mein</span>'+
+          '<span class="pf-cross-arrow">→</span></button>';
+      }).join('')+'</div>';
+    }
     return '<div class="empty"><div class="empty-ico">🔍</div>'+
       '<p class="empty-t">Koi '+t.label+' nahi mila</p>'+
-      '<p class="empty-s">"'+escHtml(q)+'" ke liye data add nahi hua abhi</p></div>';
-  }
-  if(!isAdmin()&&!isPremiumActive()){
-    return categoryTeaserHtml(res.groups.length,t.label);
+      '<p class="empty-s">"'+escHtml(q)+'" ke liye '+t.label+' mein data add nahi hua abhi</p>'+
+      crossHtml+'</div>';
   }
   var qu=q.toUpperCase();
   return res.groups.map(function(g){return buildResultCard(g,t,q,qu,res);}).join('');
@@ -2992,6 +3112,7 @@ function buildGroupCard(g,t){
     '<div class="pf-models-count">'+mlist.length+' compatible model'+(mlist.length>1?'s':'')+'</div>'+
     '<div class="pf-models-wrap">'+mlist.map(function(m){return '<span class="pf-model-chip">'+escHtml(m)+'</span>';}).join('')+'</div>'+
     noteHtml+
+    voteButtonsHtml(t.key,g)+
     '</div>';
 }
 
@@ -3028,6 +3149,7 @@ function buildResultCard(g,t,q,qu,res){
     '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     '<div class="pf-models-wrap">'+tagsHtml+'</div>'+
     noteHtml+
+    voteButtonsHtml(t.key,g)+
     '</div>';
 }
 
@@ -3951,8 +4073,9 @@ auth.onAuthStateChanged(function(user){
     hideLogin();
     updateUserUI();
     trackUserSession(user);
+    loadMyVotes(user.uid);
   } else {
-    S.user=null;S.role='staff';
+    S.user=null;S.role='staff';S.myVotes={};
     S.premium={isPremium:false,plan:null,trialEnd:null,premiumExpiry:null,loaded:false};
     updateUserUI();
     updatePremiumUI();
