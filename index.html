@@ -22,6 +22,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..600,0..1,-25..0&display=swap">
 <style>
@@ -1203,12 +1204,83 @@ function selectPlan(p){
   document.getElementById('planMonthly').classList.toggle('sel',p==='monthly');
   document.getElementById('planYearly').classList.toggle('sel',p==='yearly');
 }
+// ── RAZORPAY PAYMENT ────────────────────────────────────────────────────
+var RAZORPAY_WORKER_URL='https://universal-combo-payments.m-k-p-tyoup.workers.dev';
+var RAZORPAY_KEY_ID='rzp_test_THRbWiDoxHhQ8V'; // TESTING key (rzp_test_...). Launch ke waqt rzp_live_... se badlo.
+var TESTING_MODE=true; // TESTING ke liye true (₹1 charge hota hai). Launch ke waqt false karo.
+
 function startCheckout(){
   if(!S.user){closeModal();showLogin();return;}
-  // NOTE: Razorpay Payment Button ID yahan plug karna hai jab account ready ho jaaye.
-  // Abhi ke liye placeholder — real integration ke liye Razorpay dashboard se
-  // Payment Button banao aur uska data-payment_button_id yahan daalo.
-  showToast('⚙️ Payment setup jald aa raha hai — Razorpay account ready hote hi ye button live ho jaayega',true);
+  var planAmount=TESTING_MODE?1:(selectedPlan==='yearly'?499:49);
+  var ctaBtn=document.querySelector('.pw-cta');
+  if(ctaBtn){ctaBtn.disabled=true;ctaBtn.textContent='Please wait...';}
+
+  fetch(RAZORPAY_WORKER_URL+'/create-order',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({amount:planAmount})
+  })
+  .then(function(res){return res.json();})
+  .then(function(order){
+    if(!order||!order.id){throw new Error('Order create nahi hua');}
+    var options={
+      key:RAZORPAY_KEY_ID,
+      amount:order.amount,
+      currency:order.currency,
+      name:'Universal Combo',
+      description:(TESTING_MODE?'Test Payment':(selectedPlan==='yearly'?'Yearly Premium':'Monthly Premium')),
+      order_id:order.id,
+      prefill:{email:S.user.email||''},
+      theme:{color:'#a87f2e'},
+      handler:function(response){
+        verifyAndActivatePremium(response);
+      },
+      modal:{
+        ondismiss:function(){
+          if(ctaBtn){ctaBtn.disabled=false;ctaBtn.textContent='Continue';}
+        }
+      }
+    };
+    var rzp=new Razorpay(options);
+    rzp.on('payment.failed',function(){
+      showToast('❌ Payment fail ho gaya, dobara try karo',true);
+      if(ctaBtn){ctaBtn.disabled=false;ctaBtn.textContent='Continue';}
+    });
+    rzp.open();
+  })
+  .catch(function(err){
+    showToast('⚠️ Payment start nahi ho paya, dobara try karo',true);
+    if(ctaBtn){ctaBtn.disabled=false;ctaBtn.textContent='Continue';}
+  });
+}
+
+function verifyAndActivatePremium(response){
+  fetch(RAZORPAY_WORKER_URL+'/verify-payment',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      razorpay_order_id:response.razorpay_order_id,
+      razorpay_payment_id:response.razorpay_payment_id,
+      razorpay_signature:response.razorpay_signature
+    })
+  })
+  .then(function(res){return res.json();})
+  .then(function(result){
+    if(!result.verified){throw new Error('Verification failed');}
+    var days=TESTING_MODE?1:(selectedPlan==='yearly'?365:30);
+    var expiry=new Date(Date.now()+days*24*60*60*1000).toISOString();
+    var plan=TESTING_MODE?'test':selectedPlan;
+    if(db&&S.user){
+      db.collection('app_users').doc(S.user.uid).update({premiumExpiry:expiry,plan:plan}).then(function(){
+        applyPremiumData({trialEnd:S.premium.trialEnd,premiumExpiry:expiry,plan:plan});
+        closeModal();
+        showToast('🎉 Payment successful — Premium activate ho gaya!');
+      });
+    }
+  })
+  .catch(function(){
+    showToast('⚠️ Payment hua par verify nahi ho paya — support se contact karo',true);
+  });
 }
 function handleExportListClick(){
   closeMenu();
