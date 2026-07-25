@@ -1095,7 +1095,7 @@ function isOnTrial(){
 // distinct searches milte hain. Back Cover + Parts Finder categories trial
 // khatam hone ke baad poori tarah lock — search karne par sirf result count
 // (teaser) dikhta hai, taaki upgrade karne ka reason bane.
-var GLASS_FREE_SEARCHES=5;
+var GLASS_FREE_SEARCHES=10;
 var lastCountedGlassQuery='';
 function todayStr(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
 function getGlassSearchUsage(){
@@ -1312,22 +1312,32 @@ function toggleFavorite(id,tab,name){
 // Vote Firestore 'votes' collection me uid+group ke hisaab se unique store
 // hota hai, isliye ek hi user dobara vote nahi daal sakta — sirf switch ya
 // toggle-off kar sakta hai. Counts sabko dikhte hain (trust ke liye).
+// NOTE: Spare Parts tabs (display/frame/backdoor/ccboard/battery) ko 'pf_'
+// prefix diya gaya hai kyunki 'display' key Glass ke COLLECTIONS.display se
+// clash karta tha — isi wajah se pehle Parts-Display pe vote save nahi ho
+// raha tha (galat collection — display_glasses — target ho raha tha).
 function collectionForTab(tabKey){
-  if(COLLECTIONS[tabKey])return COLLECTIONS[tabKey];
-  var t=PART_TYPES.find(function(x){return x.key===tabKey;});
-  return t?t.col:null;
+  if(tabKey.indexOf('pf_')===0){
+    var t=PART_TYPES.find(function(x){return x.key===tabKey.slice(3);});
+    return t?t.col:null;
+  }
+  return COLLECTIONS[tabKey]||null;
 }
 function findGroupObj(tabKey,groupId){
-  var arr=(tabKey==='flat'||tabKey==='uv'||tabKey==='backcover'||tabKey==='display')?S[tabKey]:(PF.data?PF.data[tabKey]:null);
+  if(tabKey.indexOf('pf_')===0){
+    var arr=PF.data?PF.data[tabKey.slice(3)]:null;
+    return arr?arr.find(function(x){return x.id===groupId;}):null;
+  }
+  var arr=S[tabKey];
   return arr?arr.find(function(x){return x.id===groupId;}):null;
 }
 function bumpVersionForTab(tabKey){
-  if(tabKey==='flat'||tabKey==='uv'||tabKey==='backcover'||tabKey==='display')bumpGlassVersion(tabKey);
-  else bumpPartsVersion(tabKey);
+  if(tabKey.indexOf('pf_')===0)bumpPartsVersion(tabKey.slice(3));
+  else bumpGlassVersion(tabKey);
 }
 function refreshCurrentView(tabKey){
-  if(tabKey==='flat'||tabKey==='uv'||tabKey==='backcover'||tabKey==='display'){renderCards();}
-  else{refreshPartsPage(tabKey);}
+  if(tabKey.indexOf('pf_')===0){refreshPartsPage(tabKey.slice(3));}
+  else{renderCards();}
 }
 function loadMyVotes(uid){
   if(!db||!uid)return;
@@ -2013,6 +2023,11 @@ function renderCards(){
     }
     el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div><p class="empty-t">Model Not Found</p><p class="empty-s" style="margin-bottom:14px">Try another model name</p>'+
       '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openRequestForm(\'glass\',\''+escHtml(q).replace(/'/g,"\\'")+'\')">➕ Request Update</button></div>';
+    return;
+  }
+
+  if(S.tab==='backcover'&&!isAdmin()&&!isPremiumActive()){
+    el.innerHTML=categoryTeaserHtml(list.length,'Back Cover');
     return;
   }
 
@@ -3189,6 +3204,9 @@ function renderPartsPageHtml(t,q){
       '<p class="empty-s">"'+escHtml(q)+'" ke liye '+t.label+' mein data add nahi hua abhi</p>'+
       crossHtml+'</div>';
   }
+  if(!isAdmin()&&!isPremiumActive()){
+    return categoryTeaserHtml(res.groups.length,t.label);
+  }
   var qu=q.toUpperCase();
   return res.groups.map(function(g){return buildResultCard(g,t,q,qu,res);}).join('');
 }
@@ -3211,7 +3229,7 @@ function buildGroupCard(g,t){
     '<div class="pf-models-count">'+mlist.length+' compatible model'+(mlist.length>1?'s':'')+'</div>'+
     '<div class="pf-models-wrap">'+mlist.map(function(m){return '<span class="pf-model-chip">'+escHtml(m)+'</span>';}).join('')+'</div>'+
     noteHtml+
-    voteButtonsHtml(t.key,g)+
+    voteButtonsHtml('pf_'+t.key,g)+
     '</div>';
 }
 
@@ -3248,7 +3266,7 @@ function buildResultCard(g,t,q,qu,res){
     '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     '<div class="pf-models-wrap">'+tagsHtml+'</div>'+
     noteHtml+
-    voteButtonsHtml(t.key,g)+
+    voteButtonsHtml('pf_'+t.key,g)+
     '</div>';
 }
 
