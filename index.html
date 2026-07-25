@@ -458,8 +458,8 @@ button{cursor:pointer}
 .modal{background:linear-gradient(155deg,#141926,#0b0e17);border:1px solid #d4af6a4a;border-radius:20px;width:100%;max-width:520px;padding:26px;box-shadow:0 0 60px #d4af6a1f,0 24px 60px rgba(0,0,0,.85);max-height:90vh;overflow-y:auto}
 .mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid #d4af6a26}
 .mtitle{font-size:16px;font-weight:800;color:#eed5a0}
-.mclose{background:none;border:none;color:#4a5270;padding:4px;font-size:20px;line-height:1}
-.mclose:active{transform:scale(.85)}
+.mclose{background:#ffffff0a;border:1px solid #ffffff14;color:#8892b0;padding:0;width:28px;height:28px;border-radius:9px;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;transition:background .18s ease,color .18s ease,transform .15s ease}
+.mclose:active{transform:scale(.85);background:#ffffff16;color:#dbe3f5}
 .flbl{display:block;color:#7e88a6;font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:8px;text-transform:uppercase}
 .finp{width:100%;background:#080a12;border:1px solid #1d2336;border-radius:11px;color:#eaf0ff;font-size:15px;padding:13px 14px;outline:none;transition:border .2s,box-shadow .2s}
 .finp:focus{border-color:#d4af6a5e;box-shadow:0 0 0 3px #d4af6a14}
@@ -611,9 +611,15 @@ button{cursor:pointer}
 .menu-footer-meta{display:flex;align-items:center;justify-content:center;gap:6px;font-size:10.5px;color:#5a6180;margin-top:10px;letter-spacing:.02em}
 
 /* TOAST */
-#toast{display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#0f2412,#0a160c);border:1px solid #2f7a40;border-radius:12px;padding:12px 20px;color:#7adf63;font-size:14px;font-weight:600;z-index:3000;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.6)}
-#toast.show{display:block;animation:popIn .3s ease}
-#toast.err{background:linear-gradient(135deg,#220a0e,#150608);border-color:#7a2a35;color:#e8718e}
+#toast{display:none;align-items:center;gap:10px;position:fixed;bottom:30px;left:50%;background:linear-gradient(135deg,#0f2412,#0a160c);border:1px solid #2f7a40;border-radius:14px;padding:11px 18px 11px 14px;color:#7adf63;font-size:14px;font-weight:600;z-index:3000;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+#toast.show{display:flex;animation:toastPop .35s cubic-bezier(.34,1.56,.64,1) forwards}
+#toast.error{background:linear-gradient(135deg,#220a0e,#150608);border-color:#7a2a35;color:#e8718e;animation:toastPop .35s cubic-bezier(.34,1.56,.64,1) forwards,toastShake .4s ease .35s forwards}
+#toast.warn{background:linear-gradient(135deg,#241a08,#180f04);border-color:#8a5a1f;color:#f0c179}
+#toast.info{background:linear-gradient(135deg,#131c2c,#0c1420);border-color:#2a5a7a;color:#7ec8e8}
+.toast-ic{font-size:19px;flex-shrink:0}
+.toast-ic.material-symbols-rounded{font-variation-settings:'FILL' 1}
+@keyframes toastPop{from{opacity:0;transform:translateX(-50%) scale(.85) translateY(8px)}to{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}}
+@keyframes toastShake{0%,100%{transform:translateX(-50%)}20%{transform:translateX(calc(-50% - 6px))}40%{transform:translateX(calc(-50% + 6px))}60%{transform:translateX(calc(-50% - 4px))}80%{transform:translateX(calc(-50% + 4px))}}
 
 /* LOADING */
 #loading{text-align:center;padding:60px 16px;color:#454d68}
@@ -632,23 +638,43 @@ button{cursor:pointer}
 .lock-badge{display:inline-flex;align-items:center;gap:3px;margin-left:6px;padding:1px 7px;border-radius:9px;background:#d4af6a1f;color:#e8c97a;font-size:9.5px;font-weight:800;letter-spacing:.3px;vertical-align:middle}
 .pw-wrap{padding:4px 2px 10px}
 .pw-hero{text-align:center;padding:6px 8px 14px}
-.pw-hero-ic{font-size:34px}
-.pw-hero-title{font-size:17px;font-weight:800;color:#f0d38a;margin-top:6px}
+.pw-hero-ic{width:64px;height:64px;margin:0 auto;border-radius:20px;background:linear-gradient(145deg,#e8c97a,#a87f2e 60%,#7a5f28);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1px #d4af6a33,0 10px 30px #d4af6a3a;animation:pwHeroFloat 3s ease-in-out infinite}
+.pw-hero-ic .material-symbols-rounded{font-size:30px;color:#1a1305;font-variation-settings:'FILL' 1}
+@keyframes pwHeroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.pw-hero-title{font-size:17px;font-weight:800;color:#f0d38a;margin-top:10px}
 .pw-hero-sub{font-size:12.5px;color:#a9b2c8;margin-top:4px;line-height:1.5}
-.pw-features{display:flex;flex-direction:column;gap:8px;margin:10px 4px 16px}
-.pw-feat-row{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;color:#dbe3f5}
-.pw-feat-ic{color:#7ee0a8;font-size:16px;line-height:1.3}
+.pw-features{display:flex;flex-direction:column;gap:10px;margin:10px 4px 16px}
+.pw-feat-row{display:flex;align-items:center;gap:11px;font-size:12.5px;color:#dbe3f5;opacity:0;animation:pwFeatIn .4s cubic-bezier(.22,1,.36,1) forwards}
+.pw-feat-row:nth-child(1){animation-delay:.05s}
+.pw-feat-row:nth-child(2){animation-delay:.13s}
+.pw-feat-row:nth-child(3){animation-delay:.21s}
+@keyframes pwFeatIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.pw-feat-ic{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.35)}
+.pw-feat-ic.c1{background:linear-gradient(145deg,#6fd0f0,#2f7fae)}
+.pw-feat-ic.c2{background:linear-gradient(145deg,#c48bf0,#7a4fae)}
+.pw-feat-ic.c3{background:linear-gradient(145deg,#7ee0a8,#2f9a5f)}
+.pw-feat-ic.material-symbols-rounded{font-variation-settings:'FILL' 1}
 .pw-plans{display:flex;gap:10px;margin:0 2px}
-.pw-plan{flex:1;border-radius:16px;padding:14px 10px;text-align:center;background:#12141f;border:1.5px solid #2a3350;position:relative;cursor:pointer;transition:.15s}
-.pw-plan.sel{border-color:#d4af6a;background:#1c1808}
+.pw-plan{flex:1;border-radius:16px;padding:14px 10px;text-align:center;background:#12141f;border:1.5px solid #2a3350;position:relative;cursor:pointer;transition:border-color .2s ease,background .2s ease,transform .15s ease}
+.pw-plan:active{transform:scale(.97)}
+.pw-plan.sel{border-color:#d4af6a;background:#1c1808;box-shadow:0 0 0 3px #d4af6a1f,0 6px 18px #d4af6a22;animation:pwPlanSel .35s ease}
+@keyframes pwPlanSel{0%{transform:scale(.96)}60%{transform:scale(1.02)}100%{transform:scale(1)}}
+.pw-plan-ic{display:block;font-size:19px;color:#8a93ac;transition:color .2s ease;margin-top:2px}
+.pw-plan.sel .pw-plan-ic{color:#e8c97a}
+.pw-plan-ic.material-symbols-rounded{font-variation-settings:'FILL' 1}
 .pw-plan-badge{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:linear-gradient(145deg,#e8c97a,#a87f2e);color:#1a1305;font-size:9px;font-weight:800;padding:2px 9px;border-radius:8px;white-space:nowrap}
 .pw-plan-name{font-size:11.5px;color:#9aa4bd;font-weight:700;margin-top:4px}
 .pw-plan-price{font-size:20px;font-weight:800;color:#eaf0ff;margin-top:4px}
 .pw-plan-price span{font-size:11px;color:#8a93ac;font-weight:600}
 .pw-plan-note{font-size:10px;color:#7ee0a8;margin-top:3px;font-weight:700}
-.pw-cta{display:block;width:100%;margin-top:16px;padding:13px;border:none;border-radius:14px;background:linear-gradient(145deg,#e8c97a,#a87f2e);color:#1a1305;font-size:14px;font-weight:800;cursor:pointer}
+.pw-cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:16px;padding:13px;border:none;border-radius:14px;background:linear-gradient(145deg,#e8c97a,#a87f2e);color:#1a1305;font-size:14px;font-weight:800;cursor:pointer;position:relative;overflow:hidden;transition:transform .15s ease}
+.pw-cta:active{transform:scale(.97)}
+.pw-cta::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.5),transparent);animation:pwCtaShine 2.8s ease-in-out infinite}
+@keyframes pwCtaShine{0%{left:-60%}55%{left:130%}100%{left:130%}}
+.pw-cta .material-symbols-rounded{font-size:17px;font-variation-settings:'FILL' 1}
 .pw-fine{text-align:center;font-size:10.5px;color:#6a7290;margin-top:10px;line-height:1.5}
-.pw-trial-banner{margin:0 2px 14px;padding:10px 12px;border-radius:12px;background:#152a1c;border:1px solid #2e6b45;font-size:12px;color:#8fe0ac;text-align:center;font-weight:700}
+.pw-trial-banner{margin:0 2px 14px;padding:10px 12px;border-radius:12px;background:#152a1c;border:1px solid #2e6b45;font-size:12px;color:#8fe0ac;text-align:center;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px}
+.pw-trial-banner .material-symbols-rounded{font-size:16px;font-variation-settings:'FILL' 1}
 </style>
 </head>
 <body>
@@ -1177,27 +1203,27 @@ function updatePremiumUI(){
 }
 function openUpgradeModal(){
   closeMenu();
-  var trialHtml=S.user&&isOnTrial()?'<div class="pw-trial-banner">🎁 Aapka free trial chal raha hai — '+trialDaysLeft()+' din baaki hain</div>':'';
-  var notLoggedInHtml=!S.user?'<div class="pw-trial-banner" style="background:#2a2210;border-color:#a87f2e;color:#f0d38a">👋 Pehle login/sign up karo — naye users ko 7 din FREE milte hain</div>':'';
+  var trialHtml=S.user&&isOnTrial()?'<div class="pw-trial-banner"><span class="material-symbols-rounded">redeem</span>Aapka free trial chal raha hai — '+trialDaysLeft()+' din baaki hain</div>':'';
+  var notLoggedInHtml=!S.user?'<div class="pw-trial-banner" style="background:#2a2210;border-color:#a87f2e;color:#f0d38a"><span class="material-symbols-rounded">waving_hand</span>Pehle login/sign up karo — naye users ko 7 din FREE milte hain</div>':'';
   openModal(
-    '<div class="mhead"><span class="mtitle">⭐ Premium Plan</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="mhead"><span class="mtitle">⭐ Premium Plan</span><button class="mclose" onclick="closeModal()"><span class="material-symbols-rounded" style="font-size:16px">close</span></button></div>'+
     '<div class="pw-wrap">'+
-      '<div class="pw-hero"><div class="pw-hero-ic">🚀</div><div class="pw-hero-title">Apna business tez karo</div><div class="pw-hero-sub">Zyada time bachao, zyada customers handle karo</div></div>'+
+      '<div class="pw-hero"><div class="pw-hero-ic"><span class="material-symbols-rounded">rocket_launch</span></div><div class="pw-hero-title">Apna business tez karo</div><div class="pw-hero-sub">Zyada time bachao, zyada customers handle karo</div></div>'+
       notLoggedInHtml+trialHtml+
       '<div class="pw-features">'+
-        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Unlimited Glass Search</b> — roz ki 10 free limit hatao</span></div>'+
-        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Back Cover + Spare Parts</b> — poora unlock (Display, Frame, Battery, sab)</span></div>'+
-        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Bulk Export</b> — poori list Excel/CSV mein ek click mein download</span></div>'+
+        '<div class="pw-feat-row"><span class="pw-feat-ic c1 material-symbols-rounded">travel_explore</span><span><b>Unlimited Glass Search</b> — roz ki 10 free limit hatao</span></div>'+
+        '<div class="pw-feat-row"><span class="pw-feat-ic c2 material-symbols-rounded">widgets</span><span><b>Back Cover + Spare Parts</b> — poora unlock (Display, Frame, Battery, sab)</span></div>'+
+        '<div class="pw-feat-row"><span class="pw-feat-ic c3 material-symbols-rounded">file_download</span><span><b>Bulk Export</b> — poori list Excel/CSV mein ek click mein download</span></div>'+
       '</div>'+
       '<div class="pw-plans">'+
         '<div class="pw-plan sel" id="planMonthly" onclick="selectPlan(\'monthly\')">'+
-          '<div class="pw-plan-name">MONTHLY</div><div class="pw-plan-price">₹49<span>/mo</span></div><div class="pw-plan-note">&nbsp;</div>'+
+          '<span class="pw-plan-ic material-symbols-rounded">calendar_month</span><div class="pw-plan-name">MONTHLY</div><div class="pw-plan-price">₹49<span>/mo</span></div><div class="pw-plan-note">&nbsp;</div>'+
         '</div>'+
         '<div class="pw-plan" id="planYearly" onclick="selectPlan(\'yearly\')">'+
-          '<div class="pw-plan-badge">SAVE ₹89</div><div class="pw-plan-name">YEARLY</div><div class="pw-plan-price">₹499<span>/yr</span></div><div class="pw-plan-note">≈ ₹41.6/mo</div>'+
+          '<div class="pw-plan-badge">SAVE ₹89</div><span class="pw-plan-ic material-symbols-rounded">workspace_premium</span><div class="pw-plan-name">YEARLY</div><div class="pw-plan-price">₹499<span>/yr</span></div><div class="pw-plan-note">≈ ₹41.6/mo</div>'+
         '</div>'+
       '</div>'+
-      '<button class="pw-cta" onclick="startCheckout()">'+(S.user?'Continue':'Login karke Continue karo')+'</button>'+
+      '<button class="pw-cta" onclick="startCheckout()"><span class="material-symbols-rounded">lock_open</span>'+(S.user?'Continue':'Login karke Continue karo')+'</button>'+
       '<div class="pw-fine">Kabhi bhi cancel karo. Payment secure Razorpay se hota hai.</div>'+
     '</div>'
   );
@@ -1558,11 +1584,26 @@ function jumpToFavorite(tab,name){
   S.query=name;renderCards();
 }
 
+var TOAST_ICON_MAP=[
+  ['🎉',{ic:'celebration',cls:'success'}],
+  ['⚠️',{ic:'warning',cls:'warn'}],
+  ['❌',{ic:'cancel',cls:'error'}],
+  ['🎁',{ic:'redeem',cls:'info'}]
+];
 function showToast(msg,err){
   var t=document.getElementById('toast');
-  t.textContent=msg;t.className='show'+(err?' err':'');
+  var ic=err?'cancel':'check_circle',cls=err?'error':'success',text=msg;
+  for(var i=0;i<TOAST_ICON_MAP.length;i++){
+    if(msg.indexOf(TOAST_ICON_MAP[i][0])===0){
+      ic=TOAST_ICON_MAP[i][1].ic;cls=TOAST_ICON_MAP[i][1].cls;
+      text=msg.slice(TOAST_ICON_MAP[i][0].length).trim();
+      break;
+    }
+  }
+  t.innerHTML='<span class="toast-ic material-symbols-rounded">'+ic+'</span><span class="toast-txt">'+escHtml(text)+'</span>';
+  t.className='show '+cls;
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(function(){t.className='';},2000);
+  toastTimer=setTimeout(function(){t.className='';},2200);
 }
 
 function parseModels(models){
