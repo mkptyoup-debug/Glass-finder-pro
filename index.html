@@ -1123,9 +1123,13 @@ function glassLimitReachedHtml(){
     '<p class="empty-s" style="margin-bottom:14px">Kal wapas free milenge, ya abhi Premium lekar unlimited search karo</p>'+
     '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openUpgradeModal()">⭐ Upgrade karo</button></div>';
 }
-function glassSearchPromptHtml(){
+function glassSearchPromptHtml(showQuota){
+  var quotaHtml='';
+  if(showQuota&&!isAdmin()&&!isPremiumActive()){
+    quotaHtml='<p class="empty-s" style="margin-top:8px;color:#f0d090">🔍 Aaj '+glassSearchesLeft()+'/'+GLASS_FREE_SEARCHES+' free searches bache hain</p>';
+  }
   return '<div class="empty"><div class="empty-ico">🔍</div><p class="empty-t">Apna model search karo</p>'+
-    '<p class="empty-s">Upar search box mein model naam type karo</p></div>';
+    '<p class="empty-s">Upar search box mein model naam type karo</p>'+quotaHtml+'</div>';
 }
 function categoryLockedBrowseHtml(label){
   return '<div class="empty"><div class="empty-ico">🔒</div><p class="empty-t">'+label+' Premium mein hai</p>'+
@@ -1181,7 +1185,7 @@ function openUpgradeModal(){
       '<div class="pw-hero"><div class="pw-hero-ic">🚀</div><div class="pw-hero-title">Apna business tez karo</div><div class="pw-hero-sub">Zyada time bachao, zyada customers handle karo</div></div>'+
       notLoggedInHtml+trialHtml+
       '<div class="pw-features">'+
-        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Unlimited Glass Search</b> — roz ki 5 free limit hatao</span></div>'+
+        '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Unlimited Glass Search</b> — roz ki 10 free limit hatao</span></div>'+
         '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Back Cover + Spare Parts</b> — poora unlock (Display, Frame, Battery, sab)</span></div>'+
         '<div class="pw-feat-row"><span class="pw-feat-ic material-symbols-rounded">check_circle</span><span><b>Bulk Export</b> — poori list Excel/CSV mein ek click mein download</span></div>'+
       '</div>'+
@@ -2034,11 +2038,11 @@ function renderCards(){
   if(!q){
     banner.style.display='none';
     if(S.tab==='glass'&&!isAdmin()){
-      el.innerHTML=glassSearchPromptHtml();
+      el.innerHTML=glassSearchPromptHtml(true);
       return;
     }
     if(S.tab==='backcover'&&!isAdmin()){
-      el.innerHTML=glassSearchPromptHtml();
+      el.innerHTML=glassSearchPromptHtml(false);
       return;
     }
     var list=getList();
@@ -2083,7 +2087,11 @@ function renderCards(){
     document.getElementById('rbLabel').style.color='#e8718e';
     document.getElementById('rbLabel').innerHTML='❌ Koi match nahi mila';
   }
-  document.getElementById('rbQuery').innerHTML='Model: <strong style="color:#eed5a0">'+escHtml(q)+'</strong>';
+  var quotaSuffix='';
+  if(S.tab==='glass'&&!isAdmin()&&!isPremiumActive()){
+    quotaSuffix=' <span style="color:#8892b0;font-size:11px">('+glassSearchesLeft()+'/'+GLASS_FREE_SEARCHES+' free searches aaj)</span>';
+  }
+  document.getElementById('rbQuery').innerHTML='Model: <strong style="color:#eed5a0">'+escHtml(q)+'</strong>'+quotaSuffix;
   document.getElementById('resultClear').style.color=isFuzzy?'#f0d090':(list.length?'#7adf63':'#e8718e');
 
   if(!list.length){
