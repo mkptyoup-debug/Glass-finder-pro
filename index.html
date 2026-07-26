@@ -878,6 +878,7 @@ button{cursor:pointer}
     <div class="menu-section" id="adminSection">
       <div class="menu-section-label hide" id="adminSectionLabel">Admin</div>
       <button class="menu-item hide" id="menuAdminDashBtn" onclick="openAdminDashboard()"><span class="material-symbols-rounded menu-ic">admin_panel_settings</span><span class="menu-item-label">Admin Dashboard</span></button>
+      <button class="menu-item hide" id="menuStaffFreeBtn" onclick="openStaffFreeModal()"><span class="material-symbols-rounded menu-ic">badge</span><span class="menu-item-label">Manage Free Staff</span></button>
       <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="material-symbols-rounded menu-ic">forum</span><span class="menu-item-label">View Feedback</span></button>
       <button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="material-symbols-rounded menu-ic">move_to_inbox</span><span class="menu-item-label">View Update Requests</span></button>
       <button class="menu-item hide" id="menuBackupBtn" onclick="exportBackup()"><span class="material-symbols-rounded menu-ic">cloud_download</span><span class="menu-item-label">Backup Data (JSON)</span></button>
@@ -984,7 +985,7 @@ button{cursor:pointer}
 var ADMIN_EMAIL = 'm.k.p.tyoup@gmail.com';
 
 // ── STATE ────────────────────────────────────────────────────────────────
-var S={tab:'glass',flat:[],uv:[],display:[],backcover:[],log:[],query:'',editId:null,user:null,role:'staff',premium:{isPremium:false,plan:null,trialEnd:null,premiumExpiry:null,loaded:false},myVotes:{}};
+var S={tab:'glass',flat:[],uv:[],display:[],backcover:[],log:[],query:'',editId:null,user:null,role:'staff',premium:{isPremium:false,plan:null,trialEnd:null,premiumExpiry:null,loaded:false,staffFree:false},myVotes:{}};
 var COLLECTIONS={flat:'flat_glasses',uv:'uv_glasses',display:'display_glasses',backcover:'backcover_glasses'};
 var searchDebounceTimer=null;
 var partsDebounceTimer=null;
@@ -1095,6 +1096,7 @@ function logActivity(type,detail){
 }
 function trackUserSession(user){
   if(!db||!user||!user.email)return;
+  checkStaffFreeStatus(user.email);
   var ref=db.collection('app_users').doc(user.uid);
   ref.get().then(function(doc){
     var now=new Date().toISOString();
@@ -1105,8 +1107,20 @@ function trackUserSession(user){
       db.collection('activity_log').add({type:'signup',email:user.email,detail:'New user registered',ts:now}).catch(function(){});
       applyPremiumData(newUserData);
     } else {
-      ref.update({lastActiveTs:now,email:user.email});
-      applyPremiumData(doc.data());
+      var docData=doc.data();
+      var updates={lastActiveTs:now,email:user.email};
+      if(!docData.legacyFreeMonthGranted){
+        var bonusExpiry=new Date(Date.now()+30*24*60*60*1000).toISOString();
+        var currentExpiry=docData.premiumExpiry?new Date(docData.premiumExpiry).getTime():0;
+        if(new Date(bonusExpiry).getTime()>currentExpiry){
+          updates.premiumExpiry=bonusExpiry;
+          if(!docData.plan||docData.plan==='trial')updates.plan='legacy_bonus';
+        }
+        updates.legacyFreeMonthGranted=true;
+        db.collection('activity_log').add({type:'legacy_bonus',email:user.email,detail:'Existing user granted 1 month free premium',ts:now}).catch(function(){});
+      }
+      ref.update(updates);
+      applyPremiumData(Object.assign({},docData,updates));
     }
     try{
       if(!sessionStorage.getItem('adash_open_logged')){
@@ -1127,7 +1141,8 @@ function applyPremiumData(data){
   updatePremiumUI();
 }
 function isPremiumActive(){
-  if(isAdmin())return true; // admin ko sab kuch mil jaata hai
+  if(isAdmin())return true;
+  if(S.premium.staffFree)return true;
   var p=S.premium;
   if(!p.loaded)return false;
   var now=Date.now();
@@ -1211,19 +1226,34 @@ function updatePremiumUI(){
   var avatar=document.getElementById('menuUserAvatar');
   if(!card)return;
   if(!S.user){
+    card.style.cursor='pointer';
+    card.onclick=openUpgradeModal;
     title.textContent='Go Premium';
     sub.textContent='Log in to start your 7-day free trial';
-    btn.textContent='Sign Up →';
+    btn.classList.remove('hide');btn.textContent='Sign Up →';
     if(lockBadge)lockBadge.classList.remove('hide');
     if(profileBadge)profileBadge.classList.add('hide');
     if(avatar)avatar.classList.remove('is-premium','is-trial');
     return;
   }
   if(isPremiumActive()){
-    if(isOnTrial()){
+    if(S.premium.staffFree){
+      title.textContent='👥 Free Staff Access';
+      sub.textContent='Granted by your shop admin — all features unlocked';
+      btn.classList.add('hide');
+      card.style.cursor='default';
+      card.onclick=null;
+      if(profileBadge){
+        profileBadge.classList.remove('hide','trial');
+        profileBadge.innerHTML='<span class="material-symbols-rounded" style="font-size:11px">badge</span>Staff';
+      }
+      if(avatar){avatar.classList.remove('is-trial');avatar.classList.add('is-premium');}
+    } else if(isOnTrial()){
+      card.style.cursor='pointer';
+      card.onclick=openUpgradeModal;
       title.innerHTML='Free Trial Active<span class="trial-days-chip">'+trialDaysLeft()+' days left</span>';
       sub.textContent='All premium features are unlocked — upgrade to keep them active';
-      btn.textContent='View plans →';
+      btn.classList.remove('hide');btn.textContent='View plans →';
       if(profileBadge){
         profileBadge.classList.remove('hide');
         profileBadge.classList.add('trial');
@@ -1231,9 +1261,11 @@ function updatePremiumUI(){
       }
       if(avatar){avatar.classList.remove('is-premium');avatar.classList.add('is-trial');}
     } else {
+      card.style.cursor='pointer';
+      card.onclick=openUpgradeModal;
       title.textContent='⭐ Premium Member';
       sub.textContent='All features unlocked — thank you!';
-      btn.textContent='Manage Plan →';
+      btn.classList.remove('hide');btn.textContent='Manage Plan →';
       if(profileBadge){
         profileBadge.classList.remove('hide','trial');
         profileBadge.innerHTML='<span class="material-symbols-rounded" style="font-size:11px">workspace_premium</span>Premium';
@@ -1242,9 +1274,11 @@ function updatePremiumUI(){
     }
     if(lockBadge)lockBadge.classList.add('hide');
   } else {
+    card.style.cursor='pointer';
+    card.onclick=openUpgradeModal;
     title.textContent='Go Premium';
     sub.textContent='Unlimited search, Back Cover/Parts unlock and Bulk Export';
-    btn.textContent='Upgrade →';
+    btn.classList.remove('hide');btn.textContent='Upgrade →';
     if(lockBadge)lockBadge.classList.remove('hide');
     if(profileBadge)profileBadge.classList.add('hide');
     if(avatar)avatar.classList.remove('is-premium','is-trial');
@@ -1447,7 +1481,7 @@ function toggleFavorite(id,tab,name){
   if(idx>=0){
     favs.splice(idx,1);
     if(btn){btn.classList.remove('active');btn.innerHTML='☆';}
-    showToast('Favorites se hata diya');
+    showToast('Removed from Favorites');
   } else {
     favs.unshift({id:id,tab:tab,name:name});
     if(btn){btn.classList.add('active');btn.innerHTML='⭐';}
@@ -1863,6 +1897,7 @@ function updateUserUI(){
     menuLoginBtn.classList.add('hide');
     if(menuAnnounceBtn)menuAnnounceBtn.classList.remove('hide');
     var menuAdminDashBtn=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn)menuAdminDashBtn.classList.remove('hide');
+    var menuStaffFreeBtn=document.getElementById('menuStaffFreeBtn');if(menuStaffFreeBtn)menuStaffFreeBtn.classList.remove('hide');
     menuFeedbackBtn.classList.remove('hide');
     menuRequestsBtn.classList.remove('hide');
     menuBackupBtn.classList.remove('hide');
@@ -1889,6 +1924,7 @@ function updateUserUI(){
     menuLoginBtn.classList.add('hide');
     if(menuAnnounceBtn)menuAnnounceBtn.classList.add('hide');
     var menuAdminDashBtn2=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn2)menuAdminDashBtn2.classList.add('hide');
+    var menuStaffFreeBtn2=document.getElementById('menuStaffFreeBtn');if(menuStaffFreeBtn2)menuStaffFreeBtn2.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
     menuBackupBtn.classList.add('hide');
@@ -1909,6 +1945,7 @@ function updateUserUI(){
     menuLoginBtn.classList.add('hide');
     if(menuAnnounceBtn)menuAnnounceBtn.classList.add('hide');
     var menuAdminDashBtn3=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn3)menuAdminDashBtn3.classList.add('hide');
+    var menuStaffFreeBtn3=document.getElementById('menuStaffFreeBtn');if(menuStaffFreeBtn3)menuStaffFreeBtn3.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
     menuBackupBtn.classList.add('hide');
@@ -2549,7 +2586,7 @@ function startVoiceSearch(inputId,triggerFn){
   function attachHandlers(rec){
     rec.onstart=function(){
       if(btn)btn.classList.add('listening');
-      if(!gotAnySpeech)showToast('🎤 Boliye, sun raha hoon...');
+      if(!gotAnySpeech)showToast('🎤 Listening, please speak...');
       resetSilenceTimer();
     };
 
@@ -2589,7 +2626,7 @@ function startVoiceSearch(inputId,triggerFn){
       }
       if(event.error==='not-allowed'||event.error==='service-not-allowed'){
         voiceIntentionalStop=true;
-        showToast('❌ Mic permission chahiye',true);
+        showToast('❌ Mic permission required',true);
         return;
       }
       if(event.error==='aborted'){return;} // manual stop se aata hai, ignore karo
@@ -2825,7 +2862,7 @@ function submitGlass(){
   var models=splitModelsInput(document.getElementById('gModels').value);
   var confidence=document.getElementById('gConfidence').value;
   var note=document.getElementById('gNote').value.trim();
-  if(!name||!models.length){showToast('❌ Name aur models dono bharo!',true);return;}
+  if(!name||!models.length){showToast('❌ Please fill in both name and models!',true);return;}
   if(!db){showToast('❌ Not connected',true);return;}
   var isEdit=!!S.editId;
   var targetKey;
@@ -3040,12 +3077,12 @@ function submitUHero(){
   var icon=document.getElementById('uhIcon').value.trim()||'📢';
   var title=document.getElementById('uhTitle').value.trim();
   var desc=document.getElementById('uhDesc').value.trim();
-  if(!title){showToast('❌ Title bharo!',true);return;}
+  if(!title){showToast('❌ Please enter a title!',true);return;}
   if(!db){showToast('❌ Not connected',true);return;}
   U.hero={icon:icon,title:title,desc:desc,hidden:false};
   db.collection('meta').doc('updatesHero').set(U.hero).then(function(){
     showToast('✅ Announcement saved');closeModal();renderUHero();
-  },function(){showToast('❌ Save fail hua',true);});
+  },function(){showToast('❌ Save failed',true);});
 }
 function hideUHero(){
   if(!U.hero)return;U.hero.hidden=true;
@@ -3078,6 +3115,53 @@ function renderUFeed(){
       '<div class="uupd-date">'+escHtml(it.date||'')+'</div></div>'+adm+'</div>';
   }).join('');
 }
+function openStaffFreeModal(){
+  if(!isAdmin())return;
+  openModal('<div class="mhead"><span class="mtitle">👥 Manage Free Staff</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="fgrp"><label class="flbl">Staff Email</label><input class="finp" id="sfEmailInput" type="email" placeholder="employee@example.com"/></div>'+
+    '<div class="brow"><button class="bcancel" onclick="closeModal()">Close</button><button class="bsave" onclick="addStaffFreeEmail()">Add</button></div>'+
+    '<div id="sfList" style="margin-top:14px">Loading...</div>');
+  loadStaffFreeList();
+}
+function loadStaffFreeList(){
+  if(!db)return;
+  db.collection('staff_whitelist').get().then(function(snap){
+    var wrap=document.getElementById('sfList');
+    if(!wrap)return;
+    if(snap.empty){wrap.innerHTML='<div class="adash-empty">No free staff added yet</div>';return;}
+    var rows=[];
+    snap.forEach(function(doc){
+      var d=doc.data();
+      rows.push('<div class="adash-row"><span class="adash-row-main">'+escHtml(d.email||doc.id)+'</span><button class="ibtn" onclick="removeStaffFreeEmail(\''+doc.id+'\')">🗑️</button></div>');
+    });
+    wrap.innerHTML=rows.join('');
+  });
+}
+function addStaffFreeEmail(){
+  var input=document.getElementById('sfEmailInput');
+  var email=(input.value||'').trim().toLowerCase();
+  if(!email||email.indexOf('@')<0){showToast('❌ Please enter a valid email',true);return;}
+  if(!db){showToast('❌ Not connected',true);return;}
+  db.collection('staff_whitelist').doc(email).set({email:email,addedTs:new Date().toISOString(),addedBy:S.user?S.user.email:''}).then(function(){
+    showToast('✅ Added');
+    input.value='';
+    loadStaffFreeList();
+  },function(){showToast('❌ Save failed',true);});
+}
+function removeStaffFreeEmail(id){
+  if(!db)return;
+  db.collection('staff_whitelist').doc(id).delete().then(function(){
+    showToast('🗑️ Removed');
+    loadStaffFreeList();
+  },function(){showToast('❌ Save failed',true);});
+}
+function checkStaffFreeStatus(email){
+  if(!db||!email)return;
+  db.collection('staff_whitelist').doc(email.toLowerCase().trim()).get().then(function(doc){
+    S.premium.staffFree=doc.exists;
+    updatePremiumUI();
+  }).catch(function(){});
+}
 function openUFeedModal(id){
   var it=id?U.feed.find(function(x){return x.id===id;}):null;
   openModal('<div class="mhead"><span class="mtitle">'+(it?'✏️ Edit Update':'➕ Add Update')+'</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
@@ -3092,7 +3176,7 @@ function submitUFeed(){
   var icon=document.getElementById('ufIcon').value.trim()||'✔';
   var desc=document.getElementById('ufDesc').value.trim();
   var id=document.getElementById('ufId').value;
-  if(!title){showToast('❌ Title bharo!',true);return;}
+  if(!title){showToast('❌ Please enter a title!',true);return;}
   if(!db){showToast('❌ Not connected',true);return;}
   var now=new Date();
   var dateStr=now.toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
@@ -3105,7 +3189,7 @@ function submitUFeed(){
   U.feed=U.feed.slice(0,50);
   db.collection('meta').doc('updatesFeed').set({items:U.feed}).then(function(){
     showToast('✅ Saved');closeModal();renderUFeed();
-  },function(){showToast('❌ Save fail hua',true);});
+  },function(){showToast('❌ Save failed',true);});
 }
 function deleteUFeedItem(id){
   if(!confirm('Delete this update?'))return;
@@ -3143,7 +3227,7 @@ function submitUVer(){
   var version=document.getElementById('uvVersion').value.trim();
   var notes=document.getElementById('uvNotes').value.split('\n').map(function(s){return s.trim();}).filter(Boolean);
   var id=document.getElementById('uvId').value;
-  if(!version){showToast('❌ Version number bharo!',true);return;}
+  if(!version){showToast('❌ Please enter a version number!',true);return;}
   if(!db){showToast('❌ Not connected',true);return;}
   var dateStr=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
   if(id){
@@ -3155,7 +3239,7 @@ function submitUVer(){
   U.changelog=U.changelog.slice(0,20); // storage stays tiny; UI only shows latest 5 anyway
   db.collection('meta').doc('changelog').set({items:U.changelog}).then(function(){
     showToast('✅ Saved');closeModal();renderUVer();
-  },function(){showToast('❌ Save fail hua',true);});
+  },function(){showToast('❌ Save failed',true);});
 }
 function deleteUVer(id){
   if(!confirm('Delete this version entry?'))return;
@@ -3188,12 +3272,12 @@ function submitUInfo(){
   var changesRaw=document.getElementById('uiChanges').value;
   var tip=document.getElementById('uiTip').value.trim();
   var changes=changesRaw.split('\n').map(function(c){return c.trim();}).filter(Boolean);
-  if(!version){showToast('❌ Version bharo!',true);return;}
+  if(!version){showToast('❌ Please enter a version!',true);return;}
   if(!db){showToast('❌ Not connected',true);return;}
   U.info={version:version,changes:changes,tip:tip};
   db.collection('meta').doc('appInfo').set(U.info).then(function(){
     showToast('✅ App info saved');closeModal();renderUInfo();
-  },function(){showToast('❌ Save fail hua',true);});
+  },function(){showToast('❌ Save failed',true);});
 }
 
 // ── BOTTOM NAV PAGE SWITCH ────────────────────────────────────────────────
@@ -3633,7 +3717,7 @@ function submitParts(){
   var panel=(typeKey==='display'&&panelEl)?panelEl.value:'';
   var curveEl=document.getElementById('pf_curve');
   var curve=(typeKey==='display'&&curveEl)?curveEl.value:'';
-  if(!t||!partName||!models.length){showToast('❌ Sab fields bharo!',true);return;}
+  if(!t||!partName||!models.length){showToast('❌ Please fill in all fields!',true);return;}
   if(!db){showToast('❌ No connection',true);return;}
   var id=PF.editId||db.collection(t.col).doc().id;var isEdit=!!PF.editId;
   var newDoc={id:id,partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve};
@@ -3688,7 +3772,7 @@ function submitPartsBulk(typeKey){
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   if(!t||!db){showToast('❌ No connection',true);return;}
   var lines=document.getElementById('pf_bulkText').value.split('\n').map(function(l){return l.trim();}).filter(Boolean);
-  if(!lines.length){showToast('❌ Data daalo!',true);return;}
+  if(!lines.length){showToast('❌ Please enter data!',true);return;}
   var batch=db.batch();var newDocs=[];
   lines.forEach(function(line){
     var parts=line.split('|').map(function(p){return p.trim();});
@@ -4247,7 +4331,7 @@ function openRequestForm(type,prefill){
 function sendUpdateRequest(type){
   var model=document.getElementById('reqModel').value.trim();
   var details=document.getElementById('reqDetails').value.trim();
-  if(!model){showToast('❌ Model likho',true);return;}
+  if(!model){showToast('❌ Please enter a model',true);return;}
   if(!db){showToast('❌ Not connected',true);return;}
   var mu=model.toUpperCase();
   db.collection('update_requests').where('type','==',type).get().then(function(snap){
