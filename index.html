@@ -1435,6 +1435,19 @@ function trackSearch(query){
   db.collection('meta').doc('counters').set({totalSearches:firebase.firestore.FieldValue.increment(1)},{merge:true}).catch(function(){});
   logActivity('search','searched "'+query.trim()+'"');
 }
+function trackNotFoundSearch(query,source){
+  if(!db||!query||query.trim().length<2)return;
+  var key=query.trim().toUpperCase();
+  var brand=detectSearchBrand(key);
+  var docUpdate={
+    query:query.trim(),
+    brand:brand,
+    source:source||'glass',
+    count:firebase.firestore.FieldValue.increment(1),
+    lastSearched:new Date().toISOString()
+  };
+  db.collection('not_found_searches').doc(key).set(docUpdate,{merge:true}).catch(function(){});
+}
 function trackShare(){
   if(!db||!S.user||!S.user.email)return;
   var today=new Date().toISOString().slice(0,10);
@@ -2210,6 +2223,7 @@ function renderCards(){
   var isFuzzy=res.fuzzy;
   var fuzzyMap=res.fuzzyMap||{};
   var list=res.groups;
+  S.lastSearchNotFound=!list.length;
 
   // Banner
   banner.style.display='block';
@@ -2764,7 +2778,7 @@ function onSearch(){
   searchDebounceTimer=setTimeout(function(){
     window.__searchT0=performance.now();
     S.query=v;renderCards();
-    if(qq.length>=2){saveSearchHistory(qq);haptic();trackSearch(qq);}
+    if(qq.length>=2){saveSearchHistory(qq);haptic();trackSearch(qq);if(S.lastSearchNotFound)trackNotFoundSearch(qq,S.tab);}
   },150);
 }
 
@@ -2857,6 +2871,19 @@ function glassFormHtml(g){
     '<button class="bsave" onclick="submitGlass()">Save '+iLbl+'</button></div>';
 }
 
+function findDuplicateModels(newModels,targetKey,excludeId){
+  var normNew=newModels.map(function(m){return m.trim().toUpperCase();});
+  var conflicts=[];
+  var list=S[targetKey]||[];
+  list.forEach(function(g){
+    if(excludeId&&g.id===excludeId)return;
+    var existingModels=parseModels(g.models).map(function(m){return m.trim().toUpperCase();});
+    normNew.forEach(function(nm){
+      if(existingModels.indexOf(nm)>=0)conflicts.push({model:nm,existingName:g.glassName});
+    });
+  });
+  return conflicts;
+}
 function submitGlass(){
   var name=document.getElementById('gName').value.trim();
   var models=splitModelsInput(document.getElementById('gModels').value);
@@ -2873,6 +2900,31 @@ function submitGlass(){
     var typeSel=document.getElementById('gType');
     targetKey=typeSel?typeSel.value:S.tab;
   }
+  var dupes=findDuplicateModels(models,targetKey,isEdit?S.editId:null);
+  if(dupes.length){
+    showGlassDuplicateWarning(dupes,{name:name,models:models,confidence:confidence,note:note,targetKey:targetKey,isEdit:isEdit});
+    return;
+  }
+  proceedSaveGlass(name,models,confidence,note,targetKey,isEdit);
+}
+function showGlassDuplicateWarning(dupes,pending){
+  window.__pendingGlassSave=pending;
+  var rows=dupes.slice(0,10).map(function(d){
+    return '<div class="adash-row"><span class="adash-row-main">'+escHtml(d.model)+'</span><span class="adash-row-sub">in '+escHtml(d.existingName)+'</span></div>';
+  }).join('');
+  var more=dupes.length>10?'<div class="adash-empty">+'+(dupes.length-10)+' more</div>':'';
+  openModal('<div class="mhead"><span class="mtitle">⚠️ Duplicate Models Found</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<p style="color:#9aa6c4;font-size:12.5px;margin-bottom:10px">These models already exist in another group. Saving anyway may cause confusing search results.</p>'+
+    rows+more+
+    '<div class="brow" style="margin-top:14px"><button class="bcancel" onclick="closeModal()">Cancel</button><button class="bsave" style="background:#e8718e" onclick="confirmSaveGlassAnyway()">Save Anyway</button></div>');
+}
+function confirmSaveGlassAnyway(){
+  var p=window.__pendingGlassSave;
+  if(!p)return;
+  proceedSaveGlass(p.name,p.models,p.confidence,p.note,p.targetKey,p.isEdit);
+  window.__pendingGlassSave=null;
+}
+function proceedSaveGlass(name,models,confidence,note,targetKey,isEdit){
   var id=S.editId||db.collection(COLLECTIONS[targetKey]).doc().id;
   var newDoc={id:id,glassName:name,models:models,confidence:confidence,note:note};
 
@@ -3412,7 +3464,7 @@ function onPartsSearch(){
   clearTimeout(partsDebounceTimer);
   partsDebounceTimer=setTimeout(function(){
     PF.query=v;renderPartsCards();
-    if(qq.length>=2)trackSearch(qq);
+    if(qq.length>=2){trackSearch(qq);if(PF.lastSearchNotFound)trackNotFoundSearch(qq,'parts');}
   },150);
 }
 
@@ -3423,6 +3475,12 @@ function renderPartsCards(){
     var page=document.getElementById('pfPage-'+t.key);
     if(page)page.innerHTML=renderPartsPageHtml(t,q);
   });
+  if(q.length>=2){
+    PF.lastSearchNotFound=!PART_TYPES.some(function(t){
+      var groups=PF.data[t.key]||[];
+      return findMatchingGroups(groups,q).groups.length>0;
+    });
+  }
 }
 // Sirf ek category ka page refresh karo — baaki tabs/sections ko touch mat karo,
 // aur na hi active tab ko switch karo. Add/Edit save ke baad yehi use hota hai.
@@ -3706,6 +3764,19 @@ function partsFormHtml(typeKey,it){
     '<button class="bsave" onclick="submitParts()">Save</button></div>';
 }
 
+function findDuplicatePartModels(newModels,typeKey,excludeId){
+  var normNew=newModels.map(function(m){return m.trim().toUpperCase();});
+  var conflicts=[];
+  var list=PF.data[typeKey]||[];
+  list.forEach(function(g){
+    if(excludeId&&g.id===excludeId)return;
+    var existingModels=parseModels(g.models).map(function(m){return m.trim().toUpperCase();});
+    normNew.forEach(function(nm){
+      if(existingModels.indexOf(nm)>=0)conflicts.push({model:nm,existingName:g.partName});
+    });
+  });
+  return conflicts;
+}
 function submitParts(){
   var typeKey=PF.editKey||PF.currentCategory||(document.getElementById('pf_typeSelect')?document.getElementById('pf_typeSelect').value:null);
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
@@ -3719,6 +3790,32 @@ function submitParts(){
   var curve=(typeKey==='display'&&curveEl)?curveEl.value:'';
   if(!t||!partName||!models.length){showToast('❌ Please fill in all fields!',true);return;}
   if(!db){showToast('❌ No connection',true);return;}
+  var dupes=findDuplicatePartModels(models,typeKey,PF.editId);
+  if(dupes.length){
+    showPartsDuplicateWarning(dupes,{typeKey:typeKey,partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve});
+    return;
+  }
+  proceedSaveParts(typeKey,partName,models,confidence,note,panel,curve);
+}
+function showPartsDuplicateWarning(dupes,pending){
+  window.__pendingPartsSave=pending;
+  var rows=dupes.slice(0,10).map(function(d){
+    return '<div class="adash-row"><span class="adash-row-main">'+escHtml(d.model)+'</span><span class="adash-row-sub">in '+escHtml(d.existingName)+'</span></div>';
+  }).join('');
+  var more=dupes.length>10?'<div class="adash-empty">+'+(dupes.length-10)+' more</div>':'';
+  openModal('<div class="mhead"><span class="mtitle">⚠️ Duplicate Models Found</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<p style="color:#9aa6c4;font-size:12.5px;margin-bottom:10px">These models already exist in another group. Saving anyway may cause confusing search results.</p>'+
+    rows+more+
+    '<div class="brow" style="margin-top:14px"><button class="bcancel" onclick="closeModal()">Cancel</button><button class="bsave" style="background:#e8718e" onclick="confirmSavePartsAnyway()">Save Anyway</button></div>');
+}
+function confirmSavePartsAnyway(){
+  var p=window.__pendingPartsSave;
+  if(!p)return;
+  proceedSaveParts(p.typeKey,p.partName,p.models,p.confidence,p.note,p.panel,p.curve);
+  window.__pendingPartsSave=null;
+}
+function proceedSaveParts(typeKey,partName,models,confidence,note,panel,curve){
+  var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   var id=PF.editId||db.collection(t.col).doc().id;var isEdit=!!PF.editId;
   var newDoc={id:id,partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve};
 
@@ -3761,9 +3858,9 @@ function openPartsBulkModal(){
   var t=PART_TYPES.find(function(x){return x.key===PF.currentCategory;})||PART_TYPES[PF.activeIdx];
   openModal('<div class="mhead"><span class="mtitle">📋 Bulk Add '+t.label+'</span>'+
     '<button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<div class="fgrp"><label class="flbl">Ek line = ek Part Group</label>'+
+    '<div class="fgrp"><label class="flbl">One line = one Part Group</label>'+
     '<textarea class="finp" id="pf_bulkText" rows="10" placeholder="PartName | model1, model2, model3 | 100\nY20 Battery | Vivo Y20, Vivo Y20G | 100\nY33 Display | Vivo Y33, Vivo Y33s | 75"></textarea>'+
-    '<div class="fhint">💡 Format: Part Name | Models (comma se) | Confidence (100 / 75 / check). Har part naye line me.</div></div>'+
+    '<div class="fhint">💡 Format: Part Name | Models (comma separated) | Confidence (100 / 75 / check). One part per line.</div></div>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
     '<button class="bsave" onclick="submitPartsBulk(\''+t.key+'\')">Add All</button></div>');
 }
@@ -3912,6 +4009,7 @@ function openAdminDashboard(){
   Promise.all([
     db.collection('app_users').get().catch(function(e){console.error('app_users read failed:',e);return null;}),
     db.collection('search_stats').orderBy('count','desc').limit(10).get().catch(function(e){console.error('search_stats read failed:',e);return null;}),
+    db.collection('not_found_searches').orderBy('count','desc').limit(15).get().catch(function(e){console.error('not_found_searches read failed:',e);return null;}),
     db.collection('share_stats').orderBy('count','desc').limit(20).get().catch(function(e){console.error('share_stats read failed:',e);return null;}),
     db.collection('search_daily').orderBy('date','desc').limit(30).get().catch(function(e){console.error('search_daily read failed:',e);return null;}),
     db.collection('share_daily').orderBy('date','desc').limit(30).get().catch(function(e){console.error('share_daily read failed:',e);return null;}),
@@ -3920,12 +4018,13 @@ function openAdminDashboard(){
   ]).then(function(r){
     var users=[];if(r[0])r[0].forEach(function(d){var v=d.data();v.id=d.id;users.push(v);});
     var searchTop=[];if(r[1])r[1].forEach(function(d){var v=d.data();v.id=d.id;searchTop.push(v);});
-    var shares=[];if(r[2])r[2].forEach(function(d){var v=d.data();v.id=d.id;shares.push(v);});
-    var searchDaily=[];if(r[3])r[3].forEach(function(d){searchDaily.push(d.data());});
-    var shareDaily=[];if(r[4])r[4].forEach(function(d){shareDaily.push(d.data());});
-    var activity=[];if(r[5])r[5].forEach(function(d){var v=d.data();v.id=d.id;activity.push(v);});
-    var counters=(r[6]&&r[6].exists)?r[6].data():{};
-    ADASH.raw={users:users,searchTop:searchTop,shares:shares,searchDaily:searchDaily,shareDaily:shareDaily,activity:activity,counters:counters};
+    var notFoundTop=[];if(r[2])r[2].forEach(function(d){var v=d.data();v.id=d.id;notFoundTop.push(v);});
+    var shares=[];if(r[3])r[3].forEach(function(d){var v=d.data();v.id=d.id;shares.push(v);});
+    var searchDaily=[];if(r[4])r[4].forEach(function(d){searchDaily.push(d.data());});
+    var shareDaily=[];if(r[5])r[5].forEach(function(d){shareDaily.push(d.data());});
+    var activity=[];if(r[6])r[6].forEach(function(d){var v=d.data();v.id=d.id;activity.push(v);});
+    var counters=(r[7]&&r[7].exists)?r[7].data():{};
+    ADASH.raw={users:users,searchTop:searchTop,notFoundTop:notFoundTop,shares:shares,searchDaily:searchDaily,shareDaily:shareDaily,activity:activity,counters:counters};
     adashRender();
   });
 }
@@ -3957,7 +4056,7 @@ function adashDailyMap(list){var m={};list.forEach(function(d){if(d&&d.date)m[d.
 function adashRender(){
   var el=document.getElementById('adminDashContent');
   if(!el||!ADASH.raw)return;
-  var raw=ADASH.raw,users=raw.users,searchTop=raw.searchTop,shares=raw.shares;
+  var raw=ADASH.raw,users=raw.users,searchTop=raw.searchTop,notFoundTop=raw.notFoundTop||[],shares=raw.shares;
   var todayStr=adashDateStr(0),yestStr=adashDateStr(1);
   var last7=adashDayList(7),last30=adashDayList(30);
   var sdMap=adashDailyMap(raw.searchDaily),shdMap=adashDailyMap(raw.shareDaily);
@@ -4015,6 +4114,10 @@ function adashRender(){
     return '<div class="adash-progress-row"><div class="adash-progress-top"><span class="adash-progress-name">#'+(i+1)+' '+escHtml(s.query||s.id)+'</span><span class="adash-progress-count">'+(s.count||0)+'</span></div>'+
       '<div class="adash-progress-bar"><div class="adash-progress-fill" style="width:'+p+'%"></div></div></div>';
   }).join(''):'<div class="adash-empty">No search data</div>';
+
+  var notFoundHtml=notFoundTop.length?notFoundTop.map(function(s){
+    return '<div class="adash-row"><span class="adash-row-main">'+escHtml(s.query||s.id)+'</span><span class="adash-row-badge" style="background:#e8718e">'+(s.count||0)+'×</span></div>';
+  }).join(''):'<div class="adash-empty">No missing models tracked yet</div>';
 
   var trendToday=searchTop.map(function(s){return {q:s.query||s.id,c:s['d_'+todayStr]||0,doc:s};}).filter(function(x){return x.c>0;}).sort(function(a,b){return b.c-a.c;});
   var trendWeek=searchTop.map(function(s){var c=last7.reduce(function(sum,d){return sum+(s['d_'+d]||0);},0);return {q:s.query||s.id,c:c};}).filter(function(x){return x.c>0;}).sort(function(a,b){return b.c-a.c;});
@@ -4079,6 +4182,7 @@ function adashRender(){
   html+='<div class="adash-hdr">✨ AI Insights</div>'+insightsHtml;
   html+='<div class="adash-hdr">📈 Search Trend</div><div class="adash-chart-box"><canvas id="adashSearchChart" height="130"></canvas></div>';
   html+='<div class="adash-hdr">🔍 Most Searched Models (Top 10)</div>'+top10Html;
+  html+='<div class="adash-hdr">🚫 Missing Models (Searched, Not Found)</div>'+notFoundHtml;
   html+='<div class="adash-hdr">🔥 Today\'s Trending Searches</div>'+trendListHtml(trendToday,'No searches today');
   html+='<div class="adash-hdr">📅 Weekly Trending Searches</div>'+trendListHtml(trendWeek,'No searches tracked this week');
   html+='<div class="adash-hdr">🏷️ Brand Analytics</div><div class="adash-brand-grid">'+brandHtml+'</div>';
@@ -4459,7 +4563,7 @@ auth.onAuthStateChanged(function(user){
     loadMyVotes(user.uid);
   } else {
     S.user=null;S.role='staff';S.myVotes={};
-    S.premium={isPremium:false,plan:null,trialEnd:null,premiumExpiry:null,loaded:false};
+    S.premium={isPremium:false,plan:null,trialEnd:null,premiumExpiry:null,loaded:false,staffFree:false};
     updateUserUI();
     updatePremiumUI();
   }
