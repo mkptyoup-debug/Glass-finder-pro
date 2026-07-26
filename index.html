@@ -553,6 +553,25 @@ button{cursor:pointer}
 .adash-mini-val{font-size:17px;font-weight:800;color:#eed5a0}
 .adash-mini-lbl{font-size:10px;color:#6a7390;font-weight:600;margin-top:3px}
 .adash-skel{height:70px;border-radius:14px;background:linear-gradient(90deg,#11141f 25%,#1c2135 37%,#11141f 63%);background-size:400% 100%;animation:skelShine 1.4s ease-in-out infinite;margin-bottom:10px}
+.adash-prow{background:#11141f;border:1px solid #ffffff0d;border-radius:12px;padding:11px 13px;margin-bottom:8px}
+.adash-prow-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.adash-prow-email{font-size:12.5px;font-weight:700;color:#e8ecf5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adash-prow-badge{font-size:10.5px;font-weight:800;border-radius:10px;padding:2px 9px;flex-shrink:0}
+.adash-prow-badge.active{color:#0f1218;background:#4fc787}
+.adash-prow-badge.expired{color:#fff;background:#e8718e}
+.adash-prow-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:11px;color:#8a92ad}
+.adash-prow-grid b{color:#d4af6a;font-weight:700}
+.notif-backdrop{position:fixed;inset:0;background:#000000a6;z-index:9990;opacity:0;transition:opacity .25s ease;visibility:hidden}
+.notif-backdrop.show{opacity:1;visibility:visible}
+.notif-sheet{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(160deg,#161b2a,#0e1119);border-top:1px solid #d4af6a3a;border-radius:22px 22px 0 0;padding:10px 22px 26px;z-index:9991;transform:translateY(100%);transition:transform .32s cubic-bezier(.22,1,.36,1);box-shadow:0 -10px 40px #0009;text-align:center;visibility:hidden}
+.notif-sheet.show{transform:translateY(0);visibility:visible}
+.notif-sheet-handle{width:40px;height:4px;background:#ffffff26;border-radius:3px;margin:0 auto 18px}
+.notif-sheet-icon{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#e8c97a,#a87f2e);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px;box-shadow:0 6px 20px #d4af6a4a}
+.notif-sheet-title{font-size:17px;font-weight:800;color:#eed5a0;margin-bottom:6px}
+.notif-sheet-desc{font-size:12.5px;color:#9aa2bd;line-height:1.5;margin-bottom:20px}
+.notif-sheet-actions{display:flex;gap:10px}
+.notif-btn-skip{flex:1;padding:13px;border-radius:14px;background:#ffffff0d;border:1px solid #ffffff14;color:#9aa2bd;font-weight:700;font-size:13.5px}
+.notif-btn-allow{flex:1.3;padding:13px;border-radius:14px;background:linear-gradient(135deg,#e8c97a,#a87f2e);border:none;color:#1a1305;font-weight:800;font-size:13.5px}
 #menuOverlay{display:none;position:fixed;inset:0;background:rgba(4,5,10,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:2500;opacity:0;transition:opacity .3s ease}
 #menuOverlay.show{display:block}
 #menuOverlay.in{opacity:1}
@@ -879,6 +898,7 @@ button{cursor:pointer}
       <div class="menu-section-label hide" id="adminSectionLabel">Admin</div>
       <button class="menu-item hide" id="menuAdminDashBtn" onclick="openAdminDashboard()"><span class="material-symbols-rounded menu-ic">admin_panel_settings</span><span class="menu-item-label">Admin Dashboard</span></button>
       <button class="menu-item hide" id="menuStaffFreeBtn" onclick="openStaffFreeModal()"><span class="material-symbols-rounded menu-ic">badge</span><span class="menu-item-label">Manage Free Staff</span></button>
+      <button class="menu-item hide" id="menuSendNotifBtn" onclick="openSendNotifModal()"><span class="material-symbols-rounded menu-ic">campaign</span><span class="menu-item-label">Send Notification</span></button>
       <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="material-symbols-rounded menu-ic">forum</span><span class="menu-item-label">View Feedback</span></button>
       <button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="material-symbols-rounded menu-ic">move_to_inbox</span><span class="menu-item-label">View Update Requests</span></button>
       <button class="menu-item hide" id="menuBackupBtn" onclick="exportBackup()"><span class="material-symbols-rounded menu-ic">cloud_download</span><span class="menu-item-label">Backup Data (JSON)</span></button>
@@ -1321,6 +1341,7 @@ function selectPlan(p){
 var RAZORPAY_WORKER_URL='https://universal-combo-payments.m-k-p-tyoup.workers.dev';
 var RAZORPAY_KEY_ID='rzp_live_THoq3uA2byE3uT'; // LIVE key — real payments hongi ab
 var TESTING_MODE=true; // true for testing (₹1 charge). Set to false at launch.
+var NOTIFY_WORKER_URL='https://notify-worker.m-k-p-tyoup.workers.dev'; // ⚠️ deploy notify-worker.js aur yahan uska actual URL daalo
 
 function startCheckout(){
   if(!S.user){closeModal();showLogin();return;}
@@ -1383,8 +1404,9 @@ function verifyAndActivatePremium(response){
     var days=TESTING_MODE?1:(selectedPlan==='yearly'?365:30);
     var expiry=new Date(Date.now()+days*24*60*60*1000).toISOString();
     var plan=TESTING_MODE?'test':selectedPlan;
+    var purchaseTs=new Date().toISOString();
     if(db&&S.user){
-      db.collection('app_users').doc(S.user.uid).update({premiumExpiry:expiry,plan:plan}).then(function(){
+      db.collection('app_users').doc(S.user.uid).update({premiumExpiry:expiry,plan:plan,purchaseTs:purchaseTs,lastPaymentId:response.razorpay_payment_id||''}).then(function(){
         applyPremiumData({trialEnd:S.premium.trialEnd,premiumExpiry:expiry,plan:plan});
         closeModal();
         showPaySuccessAnim();
@@ -1911,6 +1933,7 @@ function updateUserUI(){
     if(menuAnnounceBtn)menuAnnounceBtn.classList.remove('hide');
     var menuAdminDashBtn=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn)menuAdminDashBtn.classList.remove('hide');
     var menuStaffFreeBtn=document.getElementById('menuStaffFreeBtn');if(menuStaffFreeBtn)menuStaffFreeBtn.classList.remove('hide');
+    var menuSendNotifBtn=document.getElementById('menuSendNotifBtn');if(menuSendNotifBtn)menuSendNotifBtn.classList.remove('hide');
     menuFeedbackBtn.classList.remove('hide');
     menuRequestsBtn.classList.remove('hide');
     menuBackupBtn.classList.remove('hide');
@@ -1938,6 +1961,7 @@ function updateUserUI(){
     if(menuAnnounceBtn)menuAnnounceBtn.classList.add('hide');
     var menuAdminDashBtn2=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn2)menuAdminDashBtn2.classList.add('hide');
     var menuStaffFreeBtn2=document.getElementById('menuStaffFreeBtn');if(menuStaffFreeBtn2)menuStaffFreeBtn2.classList.add('hide');
+    var menuSendNotifBtn2=document.getElementById('menuSendNotifBtn');if(menuSendNotifBtn2)menuSendNotifBtn2.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
     menuBackupBtn.classList.add('hide');
@@ -1959,6 +1983,7 @@ function updateUserUI(){
     if(menuAnnounceBtn)menuAnnounceBtn.classList.add('hide');
     var menuAdminDashBtn3=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn3)menuAdminDashBtn3.classList.add('hide');
     var menuStaffFreeBtn3=document.getElementById('menuStaffFreeBtn');if(menuStaffFreeBtn3)menuStaffFreeBtn3.classList.add('hide');
+    var menuSendNotifBtn3=document.getElementById('menuSendNotifBtn');if(menuSendNotifBtn3)menuSendNotifBtn3.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
     menuBackupBtn.classList.add('hide');
@@ -3219,6 +3244,58 @@ function checkStaffFreeStatus(email){
     updatePremiumUI();
   }).catch(function(){});
 }
+
+// -- Send Notification (push to all registered devices) --
+function openSendNotifModal(){
+  if(!isAdmin())return;
+  openModal('<div class="mhead"><span class="mtitle">📣 Send Notification</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="fgrp"><label class="flbl">Title</label><input class="finp" id="snTitle" maxlength="60" placeholder="e.g. New models added!"/></div>'+
+    '<div class="fgrp"><label class="flbl">Message</label><textarea class="finp" id="snBody" rows="3" maxlength="160" placeholder="Short message..."></textarea></div>'+
+    '<div class="adash-empty" id="snDeviceCount" style="padding:6px 0">Loading device count...</div>'+
+    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button><button class="bsave" id="snSendBtn" onclick="sendPushNotification()">Send</button></div>');
+  db.collection('fcm_tokens').get().then(function(snap){
+    var el=document.getElementById('snDeviceCount');
+    if(el)el.textContent=snap.size+' device(s) registered for notifications';
+  }).catch(function(){
+    var el=document.getElementById('snDeviceCount');
+    if(el)el.textContent='Could not load device count';
+  });
+}
+function sendPushNotification(){
+  var title=(document.getElementById('snTitle').value||'').trim();
+  var msg=(document.getElementById('snBody').value||'').trim();
+  if(!title||!msg){showToast('❌ Please enter title and message',true);return;}
+  if(!NOTIFY_WORKER_URL||NOTIFY_WORKER_URL.indexOf('your-')>=0){showToast('❌ Notify worker not configured yet',true);return;}
+  var btn=document.getElementById('snSendBtn');
+  if(btn){btn.disabled=true;btn.textContent='Sending...';}
+  db.collection('fcm_tokens').get().then(function(snap){
+    var tokens=[];
+    snap.forEach(function(d){tokens.push(d.id);});
+    if(!tokens.length){showToast('❌ No devices registered yet',true);if(btn){btn.disabled=false;btn.textContent='Send';}return;}
+    S.user.getIdToken().then(function(idToken){
+      fetch(NOTIFY_WORKER_URL,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({idToken:idToken,title:title,message:msg,tokens:tokens})
+      }).then(function(res){return res.json();}).then(function(result){
+        if(btn){btn.disabled=false;btn.textContent='Send';}
+        if(result.error){showToast('❌ '+result.error,true);return;}
+        showToast('✅ Sent to '+result.sent+' device(s)'+(result.failed?', '+result.failed+' failed':''));
+        // Clean up dead tokens so future sends don't waste time on them
+        if(result.invalidTokens&&result.invalidTokens.length){
+          result.invalidTokens.forEach(function(t){db.collection('fcm_tokens').doc(t).delete().catch(function(){});});
+        }
+        closeModal();
+      }).catch(function(e){
+        if(btn){btn.disabled=false;btn.textContent='Send';}
+        showToast('❌ Send failed: '+e.message,true);
+      });
+    });
+  },function(e){
+    if(btn){btn.disabled=false;btn.textContent='Send';}
+    showToast('❌ Could not load devices: '+e.message,true);
+  });
+}
 function openUFeedModal(id){
   var it=id?U.feed.find(function(x){return x.id===id;}):null;
   openModal('<div class="mhead"><span class="mtitle">'+(it?'✏️ Edit Update':'➕ Add Update')+'</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
@@ -4087,8 +4164,12 @@ function adashRender(){
   var gSearchToday=adashPct(searchesToday,searchesYest);
   var gJoinedWeek=adashPct(joinedWeek,joinedPrevWeek);
 
+  var paidUsersAll=users.filter(function(u){return u.plan&&u.plan!=='trial'&&u.premiumExpiry;});
+  var paidActiveCount=paidUsersAll.filter(function(u){return new Date(u.premiumExpiry).getTime()>Date.now();}).length;
+
   var cards=[
     {ic:'👥',val:totalUsers,lbl:'Total Users',g:null},
+    {ic:'💎',val:paidActiveCount,lbl:'Active Premium',g:null},
     {ic:'🟢',val:activeToday,lbl:'Active Today',g:null},
     {ic:'📅',val:activeWeek,lbl:'Active This Week',g:null},
     {ic:'🆕',val:joinedToday,lbl:'Joined Today',g:gJoinedToday},
@@ -4142,6 +4223,21 @@ function adashRender(){
   var avgSearchesPerUser=totalUsers?(totalSearches/totalUsers).toFixed(1):'0';
   var fourteenAgo=adashDateStr(14);
   var inactiveUsers=users.filter(function(u){return (!u.lastActiveTs||u.lastActiveTs.slice(0,10)<fourteenAgo);}).length;
+
+  // Premium / paid users
+  var planLbl={monthly:'Monthly',yearly:'Yearly',test:'Test'};
+  var paidUsersSorted=paidUsersAll.slice().sort(function(a,b){return (b.purchaseTs||b.premiumExpiry||'').localeCompare(a.purchaseTs||a.premiumExpiry||'');});
+  function adashDateTime(ts){return ts?new Date(ts).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';}
+  var premiumHtml=paidUsersSorted.length?paidUsersSorted.map(function(u){
+    var isActive=u.premiumExpiry&&new Date(u.premiumExpiry).getTime()>Date.now();
+    return '<div class="adash-prow"><div class="adash-prow-top"><span class="adash-prow-email">'+escHtml(u.email||u.id||'—')+'</span>'+
+      '<span class="adash-prow-badge '+(isActive?'active':'expired')+'">'+(isActive?'Active':'Expired')+'</span></div>'+
+      '<div class="adash-prow-grid">'+
+        '<div><b>Plan:</b> '+(planLbl[u.plan]||escHtml(u.plan||'—'))+'</div>'+
+        '<div><b>Purchased:</b> '+adashDateTime(u.purchaseTs)+'</div>'+
+        '<div><b>Expires:</b> '+adashDateTime(u.premiumExpiry)+'</div>'+
+      '</div></div>';
+  }).join(''):'<div class="adash-empty">No premium purchases yet</div>';
 
   // Shares
   var topSharers=shares.slice(0,8);
@@ -4197,6 +4293,7 @@ function adashRender(){
     '<div class="adash-mini-box"><div class="adash-mini-val">'+returningWeek+'</div><div class="adash-mini-lbl">Returning Users</div></div>'+
     '<div class="adash-mini-box"><div class="adash-mini-val">'+inactiveUsers+'</div><div class="adash-mini-lbl">Inactive (14d+)</div></div>'+
   '</div>';
+  html+='<div class="adash-hdr">💎 Premium Users ('+paidUsersAll.length+')</div>'+premiumHtml;
   html+='<div class="adash-hdr">🆕 Newly Joined Users</div>'+(newUsers.length?newUsers.map(function(u){
     return '<div class="adash-row"><span class="adash-row-main">'+escHtml(u.email||'—')+'</span><span class="adash-row-sub">'+adashTimeAgo(u.joinTs)+'</span></div>';
   }).join(''):'<div class="adash-empty">No users found</div>');
@@ -4520,7 +4617,7 @@ function registerForPush(){
     try{
       if(!notifMessaging)notifMessaging=firebase.messaging();
       notifMessaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:reg}).then(function(token){
-        if(token)db.collection('fcm_tokens').doc(token).set({token:token,createdAt:new Date().toISOString()}).then(function(){
+        if(token)db.collection('fcm_tokens').doc(token).set({token:token,createdAt:new Date().toISOString(),uid:S.user?S.user.uid:'',email:S.user?S.user.email:''}).then(function(){
           showToast('✅ Notifications ON!');
           setNotifSwitch(true);
         });
@@ -4528,6 +4625,34 @@ function registerForPush(){
     }catch(e){showToast('❌ '+e.message,true);}
   });
 }
+// ── Flagship-style auto notification prompt ──
+// Custom bottom-sheet shown automatically (instead of relying on the user
+// to find the menu toggle). Only fires when permission is still undecided,
+// and re-asks at most once a week so it never feels spammy.
+var NOTIF_PROMPT_GAP_MS=7*24*60*60*1000;
+function maybeShowNotifPrompt(){
+  if(!('Notification' in window)||!('serviceWorker' in navigator))return;
+  if(Notification.permission!=='default')return;
+  var last=localStorage.getItem('ucNotifPromptTs');
+  if(last&&(Date.now()-parseInt(last,10))<NOTIF_PROMPT_GAP_MS)return;
+  setTimeout(function(){
+    if(Notification.permission!=='default')return;
+    var sheet=document.getElementById('notifPromptSheet');
+    var bd=document.getElementById('notifPromptBackdrop');
+    if(!sheet||!bd)return;
+    localStorage.setItem('ucNotifPromptTs',String(Date.now()));
+    bd.classList.add('show');
+    sheet.classList.add('show');
+  },2500);
+}
+function hideNotifPromptSheet(){
+  var sheet=document.getElementById('notifPromptSheet');
+  var bd=document.getElementById('notifPromptBackdrop');
+  if(sheet)sheet.classList.remove('show');
+  if(bd)bd.classList.remove('show');
+}
+function dismissNotifPrompt(){hideNotifPromptSheet();}
+function acceptNotifPrompt(){hideNotifPromptSheet();setupNotifications();}
 function setNotifSwitch(on){
   var toggle=document.getElementById('notifToggle');
   var label=document.getElementById('notifLabel');
@@ -4566,6 +4691,7 @@ auth.onAuthStateChanged(function(user){
     updateUserUI();
     trackUserSession(user);
     loadMyVotes(user.uid);
+    maybeShowNotifPrompt();
   } else {
     S.user=null;S.role='staff';S.myVotes={};
     S.premium={isPremium:false,plan:null,trialEnd:null,premiumExpiry:null,loaded:false,staffFree:false};
@@ -4799,6 +4925,16 @@ function scrollToTop(){haptic();window.scrollTo({top:0,behavior:'smooth'});}
     setTimeout(function(){span.remove();},500);
   });
 })();
-</script>
+</script>  <div id="notifPromptBackdrop" class="notif-backdrop" onclick="dismissNotifPrompt()"></div>
+  <div id="notifPromptSheet" class="notif-sheet">
+    <div class="notif-sheet-handle"></div>
+    <div class="notif-sheet-icon">🔔</div>
+    <div class="notif-sheet-title">Stay Updated</div>
+    <div class="notif-sheet-desc">Naye models, offers aur important updates ki notification paane ke liye notifications on karein.</div>
+    <div class="notif-sheet-actions">
+      <button class="notif-btn-skip" onclick="dismissNotifPrompt()">Not Now</button>
+      <button class="notif-btn-allow" onclick="acceptNotifPrompt()">Enable</button>
+    </div>
+  </div>
 </body>
   </html>
