@@ -3176,7 +3176,8 @@ function openStaffFreeModal(){
   loadStaffFreeList();
 }
 function loadStaffFreeList(){
-  if(!db)return;
+  var wrap=document.getElementById('sfList');
+  if(!db){if(wrap)wrap.innerHTML='<div class="adash-empty">❌ Not connected</div>';return;}
   db.collection('staff_whitelist').get().then(function(snap){
     var wrap=document.getElementById('sfList');
     if(!wrap)return;
@@ -3187,6 +3188,10 @@ function loadStaffFreeList(){
       rows.push('<div class="adash-row"><span class="adash-row-main">'+escHtml(d.email||doc.id)+'</span><button class="ibtn" onclick="removeStaffFreeEmail(\''+doc.id+'\')">🗑️</button></div>');
     });
     wrap.innerHTML=rows.join('');
+  },function(e){
+    var wrap=document.getElementById('sfList');
+    if(wrap)wrap.innerHTML='<div class="adash-empty">❌ Could not load: '+escHtml(e.message||'')+'</div>';
+    showToast('❌ Load failed: '+e.message,true);
   });
 }
 function addStaffFreeEmail(){
@@ -3198,14 +3203,14 @@ function addStaffFreeEmail(){
     showToast('✅ Added');
     input.value='';
     loadStaffFreeList();
-  },function(){showToast('❌ Save failed',true);});
+  },function(e){showToast('❌ Save failed: '+e.message,true);});
 }
 function removeStaffFreeEmail(id){
   if(!db)return;
   db.collection('staff_whitelist').doc(id).delete().then(function(){
     showToast('🗑️ Removed');
     loadStaffFreeList();
-  },function(){showToast('❌ Save failed',true);});
+  },function(e){showToast('❌ Save failed: '+e.message,true);});
 }
 function checkStaffFreeStatus(email){
   if(!db||!email)return;
