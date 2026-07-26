@@ -248,8 +248,6 @@ button{cursor:pointer}
 .pf-tab.anim-ccboard .pf-ic-ribbon{animation:pfRibbonGlow .7s ease-in-out}
 @keyframes pfPinFlow{0%{stroke-dashoffset:0;opacity:.7}50%{stroke-dashoffset:-10;opacity:1}100%{stroke-dashoffset:-20;opacity:.7}}
 @keyframes pfRibbonGlow{0%{opacity:.8}50%{opacity:1;filter:drop-shadow(0 0 3px rgba(91,141,239,.6))}100%{opacity:.9}}
-.pf-tab.anim-frame .pf-ic-frame-sweep{animation:pfFrameSweep .5s ease-in-out}
-@keyframes pfFrameSweep{0%{transform:translateY(0)}100%{transform:translateY(36px)}}
 .pf-ic-camlight{opacity:.5;transition:opacity .22s ease}
 .pf-tab.anim-backdoor .pf-ic-camlight{animation:pfCamGlow .8s ease-in-out}
 @keyframes pfCamGlow{0%{opacity:.3}50%{opacity:1}100%{opacity:.5}}
@@ -443,6 +441,7 @@ button{cursor:pointer}
 /* EMPTY */
 .empty{text-align:center;padding:48px 16px;border:1px dashed #1d2336;border-radius:16px;animation:fadeUp .4s ease}
 .empty-ico{font-size:40px;margin-bottom:12px}
+.empty-ico .material-symbols-rounded{font-size:40px;opacity:.55;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 40}
 .empty-t{font-weight:700;color:#525c7c;margin-bottom:5px;font-size:15px}
 .empty-s{font-size:13px;color:#333a52}
 .pf-cross-wrap{margin-top:18px;display:flex;flex-direction:column;gap:8px;text-align:left}
@@ -493,6 +492,7 @@ button{cursor:pointer}
 .fb-tab-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:#d4af6a14;border:1px solid #d4af6a33;color:#d4af6a;margin-top:8px;display:inline-block}
 .fb-empty{text-align:center;padding:40px 16px;color:#333a52}
 .fb-empty-ico{font-size:36px;margin-bottom:10px}
+.fb-empty-ico .material-symbols-rounded{font-size:36px;opacity:.55;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 40}
 .fb-count{font-size:11px;color:#4a5270;margin-bottom:16px;font-weight:600}
 
 /* ADMIN DASHBOARD */
@@ -622,6 +622,23 @@ button{cursor:pointer}
 .toast-ic{font-size:19px;flex-shrink:0}
 .toast-ic.material-symbols-rounded{font-variation-settings:'FILL' 1}
 @keyframes toastPop{from{opacity:0;transform:translateX(-50%) scale(.85) translateY(8px)}to{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}}
+
+#paySuccessOverlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(6,7,12,.72);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .25s ease}
+#paySuccessOverlay.show{opacity:1;pointer-events:auto}
+.pay-success-card{display:flex;flex-direction:column;align-items:center;transform:scale(.85);opacity:0}
+#paySuccessOverlay.show .pay-success-card{animation:paySuccessPop .45s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes paySuccessPop{to{transform:scale(1);opacity:1}}
+.pay-success-ring{width:96px;height:96px;margin-bottom:18px}
+.pay-success-circle{fill:none;stroke:#d4af6a;stroke-width:5;stroke-linecap:round;stroke-dasharray:251;stroke-dashoffset:251}
+#paySuccessOverlay.show .pay-success-circle{animation:paySuccessRing .5s ease-out .1s forwards}
+@keyframes paySuccessRing{to{stroke-dashoffset:0}}
+.pay-success-check{fill:none;stroke:#e8c97a;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:50;stroke-dashoffset:50}
+#paySuccessOverlay.show .pay-success-check{animation:paySuccessCheck .35s ease-out .5s forwards}
+@keyframes paySuccessCheck{to{stroke-dashoffset:0}}
+.pay-success-title{color:#f3e1ab;font-size:19px;font-weight:800;letter-spacing:.01em;opacity:0}
+.pay-success-sub{color:#9aa6c4;font-size:13px;margin-top:4px;opacity:0}
+#paySuccessOverlay.show .pay-success-title,#paySuccessOverlay.show .pay-success-sub{animation:paySuccessTextIn .35s ease-out .55s forwards}
+@keyframes paySuccessTextIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes toastShake{0%,100%{transform:translateX(-50%)}20%{transform:translateX(calc(-50% - 6px))}40%{transform:translateX(calc(-50% + 6px))}60%{transform:translateX(calc(-50% - 4px))}80%{transform:translateX(calc(-50% + 4px))}}
 
 /* LOADING */
@@ -629,7 +646,6 @@ button{cursor:pointer}
 .spin{width:26px;height:26px;border:2px solid #1d2336;border-top-color:#d4af6a;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-@keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
 #installBtn{position:fixed;bottom:20px;right:20px;padding:12px 20px;background:linear-gradient(135deg,#e8c97a,#a87f2e);color:#1a1305;border:none;border-radius:10px;font-weight:bold;display:none;z-index:9999;box-shadow:0 6px 20px #d4af6a4a}
 /* PREMIUM — paywall, plan cards, lock badges, trial banner */
 .menu-premium-card{margin:14px 14px 4px;padding:14px;border-radius:16px;background:linear-gradient(135deg,#2a2210,#1a1508);border:1px solid #d4af6a55;position:relative;overflow:hidden;cursor:pointer}
@@ -948,6 +964,16 @@ button{cursor:pointer}
   <div class="modal" id="modalBox"></div>
 </div>
 <div id="toast"></div>
+<div id="paySuccessOverlay" class="hide">
+  <div class="pay-success-card">
+    <svg class="pay-success-ring" viewBox="0 0 90 90">
+      <circle class="pay-success-circle" cx="45" cy="45" r="40"/>
+      <path class="pay-success-check" d="M27 46l12 12 24-26"/>
+    </svg>
+    <div class="pay-success-title">Payment Successful</div>
+    <div class="pay-success-sub">Premium activated!</div>
+  </div>
+</div>
 <button id="installBtn">📲 Install App</button>
 
 <script>
@@ -1149,7 +1175,7 @@ function registerGlassSearch(q){
   return true;
 }
 function glassLimitReachedHtml(){
-  return '<div class="empty"><div class="empty-ico">🔒</div><p class="empty-t">Aaj ke '+GLASS_FREE_SEARCHES+' free searches khatam</p>'+
+  return '<div class="empty"><div class="empty-ico"><span class="material-symbols-rounded">lock</span></div><p class="empty-t">Today\'s '+GLASS_FREE_SEARCHES+' free searches are used up</p>'+
     '<p class="empty-s" style="margin-bottom:14px">Free searches renew tomorrow, or go Premium now for unlimited search</p>'+
     '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openUpgradeModal()">⭐ Upgrade</button></div>';
 }
@@ -1158,17 +1184,17 @@ function glassSearchPromptHtml(showQuota){
   if(showQuota&&!isAdmin()&&!isPremiumActive()){
     quotaHtml='<p class="empty-s" style="margin-top:8px;color:#f0d090">🔍 '+glassSearchesLeft()+'/'+GLASS_FREE_SEARCHES+' free searches left today</p>';
   }
-  return '<div class="empty"><div class="empty-ico">🔍</div><p class="empty-t">Search your model</p>'+
+  return '<div class="empty"><div class="empty-ico"><span class="material-symbols-rounded">search</span></div><p class="empty-t">Search your model</p>'+
     '<p class="empty-s">Type the model name in the search box above</p>'+quotaHtml+'</div>';
 }
 function categoryLockedBrowseHtml(label){
-  return '<div class="empty"><div class="empty-ico">🔒</div><p class="empty-t">'+label+' is a Premium feature</p>'+
+  return '<div class="empty"><div class="empty-ico"><span class="material-symbols-rounded">lock</span></div><p class="empty-t">'+label+' is a Premium feature</p>'+
     '<p class="empty-s" style="margin-bottom:14px">Free trial has ended — upgrade for full access</p>'+
     '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openUpgradeModal()">⭐ Upgrade</button></div>';
 }
 function categoryTeaserHtml(count,label){
   return '<div class="empty" style="padding-top:26px">'+
-    '<div class="empty-ico">🔒</div>'+
+    '<div class="empty-ico"><span class="material-symbols-rounded">lock</span></div>'+
     '<p class="empty-t">'+count+' '+label+' result'+(count>1?'s':'')+' mile!</p>'+
     '<p class="empty-s" style="margin-bottom:14px">Unlock Premium to view this</p>'+
     '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openUpgradeModal()">⭐ Unlock</button></div>';
@@ -1318,7 +1344,7 @@ function verifyAndActivatePremium(response){
       db.collection('app_users').doc(S.user.uid).update({premiumExpiry:expiry,plan:plan}).then(function(){
         applyPremiumData({trialEnd:S.premium.trialEnd,premiumExpiry:expiry,plan:plan});
         closeModal();
-        showToast('🎉 Payment successful — Premium activated!');
+        showPaySuccessAnim();
       });
     }
   })
@@ -1575,7 +1601,7 @@ function openFavorites(){
   closeMenu();
   var favs=getFavorites();
   var body=!favs.length?
-    '<div class="fb-empty"><div class="fb-empty-ico">⭐</div><p style="color:#4a5270;font-size:14px">No favorites yet — add one using the ☆ button on a card</p></div>':
+    '<div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">star</span></div><p style="color:#4a5270;font-size:14px">No favorites yet — add one using the ☆ button on a card</p></div>':
     favs.map(function(f){
       return '<div class="fb-card" id="favrow_'+f.tab+'_'+f.id+'">'+
         '<div class="fb-card-top"><span class="fb-user">🛡️ '+escHtml(f.name)+'</span>'+
@@ -1618,6 +1644,18 @@ function showToast(msg,err){
   t.className='show '+cls;
   clearTimeout(toastTimer);
   toastTimer=setTimeout(function(){t.className='';},2200);
+}
+
+function showPaySuccessAnim(){
+  var ov=document.getElementById('paySuccessOverlay');
+  if(!ov)return;
+  ov.classList.remove('hide');
+  requestAnimationFrame(function(){ov.classList.add('show');});
+  if(navigator.vibrate)navigator.vibrate([15,40,15]);
+  setTimeout(function(){
+    ov.classList.remove('show');
+    setTimeout(function(){ov.classList.add('hide');},250);
+  },2200);
 }
 
 function parseModels(models){
@@ -2056,7 +2094,7 @@ function trackCardUsage(id,tab,name){
 function openRecentlyOpened(){
   var items=getRecentOpened();
   var body=!items.length?
-    '<div class="fb-empty"><div class="fb-empty-ico">🕒</div><p style="color:#4a5270;font-size:14px">No recently opened items yet</p></div>':
+    '<div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">schedule</span></div><p style="color:#4a5270;font-size:14px">No recently opened items yet</p></div>':
     items.map(function(f){
       return '<div class="fb-card"><div class="fb-card-top"><span class="fb-user">🛡️ '+escHtml(f.name)+'</span>'+
         '<span class="fb-tab-badge">'+tabLabel(f.tab)+'</span></div>'+
@@ -2067,7 +2105,7 @@ function openRecentlyOpened(){
 function openMostUsed(){
   var items=getMostUsed();
   var body=!items.length?
-    '<div class="fb-empty"><div class="fb-empty-ico">🔥</div><p style="color:#4a5270;font-size:14px">No most-used items yet</p></div>':
+    '<div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">local_fire_department</span></div><p style="color:#4a5270;font-size:14px">No most-used items yet</p></div>':
     items.map(function(f){
       return '<div class="fb-card"><div class="fb-card-top"><span class="fb-user">🛡️ '+escHtml(f.name)+'</span>'+
         '<span class="fb-tab-badge">'+f.count+'x used</span></div>'+
@@ -2077,7 +2115,7 @@ function openMostUsed(){
 }
 function openNewlyAdded(){
   var body=!S.log.length?
-    '<div class="fb-empty"><div class="fb-empty-ico">🆕</div><p style="color:#4a5270;font-size:14px">No recent updates</p></div>':
+    '<div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">fiber_new</span></div><p style="color:#4a5270;font-size:14px">No recent updates</p></div>':
     S.log.slice(0,8).map(function(l){
       return '<div class="fb-card"><div class="fb-card-top"><span class="fb-user">'+escHtml(l.msg)+'</span>'+
         '<span class="fb-date">'+escHtml(l.date)+'</span></div></div>';
@@ -2105,7 +2143,7 @@ function renderCards(){
       if(!dataLoaded){
         el.innerHTML='<div class="empty"><div class="empty-ico"><div class="spin" style="margin:0 auto 10px"></div></div><p class="empty-t">Loading data...</p><p class="empty-s">Please wait a moment</p></div>';
       } else {
-        el.innerHTML='<div class="empty"><div class="empty-ico">📦</div><p class="empty-t">No '+itemLabel(S.tab)+' yet</p><p class="empty-s">'+(isAdmin()?'Tap the + button below to add '+itemLabel(S.tab):'No '+itemLabel(S.tab)+' added yet')+'</p></div>';
+        el.innerHTML='<div class="empty"><div class="empty-ico"><span class="material-symbols-rounded">inventory_2</span></div><p class="empty-t">No '+itemLabel(S.tab)+' yet</p><p class="empty-s">'+(isAdmin()?'Tap the + button below to add '+itemLabel(S.tab):'No '+itemLabel(S.tab)+' added yet')+'</p></div>';
       }
       return;
     }
@@ -2132,7 +2170,7 @@ function renderCards(){
   if(isFuzzy){
     banner.className='fuzzy';
     document.getElementById('rbLabel').style.color='#f0d090';
-    document.getElementById('rbLabel').innerHTML='🔎 '+list.length+' Similar Match'+(list.length>1?'es':'')+' (spelling thoda alag)';
+    document.getElementById('rbLabel').innerHTML='🔎 '+list.length+' Similar Match'+(list.length>1?'es':'')+' (spelling slightly different)';
   } else if(list.length){
     banner.className='found';
     document.getElementById('rbLabel').style.color='#7adf63';
@@ -2144,7 +2182,7 @@ function renderCards(){
   }
   var quotaSuffix='';
   if(S.tab==='glass'&&!isAdmin()&&!isPremiumActive()){
-    quotaSuffix=' <span style="color:#8892b0;font-size:11px">('+glassSearchesLeft()+'/'+GLASS_FREE_SEARCHES+' free searches aaj)</span>';
+    quotaSuffix=' <span style="color:#8892b0;font-size:11px">('+glassSearchesLeft()+'/'+GLASS_FREE_SEARCHES+' free searches today)</span>';
   }
   document.getElementById('rbQuery').innerHTML='Model: <strong style="color:#eed5a0">'+escHtml(q)+'</strong>'+quotaSuffix;
   document.getElementById('resultClear').style.color=isFuzzy?'#f0d090':(list.length?'#7adf63':'#e8718e');
@@ -2152,11 +2190,11 @@ function renderCards(){
   if(!list.length){
     var crossHit=findInPartsAcrossTypes(q);
     if(crossHit){
-      el.innerHTML='<div class="empty"><div class="empty-ico">🔧</div><p class="empty-t">Not found in Glass</p><p class="empty-s" style="margin-bottom:14px">"'+escHtml(q)+'" found in Spare Parts — '+escHtml(crossHit.label)+'</p>'+
+      el.innerHTML='<div class="empty"><div class="empty-ico"><span class="material-symbols-rounded">build</span></div><p class="empty-t">Not found in Glass</p><p class="empty-s" style="margin-bottom:14px">"'+escHtml(q)+'" found in Spare Parts — '+escHtml(crossHit.label)+'</p>'+
         '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openPartsForModel(\''+escHtml(q).replace(/'/g,"\\'")+'\')">🔧 Open in Spare Parts</button></div>';
       return;
     }
-    el.innerHTML='<div class="empty"><div class="empty-ico">🔍</div><p class="empty-t">Model Not Found</p><p class="empty-s" style="margin-bottom:14px">Try another model name</p>'+
+    el.innerHTML='<div class="empty"><div class="empty-ico"><span class="material-symbols-rounded">search_off</span></div><p class="empty-t">Model Not Found</p><p class="empty-s" style="margin-bottom:14px">Try another model name</p>'+
       '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openRequestForm(\'glass\',\''+escHtml(q).replace(/'/g,"\\'")+'\')">➕ Request Update</button></div>';
     return;
   }
@@ -3306,7 +3344,7 @@ function renderPartsPageHtml(t,q){
   var groups=PF.data[t.key]||[];
   if(!q){
     if(!isAdmin()){
-      return '<div class="empty"><div class="empty-ico">🔍</div>'+
+      return '<div class="empty"><div class="empty-ico"><span class="material-symbols-rounded">search</span></div>'+
         '<p class="empty-t">Search model</p>'+
         '<p class="empty-s">Type a model like Y20, A14, Redmi 9A above</p></div>';
     }
@@ -3334,7 +3372,7 @@ function renderPartsPageHtml(t,q){
           '<span class="pf-cross-arrow">→</span></button>';
       }).join('')+'</div>';
     }
-    return '<div class="empty"><div class="empty-ico">🔍</div>'+
+    return '<div class="empty"><div class="empty-ico"><span class="material-symbols-rounded">search_off</span></div>'+
       '<p class="empty-t">No '+t.label+' found</p>'+
       '<p class="empty-s">"'+escHtml(q)+'" not added yet in '+t.label+'</p>'+
       crossHtml+'</div>';
@@ -4016,12 +4054,12 @@ function openFeedbackDashboard(){
   closeMenu();
   if(!db){showToast('❌ No connection',true);return;}
   openModal('<div class="mhead"><span class="mtitle">💬 Feedback Dashboard</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<div id="fbDashContent"><div class="fb-empty"><div class="fb-empty-ico">⏳</div><p style="color:#4a5270">Loading...</p></div></div>');
+    '<div id="fbDashContent"><div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">hourglass_top</span></div><p style="color:#4a5270">Loading...</p></div></div>');
   db.collection('feedback').orderBy('date','desc').limit(50).get().then(function(snap){
     var el=document.getElementById('fbDashContent');
     if(!el)return;
     if(snap.empty){
-      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">💬</div><p style="color:#4a5270;font-size:14px">No feedback yet</p></div>';
+      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">forum</span></div><p style="color:#4a5270;font-size:14px">No feedback yet</p></div>';
       return;
     }
     var html='<div class="fb-count">'+snap.size+' feedback'+(snap.size>1?'s':'')+' mile</div>';
@@ -4041,7 +4079,7 @@ function openFeedbackDashboard(){
     el.innerHTML=html;
   }).catch(function(e){
     var el=document.getElementById('fbDashContent');
-    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">❌</div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
+    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">error</span></div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
   });
 }
 
@@ -4074,12 +4112,12 @@ function openRequestsDashboard(){
   lsSet('req_lastSeen',new Date().toISOString());
   document.getElementById('menuDot').classList.remove('show');
   openModal('<div class="mhead"><span class="mtitle">📥 Update Requests</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<div id="reqDashContent"><div class="fb-empty"><div class="fb-empty-ico">⏳</div><p style="color:#4a5270">Loading...</p></div></div>');
+    '<div id="reqDashContent"><div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">hourglass_top</span></div><p style="color:#4a5270">Loading...</p></div></div>');
   db.collection('update_requests').orderBy('date','desc').limit(50).get().then(function(snap){
     var el=document.getElementById('reqDashContent');
     if(!el)return;
     if(snap.empty){
-      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">📥</div><p style="color:#4a5270;font-size:14px">No requests yet</p></div>';
+      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">move_to_inbox</span></div><p style="color:#4a5270;font-size:14px">No requests yet</p></div>';
       return;
     }
     var html='<div class="fb-count">'+snap.size+' request'+(snap.size>1?'s':'')+' mile</div>';
@@ -4102,7 +4140,7 @@ function openRequestsDashboard(){
     el.innerHTML=html;
   }).catch(function(e){
     var el=document.getElementById('reqDashContent');
-    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">❌</div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
+    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">error</span></div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
   });
 }
 function acceptRequest(id){
@@ -4223,7 +4261,7 @@ function openTrending(){
   closeMenu();
   if(!db){showToast('❌ No connection',true);return;}
   openModal('<div class="mhead"><span class="mtitle">⭐ Trending Today</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-    '<div id="trendContent"><div class="fb-empty"><div class="fb-empty-ico">⏳</div><p style="color:#4a5270">Loading...</p></div></div>');
+    '<div id="trendContent"><div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">hourglass_top</span></div><p style="color:#4a5270">Loading...</p></div></div>');
   var cols=['flat_glasses','uv_glasses','display_glasses','backcover_glasses'];
   Promise.all(cols.map(function(c){
     return db.collection(c).orderBy('shares','desc').limit(5).get().catch(function(){return {docs:[]};});
@@ -4240,7 +4278,7 @@ function openTrending(){
     items.sort(function(a,b){return b.shares-a.shares;});
     items=items.slice(0,10);
     if(!items.length){
-      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">⭐</div><p style="color:#4a5270;font-size:14px">No trending items yet — once people use "Share List", they will start showing up here</p></div>';
+      el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">star</span></div><p style="color:#4a5270;font-size:14px">No trending items yet — once people use "Share List", they will start showing up here</p></div>';
       return;
     }
     var html='';
@@ -4253,7 +4291,7 @@ function openTrending(){
     el.innerHTML=html;
   }).catch(function(e){
     var el=document.getElementById('trendContent');
-    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico">❌</div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
+    if(el)el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">error</span></div><p style="color:#e8718e;font-size:13px">Error: '+escHtml(e.message)+'</p></div>';
   });
 }
 function openAboutLegal(){
