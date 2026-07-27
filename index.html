@@ -4349,13 +4349,20 @@ function openUserDetail(uid){
     '</div>'+
     '<div id="udetContent"><div class="udet-skel"></div><div class="udet-skel"></div><div class="udet-skel"></div></div>');
 
+  var udetErr=null;
   Promise.all([
-    db.collection('activity_log').where('email','==',u.email).limit(200).get().catch(function(){return null;}),
+    db.collection('activity_log').where('email','==',u.email).limit(200).get().catch(function(e){udetErr=e;console.error('activity_log query failed:',e);return null;}),
     db.collection('share_stats').doc(uid).get().catch(function(){return null;})
   ]).then(function(r){
     var el=document.getElementById('udetContent');
     if(!el)return; // popup closed before data arrived
     var logs=[];if(r[0])r[0].forEach(function(d){logs.push(d.data());});
+    // Fallback: if the direct query returned nothing (e.g. blocked by rules), reuse the
+    // dashboard's already-loaded recent activity feed and match email case/whitespace-loosely.
+    if(!logs.length&&ADASH.raw&&ADASH.raw.activity&&u.email){
+      var uEmail=u.email.trim().toLowerCase();
+      logs=ADASH.raw.activity.filter(function(l){return l.email&&l.email.trim().toLowerCase()===uEmail;});
+    }
     logs.sort(function(a,b){return (b.ts||'').localeCompare(a.ts||'');});
     var searches=logs.filter(function(l){return l.type==='search';});
     var shareDoc=(r[1]&&r[1].exists)?r[1].data():null;
@@ -4377,9 +4384,10 @@ function openUserDetail(uid){
         '<div><b>Payment ID:</b> '+escHtml(u.lastPaymentId||'—')+'</div>'+
       '</div></div>';
 
+    var searchEmptyMsg=udetErr?('<div class="adash-empty">⚠️ Could not load: '+escHtml(udetErr.message||String(udetErr))+'</div>'):'<div class="adash-empty">No searches tracked yet</div>';
     html+='<div class="adash-hdr">🔍 Recent Searches</div>'+(searches.length?searches.slice(0,20).map(function(s){
       return '<div class="adash-row"><span class="adash-row-main">'+escHtml((s.detail||'').replace(/^searched\s*/i,''))+'</span><span class="adash-row-sub">'+adashTimeAgo(s.ts)+'</span></div>';
-    }).join(''):'<div class="adash-empty">No searches tracked yet</div>');
+    }).join(''):searchEmptyMsg);
 
     var otherLogs=logs.filter(function(l){return l.type!=='search';}).slice(0,15);
     html+='<div class="adash-hdr">🕘 Activity Timeline</div>'+(otherLogs.length?otherLogs.map(function(l){
