@@ -4293,7 +4293,9 @@ function adashRender(){
   html+='<div class="adash-filters">'+filterHtml+'</div>';
   html+='<div class="adash-hdr">📊 Overview</div><div class="adash-cards">'+cardsHtml+'</div>';
   html+='<div class="adash-hdr">✨ AI Insights</div>'+insightsHtml;
-  html+='<div class="adash-hdr">📈 Search Trend</div><div class="adash-chart-box"><canvas id="adashSearchChart" height="130"></canvas></div>';
+  html+='<div class="adash-hdr">📈 Trend Overview <span style="margin-left:auto;display:flex;gap:10px;font-size:9px;font-weight:600;text-transform:none;letter-spacing:0">'+
+    '<span style="color:#d4af6a">● Searches</span><span style="color:#7aa8e8">● Shares</span></span></div>'+
+    '<div class="adash-chart-box"><canvas id="adashTrendChart" height="130"></canvas></div>';
   html+='<div class="adash-hdr">🔍 Most Searched Models (Top 10)</div>'+top10Html;
   html+='<div class="adash-hdr">🚫 Missing Models (Searched, Not Found)</div>'+notFoundHtml;
   html+='<div class="adash-hdr">🔥 Today\'s Trending Searches</div>'+trendListHtml(trendToday,'No searches today');
@@ -4314,19 +4316,16 @@ function adashRender(){
   }).join(''):'<div class="adash-empty">No data</div>');
   html+='<div class="adash-hdr">🟢 Live Activity Feed</div>'+feedHtml;
   html+='<div class="adash-hdr">📤 App Share Analytics</div><div class="adash-mini">'+
-    '<div class="adash-mini-box"><div class="adash-mini-val">'+totalShares+'</div><div class="adash-mini-lbl">Total Shares</div></div>'+
     '<div class="adash-mini-box"><div class="adash-mini-val">'+sharesToday+'</div><div class="adash-mini-lbl">Shares Today</div></div>'+
     '<div class="adash-mini-box"><div class="adash-mini-val">'+shareConversion+'%</div><div class="adash-mini-lbl">Share Conversion</div></div>'+
     '<div class="adash-mini-box"><div class="adash-mini-val">'+shares.length+'</div><div class="adash-mini-lbl">Users Who Shared</div></div>'+
   '</div>';
-  html+='<div class="adash-chart-box" style="margin-top:8px"><canvas id="adashShareChart" height="110"></canvas></div>';
   html+='<div class="adash-hdr">🏆 Top Sharers</div>'+(topSharers.length?topSharers.map(function(s){
     return '<div class="adash-row clickable" onclick="openUserDetail(\''+s.id+'\')"><span class="adash-row-main">'+escHtml(s.email||'—')+'</span><span class="adash-row-badge">'+(s.count||0)+'x</span></div>';
   }).join(''):'<div class="adash-empty">No share data</div>');
 
   el.innerHTML=html;
-  adashDrawChart('adashSearchChart',chartVals,chartLabels,'#d4af6a');
-  adashDrawChart('adashShareChart',shareChartVals,chartLabels,'#7aa8e8');
+  adashDrawMultiChart('adashTrendChart',[{values:chartVals,color:'#d4af6a'},{values:shareChartVals,color:'#7aa8e8'}],chartLabels);
 }
 
 // ── USER DETAIL POPUP — full profile for a single user, opened from any user row ──
@@ -4428,6 +4427,36 @@ function adashDrawChart(canvasId,values,labels,color){
   [0,Math.floor((values.length-1)/2),values.length-1].forEach(function(i){
     if(i<0||i>=labels.length)return;
     var p=xy(i);ctx.fillText(labels[i],p[0],h-6);
+  });
+}
+
+function adashDrawMultiChart(canvasId,series,labels){
+  // series = [{values:[...],color:'#hex'}, ...] — draws multiple lines on one canvas, no fill
+  var cv=document.getElementById(canvasId);
+  if(!cv)return;
+  var dpr=window.devicePixelRatio||1;
+  var w=cv.clientWidth||300,h=cv.height||130;
+  cv.width=w*dpr;cv.height=h*dpr;
+  var ctx=cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+  var allVals=[].concat.apply([1],series.map(function(s){return s.values;}));
+  var max=Math.max.apply(null,allVals);
+  var padL=8,padR=8,padT=10,padB=20;
+  var plotW=w-padL-padR,plotH=h-padT-padB;
+  var n=labels.length;
+  var stepX=n>1?plotW/(n-1):0;
+  function xy(vals,i){var x=padL+i*stepX;var y=padT+plotH-(vals[i]/max)*plotH;return [x,y];}
+  series.forEach(function(s){
+    ctx.beginPath();
+    s.values.forEach(function(v,i){var p=xy(s.values,i);if(i===0)ctx.moveTo(p[0],p[1]);else ctx.lineTo(p[0],p[1]);});
+    ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.lineJoin='round';ctx.stroke();
+    s.values.forEach(function(v,i){var p=xy(s.values,i);ctx.beginPath();ctx.arc(p[0],p[1],2,0,7);ctx.fillStyle=s.color;ctx.fill();});
+  });
+  ctx.fillStyle='#5a6180';ctx.font='9px Segoe UI';ctx.textAlign='center';
+  [0,Math.floor((n-1)/2),n-1].forEach(function(i){
+    if(i<0||i>=labels.length)return;
+    var p=xy(series[0].values,i);ctx.fillText(labels[i],p[0],h-6);
   });
 }
 
