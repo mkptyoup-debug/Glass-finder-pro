@@ -351,7 +351,7 @@ button{cursor:pointer}
 
 /* CARDS */
 #cardList{display:flex;flex-direction:column;gap:14px}
-.card{transition:transform .2s;background:linear-gradient(155deg,rgba(255,255,255,.065),rgba(255,255,255,.028));border:1px solid rgba(255,255,255,.09);border-radius:22px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;animation:fadeUp .3s ease forwards;contain:content}
+.card{transition:transform .2s;background:linear-gradient(155deg,rgba(255,255,255,.065),rgba(255,255,255,.028));border:1px solid rgba(255,255,255,.09);border-radius:22px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;animation:fadeUp .3s ease forwards;contain:content;content-visibility:auto;contain-intrinsic-size:0 220px}
 .card-accent{height:3px;background:linear-gradient(90deg,#d4af6a,#a87f2e,transparent)}
 .card-inner{padding:16px}
 .card.match-card{border-color:#d4af6a3d;box-shadow:0 4px 24px #d4af6a14}
@@ -1750,13 +1750,21 @@ function showPaySuccessAnim(){
   },2200);
 }
 
+// PEHLE: yeh function har group ke "models" string ko har baar (har keystroke
+// pe, har search mein) dobara split/trim karta tha — 90+ groups x har keystroke.
+// AB: same input string dobara aane par cached result turant mil jaata hai.
+var _parseModelsCache=Object.create(null);
 function parseModels(models){
   if(!models)return[];
+  var key=Array.isArray(models)?models.join('\u0001'):String(models);
+  var cached=_parseModelsCache[key];
+  if(cached!==undefined)return cached;
   var arr=Array.isArray(models)?models:[models];
   var result=[];
   arr.forEach(function(m){
     String(m).split(/[,\/]/).forEach(function(p){var t=p.trim();if(t)result.push(t);});
   });
+  _parseModelsCache[key]=result;
   return result;
 }
 
@@ -2021,8 +2029,20 @@ function updateUserUI(){
 // Priority 0 Exact | 1 StartsWith | 2 Full-string prefix | 3 Word match | 4 Contains | 5 No match (fuzzy candidate)
 // Numeric-continuation guard: "Y20" must NOT rank as StartsWith against "Y200"
 // (query ends in a digit + next char in candidate is also a digit => treated as Contains, priority 4).
+// PEHLE: yeh function har keystroke pe, har model name ke liye, 3 regex chalata
+// tha — chahe wahi model naam pichhle keystroke mein bhi normalize hua ho.
+// 1000+ models x har keystroke = phone ka processor baar baar wahi kaam
+// dohrata tha, isliye typing karte waqt keyboard lag karta tha.
+// AB: ek baar normalize hone ke baad result cache ho jaata hai, dobara wahi
+// string aane par turant (0 regex) return ho jaata hai.
+var _normCache=Object.create(null);
 function normStr(s){
-  return String(s||'').toUpperCase().replace(/[-_]+/g,' ').replace(/[^A-Z0-9 ]+/g,'').replace(/\s+/g,' ').trim();
+  var key=String(s||'');
+  var cached=_normCache[key];
+  if(cached!==undefined)return cached;
+  var out=key.toUpperCase().replace(/[-_]+/g,' ').replace(/[^A-Z0-9 ]+/g,'').replace(/\s+/g,' ').trim();
+  _normCache[key]=out;
+  return out;
 }
 function escRegex(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
 function validBoundaryAfter(str,idx,qLen,qLastChar){
@@ -2818,7 +2838,7 @@ function onSearch(){
     window.__searchT0=performance.now();
     S.query=v;renderCards();
     if(qq.length>=2){saveSearchHistory(qq);haptic();}
-  },150);
+  },220);
 
   // Activity log / analytics tracking — separately debounced with a longer delay
   // so it only fires once the user actually pauses/finishes typing, not on every keystroke.
