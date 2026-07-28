@@ -2111,6 +2111,17 @@ function fuzzySearchModels(list,query){
   return best;
 }
 
+// Cache: ek hi query ke liye har type ka match sirf ek baar nikalta hai
+// (pehle same query ke liye 3-4 baar recompute hota tha — render, not-found
+// check, aur cross-tab hint sab alag-alag findMatchingGroups chalate the).
+var PF_matchCache={q:null,byType:{}};
+function getGroupMatches(t,q){
+  if(PF_matchCache.q!==q){PF_matchCache.q=q;PF_matchCache.byType={};}
+  if(!(t.key in PF_matchCache.byType)){
+    PF_matchCache.byType[t.key]=findMatchingGroups(PF.data[t.key]||[],q);
+  }
+  return PF_matchCache.byType[t.key];
+}
 function findMatchingGroups(list,query){
   var q=query||'';
   // Priority-ranked match (exact / startsWith / prefix / word / contains)
@@ -2147,7 +2158,7 @@ function findMatchesInOtherTypes(q,excludeKey){
     if(t.key===excludeKey)continue;
     var groups=PF.data[t.key]||[];
     if(!groups.length)continue;
-    var res=findMatchingGroups(groups,q);
+    var res=getGroupMatches(t,q);
     if(res.groups.length){
       out.push({idx:i,key:t.key,label:t.label,color:t.color,count:res.groups.length});
     }
@@ -3526,7 +3537,7 @@ function loadPartsData(){
         },function(){done();});
       }
     });
-    function done(){pending--;if(pending===0){PF.ready=true;renderPartsCards();}}
+    function done(){pending--;if(pending===0){PF.ready=true;invalidatePartsModelsCache();renderPartsCards();}}
   });
 }
 
@@ -3548,6 +3559,7 @@ function pollPartsVersion(){
         db.collection(t.col).get().then(function(snap){
           PF.data[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
           lsSetJSON('pc_'+t.key,PF.data[t.key]);lsSet('pv_'+t.key,String(remoteV));
+          invalidatePartsModelsCache();
           renderPartsCards();
         });
       }
@@ -3566,8 +3578,12 @@ function renderPartsAddBtn(){
   if(t){btn.textContent='＋ Add '+t.label+' Group';if(bulkBtn)bulkBtn.textContent='📋 Bulk Add '+t.label;}
 }
 
+var PF_allModelsCache=null;
+function invalidatePartsModelsCache(){PF_allModelsCache=null;}
 function getAllPartsModels(){
+  if(PF_allModelsCache)return PF_allModelsCache;
   var out=[];PART_TYPES.forEach(function(t){(PF.data[t.key]||[]).forEach(function(g){parseModels(g.models).forEach(function(m){out.push(m);});});});
+  PF_allModelsCache=out;
   return out;
 }
 function pickPartsSuggestion(m){
@@ -3595,23 +3611,36 @@ function onPartsSearch(){
   },150);
 }
 
+var pfDeferTimer=null;
 function renderPartsCards(){
   initPartsTabs();
   var q=PF.query.trim();
-  PART_TYPES.forEach(function(t){
-    var page=document.getElementById('pfPage-'+t.key);
-    if(page)page.innerHTML=renderPartsPageHtml(t,q);
-  });
+  var activeT=PART_TYPES[PF.activeIdx];
+  // Pehle sirf jo tab dikh raha hai wahi turant render karo — baaki 4 tabs
+  // (jo screen par abhi visible nahi) thodi der baad (idle/next frame) me
+  // render honge. Isse har keystroke par sirf 1 tab ka kaam turant hota hai,
+  // baaki 4 ka nahi — typing lag bahot kam ho jaata hai.
+  var activePage=document.getElementById('pfPage-'+activeT.key);
+  if(activePage)activePage.innerHTML=renderPartsPageHtml(activeT,q);
   if(q.length>=2){
-    PF.lastSearchNotFound=!PART_TYPES.some(function(t){
-      var groups=PF.data[t.key]||[];
-      return findMatchingGroups(groups,q).groups.length>0;
-    });
+    // getGroupMatches cached hai, isliye ye loop sasta hai (active tab ka
+    // result already cache me hai, aur agar active tab me match mil gaya to
+    // baaki type check hi nahi honge — some() short-circuit karta hai)
+    PF.lastSearchNotFound=!PART_TYPES.some(function(t){return getGroupMatches(t,q).groups.length>0;});
   }
+  clearTimeout(pfDeferTimer);
+  pfDeferTimer=setTimeout(function(){
+    PART_TYPES.forEach(function(t){
+      if(t.key===activeT.key)return;
+      var page=document.getElementById('pfPage-'+t.key);
+      if(page)page.innerHTML=renderPartsPageHtml(t,q);
+    });
+  },30);
 }
 // Sirf ek category ka page refresh karo — baaki tabs/sections ko touch mat karo,
 // aur na hi active tab ko switch karo. Add/Edit save ke baad yehi use hota hai.
 function refreshPartsPage(typeKey){
+  invalidatePartsModelsCache();
   initPartsTabs();
   var page=document.getElementById('pfPage-'+typeKey);
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
@@ -3638,7 +3667,7 @@ function renderPartsPageHtml(t,q){
       groups.map(function(g){return buildGroupCard(g,t);}).join('');
   }
   // Search mode — same shared query, sirf is tab ke data pe filter
-  var res=findMatchingGroups(groups,q);
+  var res=getGroupMatches(t,q);
   if(!res.groups.length){
     if(!PF.ready)return '<div class="skel-wrap"><div class="skel-card"></div><div class="skel-card"></div></div>';
     var elsewhere=findMatchesInOtherTypes(q,t.key);
@@ -4086,6 +4115,7 @@ function doPartsDelete(typeKey,id){
   var g=(PF.data[typeKey]||[]).find(function(x){return x.id===id;});
   db.collection(t.col).doc(id).delete().then(function(){
     PF.data[typeKey]=PF.data[typeKey].filter(function(x){return x.id!==id;});
+    invalidatePartsModelsCache();
     bumpPartsVersion(typeKey);renderPartsCards();
     if(g)logRecentUpdate('🗑️ '+t.label+': '+g.partName+' removed');
     closeModal();showToast('✅ Deleted');
