@@ -97,6 +97,17 @@ button{cursor:pointer}
 .skel-wrap{padding:4px 0}
 .skel-card{height:78px;border-radius:14px;margin-bottom:12px;background:linear-gradient(90deg,#11141f 25%,#1c2135 37%,#11141f 63%);background-size:400% 100%;animation:skelShine 1.4s ease-in-out infinite}
 @keyframes skelShine{0%{background-position:100% 0}100%{background-position:0 0}}
+/* PARTS FINDER — branded first-load skeleton (shield pulse + gold shimmer cards) */
+.pf-skel-wrap{padding:18px 2px 4px;text-align:center}
+.pf-skel-shield{font-size:34px;margin:6px auto 10px;width:60px;height:60px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#e8c97a22,#a87f2e14);box-shadow:0 0 0 1px #d4af6a2a,0 6px 22px #d4af6a22;animation:pfShieldPulse 1.6s ease-in-out infinite}
+@keyframes pfShieldPulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.08);opacity:1}}
+.pf-skel-txt{font-size:12.5px;color:#8a90ab;font-weight:600;margin-bottom:16px;letter-spacing:.02em}
+.pf-skel-card{display:flex;align-items:center;gap:12px;height:64px;border-radius:14px;margin-bottom:11px;padding:0 14px;background:linear-gradient(90deg,#11141f 25%,#1c2135 37%,#11141f 63%);background-size:400% 100%;animation:skelShine 1.3s ease-in-out infinite;border:1px solid #d4af6a14;text-align:left}
+.pf-skel-ic{width:34px;height:34px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,#d4af6a2c,#d4af6a10)}
+.pf-skel-lines{flex:1;display:flex;flex-direction:column;gap:7px}
+.pf-skel-ln{height:9px;border-radius:5px;background:#d4af6a1c}
+.pf-skel-ln.w70{width:70%}
+.pf-skel-ln.w45{width:45%}
 #announceTrack{display:inline-block;padding-left:100%;animation:scrollText 16s linear infinite}
 #announceTrack span{color:#fff4d6;font-size:12.5px;font-weight:700}
 @keyframes scrollText{from{transform:translateX(0)}to{transform:translateX(-100%)}}
@@ -3142,7 +3153,7 @@ function openPartsScreen(){
   // list already DOM me maujood hai — add/edit/delete/version-poll khud apni
   // jagah refresh kar dete hain (refreshPartsPage / renderPartsCards), isliye
   // yahan dobara poora rebuild karne ki zaroorat nahi.
-  if(!PF.loaded){loadPartsData();renderPartsCards();}
+  if(!PF.loaded){showPartsSkeleton();loadPartsData();}
   renderPartsAddBtn();
 }
 function closePartsScreen(){document.getElementById('partsScreen').classList.remove('show');}
@@ -3518,6 +3529,19 @@ function switchPage(page,btnEl,evt){
   }
 }
 
+// Pehli baar Parts Finder khulte hi, jab tak Firestore se data aa raha hai,
+// blank/stuck screen dikhne ke bajaye branded shield-shimmer loader dikhao —
+// flagship apps jaisa smooth feel. Data aate hi renderPartsCards ye replace kar dega.
+function showPartsSkeleton(){
+  var track=document.getElementById('pfSwipeTrack');
+  if(!track)return;
+  var card='<div class="pf-skel-card"><div class="pf-skel-ic"></div><div class="pf-skel-lines"><div class="pf-skel-ln w70"></div><div class="pf-skel-ln w45"></div></div></div>';
+  track.innerHTML='<div class="pf-skel-wrap">'+
+    '<div class="pf-skel-shield">🛡️</div>'+
+    '<div class="pf-skel-txt">Loading spare parts…</div>'+
+    card+card+card+card+card+
+  '</div>';
+}
 function loadPartsData(){
   if(!db)return;PF.loaded=true;
   db.collection('meta').doc('partsVersion').get().then(function(vSnap){
