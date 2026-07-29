@@ -282,7 +282,7 @@ button{cursor:pointer}
 /* PARTS FINDER — PREMIUM REDESIGN */
 .pf-type-count{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.06);color:#4a5270;border:1px solid rgba(255,255,255,.07)}
 
-.pf-group-card{background:linear-gradient(145deg,#13161f,#0f1118);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:14px 16px;margin-bottom:8px;transition:transform .2s}
+.pf-group-card{background:linear-gradient(145deg,#13161f,#0f1118);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:14px 16px;margin-bottom:8px;transition:transform .2s;contain:content;content-visibility:auto;contain-intrinsic-size:0 180px}
 .pf-group-card:active{transform:scale(.98)}
 .pf-group-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .pf-group-left{display:flex;align-items:center;gap:10px}
@@ -298,7 +298,7 @@ button{cursor:pointer}
 .pf-model-chip{font-size:11px;font-weight:500;padding:4px 9px;border-radius:6px;background:#0b0d14;border:1px solid rgba(255,255,255,.05);color:#6b7699;letter-spacing:.02em}
 
 /* PARTS SEARCH RESULT */
-.pf-result-card{background:linear-gradient(145deg,#13161f,#0f1118);border:1.5px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;margin-bottom:14px;animation:fadeUp .4s ease;overflow:hidden;position:relative}
+.pf-result-card{background:linear-gradient(145deg,#13161f,#0f1118);border:1.5px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;margin-bottom:14px;animation:fadeUp .4s ease;overflow:hidden;position:relative;contain:content;content-visibility:auto;contain-intrinsic-size:0 220px}
 .pf-result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .pf-result-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 .pf-result-type-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:6px}
