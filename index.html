@@ -399,11 +399,12 @@ button{cursor:pointer}
 .cbtn:active{transform:scale(.95)}
 
 /* ── FEEDBACK CARD (Was this result helpful?) ─────────────────────────── */
-.fb-widget{margin-top:14px;padding:18px 16px 16px;border-radius:22px;background:linear-gradient(155deg,#171b25,#12151d);border:1px solid rgba(255,255,255,.08);box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 10px 26px -14px rgba(0,0,0,.6);position:relative;overflow:hidden}
+.fb-widget{margin-top:10px;padding:10px 12px;border-radius:16px;background:linear-gradient(155deg,#171b25,#12151d);border:1px solid rgba(255,255,255,.08);box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 10px 26px -14px rgba(0,0,0,.6);position:relative;overflow:hidden;display:flex;align-items:center;gap:10px}
 .fb-widget::before{content:'';position:absolute;top:-40%;left:-10%;width:60%;height:140%;background:radial-gradient(closest-side,rgba(212,175,106,.05),transparent 70%);pointer-events:none}
-.fb-title{font-size:12.5px;font-weight:600;color:#9CA3AF;letter-spacing:.15px;margin:0 0 12px;position:relative;z-index:1}
-.fb-row{display:flex;gap:10px;position:relative;z-index:1}
-.fbtn{flex:1;position:relative;overflow:hidden;height:56px;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 10px;border-radius:18px;background:#0d0f18;border:1px solid rgba(255,255,255,.07);color:#9CA3AF;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .18s cubic-bezier(.34,1.56,.64,1),background .2s ease-out,border-color .2s ease-out,color .2s ease-out,box-shadow .2s ease-out}
+.fb-title{font-size:11.5px;font-weight:600;color:#9CA3AF;letter-spacing:.1px;margin:0;position:relative;z-index:1;white-space:nowrap}
+.fb-row{display:flex;gap:8px;position:relative;z-index:1}
+.fbtn{position:relative;overflow:hidden;height:34px;width:34px;display:flex;align-items:center;justify-content:center;padding:0;border-radius:12px;background:#0d0f18;border:1px solid rgba(255,255,255,.07);color:#9CA3AF;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .18s cubic-bezier(.34,1.56,.64,1),background .2s ease-out,border-color .2s ease-out,color .2s ease-out,box-shadow .2s ease-out}
+.fbtn .fbtn-txt{display:none}
 .fbtn:hover{background:#12141f;border-color:rgba(255,255,255,.14);transform:translateY(-2px)}
 .fbtn:active{transform:translateY(0) scale(.96)}
 .fbtn:focus-visible{outline:none;box-shadow:0 0 0 2px #0d0f18,0 0 0 4px #d4af6a88}
@@ -849,7 +850,6 @@ button{cursor:pointer}
         <button id="resultClear" onclick="clearSearch()">Clear</button>
       </div>
       <div class="rb-query" id="rbQuery"></div>
-      <div class="rb-query" id="rbTime" style="font-size:10.5px;color:#4a5270;margin-top:2px"></div>
     </div>
     <div class="toolbar hide" id="toolbarWrap">
       <button class="tbtn" onclick="openCodeModal()">💾 Data Code</button>
@@ -1604,11 +1604,11 @@ function voteButtonsHtml(tabKey,g){
     '<div class="fb-row">'+
       '<button type="button" class="fbtn helpful'+(mine==='like'?' is-selected':'')+'" aria-pressed="'+(mine==='like'?'true':'false')+'" aria-label="Mark as helpful" onclick="fbClick(event,\''+tabKey+'\',\''+g.id+'\',\'like\')">'+
         '<span class="material-symbols-rounded fbtn-ic">check_circle</span>'+
-        '<span class="fbtn-txt"><span class="fbtn-label">Helpful</span><span class="fbtn-count">'+lc+'</span></span>'+
+        '<span class="fbtn-txt"><span class="fbtn-label">Helpful</span></span>'+
       '</button>'+
       '<button type="button" class="fbtn not-helpful'+(mine==='dislike'?' is-selected':'')+'" aria-pressed="'+(mine==='dislike'?'true':'false')+'" aria-label="Mark as not helpful" onclick="fbClick(event,\''+tabKey+'\',\''+g.id+'\',\'dislike\')">'+
         '<span class="material-symbols-rounded fbtn-ic">cancel</span>'+
-        '<span class="fbtn-txt"><span class="fbtn-label">Not Helpful</span><span class="fbtn-count">'+dc+'</span></span>'+
+        '<span class="fbtn-txt"><span class="fbtn-label">Not Helpful</span></span>'+
       '</button>'+
     '</div>'+
     '<div class="fb-success'+(mine?' show':'')+'"><span class="material-symbols-rounded">task_alt</span>Thanks for your feedback</div>'+
@@ -2359,8 +2359,6 @@ function renderCards(){
     }
     return buildCard(g,matched,other,true,isFuzzy,idx,q);
   }).join('');
-  var rbTime=document.getElementById('rbTime');
-  if(rbTime)rbTime.textContent='⚡ Found in '+((performance.now()-(window.__searchT0||performance.now()))/1000).toFixed(2)+'s';
 }
 
 function confidenceOptions(val){
@@ -2393,7 +2391,8 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
   var needsToggle=other.length>CHIP_LIMIT;
   var otherTags='';
   if(other.length){
-    otherTags='<div class="all-models'+(needsToggle&&!isExpanded?' collapsed':'')+'" id="chips_'+g.id+'">'+
+    otherTags='<div class="match-section-title" style="margin-top:10px">📎 Yeh glass in models mein bhi chalega:</div>'+
+      '<div class="all-models'+(needsToggle&&!isExpanded?' collapsed':'')+'" id="chips_'+g.id+'">'+
       other.map(function(m){return '<span class="mtag">'+escHtml(m)+'</span>';}).join('')+'</div>';
     if(needsToggle){
       otherTags+='<button class="chip-toggle" onclick="toggleChips(\''+g.id+'\')" id="chipBtn_'+g.id+'">'+
@@ -2410,9 +2409,9 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
     '<div class="card-accent"></div><div class="card-inner">'+
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
     '<div style="flex:1"><div class="cname">🛡️ '+escHtml(g.glassName)+'</div>'+
-    '<div class="cbadges">'+typeBadge+'<span class="bg">'+mlist.length+' Models</span>'+
-    confidenceBadge(g.confidence)+
-    (isFuzzy?'<span class="bgy">🔎 Similar</span>':(hasSearch&&matched.length?'<span class="bgg">✅ '+matched.length+' Match</span>':''))+
+    '<div class="cbadges">'+typeBadge+
+    (isFuzzy?'<span class="bgy">🔎 Similar Match</span>':(hasSearch&&matched.length?'<span class="bgg">✅ '+mlist.length+' models mein '+matched.length+' match</span>':'<span class="bg">'+mlist.length+' Models</span>'))+
+    ((g.confidence&&g.confidence!=='100')?confidenceBadge(g.confidence):'')+
     '</div></div>'+adm+'</div>'+matchSection+otherTags+noteHtml+
     '<div class="cbtns">'+(isAdmin()?'<button class="cbtn" onclick="copyList(\''+g.id+'\')">📋 Copy Group</button>':'')+
     (isAdmin()?'<button class="cbtn" onclick="shareResult(\''+g.id+'\')">📤 Share</button>':'')+'</div>'+
