@@ -146,7 +146,7 @@ button{cursor:pointer}
 #menuBtn:active{transform:scale(.92)}
 
 /* TABS */
-.tabs{display:flex;gap:6px;background:#F7F2EA;border-radius:14px 14px 0 0;padding:6px 6px 0}
+.tabs{display:flex;gap:6px;background:#FFFDF9;border:1px solid #E7DCCB;border-bottom:none;box-shadow:0 4px 14px rgba(120,90,40,.06);border-radius:14px 14px 0 0;padding:6px 6px 0}
 .tab{flex:1;padding:13px 6px;background:transparent;border:1px solid transparent;border-bottom:2px solid transparent;border-radius:12px 12px 0 0;color:#786B58;font-size:13px;font-weight:600;transition:background .3s cubic-bezier(.22,1,.36,1),border-color .3s cubic-bezier(.22,1,.36,1),color .3s cubic-bezier(.22,1,.36,1),transform .15s ease;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
 .tab:active{transform:scale(.97)}
 .tab:active{transform:scale(.96)}
@@ -399,10 +399,11 @@ button{cursor:pointer}
 .bgg{background:#F2FAF1;border:1px solid #4CAF5050;border-radius:6px;padding:3px 10px;color:#4CAF50;font-size:11px;font-weight:700}
 .bgy{background:#F3E7D0;border:1px solid #B08D6A60;border-radius:6px;padding:3px 10px;color:#E7A93C;font-size:11px;font-weight:700}
 .cadmin{display:flex;gap:6px;flex-shrink:0;margin-left:8px}
-.ibtn{background:#FFFDF9;border:1px solid #E7DCCB;border-radius:8px;padding:8px 10px;font-size:13px;transition:transform .15s}
+.ibtn{background:#FFFDF9;border:1px solid #E7DCCB;border-radius:10px;padding:8px 10px;font-size:13px;box-shadow:0 3px 8px rgba(120,90,40,.06);transition:transform .15s,box-shadow .2s}
+.ibtn:active{transform:scale(.94);box-shadow:0 1px 4px rgba(120,90,40,.08)}
 .ibtn:active{transform:scale(.9)}
 .all-models{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;max-height:2000px;overflow:hidden;transition:max-height .22s cubic-bezier(.4,0,.2,1)}
-.mtag{background:#FFFDF9;border:1px solid rgba(52,42,34,.05);border-radius:6px;padding:5px 10px;font-size:11px;color:#786B58}
+.mtag{background:#FFFDF9;border:1px solid #E7DCCB;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;color:#2F261C;box-shadow:0 2px 6px rgba(120,90,40,.04)}
 .cbtns{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #E7DCCB}
 .chip-toggle{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:6px 12px;background:var(--group-dim);border:1px solid var(--group-border);border-radius:8px;color:var(--group-text);font-size:11px;font-weight:700}
 .chip-toggle:active{transform:scale(.95)}
