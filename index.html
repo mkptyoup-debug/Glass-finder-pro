@@ -53,10 +53,11 @@ body{background:linear-gradient(180deg,#F7F2EA 0%,#F3EBDD 45%,#EFE6D8 100%);back
 #bottomNav{position:fixed;left:16px;right:16px;bottom:calc(15px + env(safe-area-inset-bottom));z-index:1800;display:flex;padding:0;border-radius:26px;background:#FFFDF8;border:1px solid rgba(52,42,34,.06);box-shadow:0 12px 32px rgba(52,42,34,.14);max-width:420px;margin:0 auto;height:70px}
 .bnav-item{position:relative;flex:1 1 33.33%;width:33.33%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:none;border:none;color:#9C8F7A;font-size:10px;font-weight:600;letter-spacing:.02em;overflow:hidden;transition:color .22s ease}
 .bnav-ic{width:21px;height:21px;display:block;transition:transform .22s cubic-bezier(.34,1.56,.64,1),filter .22s ease;stroke:currentColor;fill:none}
-.bnav-item.active{color:#9A7448}
+.bnav-item.active{color:#2E2415}
+.bnav-item.active::after{content:'';position:absolute;top:8px;bottom:8px;left:10px;right:10px;background:linear-gradient(180deg,#F2E2BE,#E8CE9C);border-radius:16px;z-index:-1}
 .bnav-item.active .bnav-ic{transform:translateY(-1px)}
 .bnav-item .bnav-dot{position:absolute;bottom:10px;width:13px;height:2px;border-radius:2px;background:var(--brand);opacity:0;transform:scaleX(.4);transition:opacity .22s ease,transform .22s cubic-bezier(.4,0,.2,1);box-shadow:none}
-.bnav-item.active .bnav-dot{opacity:1;transform:scaleX(1)}
+.bnav-item.active .bnav-dot{opacity:0;transform:scaleX(.4)}
 .bnav-ripple{position:absolute;border-radius:50%;background:rgba(201,176,135,.28);transform:scale(0);animation:bnavRipple .5s ease-out;pointer-events:none}
 @keyframes bnavRipple{to{transform:scale(3.2);opacity:0}}
 .bnav-item:active .bnav-ic{transform:scale(.9)}
@@ -104,7 +105,7 @@ button{cursor:pointer}
 .login-err{color:#D95C5C;font-size:12px;text-align:center;margin-top:10px;min-height:18px}
 /* HEADER */
 #header{position:sticky;top:0;z-index:200;background:rgba(249,245,239,0.97);backdrop-filter:blur(20px);border-bottom:1px solid #C9B0871f;padding:14px 16px 0}
-.search-ic-glow{width:31px;height:31px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:none}
+.search-ic-glow{width:31px;height:31px;border-radius:50%;background:#F3EBDD;color:#9A7448;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:none}
 #offlineBar{display:none;position:sticky;top:0;z-index:202;background:#F4EBED;color:#F9E4E4;font-size:12.5px;font-weight:700;text-align:center;padding:8px 12px}
 #offlineBar.show{display:block}
 .skel-wrap{padding:4px 0}
@@ -220,7 +221,7 @@ button{cursor:pointer}
 .pf-body{max-width:680px;margin:0 auto;padding:16px}
 #partsSearchBox{display:flex;align-items:center;background:#FFFDF8;border:1px solid #E6DCCF;border-radius:18px;padding:0 6px 0 18px;gap:12px;margin-bottom:16px;box-shadow:0 4px 14px rgba(52,42,34,.06);transition:border-color .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1);position:relative;z-index:1}
 #partsSearchBox:focus-within{border-color:#C9B087;box-shadow:0 4px 14px rgba(52,42,34,.06),0 0 0 3px #C9B08722}
-#partsSearchInput{flex:1;background:none;border:none;outline:none;color:#2F261C;font-size:16px;font-weight:500;padding:13px 0}
+#partsSearchInput{flex:1;background:none;border:none;outline:none;color:#2F261C;font-size:15.5px;font-weight:500;padding:11px 0}
 #partsSearchInput::placeholder{color:#786B58}
 #partsSearchBox .search-ic-glow{width:30px;height:30px;font-size:14px}
 #partsAddBtn{width:100%;padding:14px;margin-bottom:16px;background:linear-gradient(135deg,#C9B08714,#C9B08708);border:1px dashed #C9B0874a;border-radius:13px;color:#C89A4B;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -231,10 +232,10 @@ button{cursor:pointer}
 #pfSwipeViewport,#pfTabBar{background:linear-gradient(180deg,#FFFDF9,#F7F2EA)}
 .pf-tabbar{display:flex;gap:10px;margin-bottom:18px;overflow-x:auto;padding:6px 2px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .pf-tabbar::-webkit-scrollbar{display:none}
-.pf-tab{flex:0 0 auto;width:70px;height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:10px 5px 9px;border-radius:16px;
-  background:linear-gradient(180deg,#F3EBDD,#EDEFF2);
-  border:1px solid #EEE5D8;
-  box-shadow:0 4px 14px rgba(52,42,34,.07);
+.pf-tab{flex:0 0 auto;width:70px;height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:10px 5px 9px;border-radius:18px;
+  background:#FFFDF9;
+  border:1px solid #E8DCC8;
+  box-shadow:0 6px 16px rgba(52,42,34,.08);
   cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative;
   opacity:1;transform:translateY(0) scale(1);
   animation:pfCardIn .45s cubic-bezier(.22,1,.36,1) forwards;
@@ -242,12 +243,12 @@ button{cursor:pointer}
 .pf-tab-ic-wrap{width:23px;height:23px;display:flex;align-items:center;justify-content:center;color:var(--pf-ic-inactive);transition:color .22s ease}
 .pf-tab-ic-wrap svg{width:100%;height:100%;overflow:visible;display:block;stroke:currentColor}
 .pf-tab-lbl{font-size:11.5px;font-weight:500;color:var(--pf-text-inactive);letter-spacing:.01em;transition:color .18s ease,font-weight .18s ease,transform .18s ease;white-space:nowrap;transform:scale(1);display:inline-block}
-.pf-tab.active{border-color:color-mix(in srgb,var(--tc,var(--pf-accent)) 55%,#EEE5D8);
-  background:linear-gradient(180deg,#F3EBDD,#EDEFF2);
-  box-shadow:0 6px 18px rgba(52,42,34,.10),0 0 9px color-mix(in srgb,var(--tc,var(--pf-accent)) 22%,transparent);
+.pf-tab.active{border-color:transparent;
+  background:linear-gradient(180deg,#D9BE8D,#B88A45);
+  box-shadow:0 8px 20px rgba(184,138,69,.32);
   transform:translateY(-2px) scale(1)}
-.pf-tab.active .pf-tab-ic-wrap{color:var(--tc,var(--pf-ic-active))}
-.pf-tab.active .pf-tab-lbl{color:var(--pf-text-active);font-weight:600;transform:scale(1.02)}
+.pf-tab.active .pf-tab-ic-wrap{color:#2E2415}
+.pf-tab.active .pf-tab-lbl{color:#2E2415;font-weight:700;transform:scale(1.02)}
 .pf-tab.pulse{animation:pfTabPulse .18s cubic-bezier(.22,1,.36,1)}
 @keyframes pfTabPulse{0%{transform:translateY(-2px) scale(1)}50%{transform:translateY(-2px) scale(1.03)}100%{transform:translateY(-2px) scale(1)}}
 @keyframes pfCardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -295,7 +296,7 @@ button{cursor:pointer}
 /* PARTS FINDER — PREMIUM REDESIGN */
 .pf-type-count{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(52,42,34,.06);color:#786B58;border:1px solid rgba(52,42,34,.07)}
 
-.pf-group-card{background:linear-gradient(145deg,#FFFDF9,#FFFDF9);border:1px solid rgba(52,42,34,.07);border-radius:16px;padding:14px 16px;margin-bottom:8px;transition:transform .2s;contain:content;content-visibility:auto;contain-intrinsic-size:0 180px}
+.pf-group-card{background:#FFFCF8;border:1px solid #E8DCC8;border-radius:22px;padding:16px 18px;margin-bottom:12px;box-shadow:0 8px 24px rgba(0,0,0,.06);transition:transform .2s;contain:content;content-visibility:auto;contain-intrinsic-size:0 180px}
 .pf-group-card:active{transform:scale(.98)}
 .pf-group-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .pf-group-left{display:flex;align-items:center;gap:10px}
@@ -412,17 +413,17 @@ button{cursor:pointer}
 .cbtn:active{transform:scale(.95)}
 
 /* ── FEEDBACK CARD (Was this result helpful?) ─────────────────────────── */
-.fb-widget{margin-top:10px;padding:10px 12px;border-radius:16px;background:linear-gradient(155deg,#F3EBDD,#FFFDF9);border:1px solid rgba(52,42,34,.08);box-shadow:0 1px 0 rgba(52,42,34,.03) inset,0 10px 26px -14px rgba(0,0,0,.6);position:relative;overflow:hidden;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
-.fb-widget::before{content:'';position:absolute;top:-40%;left:-10%;width:60%;height:140%;background:radial-gradient(closest-side,rgba(212,175,106,.05),transparent 70%);pointer-events:none}
+.fb-widget{margin-top:10px;padding:0;border-radius:0;background:none;border:none;border-top:1px solid #EEE5D8;box-shadow:none;position:relative;overflow:visible;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding-top:10px}
+.fb-widget::before{display:none}
 .fb-title{font-size:11.5px;font-weight:600;color:#786B58;letter-spacing:.1px;margin:0;position:relative;z-index:1;white-space:nowrap}
-.fb-row{display:flex;gap:8px;position:relative;z-index:1}
-.fbtn{position:relative;overflow:hidden;height:34px;width:34px;display:flex;align-items:center;justify-content:center;padding:0;border-radius:12px;background:#FFFDF9;border:1px solid rgba(52,42,34,.07);color:#786B58;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .18s cubic-bezier(.34,1.56,.64,1),background .2s ease-out,border-color .2s ease-out,color .2s ease-out,box-shadow .2s ease-out}
+.fb-row{display:flex;gap:6px;position:relative;z-index:1}
+.fbtn{position:relative;overflow:hidden;height:26px;width:26px;display:flex;align-items:center;justify-content:center;padding:0;border-radius:8px;background:none;border:1px solid #E8DCC8;color:#786B58;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .18s cubic-bezier(.34,1.56,.64,1),background .2s ease-out,border-color .2s ease-out,color .2s ease-out,box-shadow .2s ease-out}
 .fbtn .fbtn-txt{display:none}
-.fbtn:hover{background:#FFFDF9;border-color:rgba(52,42,34,.14);transform:translateY(-2px)}
+.fbtn:hover{background:#FFFDF9;border-color:rgba(52,42,34,.14);transform:translateY(-1px)}
 .fbtn:active{transform:translateY(0) scale(.96)}
 .fbtn:focus-visible{outline:none;box-shadow:0 0 0 2px #FFFDF9,0 0 0 4px #C9B08788}
 .fbtn:disabled{cursor:default;opacity:.55;transform:none!important}
-.fbtn .fbtn-ic{font-size:20px;transition:transform .25s cubic-bezier(.34,1.56,.64,1),color .2s ease-out;font-variation-settings:'FILL' 0,'wght' 500,'GRAD' 0,'opsz' 24}
+.fbtn .fbtn-ic{font-size:14px;transition:transform .25s cubic-bezier(.34,1.56,.64,1),color .2s ease-out;font-variation-settings:'FILL' 0,'wght' 500,'GRAD' 0,'opsz' 24}
 .fbtn .fbtn-count{font-size:11px;font-weight:600;color:#786B58;transition:color .2s ease-out}
 .fbtn .fbtn-count span{display:inline-block}
 
