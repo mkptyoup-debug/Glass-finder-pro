@@ -3769,15 +3769,34 @@ function openPartsImageModal(typeKey,groupId){
   var removeBtn=g.imageUrl?'<button class="bcancel" style="color:#D95C5C" onclick="removePartsGroupImage(\''+typeKey+'\',\''+groupId+'\')">🗑️ Remove Image</button>':'';
   openModal('<div class="mhead"><span class="mtitle">🖼️ '+escHtml(g.partName)+' Image</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
     preview+
-    '<div class="fgrp"><input type="file" accept="image/*" id="pfImgFile" class="finp" style="padding:9px"></div>'+
+    '<div class="brow" style="margin-top:0;margin-bottom:14px">'+
+      '<button type="button" class="bcancel" onclick="document.getElementById(\'pfImgCamera\').click()">📷 Camera se lo</button>'+
+      '<button type="button" class="bcancel" onclick="document.getElementById(\'pfImgGallery\').click()">🖼️ Gallery se lo</button>'+
+    '</div>'+
+    '<input type="file" accept="image/*" capture="environment" id="pfImgCamera" class="hide" onchange="handlePfImgFileSelect(this)">'+
+    '<input type="file" accept="image/*" id="pfImgGallery" class="hide" onchange="handlePfImgFileSelect(this)">'+
     '<div class="fhint" id="pfImgStatus">💡 Full HD sharp rahegi, auto-optimized for fast loading.</div>'+
     '<div class="brow">'+removeBtn+'<button class="bsave" onclick="uploadPartsGroupImage(\''+typeKey+'\',\''+groupId+'\')">⬆️ Upload</button></div>');
+  PF._pendingImgFile=null;
+}
+function handlePfImgFileSelect(input){
+  var file=input&&input.files&&input.files[0];
+  if(!file)return;
+  PF._pendingImgFile=file;
+  var statusEl=document.getElementById('pfImgStatus');
+  if(statusEl)statusEl.textContent='✅ Photo select ho gayi: '+file.name;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var prev=document.getElementById('pfImgPreview');
+    if(prev&&prev.tagName==='IMG'){prev.src=e.target.result;}
+    else if(prev){prev.outerHTML='<img id="pfImgPreview" src="'+e.target.result+'" style="width:100%;border-radius:12px;margin-bottom:10px;display:block">';}
+  };
+  reader.readAsDataURL(file);
 }
 function uploadPartsGroupImage(typeKey,groupId){
-  var fileInput=document.getElementById('pfImgFile');
   var statusEl=document.getElementById('pfImgStatus');
-  var file=fileInput&&fileInput.files&&fileInput.files[0];
-  if(!file){showToast('❌ Pehle photo select karo',true);return;}
+  var file=PF._pendingImgFile;
+  if(!file){showToast('❌ Pehle photo select karo (Camera ya Gallery)',true);return;}
   if(CLOUDINARY_CLOUD_NAME==='YOUR_CLOUD_NAME'){showToast('❌ Cloudinary setup abhi baaki hai',true);return;}
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   if(statusEl)statusEl.textContent='⏳ Uploading...';
@@ -3800,6 +3819,7 @@ function uploadPartsGroupImage(typeKey,groupId){
     var idx=PF.data[typeKey].findIndex(function(x){return x.id===groupId;});
     if(idx>=0)PF.data[typeKey][idx].imageUrl=url;
     bumpPartsVersion(typeKey);
+    PF._pendingImgFile=null;
     closeModal();showToast('✅ Image saved!');
     refreshPartsPage(typeKey);
   }).catch(function(e){
@@ -3833,10 +3853,10 @@ function buildGroupCard(g,t){
         '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
       '</div>'+
     '</div>'+
-    (g.imageUrl?'<img src="'+g.imageUrl+'" style="width:100%;border-radius:10px;margin-bottom:8px;display:block" loading="lazy">':'')+
-    '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     '<div class="pf-models-count">'+mlist.length+' compatible model'+(mlist.length>1?'s':'')+'</div>'+
     '<div class="pf-models-wrap">'+mlist.map(function(m){return '<span class="pf-model-chip">'+escHtml(m)+'</span>';}).join('')+'</div>'+
+    (g.imageUrl?'<img src="'+g.imageUrl+'" style="width:100%;border-radius:10px;margin:8px 0;display:block" loading="lazy">':'')+
+    '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     noteHtml+
     voteButtonsHtml('pf_'+t.key,g)+
     '</div>';
@@ -3873,9 +3893,9 @@ function buildResultCard(g,t,q,qu,res){
       '</div>'+
       adm+
     '</div>'+
+    '<div class="pf-models-wrap" style="margin-bottom:10px">'+tagsHtml+'</div>'+
     (g.imageUrl?'<img src="'+g.imageUrl+'" style="width:100%;border-radius:10px;margin-bottom:10px;display:block" loading="lazy">':'')+
     '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
-    '<div class="pf-models-wrap">'+tagsHtml+'</div>'+
     noteHtml+
     voteButtonsHtml('pf_'+t.key,g)+
     '</div>';
