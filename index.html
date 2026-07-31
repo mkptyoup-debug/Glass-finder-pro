@@ -21,6 +21,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1050,7 +1051,7 @@ var partsDebounceTimer=null;
 var searchSuggestTimer=null;
 var partsSuggestTimer=null;
 var toastTimer=null;
-var db=null,auth=null;
+var db=null,auth=null,storageRef=null;
 var splashDone=false,dataLoaded=false;
 
 var PART_TYPES=[
@@ -3727,6 +3728,81 @@ function renderPartsPageHtml(t,q){
   return res.groups.map(function(g){return buildResultCard(g,t,q,qu,res);}).join('');
 }
 
+// ── PART GROUP IMAGE (admin only, Spare Parts categories only) ──────────
+// Image ko canvas se resize karke Full-HD-jaisi sharp quality (max 1920px
+// longest side) par JPEG compress karte hain — dikhne mein crisp rehti hai
+// lekin file size 150-300KB tak reh jaata hai taaki slow net pe bhi fast load ho.
+function compressImageFile(file){
+  return new Promise(function(resolve,reject){
+    var img=new Image();
+    var reader=new FileReader();
+    reader.onload=function(e){img.src=e.target.result;};
+    reader.onerror=reject;
+    img.onload=function(){
+      var maxSide=1920;
+      var w=img.width,h=img.height;
+      if(w>h&&w>maxSide){h=Math.round(h*(maxSide/w));w=maxSide;}
+      else if(h>=w&&h>maxSide){w=Math.round(w*(maxSide/h));h=maxSide;}
+      var canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      canvas.toBlob(function(blob){
+        if(!blob){reject(new Error('Compress failed'));return;}
+        resolve(blob);
+      },'image/jpeg',0.85);
+    };
+    img.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+function openPartsImageModal(typeKey,groupId){
+  var t=PART_TYPES.find(function(x){return x.key===typeKey;});
+  var g=(PF.data[typeKey]||[]).find(function(x){return x.id===groupId;});
+  if(!t||!g)return;
+  var preview=g.imageUrl?'<img id="pfImgPreview" src="'+g.imageUrl+'" style="width:100%;border-radius:12px;margin-bottom:10px;display:block">':
+    '<div id="pfImgPreview" style="width:100%;height:140px;border-radius:12px;margin-bottom:10px;background:#F7F2EA;border:1px dashed #E7DCCB;display:flex;align-items:center;justify-content:center;color:#9A7448;font-size:12px">No image yet</div>';
+  var removeBtn=g.imageUrl?'<button class="bcancel" style="color:#D95C5C" onclick="removePartsGroupImage(\''+typeKey+'\',\''+groupId+'\')">🗑️ Remove Image</button>':'';
+  openModal('<div class="mhead"><span class="mtitle">🖼️ '+escHtml(g.partName)+' Image</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    preview+
+    '<div class="fgrp"><input type="file" accept="image/*" id="pfImgFile" class="finp" style="padding:9px"></div>'+
+    '<div class="fhint" id="pfImgStatus">💡 Full HD sharp rahegi, auto-optimized for fast loading.</div>'+
+    '<div class="brow">'+removeBtn+'<button class="bsave" onclick="uploadPartsGroupImage(\''+typeKey+'\',\''+groupId+'\')">⬆️ Upload</button></div>');
+}
+function uploadPartsGroupImage(typeKey,groupId){
+  var fileInput=document.getElementById('pfImgFile');
+  var statusEl=document.getElementById('pfImgStatus');
+  var file=fileInput&&fileInput.files&&fileInput.files[0];
+  if(!file){showToast('❌ Pehle photo select karo',true);return;}
+  if(!storageRef){showToast('❌ Storage not ready',true);return;}
+  var t=PART_TYPES.find(function(x){return x.key===typeKey;});
+  if(statusEl)statusEl.textContent='⏳ Uploading...';
+  compressImageFile(file).then(function(blob){
+    var ref=storageRef.ref().child('parts_images/'+typeKey+'/'+groupId+'.jpg');
+    return ref.put(blob,{contentType:'image/jpeg'}).then(function(){return ref.getDownloadURL();});
+  }).then(function(url){
+    return db.collection(t.col).doc(groupId).update({imageUrl:url}).then(function(){return url;});
+  }).then(function(url){
+    var idx=PF.data[typeKey].findIndex(function(x){return x.id===groupId;});
+    if(idx>=0)PF.data[typeKey][idx].imageUrl=url;
+    closeModal();showToast('✅ Image saved!');
+    refreshPartsPage(typeKey);
+  }).catch(function(e){
+    if(statusEl)statusEl.textContent='';
+    showToast('❌ Upload failed: '+e.message,true);
+  });
+}
+function removePartsGroupImage(typeKey,groupId){
+  var t=PART_TYPES.find(function(x){return x.key===typeKey;});
+  db.collection(t.col).doc(groupId).update({imageUrl:firebase.firestore.FieldValue.delete()}).then(function(){
+    var idx=PF.data[typeKey].findIndex(function(x){return x.id===groupId;});
+    if(idx>=0)delete PF.data[typeKey][idx].imageUrl;
+    var ref=storageRef.ref().child('parts_images/'+typeKey+'/'+groupId+'.jpg');
+    ref.delete().catch(function(){});
+    closeModal();showToast('✅ Image removed');
+    refreshPartsPage(typeKey);
+  }).catch(function(e){showToast('❌ '+e.message,true);});
+}
+
 function buildGroupCard(g,t){
   var mlist=parseModels(g.models);
   var noteHtml=g.note?'<div style="font-size:11px;color:#786B58;margin-top:8px;line-height:1.5;background:rgba(52,42,34,.03);border:1px solid rgba(52,42,34,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
@@ -3737,10 +3813,12 @@ function buildGroupCard(g,t){
         '<span class="pf-group-name">'+escHtml(g.partName)+'</span>'+
       '</div>'+
       '<div class="pf-group-actions">'+
+        (isAdmin()?'<button class="pf-action-btn img" onclick="openPartsImageModal(\''+t.key+'\',\''+g.id+'\')" title="'+(g.imageUrl?'Change Image':'Add Image')+'">'+(g.imageUrl?'🖼️':'📷')+'</button>':'')+
         '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
         '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
       '</div>'+
     '</div>'+
+    (g.imageUrl?'<img src="'+g.imageUrl+'" style="width:100%;border-radius:10px;margin-bottom:8px;display:block" loading="lazy">':'')+
     '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     '<div class="pf-models-count">'+mlist.length+' compatible model'+(mlist.length>1?'s':'')+'</div>'+
     '<div class="pf-models-wrap">'+mlist.map(function(m){return '<span class="pf-model-chip">'+escHtml(m)+'</span>';}).join('')+'</div>'+
@@ -3761,6 +3839,7 @@ function buildResultCard(g,t,q,qu,res){
   }).join('');
   var adm=isAdmin()?
     '<div class="pf-result-actions">'+
+      '<button class="pf-action-btn img" onclick="openPartsImageModal(\''+t.key+'\',\''+g.id+'\')" title="'+(g.imageUrl?'Change Image':'Add Image')+'">'+(g.imageUrl?'🖼️':'📷')+'</button>'+
       '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
       '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
     '</div>':'';
@@ -3779,6 +3858,7 @@ function buildResultCard(g,t,q,qu,res){
       '</div>'+
       adm+
     '</div>'+
+    (g.imageUrl?'<img src="'+g.imageUrl+'" style="width:100%;border-radius:10px;margin-bottom:10px;display:block" loading="lazy">':'')+
     '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     '<div class="pf-models-wrap">'+tagsHtml+'</div>'+
     noteHtml+
@@ -4859,6 +4939,7 @@ firebase.initializeApp({
 });
 db=firebase.firestore();
 auth=firebase.auth();
+storageRef=firebase.storage();
 
 // Auth state — login screen sirf tab dikhao jab koi session nahi
 var authReady=false,uiReady=false;
