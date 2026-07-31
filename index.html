@@ -3781,15 +3781,21 @@ function uploadPartsGroupImage(typeKey,groupId){
   if(CLOUDINARY_CLOUD_NAME==='YOUR_CLOUD_NAME'){showToast('❌ Cloudinary setup abhi baaki hai',true);return;}
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   if(statusEl)statusEl.textContent='⏳ Uploading...';
-  compressImageFile(file).then(function(blob){
+  // Kuch phone (iPhone) HEIC format mein photo dete hain jise browser ka
+  // canvas load/compress nahi kar sakta — us case mein original file hi
+  // seedha Cloudinary bhej dete hain, wahi usko convert kar dega.
+  compressImageFile(file).catch(function(){return file;}).then(function(blobOrFile){
     var fd=new FormData();
-    fd.append('file',blob,groupId+'.jpg');
+    fd.append('file',blobOrFile,groupId+'.jpg');
     fd.append('upload_preset',CLOUDINARY_UPLOAD_PRESET);
     fd.append('public_id','parts_images/'+typeKey+'/'+groupId);
     return fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD_NAME+'/image/upload',{method:'POST',body:fd});
   }).then(function(res){return res.json();}).then(function(data){
     if(!data.secure_url)throw new Error(data.error&&data.error.message?data.error.message:'Upload failed');
-    return db.collection(t.col).doc(groupId).update({imageUrl:data.secure_url}).then(function(){return data.secure_url;});
+    // f_auto,q_auto add karke delivery URL banate hain — isse HEIC jaisa
+    // format bhi har browser mein sahi (jpg/webp) dikhega.
+    var url=data.secure_url.replace('/image/upload/','/image/upload/f_auto,q_auto/');
+    return db.collection(t.col).doc(groupId).update({imageUrl:url}).then(function(){return url;});
   }).then(function(url){
     var idx=PF.data[typeKey].findIndex(function(x){return x.id===groupId;});
     if(idx>=0)PF.data[typeKey][idx].imageUrl=url;
