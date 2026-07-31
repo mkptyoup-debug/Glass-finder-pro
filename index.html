@@ -3799,6 +3799,7 @@ function uploadPartsGroupImage(typeKey,groupId){
   }).then(function(url){
     var idx=PF.data[typeKey].findIndex(function(x){return x.id===groupId;});
     if(idx>=0)PF.data[typeKey][idx].imageUrl=url;
+    bumpPartsVersion(typeKey);
     closeModal();showToast('✅ Image saved!');
     refreshPartsPage(typeKey);
   }).catch(function(e){
@@ -3811,6 +3812,7 @@ function removePartsGroupImage(typeKey,groupId){
   db.collection(t.col).doc(groupId).update({imageUrl:firebase.firestore.FieldValue.delete()}).then(function(){
     var idx=PF.data[typeKey].findIndex(function(x){return x.id===groupId;});
     if(idx>=0)delete PF.data[typeKey][idx].imageUrl;
+    bumpPartsVersion(typeKey);
     closeModal();showToast('✅ Image removed');
     refreshPartsPage(typeKey);
   }).catch(function(e){showToast('❌ '+e.message,true);});
