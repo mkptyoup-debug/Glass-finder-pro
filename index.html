@@ -4102,7 +4102,10 @@ function confirmSavePartsAnyway(){
 function proceedSaveParts(typeKey,partName,models,confidence,note,panel,curve){
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   var id=PF.editId||db.collection(t.col).doc().id;var isEdit=!!PF.editId;
+  var existing=(PF.data[typeKey]||[]).find(function(x){return x.id===id;});
+  var imageUrl=existing?existing.imageUrl:undefined;
   var newDoc={id:id,partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve};
+  if(imageUrl)newDoc.imageUrl=imageUrl;
 
   // OPTIMISTIC UPDATE — turant list update + modal band + toast, taaki "Save"
   // click karte hi turant response mile, chahe internet slow ho.
@@ -4114,7 +4117,9 @@ function proceedSaveParts(typeKey,partName,models,confidence,note,panel,curve){
   refreshPartsPage(typeKey);
   PF.editKey=null;PF.editId=null;
 
-  db.collection(t.col).doc(id).set({partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve}).then(function(){
+  var payload={partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve};
+  if(imageUrl)payload.imageUrl=imageUrl;
+  db.collection(t.col).doc(id).set(payload).then(function(){
     bumpPartsVersion(typeKey);
     logRecentUpdate((isEdit?'✏️ ':'✨ ')+t.label+': '+partName+(isEdit?' updated':' added'));
   }).catch(function(e){
