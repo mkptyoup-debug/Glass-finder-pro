@@ -21,7 +21,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1051,7 +1050,13 @@ var partsDebounceTimer=null;
 var searchSuggestTimer=null;
 var partsSuggestTimer=null;
 var toastTimer=null;
-var db=null,auth=null,storageRef=null;
+var db=null,auth=null;
+// ── CLOUDINARY (part-group images) ──────────────────────────────────────
+// Free Cloudinary account se Cloud Name aur ek "unsigned" upload preset
+// banake yahan daalo. Instructions: console.cloudinary.com > Dashboard se
+// Cloud Name; Settings > Upload > Add upload preset > Signing Mode: Unsigned.
+var CLOUDINARY_CLOUD_NAME='ofso0hif';
+var CLOUDINARY_UPLOAD_PRESET='geubv1rn';
 var splashDone=false,dataLoaded=false;
 
 var PART_TYPES=[
@@ -3773,14 +3778,18 @@ function uploadPartsGroupImage(typeKey,groupId){
   var statusEl=document.getElementById('pfImgStatus');
   var file=fileInput&&fileInput.files&&fileInput.files[0];
   if(!file){showToast('❌ Pehle photo select karo',true);return;}
-  if(!storageRef){showToast('❌ Storage not ready',true);return;}
+  if(CLOUDINARY_CLOUD_NAME==='YOUR_CLOUD_NAME'){showToast('❌ Cloudinary setup abhi baaki hai',true);return;}
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   if(statusEl)statusEl.textContent='⏳ Uploading...';
   compressImageFile(file).then(function(blob){
-    var ref=storageRef.ref().child('parts_images/'+typeKey+'/'+groupId+'.jpg');
-    return ref.put(blob,{contentType:'image/jpeg'}).then(function(){return ref.getDownloadURL();});
-  }).then(function(url){
-    return db.collection(t.col).doc(groupId).update({imageUrl:url}).then(function(){return url;});
+    var fd=new FormData();
+    fd.append('file',blob,groupId+'.jpg');
+    fd.append('upload_preset',CLOUDINARY_UPLOAD_PRESET);
+    fd.append('public_id','parts_images/'+typeKey+'/'+groupId);
+    return fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD_NAME+'/image/upload',{method:'POST',body:fd});
+  }).then(function(res){return res.json();}).then(function(data){
+    if(!data.secure_url)throw new Error(data.error&&data.error.message?data.error.message:'Upload failed');
+    return db.collection(t.col).doc(groupId).update({imageUrl:data.secure_url}).then(function(){return data.secure_url;});
   }).then(function(url){
     var idx=PF.data[typeKey].findIndex(function(x){return x.id===groupId;});
     if(idx>=0)PF.data[typeKey][idx].imageUrl=url;
@@ -3796,8 +3805,6 @@ function removePartsGroupImage(typeKey,groupId){
   db.collection(t.col).doc(groupId).update({imageUrl:firebase.firestore.FieldValue.delete()}).then(function(){
     var idx=PF.data[typeKey].findIndex(function(x){return x.id===groupId;});
     if(idx>=0)delete PF.data[typeKey][idx].imageUrl;
-    var ref=storageRef.ref().child('parts_images/'+typeKey+'/'+groupId+'.jpg');
-    ref.delete().catch(function(){});
     closeModal();showToast('✅ Image removed');
     refreshPartsPage(typeKey);
   }).catch(function(e){showToast('❌ '+e.message,true);});
@@ -4939,7 +4946,6 @@ firebase.initializeApp({
 });
 db=firebase.firestore();
 auth=firebase.auth();
-storageRef=firebase.storage();
 
 // Auth state — login screen sirf tab dikhao jab koi session nahi
 var authReady=false,uiReady=false;
