@@ -1,6 +1,4 @@
-  });
-    var body=!items.length?
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -323,7 +321,26 @@ button{cursor:pointer}
 /* PARTS FINDER — PREMIUM REDESIGN */
 .pf-type-count{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(52,42,34,.06);color:var(--text-2);border:1px solid rgba(52,42,34,.07)}
 
-.pf-group-card{background:#FFFCF8;border:1px solid var(--surface-2);border-radius:22px;padding:16px 18px;margin-bottom:12px;box-shadow:0 8px 24px rgba(0,0,0,.06);transition:transform .2s;contain:content;content-visibility:auto;contain-intrinsic-size:0 180px}
+.pf-thumb-wrap{position:relative;width:100%;height:150px;border-radius:12px;margin:8px 0;overflow:hidden;cursor:zoom-in;background:var(--skel-1)}
+.pf-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s ease}
+.pf-thumb-wrap:active img{transform:scale(1.03)}
+.pf-thumb-count{position:absolute;right:8px;bottom:8px;background:rgba(20,16,10,.68);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;display:flex;align-items:center;gap:4px;backdrop-filter:blur(4px)}
+.pf-thumb-zoomhint{position:absolute;left:8px;bottom:8px;background:rgba(20,16,10,.55);color:#fff;font-size:14px;padding:4px 6px;border-radius:8px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+#imgViewerBg{display:none;position:fixed;inset:0;background:rgba(4,3,2,.97);z-index:2200;flex-direction:column}
+#imgViewerBg.show{display:flex}
+.iv-close{position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;z-index:5;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;border:none;font-size:18px;display:flex;align-items:center;justify-content:center}
+.iv-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;border:none;font-size:20px;display:flex;align-items:center;justify-content:center}
+.iv-arrow.prev{left:10px}.iv-arrow.next{right:10px}
+.iv-stage{flex:1;display:flex;transition:transform .3s cubic-bezier(.2,.8,.2,1);touch-action:pan-y}
+.iv-slide{flex:0 0 100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.iv-img{max-width:100%;max-height:100%;object-fit:contain;transition:transform .25s ease;touch-action:manipulation}
+.iv-caption{text-align:center;color:#F3EAD9;font-size:13px;font-weight:600;padding:10px 16px calc(6px + env(safe-area-inset-bottom));letter-spacing:.02em}
+.iv-dots{display:flex;gap:6px;justify-content:center;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+.iv-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3)}
+.iv-dot.active{background:#D9B876;width:16px;border-radius:4px}
+.pf-imgslot{border:1px dashed var(--border-def);border-radius:14px;padding:10px;margin-bottom:12px}
+.pf-imgslot-title{font-size:12px;font-weight:800;color:var(--brand-text);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.pf-imgslot-preview{width:100%;height:130px;border-radius:10px;margin-bottom:10px;object-fit:cover;display:block;background:var(--bg)}
 .pf-group-card:active{transform:scale(.98)}
 .pf-group-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .pf-group-left{display:flex;align-items:center;gap:10px}
@@ -1072,6 +1089,14 @@ button{cursor:pointer}
 
 <div id="modalBg" onclick="if(event.target===this)closeModal()">
   <div class="modal" id="modalBox"></div>
+</div>
+<div id="imgViewerBg" onclick="if(event.target===this)closeImageViewer()">
+  <button class="iv-close" onclick="closeImageViewer()">✕</button>
+  <button class="iv-arrow prev" id="ivPrevBtn" onclick="ivNav(-1)">‹</button>
+  <button class="iv-arrow next" id="ivNextBtn" onclick="ivNav(1)">›</button>
+  <div class="iv-stage" id="ivStage"></div>
+  <div class="iv-caption" id="ivCaption"></div>
+  <div class="iv-dots" id="ivDots"></div>
 </div>
 <div id="toast"></div>
 <div id="paySuccessOverlay" class="hide">
@@ -3918,66 +3943,105 @@ function compressImageFile(file){
     reader.readAsDataURL(file);
   });
 }
+function pfImages(g){
+  var arr=[];
+  if(g.imageUrl)arr.push(g.imageUrl);
+  if(g.imageUrl2)arr.push(g.imageUrl2);
+  return arr;
+}
+function pfThumbHtml(g,typeKey){
+  var imgs=pfImages(g);
+  if(!imgs.length)return '';
+  return '<div class="pf-thumb-wrap" onclick="openImageViewerFor(\''+typeKey+'\',\''+g.id+'\')">'+
+    '<img src="'+imgs[0]+'" loading="lazy">'+
+    '<span class="pf-thumb-zoomhint">🔍</span>'+
+    (imgs.length>1?'<span class="pf-thumb-count">🖼️ '+imgs.length+'</span>':'')+
+  '</div>';
+}
+function openImageViewerFor(typeKey,groupId){
+  var g=(PF.data[typeKey]||[]).find(function(x){return x.id===groupId;});
+  if(!g)return;
+  openImageViewer(pfImages(g),g.partName,0);
+}
+function pfImgSlotHtml(g,slot){
+  var url=slot===1?g.imageUrl:g.imageUrl2;
+  var preview=url?'<img id="pfImgPreview'+slot+'" class="pf-imgslot-preview" src="'+url+'">':
+    '<div id="pfImgPreview'+slot+'" class="pf-imgslot-preview" style="border:1px dashed var(--border-def);display:flex;align-items:center;justify-content:center;color:var(--brand-text);font-size:12px">No image yet</div>';
+  var removeBtn=url?'<button class="bcancel" style="color:var(--danger)" onclick="removePartsGroupImage(\''+slot+'\')">🗑️ Remove</button>':'';
+  return '<div class="pf-imgslot">'+
+    '<div class="pf-imgslot-title">🖼️ Image '+slot+'</div>'+
+    preview+
+    '<div class="brow" style="margin-top:0;margin-bottom:10px">'+
+      '<button type="button" class="bcancel" onclick="document.getElementById(\'pfImgCamera'+slot+'\').click()">📷 Camera</button>'+
+      '<button type="button" class="bcancel" onclick="document.getElementById(\'pfImgGallery'+slot+'\').click()">🖼️ Gallery</button>'+
+    '</div>'+
+    '<input type="file" accept="image/*" capture="environment" id="pfImgCamera'+slot+'" class="hide" onchange="handlePfImgFileSelect(this,'+slot+')">'+
+    '<input type="file" accept="image/*" id="pfImgGallery'+slot+'" class="hide" onchange="handlePfImgFileSelect(this,'+slot+')">'+
+    '<div class="fhint" id="pfImgStatus'+slot+'" style="margin-bottom:8px">💡 Full HD sharp rahegi, auto-optimized for fast loading.</div>'+
+    '<div class="brow">'+removeBtn+'<button class="bsave" onclick="uploadPartsGroupImage('+slot+')">⬆️ Upload</button></div>'+
+  '</div>';
+}
 function openPartsImageModal(typeKey,groupId){
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   var g=(PF.data[typeKey]||[]).find(function(x){return x.id===groupId;});
   if(!t||!g)return;
-  var preview=g.imageUrl?'<img id="pfImgPreview" src="'+g.imageUrl+'" style="width:100%;border-radius:12px;margin-bottom:10px;display:block">':
-    '<div id="pfImgPreview" style="width:100%;height:140px;border-radius:12px;margin-bottom:10px;background:var(--bg);border:1px dashed var(--border-def);display:flex;align-items:center;justify-content:center;color:var(--brand-text);font-size:12px">No image yet</div>';
-  var removeBtn=g.imageUrl?'<button class="bcancel" style="color:var(--danger)" onclick="removePartsGroupImage(\''+typeKey+'\',\''+groupId+'\')">🗑️ Remove Image</button>':'';
-  openModal('<div class="mhead"><span class="mtitle">🖼️ '+escHtml(g.partName)+' Image</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
-    preview+
-    '<div class="brow" style="margin-top:0;margin-bottom:14px">'+
-      '<button type="button" class="bcancel" onclick="document.getElementById(\'pfImgCamera\').click()">📷 Camera se lo</button>'+
-      '<button type="button" class="bcancel" onclick="document.getElementById(\'pfImgGallery\').click()">🖼️ Gallery se lo</button>'+
-    '</div>'+
-    '<input type="file" accept="image/*" capture="environment" id="pfImgCamera" class="hide" onchange="handlePfImgFileSelect(this)">'+
-    '<input type="file" accept="image/*" id="pfImgGallery" class="hide" onchange="handlePfImgFileSelect(this)">'+
-    '<div class="fhint" id="pfImgStatus">💡 Full HD sharp rahegi, auto-optimized for fast loading.</div>'+
-    '<div class="brow">'+removeBtn+'<button class="bsave" onclick="uploadPartsGroupImage(\''+typeKey+'\',\''+groupId+'\')">⬆️ Upload</button></div>');
-  PF._pendingImgFile=null;
+  PF._imgCtx={typeKey:typeKey,groupId:groupId};
+  openModal('<div class="mhead"><span class="mtitle">🖼️ '+escHtml(g.partName)+' Images</span><button class="mclose" onclick="closeModal()">✕</button></div>'+
+    '<div class="fhint" style="margin-bottom:12px">Do photo tak add kar sakte ho — jaise "Front" aur "Back", ya do angle.</div>'+
+    pfImgSlotHtml(g,1)+
+    pfImgSlotHtml(g,2)
+  );
+  PF._pendingImgFile1=null;PF._pendingImgFile2=null;
 }
-function handlePfImgFileSelect(input){
+function handlePfImgFileSelect(input,slot){
   var file=input&&input.files&&input.files[0];
   if(!file)return;
-  PF._pendingImgFile=file;
-  var statusEl=document.getElementById('pfImgStatus');
+  PF['_pendingImgFile'+slot]=file;
+  var statusEl=document.getElementById('pfImgStatus'+slot);
   if(statusEl)statusEl.textContent='✅ Photo select ho gayi: '+file.name;
   var reader=new FileReader();
   reader.onload=function(e){
-    var prev=document.getElementById('pfImgPreview');
+    var prev=document.getElementById('pfImgPreview'+slot);
     if(prev&&prev.tagName==='IMG'){prev.src=e.target.result;}
-    else if(prev){prev.outerHTML='<img id="pfImgPreview" src="'+e.target.result+'" style="width:100%;border-radius:12px;margin-bottom:10px;display:block">';}
+    else if(prev){prev.outerHTML='<img id="pfImgPreview'+slot+'" class="pf-imgslot-preview" src="'+e.target.result+'">';}
   };
   reader.readAsDataURL(file);
 }
-function uploadPartsGroupImage(typeKey,groupId){
-  var statusEl=document.getElementById('pfImgStatus');
-  var file=PF._pendingImgFile;
+function uploadPartsGroupImage(slot){
+  var ctx=PF._imgCtx;if(!ctx)return;
+  var typeKey=ctx.typeKey,groupId=ctx.groupId;
+  var statusEl=document.getElementById('pfImgStatus'+slot);
+  var file=PF['_pendingImgFile'+slot];
   if(!file){showToast('❌ Pehle photo select karo (Camera ya Gallery)',true);return;}
   if(CLOUDINARY_CLOUD_NAME==='YOUR_CLOUD_NAME'){showToast('❌ Cloudinary setup abhi baaki hai',true);return;}
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
+  var field=slot===1?'imageUrl':'imageUrl2';
+  var publicId='parts_images/'+typeKey+'/'+groupId+(slot===2?'_2':'');
   if(statusEl)statusEl.textContent='⏳ Uploading...';
   // Kuch phone (iPhone) HEIC format mein photo dete hain jise browser ka
   // canvas load/compress nahi kar sakta — us case mein original file hi
   // seedha Cloudinary bhej dete hain, wahi usko convert kar dega.
   compressImageFile(file).catch(function(){return file;}).then(function(blobOrFile){
     var fd=new FormData();
-    fd.append('file',blobOrFile,groupId+'.jpg');
+    fd.append('file',blobOrFile,groupId+(slot===2?'_2':'')+'.jpg');
     fd.append('upload_preset',CLOUDINARY_UPLOAD_PRESET);
-    fd.append('public_id','parts_images/'+typeKey+'/'+groupId);
+    fd.append('public_id',publicId);
     return fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD_NAME+'/image/upload',{method:'POST',body:fd});
   }).then(function(res){return res.json();}).then(function(data){
     if(!data.secure_url)throw new Error(data.error&&data.error.message?data.error.message:'Upload failed');
     // f_auto,q_auto add karke delivery URL banate hain — isse HEIC jaisa
-    // format bhi har browser mein sahi (jpg/webp) dikhega.
-    var url=data.secure_url.replace('/image/upload/','/image/upload/f_auto,q_auto/');
-    return db.collection(t.col).doc(groupId).update({imageUrl:url}).then(function(){return url;});
+    // format bhi har browser mein sahi (jpg/webp) dikhega. Version number
+    // (?v=...) hamesha URL ke saath jodte hain taaki replace/overwrite karne
+    // par purani cached image kabhi dikhna band ho — CDN aur service-worker
+    // dono ko turant naya URL nazar aata hai.
+    var url=data.secure_url.replace('/image/upload/','/image/upload/f_auto,q_auto/')+'?v='+Date.now();
+    var payload={};payload[field]=url;
+    return db.collection(t.col).doc(groupId).update(payload).then(function(){return url;});
   }).then(function(url){
     var idx=PF.data[typeKey].findIndex(function(x){return x.id===groupId;});
-    if(idx>=0)PF.data[typeKey][idx].imageUrl=url;
+    if(idx>=0)PF.data[typeKey][idx][field]=url;
     bumpPartsVersion(typeKey);
-    PF._pendingImgFile=null;
+    PF['_pendingImgFile'+slot]=null;
     closeModal();showToast('✅ Image saved!');
     refreshPartsPage(typeKey);
   }).catch(function(e){
@@ -3985,15 +4049,81 @@ function uploadPartsGroupImage(typeKey,groupId){
     showToast('❌ Upload failed: '+e.message,true);
   });
 }
-function removePartsGroupImage(typeKey,groupId){
+function removePartsGroupImage(slot){
+  var ctx=PF._imgCtx;if(!ctx)return;
+  var typeKey=ctx.typeKey,groupId=ctx.groupId;
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
-  db.collection(t.col).doc(groupId).update({imageUrl:firebase.firestore.FieldValue.delete()}).then(function(){
+  var field=slot===1?'imageUrl':'imageUrl2';
+  var payload={};payload[field]=firebase.firestore.FieldValue.delete();
+  db.collection(t.col).doc(groupId).update(payload).then(function(){
     var idx=PF.data[typeKey].findIndex(function(x){return x.id===groupId;});
-    if(idx>=0)delete PF.data[typeKey][idx].imageUrl;
+    if(idx>=0)delete PF.data[typeKey][idx][field];
     bumpPartsVersion(typeKey);
     closeModal();showToast('✅ Image removed');
     refreshPartsPage(typeKey);
   }).catch(function(e){showToast('❌ '+e.message,true);});
+}
+
+// ── FULL-SCREEN IMAGE VIEWER (swipe between Image 1 / Image 2, tap to zoom) ─
+var IV={images:[],idx:0,label:'',zoomed:false};
+function openImageViewer(images,label,startIdx){
+  if(!images||!images.length)return;
+  IV.images=images;IV.label=label||'';IV.idx=startIdx||0;IV.zoomed=false;
+  ivRender();
+  document.getElementById('imgViewerBg').classList.add('show');
+  if(navigator.vibrate)navigator.vibrate(6);
+}
+function closeImageViewer(){
+  document.getElementById('imgViewerBg').classList.remove('show');
+  IV.zoomed=false;
+}
+function ivRender(){
+  var stage=document.getElementById('ivStage');
+  stage.style.transform='translateX(-'+(IV.idx*100)+'%)';
+  stage.innerHTML=IV.images.map(function(u){
+    return '<div class="iv-slide"><img src="'+u+'" class="iv-img" onclick="ivToggleZoom(event)"></div>';
+  }).join('');
+  var multi=IV.images.length>1;
+  document.getElementById('ivCaption').textContent=IV.label+(multi?' — Image '+(IV.idx+1)+' of '+IV.images.length:'');
+  document.getElementById('ivDots').innerHTML=multi?IV.images.map(function(_,i){return '<span class="iv-dot'+(i===IV.idx?' active':'')+'"></span>';}).join(''):'';
+  document.getElementById('ivPrevBtn').style.display=(multi&&IV.idx>0)?'flex':'none';
+  document.getElementById('ivNextBtn').style.display=(multi&&IV.idx<IV.images.length-1)?'flex':'none';
+}
+function ivNav(dir){
+  var n=IV.idx+dir;
+  if(n<0||n>=IV.images.length)return;
+  IV.idx=n;IV.zoomed=false;
+  ivRender();
+  if(navigator.vibrate)navigator.vibrate(6);
+}
+function ivToggleZoom(e){
+  var img=e.currentTarget;
+  IV.zoomed=!IV.zoomed;
+  img.style.transform=IV.zoomed?'scale(2.1)':'scale(1)';
+  img.style.cursor=IV.zoomed?'zoom-out':'zoom-in';
+}
+function bindIvSwipe(){
+  var stage=document.getElementById('ivStage');
+  if(!stage)return;
+  var sx=0,dx=0,dragging=false;
+  stage.addEventListener('touchstart',function(e){
+    if(IV.zoomed||IV.images.length<2)return;
+    dragging=true;sx=e.touches[0].clientX;dx=0;
+    stage.style.transition='none';
+  },{passive:true});
+  stage.addEventListener('touchmove',function(e){
+    if(!dragging)return;
+    dx=e.touches[0].clientX-sx;
+    stage.style.transform='translateX(calc(-'+(IV.idx*100)+'% + '+dx+'px))';
+  },{passive:true});
+  stage.addEventListener('touchend',function(){
+    if(!dragging)return;
+    dragging=false;
+    stage.style.transition='';
+    if(dx<-60&&IV.idx<IV.images.length-1)ivNav(1);
+    else if(dx>60&&IV.idx>0)ivNav(-1);
+    else ivRender();
+  });
 }
 
 function buildGroupCard(g,t){
@@ -4006,14 +4136,14 @@ function buildGroupCard(g,t){
         '<span class="pf-group-name">'+escHtml(g.partName)+'</span>'+
       '</div>'+
       '<div class="pf-group-actions">'+
-        (isAdmin()?'<button class="pf-action-btn img" onclick="openPartsImageModal(\''+t.key+'\',\''+g.id+'\')" title="'+(g.imageUrl?'Change Image':'Add Image')+'">'+(g.imageUrl?'🖼️':'📷')+'</button>':'')+
+        (isAdmin()?'<button class="pf-action-btn img" onclick="openPartsImageModal(\''+t.key+'\',\''+g.id+'\')" title="'+(pfImages(g).length?'Change Images':'Add Image')+'">'+(pfImages(g).length?'🖼️':'📷')+'</button>':'')+
         '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
         '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
       '</div>'+
     '</div>'+
     '<div class="pf-models-count">'+mlist.length+' compatible model'+(mlist.length>1?'s':'')+'</div>'+
     '<div class="pf-models-wrap">'+mlist.map(function(m){return '<span class="pf-model-chip">'+escHtml(m)+'</span>';}).join('')+'</div>'+
-    (g.imageUrl?'<img src="'+g.imageUrl+'" style="width:100%;border-radius:10px;margin:8px 0;display:block" loading="lazy">':'')+
+    pfThumbHtml(g,t.key)+
     '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     noteHtml+
     voteButtonsHtml('pf_'+t.key,g)+
@@ -4032,7 +4162,7 @@ function buildResultCard(g,t,q,qu,res){
   }).join('');
   var adm=isAdmin()?
     '<div class="pf-result-actions">'+
-      '<button class="pf-action-btn img" onclick="openPartsImageModal(\''+t.key+'\',\''+g.id+'\')" title="'+(g.imageUrl?'Change Image':'Add Image')+'">'+(g.imageUrl?'🖼️':'📷')+'</button>'+
+      '<button class="pf-action-btn img" onclick="openPartsImageModal(\''+t.key+'\',\''+g.id+'\')" title="'+(pfImages(g).length?'Change Images':'Add Image')+'">'+(pfImages(g).length?'🖼️':'📷')+'</button>'+
       '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit">✎</button>'+
       '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete">✕</button>'+
     '</div>':'';
@@ -4052,7 +4182,7 @@ function buildResultCard(g,t,q,qu,res){
       adm+
     '</div>'+
     '<div class="pf-models-wrap" style="margin-bottom:10px">'+tagsHtml+'</div>'+
-    (g.imageUrl?'<img src="'+g.imageUrl+'" style="width:100%;border-radius:10px;margin-bottom:10px;display:block" loading="lazy">':'')+
+    pfThumbHtml(g,t.key)+
     '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     noteHtml+
     voteButtonsHtml('pf_'+t.key,g)+
@@ -4284,8 +4414,10 @@ function proceedSaveParts(typeKey,partName,models,confidence,note,panel,curve){
   var id=PF.editId||db.collection(t.col).doc().id;var isEdit=!!PF.editId;
   var existing=(PF.data[typeKey]||[]).find(function(x){return x.id===id;});
   var imageUrl=existing?existing.imageUrl:undefined;
+  var imageUrl2=existing?existing.imageUrl2:undefined;
   var newDoc={id:id,partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve};
   if(imageUrl)newDoc.imageUrl=imageUrl;
+  if(imageUrl2)newDoc.imageUrl2=imageUrl2;
 
   // OPTIMISTIC UPDATE — turant list update + modal band + toast, taaki "Save"
   // click karte hi turant response mile, chahe internet slow ho.
@@ -4299,6 +4431,7 @@ function proceedSaveParts(typeKey,partName,models,confidence,note,panel,curve){
 
   var payload={partName:partName,models:models,confidence:confidence,note:note,panel:panel,curve:curve};
   if(imageUrl)payload.imageUrl=imageUrl;
+  if(imageUrl2)payload.imageUrl2=imageUrl2;
   db.collection(t.col).doc(id).set(payload).then(function(){
     bumpPartsVersion(typeKey);
     logRecentUpdate((isEdit?'✏️ ':'✨ ')+t.label+': '+partName+(isEdit?' updated':' added'));
@@ -5325,6 +5458,7 @@ function pollGlassVersion(){
 }
 initTheme();
 initLanguage();
+bindIvSwipe();
 setInterval(pollGlassVersion,120000); // har 2 minute me sirf 1 chhota read
 loadGlassData();
 
