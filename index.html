@@ -321,11 +321,10 @@ button{cursor:pointer}
 /* PARTS FINDER — PREMIUM REDESIGN */
 .pf-type-count{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(52,42,34,.06);color:var(--text-2);border:1px solid rgba(52,42,34,.07)}
 
-.pf-thumb-wrap{position:relative;width:100%;height:150px;border-radius:12px;margin:8px 0;overflow:hidden;cursor:zoom-in;background:var(--skel-1)}
-.pf-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s ease}
-.pf-thumb-wrap:active img{transform:scale(1.03)}
-.pf-thumb-count{position:absolute;right:8px;bottom:8px;background:rgba(20,16,10,.68);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;display:flex;align-items:center;gap:4px;backdrop-filter:blur(4px)}
-.pf-thumb-zoomhint{position:absolute;left:8px;bottom:8px;background:rgba(20,16,10,.55);color:#fff;font-size:14px;padding:4px 6px;border-radius:8px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.pf-thumb-row{display:flex;gap:8px;margin:8px 0}
+.pf-thumb-box{position:relative;flex:1 1 0;min-width:0;height:112px;border-radius:12px;overflow:hidden;cursor:zoom-in;background:var(--skel-1);border:1px solid var(--border-hair)}
+.pf-thumb-box img{width:100%;height:100%;object-fit:contain;display:block;background:var(--skel-1)}
+.pf-thumb-zoomhint{position:absolute;left:6px;bottom:6px;background:rgba(20,16,10,.55);color:#fff;font-size:12px;padding:3px 6px;border-radius:7px;line-height:1;backdrop-filter:blur(4px)}
 #imgViewerBg{display:none;position:fixed;inset:0;background:rgba(4,3,2,.97);z-index:2200;flex-direction:column}
 #imgViewerBg.show{display:flex}
 .iv-close{position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;z-index:5;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;border:none;font-size:18px;display:flex;align-items:center;justify-content:center}
@@ -3952,16 +3951,18 @@ function pfImages(g){
 function pfThumbHtml(g,typeKey){
   var imgs=pfImages(g);
   if(!imgs.length)return '';
-  return '<div class="pf-thumb-wrap" onclick="openImageViewerFor(\''+typeKey+'\',\''+g.id+'\')">'+
-    '<img src="'+imgs[0]+'" loading="lazy">'+
-    '<span class="pf-thumb-zoomhint">🔍</span>'+
-    (imgs.length>1?'<span class="pf-thumb-count">🖼️ '+imgs.length+'</span>':'')+
-  '</div>';
+  var boxes=imgs.map(function(url,i){
+    return '<div class="pf-thumb-box" onclick="openImageViewerFor(\''+typeKey+'\',\''+g.id+'\','+i+')">'+
+      '<img src="'+url+'" loading="lazy">'+
+      '<span class="pf-thumb-zoomhint">🔍</span>'+
+    '</div>';
+  }).join('');
+  return '<div class="pf-thumb-row">'+boxes+'</div>';
 }
-function openImageViewerFor(typeKey,groupId){
+function openImageViewerFor(typeKey,groupId,startIdx){
   var g=(PF.data[typeKey]||[]).find(function(x){return x.id===groupId;});
   if(!g)return;
-  openImageViewer(pfImages(g),g.partName,0);
+  openImageViewer(pfImages(g),g.partName,startIdx||0);
 }
 function pfImgSlotHtml(g,slot){
   var url=slot===1?g.imageUrl:g.imageUrl2;
@@ -4081,10 +4082,10 @@ function ivRender(){
   var stage=document.getElementById('ivStage');
   stage.style.transform='translateX(-'+(IV.idx*100)+'%)';
   stage.innerHTML=IV.images.map(function(u){
-    return '<div class="iv-slide"><img src="'+u+'" class="iv-img" onclick="ivToggleZoom(event)"></div>';
+    return '<div class="iv-slide"><img src="'+u+'" class="iv-img" ondblclick="ivToggleZoomImg(this)"></div>';
   }).join('');
   var multi=IV.images.length>1;
-  document.getElementById('ivCaption').textContent=IV.label+(multi?' — Image '+(IV.idx+1)+' of '+IV.images.length:'');
+  document.getElementById('ivCaption').textContent=IV.label+(multi?' — Image '+(IV.idx+1)+' of '+IV.images.length:'')+' · double-tap to zoom';
   document.getElementById('ivDots').innerHTML=multi?IV.images.map(function(_,i){return '<span class="iv-dot'+(i===IV.idx?' active':'')+'"></span>';}).join(''):'';
   document.getElementById('ivPrevBtn').style.display=(multi&&IV.idx>0)?'flex':'none';
   document.getElementById('ivNextBtn').style.display=(multi&&IV.idx<IV.images.length-1)?'flex':'none';
@@ -4096,33 +4097,49 @@ function ivNav(dir){
   ivRender();
   if(navigator.vibrate)navigator.vibrate(6);
 }
-function ivToggleZoom(e){
-  var img=e.currentTarget;
+function ivToggleZoomImg(img){
   IV.zoomed=!IV.zoomed;
-  img.style.transform=IV.zoomed?'scale(2.1)':'scale(1)';
+  img.style.transform=IV.zoomed?'scale(2.2)':'scale(1)';
   img.style.cursor=IV.zoomed?'zoom-out':'zoom-in';
+  if(navigator.vibrate)navigator.vibrate(10);
 }
 function bindIvSwipe(){
   var stage=document.getElementById('ivStage');
   if(!stage)return;
-  var sx=0,dx=0,dragging=false;
+  var sx=0,sy=0,dx=0,dy=0,dragging=false,moved=false,lastTapT=0,lastTapImg=null;
   stage.addEventListener('touchstart',function(e){
-    if(IV.zoomed||IV.images.length<2)return;
-    dragging=true;sx=e.touches[0].clientX;dx=0;
+    sx=e.touches[0].clientX;sy=e.touches[0].clientY;dx=0;dy=0;moved=false;
+    dragging=IV.images.length>1&&!IV.zoomed;
     stage.style.transition='none';
   },{passive:true});
   stage.addEventListener('touchmove',function(e){
-    if(!dragging)return;
-    dx=e.touches[0].clientX-sx;
-    stage.style.transform='translateX(calc(-'+(IV.idx*100)+'% + '+dx+'px))';
+    dx=e.touches[0].clientX-sx;dy=e.touches[0].clientY-sy;
+    if(Math.abs(dx)>8||Math.abs(dy)>8)moved=true;
+    if(dragging&&Math.abs(dx)>Math.abs(dy)){
+      stage.style.transform='translateX(calc(-'+(IV.idx*100)+'% + '+dx+'px))';
+    }
   },{passive:true});
-  stage.addEventListener('touchend',function(){
-    if(!dragging)return;
-    dragging=false;
+  stage.addEventListener('touchend',function(e){
     stage.style.transition='';
-    if(dx<-60&&IV.idx<IV.images.length-1)ivNav(1);
-    else if(dx>60&&IV.idx>0)ivNav(-1);
-    else ivRender();
+    // Swipe navigation — only rebuilds the stage when we actually navigate,
+    // never on a plain tap (that was the bug eating zoom taps before).
+    if(dragging&&moved&&Math.abs(dx)>Math.abs(dy)){
+      if(dx<-60&&IV.idx<IV.images.length-1){dragging=false;ivNav(1);return;}
+      if(dx>60&&IV.idx>0){dragging=false;ivNav(-1);return;}
+      stage.style.transform='translateX(-'+(IV.idx*100)+'%)';
+    }
+    dragging=false;
+    if(!moved){
+      // Plain tap — double-tap (within 320ms, same image) toggles zoom.
+      var img=e.target.closest?e.target.closest('.iv-img'):null;
+      var now=Date.now();
+      if(img&&lastTapImg===img&&(now-lastTapT)<320){
+        ivToggleZoomImg(img);
+        lastTapT=0;lastTapImg=null;
+      }else{
+        lastTapT=now;lastTapImg=img;
+      }
+    }
   });
 }
 
