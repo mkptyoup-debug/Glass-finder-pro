@@ -1408,8 +1408,14 @@ function trackUserSession(user){
         updates.legacyFreeMonthGranted=true;
         db.collection('activity_log').add({type:'legacy_bonus',email:user.email,detail:'Existing user granted 1 month free premium',ts:now}).catch(function(){});
       }
-      ref.update(updates);
-      applyPremiumData(Object.assign({},docData,updates));
+      ref.update(updates).then(function(){
+        applyPremiumData(Object.assign({},docData,updates));
+      }).catch(function(dbErr){
+        console.error('app_users update failed:',dbErr);
+        // Safe fields ke bina bhi UI ko current known state se render karo,
+        // taaki premium jhoothe se "active" na dikhe jab write fail ho gayi ho
+        applyPremiumData(docData);
+      });
     }
     try{
       if(!sessionStorage.getItem('adash_open_logged')){
@@ -1609,7 +1615,7 @@ function selectPlan(p){
 // ── RAZORPAY PAYMENT ────────────────────────────────────────────────────
 var RAZORPAY_WORKER_URL='https://universal-combo-payments.m-k-p-tyoup.workers.dev';
 var RAZORPAY_KEY_ID='rzp_live_THoq3uA2byE3uT'; // LIVE key — real payments hongi ab
-var TESTING_MODE=true; // true for testing (₹1 charge). Set to false at launch.
+var TESTING_MODE=false; // true for testing (₹1 charge). Set to false at launch.
 var NOTIFY_WORKER_URL='https://notify-worker.m-k-p-tyoup.workers.dev'; // ⚠️ deploy notify-worker.js aur yahan uska actual URL daalo
 
 function startCheckout(){
@@ -1679,7 +1685,13 @@ function verifyAndActivatePremium(response){
         applyPremiumData({trialEnd:S.premium.trialEnd,premiumExpiry:expiry,plan:plan});
         closeModal();
         showPaySuccessAnim();
+      }).catch(function(dbErr){
+        console.error('Premium activation write failed after successful payment:',dbErr);
+        logActivity('premium_activation_failed','paymentId:'+(response.razorpay_payment_id||'')+' err:'+(dbErr&&dbErr.message||''));
+        showToast('⚠️ Payment successful but activation failed. Please contact support with Payment ID: '+(response.razorpay_payment_id||'N/A'),true);
       });
+    } else {
+      showToast('⚠️ Payment successful but could not activate — please contact support with Payment ID: '+(response.razorpay_payment_id||'N/A'),true);
     }
   })
   .catch(function(){
