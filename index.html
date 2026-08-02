@@ -4021,7 +4021,11 @@ function uploadPartsGroupImage(slot){
   if(CLOUDINARY_CLOUD_NAME==='YOUR_CLOUD_NAME'){showToast('❌ Cloudinary setup abhi baaki hai',true);return;}
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   var field=slot===1?'imageUrl':'imageUrl2';
-  var publicId='parts_images/'+typeKey+'/'+groupId+(slot===2?'_2':'');
+  // Har upload ko ek naya unique public_id diya jaata hai (timestamp jodke) —
+  // isse Cloudinary hamesha ek bilkul NAYI image banata hai, purani wali kabhi
+  // "overwrite fail" hoke chipki nahi rehti (chahe preset mein Overwrite
+  // setting on ho ya off, ab koi farak nahi padta).
+  var publicId='parts_images/'+typeKey+'/'+groupId+(slot===2?'_2':'')+'_'+Date.now();
   if(statusEl)statusEl.textContent='⏳ Uploading...';
   // Kuch phone (iPhone) HEIC format mein photo dete hain jise browser ka
   // canvas load/compress nahi kar sakta — us case mein original file hi
@@ -4073,14 +4077,14 @@ function removePartsGroupImage(slot){
 var IV={images:[],idx:0,label:'',zoomed:false};
 function openImageViewer(images,label,startIdx){
   if(!images||!images.length)return;
-  IV.images=images;IV.label=label||'';IV.idx=startIdx||0;IV.zoomed=false;
+  IV.images=images;IV.label=label||'';IV.idx=startIdx||0;IV.zoomed=false;IVZ.scale=1;IVZ.tx=0;IVZ.ty=0;
   ivRender();
   document.getElementById('imgViewerBg').classList.add('show');
   if(navigator.vibrate)navigator.vibrate(6);
 }
 function closeImageViewer(){
   document.getElementById('imgViewerBg').classList.remove('show');
-  IV.zoomed=false;
+  IV.zoomed=false;IVZ.scale=1;IVZ.tx=0;IVZ.ty=0;
 }
 function ivRender(){
   var stage=document.getElementById('ivStage');
@@ -4097,26 +4101,81 @@ function ivRender(){
 function ivNav(dir){
   var n=IV.idx+dir;
   if(n<0||n>=IV.images.length)return;
-  IV.idx=n;IV.zoomed=false;
+  IV.idx=n;IV.zoomed=false;IVZ.scale=1;IVZ.tx=0;IVZ.ty=0;
   ivRender();
   if(navigator.vibrate)navigator.vibrate(6);
 }
+// Zoom + pan state per current image. scale 1 = normal. tx/ty = pan offset in px.
+var IVZ={scale:1,tx:0,ty:0};
+function ivApplyZoom(img){
+  if(!img)return;
+  img.style.transform='translate('+IVZ.tx+'px,'+IVZ.ty+'px) scale('+IVZ.scale+')';
+  img.style.cursor=IVZ.scale>1?'grab':'zoom-in';
+}
+function ivClampPan(img){
+  // Don't let the image be dragged so far that empty space shows —
+  // clamp the pan offset based on how much bigger than the viewport the
+  // zoomed image now is.
+  if(!img)return;
+  var rect=img.parentElement.getBoundingClientRect();
+  var maxX=Math.max(0,(rect.width*(IVZ.scale-1))/2);
+  var maxY=Math.max(0,(rect.height*(IVZ.scale-1))/2);
+  IVZ.tx=Math.max(-maxX,Math.min(maxX,IVZ.tx));
+  IVZ.ty=Math.max(-maxY,Math.min(maxY,IVZ.ty));
+}
 function ivToggleZoomImg(img){
-  IV.zoomed=!IV.zoomed;
-  img.style.transform=IV.zoomed?'scale(2.2)':'scale(1)';
-  img.style.cursor=IV.zoomed?'zoom-out':'zoom-in';
+  IVZ.scale=IVZ.scale>1?1:2.2;
+  IVZ.tx=0;IVZ.ty=0;
+  IV.zoomed=IVZ.scale>1;
+  ivApplyZoom(img);
   if(navigator.vibrate)navigator.vibrate(10);
 }
 function bindIvSwipe(){
   var stage=document.getElementById('ivStage');
   if(!stage)return;
   var sx=0,sy=0,dx=0,dy=0,dragging=false,moved=false,lastTapT=0,lastTapImg=null;
+  var panning=false,panStartX=0,panStartY=0,panBaseTx=0,panBaseTy=0;
+  var pinching=false,pinchStartDist=0,pinchStartScale=1;
+  function dist(t0,t1){var ddx=t1.clientX-t0.clientX,ddy=t1.clientY-t0.clientY;return Math.sqrt(ddx*ddx+ddy*ddy);}
   stage.addEventListener('touchstart',function(e){
+    if(e.touches.length===2){
+      // Two fingers down — start a pinch gesture, cancel any swipe/pan in progress.
+      pinching=true;dragging=false;panning=false;
+      pinchStartDist=dist(e.touches[0],e.touches[1]);
+      pinchStartScale=IVZ.scale;
+      stage.style.transition='none';
+      return;
+    }
     sx=e.touches[0].clientX;sy=e.touches[0].clientY;dx=0;dy=0;moved=false;
-    dragging=IV.images.length>1&&!IV.zoomed;
+    var img=e.target.closest?e.target.closest('.iv-img'):null;
+    if(IVZ.scale>1&&img){
+      // Already zoomed in — single finger drags (pans) the image instead of
+      // swiping between images, so a zoomed photo can be moved up/down/around.
+      panning=true;panStartX=sx;panStartY=sy;panBaseTx=IVZ.tx;panBaseTy=IVZ.ty;
+      dragging=false;
+    }else{
+      dragging=IV.images.length>1&&IVZ.scale<=1;
+      panning=false;
+    }
     stage.style.transition='none';
   },{passive:true});
   stage.addEventListener('touchmove',function(e){
+    if(pinching&&e.touches.length===2){
+      var newDist=dist(e.touches[0],e.touches[1]);
+      var scale=pinchStartScale*(newDist/pinchStartDist);
+      IVZ.scale=Math.max(1,Math.min(4,scale));
+      var img=stage.querySelector('.iv-slide:nth-child('+(IV.idx+1)+') .iv-img');
+      ivClampPan(img);ivApplyZoom(img);
+      IV.zoomed=IVZ.scale>1;
+      return;
+    }
+    if(panning){
+      var pdx=e.touches[0].clientX-panStartX,pdy=e.touches[0].clientY-panStartY;
+      IVZ.tx=panBaseTx+pdx;IVZ.ty=panBaseTy+pdy;
+      var img2=e.target.closest?e.target.closest('.iv-img'):null;
+      ivClampPan(img2);ivApplyZoom(img2);
+      return;
+    }
     dx=e.touches[0].clientX-sx;dy=e.touches[0].clientY-sy;
     if(Math.abs(dx)>8||Math.abs(dy)>8)moved=true;
     if(dragging&&Math.abs(dx)>Math.abs(dy)){
@@ -4125,6 +4184,14 @@ function bindIvSwipe(){
   },{passive:true});
   stage.addEventListener('touchend',function(e){
     stage.style.transition='';
+    if(pinching){
+      pinching=false;
+      // Snap fully back to 1x if the user pinched back down past normal size.
+      if(IVZ.scale<=1.05){IVZ.scale=1;IVZ.tx=0;IVZ.ty=0;IV.zoomed=false;
+        var img=stage.querySelector('.iv-slide:nth-child('+(IV.idx+1)+') .iv-img');ivApplyZoom(img);}
+      return;
+    }
+    if(panning){panning=false;return;}
     // Swipe navigation — only rebuilds the stage when we actually navigate,
     // never on a plain tap (that was the bug eating zoom taps before).
     if(dragging&&moved&&Math.abs(dx)>Math.abs(dy)){
@@ -4135,17 +4202,17 @@ function bindIvSwipe(){
     dragging=false;
     if(!moved){
       // Plain tap — double-tap (within 320ms, same image) toggles zoom.
-      var img=e.target.closest?e.target.closest('.iv-img'):null;
+      var img3=e.target.closest?e.target.closest('.iv-img'):null;
       var now=Date.now();
-      if(img&&lastTapImg===img&&(now-lastTapT)<320){
+      if(img3&&lastTapImg===img3&&(now-lastTapT)<320){
         // Stop this tap from also generating a synthetic mouse click/dblclick
         // afterwards — that was firing ivToggleZoomImg a 2nd time and
         // instantly cancelling the zoom back out (the exact bug reported).
         e.preventDefault();
-        ivToggleZoomImg(img);
+        ivToggleZoomImg(img3);
         lastTapT=0;lastTapImg=null;
       }else{
-        lastTapT=now;lastTapImg=img;
+        lastTapT=now;lastTapImg=img3;
       }
     }
   });
@@ -5283,7 +5350,14 @@ function hideNotifPromptSheet(){
   if(bd)bd.classList.remove('show');
 }
 function dismissNotifPrompt(){hideNotifPromptSheet();}
-function acceptNotifPrompt(){hideNotifPromptSheet();setupNotifications();}
+function acceptNotifPrompt(){
+  // Pehle sheet band nahi karte — system permission popup khud hi upar aa
+  // jaata hai. Sheet ko turant hatana aur system popup ka aana ek saath ho
+  // raha tha, jisse screen par flash/blink jaisa dikhta tha. Ab sheet result
+  // aane ke baad hi hatate hain — repaint ek hi baar hota hai.
+  setupNotifications();
+  setTimeout(hideNotifPromptSheet,150);
+}
 function setNotifSwitch(on){
   var toggle=document.getElementById('notifToggle');
   var label=document.getElementById('notifLabel');
