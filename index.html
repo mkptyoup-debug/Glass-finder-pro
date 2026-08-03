@@ -1620,24 +1620,23 @@ var NOTIFY_WORKER_URL='https://notify-worker.m-k-p-tyoup.workers.dev'; // ⚠️
 
 function startCheckout(){
   if(!S.user){closeModal();showLogin();return;}
-  var planAmount=TESTING_MODE?1:(selectedPlan==='yearly'?499:49);
   var ctaBtn=document.querySelector('.pw-cta');
   if(ctaBtn){ctaBtn.disabled=true;ctaBtn.textContent='Please wait...';}
 
   fetch(RAZORPAY_WORKER_URL+'/create-order',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({amount:planAmount})
+    body:JSON.stringify({plan:selectedPlan,uid:S.user.uid})
   })
   .then(function(res){return res.json();})
   .then(function(order){
     if(!order||!order.id){throw new Error('Order creation failed');}
     var options={
-      key:RAZORPAY_KEY_ID,
+      key:order.key||RAZORPAY_KEY_ID,
       amount:order.amount,
       currency:order.currency,
       name:'Universal Combo',
-      description:(TESTING_MODE?'Test Payment':(selectedPlan==='yearly'?'Yearly Premium':'Monthly Premium')),
+      description:(selectedPlan==='yearly'?'Yearly Premium':'Monthly Premium'),
       order_id:order.id,
       prefill:{email:S.user.email||''},
       theme:{color:'#C9B087'},
@@ -1663,6 +1662,8 @@ function startCheckout(){
   });
 }
 
+// Premium ab SERVER (worker) grant karta hai payment verify hone ke baad —
+// client sirf result dikhata hai, khud Firestore nahi likhta.
 function verifyAndActivatePremium(response){
   fetch(RAZORPAY_WORKER_URL+'/verify-payment',{
     method:'POST',
@@ -1676,23 +1677,9 @@ function verifyAndActivatePremium(response){
   .then(function(res){return res.json();})
   .then(function(result){
     if(!result.verified){throw new Error('Verification failed');}
-    var days=TESTING_MODE?1:(selectedPlan==='yearly'?365:30);
-    var expiry=new Date(Date.now()+days*24*60*60*1000).toISOString();
-    var plan=TESTING_MODE?'test':selectedPlan;
-    var purchaseTs=new Date().toISOString();
-    if(db&&S.user){
-      db.collection('app_users').doc(S.user.uid).update({premiumExpiry:expiry,plan:plan,purchaseTs:purchaseTs,lastPaymentId:response.razorpay_payment_id||''}).then(function(){
-        applyPremiumData({trialEnd:S.premium.trialEnd,premiumExpiry:expiry,plan:plan});
-        closeModal();
-        showPaySuccessAnim();
-      }).catch(function(dbErr){
-        console.error('Premium activation write failed after successful payment:',dbErr);
-        logActivity('premium_activation_failed','paymentId:'+(response.razorpay_payment_id||'')+' err:'+(dbErr&&dbErr.message||''));
-        showToast('⚠️ Payment successful but activation failed. Please contact support with Payment ID: '+(response.razorpay_payment_id||'N/A'),true);
-      });
-    } else {
-      showToast('⚠️ Payment successful but could not activate — please contact support with Payment ID: '+(response.razorpay_payment_id||'N/A'),true);
-    }
+    applyPremiumData({trialEnd:S.premium.trialEnd,premiumExpiry:result.premiumExpiry,plan:result.plan});
+    closeModal();
+    showPaySuccessAnim();
   })
   .catch(function(){
     showToast('⚠️ Payment received but verification failed — please contact support',true);
