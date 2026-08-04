@@ -264,7 +264,8 @@ button{cursor:pointer}
 .pf-back:active{transform:scale(.92)}
 .pf-htitle{font-size:16px;font-weight:800;color:var(--text-1)}
 .pf-body{max-width:680px;margin:0 auto;padding:16px}
-#partsSearchBox{display:flex;align-items:center;background:var(--surface-1);border:1px solid #E6DCCF;border-radius:18px;padding:0 6px 0 18px;gap:12px;margin-bottom:16px;box-shadow:0 4px 14px rgba(52,42,34,.06);transition:border-color .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1);position:sticky;top:var(--pf-header-h,60px);z-index:150;margin-top:-4px}
+#partsSearchWrap{position:sticky;top:var(--pf-header-h,60px);z-index:150;background:var(--bg);padding-top:4px;margin-top:-4px}
+#partsSearchBox{display:flex;align-items:center;background:var(--surface-1);border:1px solid #E6DCCF;border-radius:18px;padding:0 6px 0 18px;gap:12px;margin-bottom:16px;box-shadow:0 4px 14px rgba(52,42,34,.06);transition:border-color .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1)}
 .pf-body{padding-top:4px}
 #partsSearchBox:focus-within{border-color:var(--brand);box-shadow:0 4px 14px rgba(52,42,34,.06),0 0 0 3px #C9B08722}
 #partsSearchInput{flex:1;background:none;border:none;outline:none;color:var(--text-1);font-size:15.5px;font-weight:500;padding:11px 0}
@@ -436,6 +437,8 @@ button{cursor:pointer}
 .suggest-box{background:var(--surface-1);border:1px solid var(--border-hair);border-radius:var(--r-md);margin-top:8px;margin-bottom:14px;overflow:hidden;box-shadow:var(--sh-2);animation:suggestIn .16s ease}
 @keyframes suggestIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .suggest-item{display:flex;align-items:center;gap:11px;padding:12px 16px;font-size:13.5px;font-weight:500;color:var(--text-2);border-bottom:1px solid var(--surface-2);transition:background .12s}
+.suggest-txt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.suggest-count{flex-shrink:0;font-size:10.5px;font-weight:700;color:var(--text-3);background:var(--surface-2);border-radius:20px;padding:3px 9px;white-space:nowrap}
 .suggest-item:last-child{border-bottom:none}
 .suggest-item:active,.suggest-item.hovered{background:#C9B08715}
 .suggest-ic{font-size:12px;opacity:.45;flex-shrink:0}
@@ -1047,12 +1050,14 @@ button{cursor:pointer}
     <span class="pf-htitle">🔧 <span data-i18n="pf.header">Spare Parts</span></span>
   </div>
   <div class="pf-body">
-    <div id="partsSearchBox">
-      <span class="search-ic-glow" style="background:linear-gradient(135deg,var(--brand-2),#2C7E96)">🔍</span>
-      <input id="partsSearchInput" placeholder="Search phone model... Vivo Y21" data-i18n-ph="pf.searchph" oninput="onPartsSearch()" onblur="setTimeout(function(){document.getElementById('partsSearchSuggest').classList.add('hide')},150)"/>
-      <button id="partsVoiceBtn" class="voice-btn" onclick="startVoiceSearch('partsSearchInput',onPartsSearch)" title="Search by voice" aria-label="Search by voice"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
+    <div id="partsSearchWrap">
+      <div id="partsSearchBox">
+        <span class="search-ic-glow" style="background:linear-gradient(135deg,var(--brand-2),#2C7E96)">🔍</span>
+        <input id="partsSearchInput" placeholder="Search phone model... Vivo Y21" data-i18n-ph="pf.searchph" oninput="onPartsSearch()" onblur="setTimeout(function(){document.getElementById('partsSearchSuggest').classList.add('hide')},150)"/>
+        <button id="partsVoiceBtn" class="voice-btn" onclick="startVoiceSearch('partsSearchInput',onPartsSearch)" title="Search by voice" aria-label="Search by voice"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
+      </div>
+      <div id="partsSearchSuggest" class="suggest-box hide"></div>
     </div>
-    <div id="partsSearchSuggest" class="suggest-box hide"></div>
     <button id="partsAddBtn" class="hide" onclick="openPartsAddModal()">＋ Add New Part Group</button>
     <button id="partsBulkBtn" class="hide" style="margin-top:8px" onclick="openPartsBulkModal()">📋 Bulk Add</button>
     <button id="partsCodeBtn" class="hide" style="margin-top:8px" onclick="openPartsCodeModal()">💾 Data Code</button>
@@ -3058,21 +3063,30 @@ function getAllModelsForTab(){
   return out;
 }
 function uniqueMatches(all,q){
+  // Har model ki count nikal lo — model list mein har group ke liye ek entry
+  // hoti hai, isliye kitni baar aaya = kitne groups mein mila (combos count)
+  var counts={};
+  all.forEach(function(m){
+    var mu=m.toUpperCase();
+    counts[mu]=(counts[mu]||0)+1;
+  });
   var seen={};var scored=[];
   all.forEach(function(m){
     var mu=m.toUpperCase();
     if(seen[mu])return;
     var s=rankScore(m,q);
-    if(s<5){seen[mu]=1;scored.push({m:m,score:s});}
+    if(s<5){seen[mu]=1;scored.push({m:m,score:s,count:counts[mu]});}
   });
   scored.sort(function(a,b){return a.score-b.score||a.m.localeCompare(b.m);});
-  return scored.slice(0,6).map(function(x){return x.m;});
+  return scored.slice(0,6).map(function(x){return {m:x.m,count:x.count};});
 }
 function showSuggestions(boxId,items,onPick,query){
   var box=document.getElementById(boxId);
   if(!items.length){box.classList.add('hide');box.innerHTML='';return;}
-  box.innerHTML=items.map(function(m){
-    return '<div class="suggest-item" onmousedown="'+onPick+'(\''+m.replace(/'/g,"\\'")+'\')"><span class="suggest-ic">🔍</span><span>'+hlText(m,query)+'</span></div>';
+  box.innerHTML=items.map(function(it){
+    var m=it.m,count=it.count;
+    var countHtml=count?'<span class="suggest-count">'+count+' combo'+(count>1?'s':'')+' mile</span>':'';
+    return '<div class="suggest-item" onmousedown="'+onPick+'(\''+m.replace(/'/g,"\\'")+'\')"><span class="suggest-ic">🔍</span><span class="suggest-txt">'+hlText(m,query)+'</span>'+countHtml+'</div>';
   }).join('');
   box.classList.remove('hide');
 }
