@@ -4056,7 +4056,7 @@ function pfImgSlotHtml(g,slot){
     '<input type="file" accept="image/*" capture="environment" id="pfImgCamera'+slot+'" class="hide" onchange="handlePfImgFileSelect(this,'+slot+')">'+
     '<input type="file" accept="image/*" id="pfImgGallery'+slot+'" class="hide" onchange="handlePfImgFileSelect(this,'+slot+')">'+
     '<div class="fhint" id="pfImgStatus'+slot+'" style="margin-bottom:8px">💡 Full HD sharp rahegi, auto-optimized for fast loading.</div>'+
-    '<div class="brow">'+removeBtn+'<button class="bsave" onclick="uploadPartsGroupImage('+slot+')">⬆️ Upload</button></div>'+
+    '<div class="brow">'+removeBtn+'<button class="bsave" onclick="uploadPartsGroupImage('+slot+',this)">⬆️ Upload</button></div>'+
   '</div>';
 }
 function openPartsImageModal(typeKey,groupId){
@@ -4077,16 +4077,22 @@ function handlePfImgFileSelect(input,slot){
   PF['_pendingImgFile'+slot]=file;
   var statusEl=document.getElementById('pfImgStatus'+slot);
   if(statusEl)statusEl.textContent='✅ Photo select ho gayi: '+file.name;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var prev=document.getElementById('pfImgPreview'+slot);
-    if(prev&&prev.tagName==='IMG'){prev.src=e.target.result;}
-    else if(prev){prev.outerHTML='<img id="pfImgPreview'+slot+'" class="pf-imgslot-preview" src="'+e.target.result+'">';}
-  };
-  reader.readAsDataURL(file);
+  // Poori original photo (kai MB) ko base64 text mein badalna bhaari/slow
+  // kaam hai aur preview flash/flicker karta hai — uski jagah ek halka
+  // "blob URL" reference use karte hain, jo turant aur smooth dikhta hai.
+  var blobUrl=URL.createObjectURL(file);
+  var prev=document.getElementById('pfImgPreview'+slot);
+  if(prev&&prev.tagName==='IMG'){
+    if(prev.dataset.blobUrl)URL.revokeObjectURL(prev.dataset.blobUrl);
+    prev.src=blobUrl;prev.dataset.blobUrl=blobUrl;
+  } else if(prev){
+    prev.outerHTML='<img id="pfImgPreview'+slot+'" class="pf-imgslot-preview" src="'+blobUrl+'" data-blob-url="'+blobUrl+'">';
+  }
 }
-function uploadPartsGroupImage(slot){
-  var ctx=PF._imgCtx;if(!ctx)return;
+function uploadPartsGroupImage(slot,btnEl){
+  var ctx=PF._imgCtx;
+  if(!ctx){showToast('❌ Kuch galat ho gaya (context missing) — modal band karke dobara kholo',true);return;}
+  if(PF._uploadInProgress){showToast('⏳ Ek upload pehle se chal raha hai, thoda ruko',true);return;}
   var typeKey=ctx.typeKey,groupId=ctx.groupId;
   var statusEl=document.getElementById('pfImgStatus'+slot);
   var file=PF['_pendingImgFile'+slot];
@@ -4094,41 +4100,61 @@ function uploadPartsGroupImage(slot){
   if(CLOUDINARY_CLOUD_NAME==='YOUR_CLOUD_NAME'){showToast('❌ Cloudinary setup abhi baaki hai',true);return;}
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   var field=slot===1?'imageUrl':'imageUrl2';
-  // Har upload ko ek naya unique public_id diya jaata hai (timestamp jodke) —
-  // isse Cloudinary hamesha ek bilkul NAYI image banata hai, purani wali kabhi
-  // "overwrite fail" hoke chipki nahi rehti (chahe preset mein Overwrite
-  // setting on ho ya off, ab koi farak nahi padta).
   var publicId='parts_images/'+typeKey+'/'+groupId+(slot===2?'_2':'')+'_'+Date.now();
+
+  PF._uploadInProgress=true;
+  var uploadBtn=btnEl;
+  if(uploadBtn){uploadBtn.disabled=true;uploadBtn.style.opacity='0.6';}
   if(statusEl)statusEl.textContent='⏳ Uploading...';
-  // Kuch phone (iPhone) HEIC format mein photo dete hain jise browser ka
-  // canvas load/compress nahi kar sakta — us case mein original file hi
-  // seedha Cloudinary bhej dete hain, wahi usko convert kar dega.
-  compressImageFile(file).catch(function(){return file;}).then(function(blobOrFile){
-    var fd=new FormData();
-    fd.append('file',blobOrFile,groupId+(slot===2?'_2':'')+'.jpg');
-    fd.append('upload_preset',CLOUDINARY_UPLOAD_PRESET);
-    fd.append('public_id',publicId);
-    return fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD_NAME+'/image/upload',{method:'POST',body:fd});
-  }).then(function(res){return res.json();}).then(function(data){
-    if(!data.secure_url)throw new Error(data.error&&data.error.message?data.error.message:'Upload failed');
-    // f_auto,q_auto add karke delivery URL banate hain — isse HEIC jaisa
-    // format bhi har browser mein sahi (jpg/webp) dikhega. Version number
-    // (?v=...) hamesha URL ke saath jodte hain taaki replace/overwrite karne
-    // par purani cached image kabhi dikhna band ho — CDN aur service-worker
-    // dono ko turant naya URL nazar aata hai.
-    var url=data.secure_url.replace('/image/upload/','/image/upload/f_auto,q_auto/')+'?v='+Date.now();
-    var payload={};payload[field]=url;
-    return db.collection(t.col).doc(groupId).update(payload).then(function(){return url;});
-  }).then(function(url){
+
+  // Agar network stuck ho jaye (bahut slow ya dead connection), 30 second baad
+  // khud fail ho jao — user hamesha ke liye "kuch nahi ho raha" state mein
+  // atka na rahe, use turant pata chale aur retry kar sake.
+  var timeoutMs=30000;
+  var timedOut=false;
+  var timeoutId=setTimeout(function(){
+    timedOut=true;
+    finishUpload(new Error('Timeout — network bahut slow hai, dobara try karo'));
+  },timeoutMs);
+
+  function finishUpload(err,url){
+    if(timeoutId)clearTimeout(timeoutId);
+    if(finishUpload._done)return; // ek hi baar chale, chahe timeout aur real response dono aa jayein
+    finishUpload._done=true;
+    PF._uploadInProgress=false;
+    if(uploadBtn){uploadBtn.disabled=false;uploadBtn.style.opacity='';}
+    if(err){
+      if(statusEl)statusEl.textContent='';
+      showToast('❌ Upload failed: '+err.message,true);
+      return;
+    }
     var idx=PF.data[typeKey].findIndex(function(x){return x.id===groupId;});
     if(idx>=0)PF.data[typeKey][idx][field]=url;
     bumpPartsVersion(typeKey);
     PF['_pendingImgFile'+slot]=null;
     closeModal();showToast('✅ Image saved!');
     refreshPartsPage(typeKey);
+  }
+
+  compressImageFile(file).catch(function(){return file;}).then(function(blobOrFile){
+    if(timedOut)return;
+    var fd=new FormData();
+    fd.append('file',blobOrFile,groupId+(slot===2?'_2':'')+'.jpg');
+    fd.append('upload_preset',CLOUDINARY_UPLOAD_PRESET);
+    fd.append('public_id',publicId);
+    return fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD_NAME+'/image/upload',{method:'POST',body:fd});
+  }).then(function(res){if(timedOut)return;return res.json();}).then(function(data){
+    if(timedOut)return;
+    if(!data.secure_url)throw new Error(data.error&&data.error.message?data.error.message:'Upload failed');
+    var url=data.secure_url.replace('/image/upload/','/image/upload/f_auto,q_auto/')+'?v='+Date.now();
+    var payload={};payload[field]=url;
+    return db.collection(t.col).doc(groupId).update(payload).then(function(){return url;});
+  }).then(function(url){
+    if(timedOut||!url)return;
+    finishUpload(null,url);
   }).catch(function(e){
-    if(statusEl)statusEl.textContent='';
-    showToast('❌ Upload failed: '+e.message,true);
+    if(timedOut)return;
+    finishUpload(e);
   });
 }
 function removePartsGroupImage(slot){
