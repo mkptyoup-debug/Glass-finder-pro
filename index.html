@@ -391,6 +391,7 @@ button{cursor:pointer}
 .pf-result-meta{font-size:11px;color:var(--text-2);margin-bottom:12px;font-weight:500}
 .pf-result-actions{display:flex;gap:6px;flex-shrink:0;margin-left:auto}
 .pf-result-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.pf-result-titlewrap{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0}
 
 /* RECENT */
 #quickAccess{background:linear-gradient(150deg,var(--surface-1),var(--surface-2));border:1px solid #C9B08726;border-radius:14px;padding:12px 12px 13px;margin-bottom:16px;position:relative;overflow:hidden;box-shadow:0 6px 18px rgba(120,90,40,.06)}
@@ -4383,7 +4384,7 @@ function buildGroupCard(g,t,idx){
       '</div>'+
     '</div>'+
     '<div class="pf-models-count">'+mlist.length+' compatible model'+(mlist.length>1?'s':'')+'</div>'+
-    '<div class="pf-models-wrap">'+mlist.map(function(m){return '<span class="pf-model-chip">'+escHtml(m)+'</span>';}).join('')+'</div>'+
+    buildModelChipsHtml(mlist.map(function(m){return '<span class="pf-model-chip">'+escHtml(m)+'</span>';}).join(''),mlist.length,g.id)+
     pfThumbHtml(g,t.key)+
     '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     noteHtml+
@@ -4392,6 +4393,31 @@ function buildGroupCard(g,t,idx){
     '</div>';
 }
 
+var PF_expandedCards={};
+function buildModelChipsHtml(tagsHtml,count,groupId){
+  var CHIP_LIMIT=15;
+  if(count<=CHIP_LIMIT)return '<div class="pf-models-wrap" style="margin-bottom:10px">'+tagsHtml+'</div>';
+  var isExpanded=!!PF_expandedCards[groupId];
+  var html='<div class="pf-models-wrap all-models'+(isExpanded?'':' collapsed')+'" id="pfchips_'+groupId+'" style="margin-bottom:6px">'+tagsHtml+'</div>';
+  html+='<button class="chip-toggle" onclick="togglePfChips(\''+groupId+'\')" id="pfChipBtn_'+groupId+'" style="margin-bottom:10px">'+
+    (isExpanded?'▲ Show Less':'▼ Show All ('+count+' Models)')+'</button>';
+  return html;
+}
+function togglePfChips(id){
+  PF_expandedCards[id]=!PF_expandedCards[id];
+  var wrap=document.getElementById('pfchips_'+id);
+  var btn=document.getElementById('pfChipBtn_'+id);
+  if(!wrap||!btn)return;
+  haptic();
+  var count=wrap.children.length;
+  if(PF_expandedCards[id]){
+    wrap.classList.remove('collapsed');
+    btn.innerHTML='▲ Show Less';
+  } else {
+    wrap.classList.add('collapsed');
+    btn.innerHTML='▼ Show All ('+count+' Models)';
+  }
+}
 function buildResultCard(g,t,q,qu,res){
   var mlist=parseModels(g.models);
   var isFuzzy=res.fuzzy;
@@ -4411,19 +4437,17 @@ function buildResultCard(g,t,q,qu,res){
   var noteHtml=g.note?'<div style="font-size:11px;color:var(--text-2);margin-top:10px;line-height:1.5;background:rgba(52,42,34,.03);border:1px solid rgba(52,42,34,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
   return '<div class="pf-result-card" style="border-color:'+t.color+'33">'+
     '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,'+t.color+',transparent)"></div>'+
-    '<div class="pf-result-header">'+
-      '<div class="pf-result-type-icon" style="background:'+t.color+'14;border:1px solid '+t.color+'33;color:'+t.color+'">'+(PF_ICONS[t.key]||'')+'</div>'+
-      '<span class="pf-result-type-label" style="color:'+t.color+'">'+t.label+'</span>'+
-      (isFuzzy?'<span class="pf-fuzzy-tag">similar</span>':'')+
-    '</div>'+
     '<div class="pf-result-top">'+
-      '<div>'+
-        '<div class="pf-result-name">'+escHtml(g.partName)+'</div>'+
-        '<div class="pf-result-meta">'+mlist.length+' model'+(mlist.length>1?'s':'')+' compatible</div>'+
+      '<div class="pf-result-titlewrap">'+
+        '<div class="pf-result-type-icon" style="background:'+t.color+'14;border:1px solid '+t.color+'33;color:'+t.color+'">'+(PF_ICONS[t.key]||'')+'</div>'+
+        '<div>'+
+          '<div class="pf-result-name">'+escHtml(g.partName)+(isFuzzy?' <span class="pf-fuzzy-tag">similar</span>':'')+'</div>'+
+          '<div class="pf-result-meta"><span style="color:'+t.color+';font-weight:700">'+t.label+'</span> · '+mlist.length+' model'+(mlist.length>1?'s':'')+' compatible</div>'+
+        '</div>'+
       '</div>'+
       adm+
     '</div>'+
-    '<div class="pf-models-wrap" style="margin-bottom:10px">'+tagsHtml+'</div>'+
+    buildModelChipsHtml(tagsHtml,mlist.length,g.id)+
     pfThumbHtml(g,t.key)+
     '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     noteHtml+
