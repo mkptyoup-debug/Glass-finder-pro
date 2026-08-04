@@ -264,7 +264,8 @@ button{cursor:pointer}
 .pf-back:active{transform:scale(.92)}
 .pf-htitle{font-size:16px;font-weight:800;color:var(--text-1)}
 .pf-body{max-width:680px;margin:0 auto;padding:16px}
-#partsSearchBox{display:flex;align-items:center;background:var(--surface-1);border:1px solid #E6DCCF;border-radius:18px;padding:0 6px 0 18px;gap:12px;margin-bottom:16px;box-shadow:0 4px 14px rgba(52,42,34,.06);transition:border-color .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1);position:relative;z-index:1}
+#partsSearchBox{display:flex;align-items:center;background:var(--surface-1);border:1px solid #E6DCCF;border-radius:18px;padding:0 6px 0 18px;gap:12px;margin-bottom:16px;box-shadow:0 4px 14px rgba(52,42,34,.06);transition:border-color .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1);position:sticky;top:var(--pf-header-h,60px);z-index:150;margin-top:-4px}
+.pf-body{padding-top:4px}
 #partsSearchBox:focus-within{border-color:var(--brand);box-shadow:0 4px 14px rgba(52,42,34,.06),0 0 0 3px #C9B08722}
 #partsSearchInput{flex:1;background:none;border:none;outline:none;color:var(--text-1);font-size:15.5px;font-weight:500;padding:11px 0}
 #partsSearchInput::placeholder{color:var(--text-2)}
@@ -362,7 +363,7 @@ button{cursor:pointer}
 .pf-imgslot{border:1px dashed var(--border-def);border-radius:14px;padding:10px;margin-bottom:12px}
 .pf-imgslot-title{font-size:12px;font-weight:800;color:var(--brand-text);margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .pf-imgslot-preview{width:100%;height:130px;border-radius:10px;margin-bottom:10px;object-fit:cover;display:block;background:var(--bg)}
-.pf-group-card{background:var(--surface-1);border:1px solid var(--surface-2);border-radius:22px;padding:16px 18px;margin-bottom:12px;box-shadow:0 8px 24px rgba(0,0,0,.06);transition:transform .2s;contain:content;content-visibility:auto;contain-intrinsic-size:0 220px}
+.pf-group-card{background:var(--surface-1);border:1px solid var(--surface-2);border-radius:22px;padding:16px 18px;margin-bottom:12px;box-shadow:0 10px 30px rgba(120,90,40,.10),0 2px 6px rgba(255,255,255,.75) inset;transition:transform .2s;contain:content;content-visibility:auto;contain-intrinsic-size:0 220px;opacity:0;animation:fadeUp .3s ease forwards}
 .pf-group-card:active{transform:scale(.98)}
 .pf-group-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .pf-group-left{display:flex;align-items:center;gap:10px}
@@ -1143,12 +1144,14 @@ button{cursor:pointer}
 // ── STICKY SEARCH BAR — keep --header-h synced to actual header height ───
 (function(){
   var headerEl=document.getElementById('header');
+  var pfHeaderEl=document.querySelector('.pf-header');
   function syncHeaderH(){
-    if(!headerEl)return;
-    document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px');
+    if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px');
+    if(pfHeaderEl)document.documentElement.style.setProperty('--pf-header-h',pfHeaderEl.offsetHeight+'px');
   }
-  if(window.ResizeObserver&&headerEl){
-    new ResizeObserver(syncHeaderH).observe(headerEl);
+  if(window.ResizeObserver){
+    if(headerEl)new ResizeObserver(syncHeaderH).observe(headerEl);
+    if(pfHeaderEl)new ResizeObserver(syncHeaderH).observe(pfHeaderEl);
   }
   window.addEventListener('resize',syncHeaderH);
   document.addEventListener('DOMContentLoaded',syncHeaderH);
@@ -3737,6 +3740,7 @@ function ripple(btn,evt){
 function switchPage(page,btnEl,evt){
   if(btnEl)ripple(btnEl,evt||window.event);
   haptic();
+  lsSet('lastPage',page);
   document.getElementById('navHome').classList.toggle('active',page==='home');
   document.getElementById('navParts').classList.toggle('active',page==='parts');
   document.getElementById('navUpdates').classList.toggle('active',page==='updates');
@@ -3786,6 +3790,13 @@ function showPartsSkeleton(){
 }
 function loadPartsData(){
   if(!db)return;PF.loaded=true;
+  // STEP 1 — Optimistic instant render from cache (agar pehle se data hai)
+  var hasFullCache=PART_TYPES.every(function(t){return !!lsGetJSON('pc_'+t.key);});
+  if(hasFullCache){
+    PART_TYPES.forEach(function(t){PF.data[t.key]=lsGetJSON('pc_'+t.key)||[];});
+    PF.ready=true;invalidatePartsModelsCache();renderPartsCards();
+  }
+  // STEP 2 — Background verify with server (bump/refetch sirf jo badla ho)
   db.collection('meta').doc('partsVersion').get().then(function(vSnap){
     var versions=vSnap.exists?vSnap.data():{};
     var pending=PART_TYPES.length;
@@ -3799,17 +3810,39 @@ function loadPartsData(){
         db.collection(t.col).get().then(function(snap){
           PF.data[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
           lsSetJSON('pc_'+t.key,PF.data[t.key]);lsSet('pv_'+t.key,String(remoteV));
+          PF_matchCache.q=null;PF_matchCache.byType={};
           done();
-        },function(){done();});
+        },function(){
+          // Pehli koshish fail hui (jaise app abhi long idle ke baad resume hua ho
+          // aur network cold ho) — 3 second baad khud ek retry karo, warna yeh tab
+          // khaali/purana hi dikhta rehta jab tak agla 2-min poll na aaye
+          setTimeout(function(){
+            db.collection(t.col).get().then(function(snap2){
+              PF.data[t.key]=snap2.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+              lsSetJSON('pc_'+t.key,PF.data[t.key]);lsSet('pv_'+t.key,String(remoteV));
+              PF_matchCache.q=null;PF_matchCache.byType={};
+              renderPartsCards();
+            }).catch(function(){});
+          },3000);
+          done();
+        });
       }
     });
     function done(){pending--;if(pending===0){PF.ready=true;invalidatePartsModelsCache();renderPartsCards();}}
+  },function(){
+    // Version-check hi fail ho gaya (network abhi stabilize ho raha hai) —
+    // thodi der baad khud retry karo, user ko manually kuch karne ki zarurat nahi
+    setTimeout(loadPartsData,4000);
   });
 }
 
 function bumpPartsVersion(typeKey){
   var v={};v[typeKey]=Date.now();
-  db.collection('meta').doc('partsVersion').set(v,{merge:true});
+  PF_matchCache.q=null;PF_matchCache.byType={}; // stale search-result cache clear karo
+  db.collection('meta').doc('partsVersion').set(v,{merge:true}).catch(function(e){
+    console.error('bumpPartsVersion write failed:',e);
+    showToast('⚠️ Sync warning: change save hua par version-update fail hua, reload karke confirm karo',true);
+  });
   lsSet('pv_'+typeKey,String(v[typeKey]));
   lsSetJSON('pc_'+typeKey,PF.data[typeKey]);
 }
@@ -3825,6 +3858,7 @@ function pollPartsVersion(){
         db.collection(t.col).get().then(function(snap){
           PF.data[t.key]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
           lsSetJSON('pc_'+t.key,PF.data[t.key]);lsSet('pv_'+t.key,String(remoteV));
+          PF_matchCache.q=null;PF_matchCache.byType={};
           invalidatePartsModelsCache();
           renderPartsCards();
         });
@@ -3930,7 +3964,7 @@ function renderPartsPageHtml(t,q){
         '<p class="empty-s">Tap the + button above to add a group</p></div>';
     }
     return '<div class="pf-type-count-row"><span class="pf-type-count">'+groups.length+' group'+(groups.length>1?'s':'')+'</span></div>'+
-      groups.map(function(g){return buildGroupCard(g,t);}).join('');
+      groups.map(function(g,idx){return buildGroupCard(g,t,idx);}).join('');
   }
   // Search mode — same shared query, sirf is tab ke data pe filter
   var res=getGroupMatches(t,q);
@@ -4104,8 +4138,17 @@ function removePartsGroupImage(slot){
   var field=slot===1?'imageUrl':'imageUrl2';
   var payload={};payload[field]=firebase.firestore.FieldValue.delete();
   db.collection(t.col).doc(groupId).update(payload).then(function(){
+    // Local memory se turant hata do (fast feedback ke liye)...
     var idx=PF.data[typeKey].findIndex(function(x){return x.id===groupId;});
     if(idx>=0)delete PF.data[typeKey][idx][field];
+    // ...aur phir server se dobara padh ke confirm karo — isse guarantee milta
+    // hai ki UI hamesha asli database state dikhaye, sirf local guess nahi.
+    return db.collection(t.col).doc(groupId).get().then(function(freshDoc){
+      var idx2=PF.data[typeKey].findIndex(function(x){return x.id===groupId;});
+      if(idx2>=0&&freshDoc.exists)PF.data[typeKey][idx2]=Object.assign({id:groupId},freshDoc.data());
+      else if(idx2>=0&&!freshDoc.exists)PF.data[typeKey].splice(idx2,1);
+    });
+  }).then(function(){
     bumpPartsVersion(typeKey);
     closeModal();showToast('✅ Image removed');
     refreshPartsPage(typeKey);
@@ -4266,10 +4309,28 @@ function bindIvSwipe(){
   });
 }
 
-function buildGroupCard(g,t){
+function copyPartsList(typeKey,id){
+  var t=PART_TYPES.find(function(x){return x.key===typeKey;});
+  var g=(PF.data[typeKey]||[]).find(function(x){return x.id===id;});if(!g||!t)return;
   var mlist=parseModels(g.models);
+  navigator.clipboard.writeText('🔧 '+t.label+': '+g.partName+'\n📱 Compatible Models ('+mlist.length+'):\n'+mlist.join(', '));
+  haptic();
+  showToast('📋 Group Copied Successfully');
+}
+function sharePartsResult(typeKey,id){
+  var t=PART_TYPES.find(function(x){return x.key===typeKey;});
+  var g=(PF.data[typeKey]||[]).find(function(x){return x.id===id;});if(!g||!t)return;
+  var mlist=parseModels(g.models);
+  var text='🔧 '+t.label+': '+g.partName+'\n📱 Compatible Models ('+mlist.length+'):\n'+mlist.join(', ');
+  haptic();
+  if(navigator.share){navigator.share({title:g.partName,text:text}).catch(function(){});}
+  else{navigator.clipboard.writeText(text);showToast('✅ Copied! Share manually');}
+}
+function buildGroupCard(g,t,idx){
+  var mlist=parseModels(g.models);
+  var delay=Math.min((idx||0)*0.05,0.4);
   var noteHtml=g.note?'<div style="font-size:11px;color:var(--text-2);margin-top:8px;line-height:1.5;background:rgba(52,42,34,.03);border:1px solid rgba(52,42,34,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
-  return '<div class="pf-group-card" style="border-left:3px solid '+t.color+'44">'+
+  return '<div class="pf-group-card" style="border-left:3px solid '+t.color+'44;animation-delay:'+delay+'s">'+
     '<div class="pf-group-top">'+
       '<div class="pf-group-left">'+
         '<div class="pf-group-dot" style="background:'+t.color+';box-shadow:0 0 8px '+t.color+'88"></div>'+
@@ -4286,6 +4347,7 @@ function buildGroupCard(g,t){
     pfThumbHtml(g,t.key)+
     '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     noteHtml+
+    (isAdmin()?'<div class="cbtns"><button class="cbtn" onclick="copyPartsList(\''+t.key+'\',\''+g.id+'\')">📋 Copy Group</button><button class="cbtn" onclick="sharePartsResult(\''+t.key+'\',\''+g.id+'\')">📤 Share</button></div>':'')+
     voteButtonsHtml('pf_'+t.key,g)+
     '</div>';
 }
@@ -4325,6 +4387,7 @@ function buildResultCard(g,t,q,qu,res){
     pfThumbHtml(g,t.key)+
     '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     noteHtml+
+    (isAdmin()?'<div class="cbtns"><button class="cbtn" onclick="copyPartsList(\''+t.key+'\',\''+g.id+'\')">📋 Copy Group</button><button class="cbtn" onclick="sharePartsResult(\''+t.key+'\',\''+g.id+'\')">📤 Share</button></div>':'')+
     voteButtonsHtml('pf_'+t.key,g)+
     '</div>';
 }
@@ -5466,8 +5529,49 @@ function markLoaded(){
     hideSplash(function(){
       uiReady=true;
       maybeShowLogin();
+      restoreLastPageAndScroll();
     });
   },wait);
+}
+
+// ── Jahan the wahi wapas — page refresh/reopen hone par last page aur
+// scroll position yaad rakhna, taaki har baar Home pe reset na ho ──
+function currentActivePage(){
+  if(!document.getElementById('partsScreen').classList.contains('hide'))return 'parts';
+  if(!document.getElementById('updatesScreen').classList.contains('hide'))return 'updates';
+  return 'home';
+}
+var scrollSaveTimer=null;
+window.addEventListener('scroll',function(){
+  if(scrollSaveTimer)return;
+  scrollSaveTimer=setTimeout(function(){
+    scrollSaveTimer=null;
+    lsSet('scrollPos_'+currentActivePage(),String(window.scrollY));
+  },250);
+},{passive:true});
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden'){
+    lsSet('scrollPos_'+currentActivePage(),String(window.scrollY));
+  }
+});
+function restoreLastPageAndScroll(){
+  var lastPage=lsGet('lastPage');
+  function scrollToSaved(page){
+    var y=Number(lsGet('scrollPos_'+page)||0);
+    if(y>0){
+      // Content abhi-abhi render hua hai, layout settle hone ke liye ek chhota sa wait
+      setTimeout(function(){window.scrollTo(0,y);},120);
+    }
+  }
+  if(lastPage==='parts'){
+    switchPage('parts',null);
+    scrollToSaved('parts');
+  } else if(lastPage==='updates'){
+    switchPage('updates',null);
+    scrollToSaved('updates');
+  } else {
+    scrollToSaved('home');
+  }
 }
 
 // ── SMART DATA LOADING (cache-first + version-check, app khulta hai turant) ──
