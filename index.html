@@ -1641,9 +1641,19 @@ function startCheckout(){
       amount: selectedPlan==='yearly' ? 49900 : 4900
     })
   })
-  .then(function(res){return res.json();})
-  .then(function(order){
-    if(!order||!order.orderId){throw new Error('Order creation failed');}
+  .then(function(res){
+    return res.text().then(function(txt){
+      var parsed=null;
+      try{parsed=JSON.parse(txt);}catch(e){}
+      return {status:res.status, text:txt, json:parsed};
+    });
+  })
+  .then(function(result){
+    if(!result.json||!result.json.orderId){
+      alert('DEBUG - Status: '+result.status+'\nResponse: '+result.text);
+      throw new Error('Order creation failed');
+    }
+    var order=result.json;
     var options={
       key:order.keyId||RAZORPAY_KEY_ID,
       amount:order.amount,
@@ -1670,6 +1680,7 @@ function startCheckout(){
     rzp.open();
   })
   .catch(function(err){
+    alert('DEBUG CATCH ERROR: '+err.message);
     showToast('⚠️ Payment could not start, please try again',true);
     if(ctaBtn){ctaBtn.disabled=false;ctaBtn.textContent='Continue';}
   });
