@@ -265,8 +265,7 @@ button{cursor:pointer}
 .pf-arrow{margin-left:auto;color:var(--brand-2);font-size:18px;flex-shrink:0}
 
 /* PARTS SCREEN */
-#partsScreen{display:none;position:fixed;inset:0;background:radial-gradient(ellipse 140% 60% at 50% -10%,var(--surface-1),var(--bg) 65%);z-index:1500;overflow-y:auto;padding-bottom:calc(112px + env(safe-area-inset-bottom))}
-#partsScreen::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:.035;z-index:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+#partsScreen{display:none}
 #partsScreen.show{display:block;animation:fadeUp .3s ease}
 .pf-back.hide{display:none!important}
 .pf-header{position:sticky;top:0;z-index:10;background:rgba(249,245,239,0.97);backdrop-filter:blur(20px);border-bottom:1px solid #C9B08726;padding:16px;display:flex;align-items:center;gap:12px}
@@ -288,6 +287,7 @@ button{cursor:pointer}
 :root{--pf-accent:var(--brand);--pf-text-inactive:var(--text-3);--pf-text-active:var(--text-1);--pf-ic-inactive:var(--text-2);--pf-ic-active:var(--text-1)}
 #pfSwipeViewport,#pfTabBar{background:linear-gradient(180deg,var(--surface-1),var(--bg))}
 .pf-tabbar{display:flex;gap:10px;margin-bottom:18px;overflow-x:auto;padding:6px 2px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#pfTabBar{display:none} /* ab category switch top unified catbar se hota hai, ye purana row sirf JS state ke liye DOM me rakha hai */
 .pf-tabbar::-webkit-scrollbar{display:none}
 .pf-tab{flex:0 0 auto;width:70px;height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:10px 5px 9px;border-radius:18px;
   background:var(--surface-1);
@@ -932,14 +932,6 @@ button{cursor:pointer}
       <div class="qa-title" data-i18n="quickaccess.title">Quick Access</div>
       <div class="qa-grid" id="qaGrid"></div>
     </div>
-    <button id="partsFinderBtn" class="hide" onclick="openPartsScreen()">
-      <div class="pf-icon">🔧</div>
-      <div>
-        <div class="pf-title" data-i18n="pf.title">Parts Finder</div>
-        <div class="pf-sub" data-i18n="pf.sub">Display, Frame, Back Door, CC Board, Battery</div>
-      </div>
-      <span class="pf-arrow">›</span>
-    </button>
     <div id="searchWrap">
       <div id="searchBox">
         <span class="search-ic-glow">🔍</span>
@@ -1060,20 +1052,10 @@ button{cursor:pointer}
   </div>
 </div>
 
-<!-- PARTS FINDER SCREEN -->
+<!-- SPARE PARTS SECTION — ab alag page nahi, isi Home screen ke andar hi
+     rehta hai. Upar wala unified category bar (#catBarHome) hi ise control
+     karta hai; category select karte hi ye section neeche inline dikhta hai. -->
 <div id="partsScreen">
-  <div class="pf-header" style="flex-wrap:wrap">
-    <span class="pf-htitle">🔧 <span data-i18n="pf.header">Spare Parts</span></span>
-    <div class="catbar" id="catBarParts" style="width:100%;margin-top:8px;padding-top:0">
-      <button class="cat-chip" data-cat="glass" onclick="selectCategory('glass')"><span class="material-symbols-rounded tab-ic-ms">diamond</span> <span data-i18n="tab.glass">Glass</span></button>
-      <button class="cat-chip" data-cat="backcover" onclick="selectCategory('backcover')"><span class="material-symbols-rounded tab-ic-ms">flip_to_back</span> <span data-i18n="tab.backcover">Back Cover</span></button>
-      <button class="cat-chip" data-cat="display" onclick="selectCategory('display')">🖥️ <span>Display</span></button>
-      <button class="cat-chip" data-cat="frame" onclick="selectCategory('frame')">⬜ <span>Frame</span></button>
-      <button class="cat-chip" data-cat="backdoor" onclick="selectCategory('backdoor')">🚪 <span>Back Door</span></button>
-      <button class="cat-chip" data-cat="ccboard" onclick="selectCategory('ccboard')">🔌 <span>CC Board</span></button>
-      <button class="cat-chip" data-cat="battery" onclick="selectCategory('battery')">🔋 <span>Battery</span></button>
-    </div>
-  </div>
   <div class="pf-body">
     <div id="partsSearchWrap">
       <div id="partsSearchBox">
@@ -1129,10 +1111,6 @@ button{cursor:pointer}
   <button class="bnav-item active" id="navHome" onclick="switchPage('home',this,event)">
     <svg class="bnav-ic" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1v-9"/></svg>
     <span data-i18n="nav.home">Home</span><span class="bnav-dot"></span>
-  </button>
-  <button class="bnav-item" id="navParts" onclick="switchPage('parts',this,event)">
-    <svg class="bnav-ic" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l2.8-2.8a5 5 0 0 1-6.4 6.4L7.4 20.6a2 2 0 0 1-2.8-2.8l7.7-6.7a5 5 0 0 1 6.4-6.4z"/></svg>
-    <span data-i18n="nav.parts">Spare Parts</span><span class="bnav-dot"></span>
   </button>
   <button class="bnav-item" id="navUpdates" onclick="switchPage('updates',this,event)">
     <svg class="bnav-ic" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -2642,7 +2620,7 @@ function renderCards(){
     var crossHit=findInPartsAcrossTypes(q);
     if(crossHit){
       el.innerHTML='<div class="empty"><div class="empty-ico"><span class="material-symbols-rounded">build</span></div><p class="empty-t">Not found in Glass</p><p class="empty-s" style="margin-bottom:14px">"'+escHtml(q)+'" found in Spare Parts — '+escHtml(crossHit.label)+'</p>'+
-        '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openPartsForModel(\''+escHtml(q).replace(/'/g,"\\'")+'\')">🔧 Open in Spare Parts</button></div>';
+        '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openPartsForModel(\''+escHtml(q).replace(/'/g,"\\'")+'\',\''+crossHit.typeKey+'\')">🔧 Open in Spare Parts</button></div>';
       return;
     }
     el.innerHTML='<div class="empty"><div class="empty-ico"><span class="material-symbols-rounded">search_off</span></div><p class="empty-t">Model Not Found</p><p class="empty-s" style="margin-bottom:14px">Try another model name</p>'+
@@ -2752,8 +2730,8 @@ function shareResult(id){
   if(navigator.share){navigator.share({title:g.glassName,text:text}).catch(function(){});}
   else{navigator.clipboard.writeText(text);showToast('✅ Copied! Share manually');}
 }
-function openPartsForModel(model){
-  switchPage('parts',document.getElementById('navParts'));
+function openPartsForModel(model,typeKey){
+  selectCategory(typeKey||PART_TYPES[PF.activeIdx].key);
   setTimeout(function(){
     var inp=document.getElementById('partsSearchInput');
     if(inp){inp.value=model;PF.query=model;onPartsSearch();}
@@ -3094,29 +3072,32 @@ function switchTab(t){
 }
 
 // Unified category switcher — Glass, Back Cover aur sabhi Spare Parts
-// categories (Display/Frame/Back Door/CC Board/Battery) ek hi chip row se,
-// bina alag page pe manually jaaye. Glass/Back Cover Home screen render
-// karte hain, baaki categories internally Parts screen open karke us
-// category ke swipe-tab pe jump kar dete hain — user ko sirf ek unified
-// selector dikhta hai, page-switch invisible rehta hai.
+// categories (Display/Frame/Back Door/CC Board/Battery) ab isi ek Home
+// screen ke andar rehte hain — koi alag page/overlay nahi khulta.
+// Sirf mainContent (Glass/Back Cover) aur partsScreen (spare parts) ke
+// beech visibility toggle hoti hai, dono ek hi jagah stack rehte hain.
 function selectCategory(key){
-  var isPartsOpen=document.getElementById('partsScreen').classList.contains('show');
-  if(key==='glass'||key==='backcover'){
-    if(isPartsOpen)switchPage('home');
+  var isPartCat=PART_TYPES.some(function(t){return t.key===key;});
+  document.getElementById('mainContent').classList.toggle('hide',isPartCat);
+  document.getElementById('partsScreen').classList.toggle('show',isPartCat);
+  if(!isPartCat){
     switchTab(key);
   } else {
     var idx=-1;
     for(var i=0;i<PART_TYPES.length;i++){if(PART_TYPES[i].key===key){idx=i;break;}}
     if(idx<0)return;
-    if(!isPartsOpen)switchPage('parts');
+    if(!PF.loaded){showPartsSkeleton();loadPartsData();}
+    renderPartsAddBtn();
     if(PF.tabsInit)switchPartsTab(idx);
-    else PF.activeIdx=idx; // tabs abhi init nahi huye — openPartsScreen() init hote hi is idx se khulega
+    else PF.activeIdx=idx; // tabs abhi init nahi huye — initPartsTabs() init hote hi is idx se khulega
     updateCatBarActive(key);
   }
+  lsSet('lastCategory',key);
+  lsSet('lastPage',isPartCat?'parts':'home');
 }
-// Dono catbar instances (Home header + Parts screen) hamesha sync rahein,
-// chahe switch kahin se bhi trigger hua ho (top chip, purana pf-tab, ya
-// bottom nav "Spare Parts").
+// Dono catbar instances (agar future me kahin dobara ho) hamesha sync
+// rahein, chahe switch kahin se bhi trigger hua ho (top chip ya purana
+// internal pf-tab jo ab sirf JS state ke liye chhupa hua hai).
 function updateCatBarActive(key){
   var chips=document.querySelectorAll('.cat-chip');
   for(var i=0;i<chips.length;i++)chips[i].classList.toggle('active',chips[i].getAttribute('data-cat')===key);
@@ -3489,16 +3470,14 @@ function openModal(html){document.getElementById('modalBox').innerHTML=html;docu
 function closeModal(){document.getElementById('modalBg').classList.remove('show');}
 
 // ── PARTS FINDER ─────────────────────────────────────────────────────────
+// NOTE: ye ab alag "page" nahi hai — selectCategory() seedha yahi kaam
+// (data load + add-btn render) inline kar deta hai jab koi part category
+// chuni jaati hai. Ye do functions sirf backward-compat helpers ke liye
+// rakhe gaye hain (kisi purane onclick ya code-path ne inhe call kiya to
+// bhi sahi behave karein).
 function openPartsScreen(){
+  document.getElementById('mainContent').classList.add('hide');
   document.getElementById('partsScreen').classList.add('show');
-  // PEHLE: har baar Spare Parts pe switch karte hi, sabhi 5 category (Display,
-  // Frame, Back Door, CC Board, Battery) ki poori list dobara se HTML me
-  // rebuild ho jaati thi — chahe data bilkul same ho. Isi wajah se tab switch
-  // pe jhatka/lag mehsoos hota tha, khaaskar zyada groups hone par.
-  // AB: sirf pehli baar (jab data load ho raha ho) render karo. Uske baad
-  // list already DOM me maujood hai — add/edit/delete/version-poll khud apni
-  // jagah refresh kar dete hain (refreshPartsPage / renderPartsCards), isliye
-  // yahan dobara poora rebuild karne ki zaroorat nahi.
   if(!PF.loaded){showPartsSkeleton();loadPartsData();}
   renderPartsAddBtn();
 }
@@ -3843,31 +3822,19 @@ function switchPage(page,btnEl,evt){
   haptic();
   lsSet('lastPage',page);
   document.getElementById('navHome').classList.toggle('active',page==='home');
-  document.getElementById('navParts').classList.toggle('active',page==='parts');
   document.getElementById('navUpdates').classList.toggle('active',page==='updates');
   var homeEl=document.getElementById('body');
-  var partsEl=document.getElementById('partsScreen');
   var updatesEl=document.getElementById('updatesScreen');
   var aboutEl=document.getElementById('aboutSeo');
 
-  if(page==='parts'){
+  if(page==='updates'){
     homeScrollPos=window.scrollY;
     homeEl.classList.add('hide');
     if(aboutEl)aboutEl.classList.add('hide');
-    closeUpdatesScreen();
-    openPartsScreen();
-    partsEl.classList.add('page-anim');
-    window.scrollTo(0,0);
-  } else if(page==='updates'){
-    homeScrollPos=window.scrollY;
-    homeEl.classList.add('hide');
-    if(aboutEl)aboutEl.classList.add('hide');
-    closePartsScreen();
     openUpdatesScreen();
     updatesEl.classList.add('page-anim');
     window.scrollTo(0,0);
   } else {
-    closePartsScreen();
     closeUpdatesScreen();
     homeEl.classList.remove('hide');
     if(aboutEl)aboutEl.classList.remove('hide');
@@ -5715,7 +5682,7 @@ function restoreLastPageAndScroll(){
     }
   }
   if(lastPage==='parts'){
-    switchPage('parts',null);
+    selectCategory(lsGet('lastCategory')||PART_TYPES[0].key);
     scrollToSaved('parts');
   } else if(lastPage==='updates'){
     switchPage('updates',null);
