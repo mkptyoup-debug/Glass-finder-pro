@@ -60,10 +60,10 @@ button,a,.card,[onclick]{touch-action:manipulation}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 :root,html[data-theme="light"]{
---bg:#F7F2EA;--surface-1:#FFFDF9;--surface-2:#F3EBDD;--surface-3:#FFFFFF;
---border-hair:#EEE5D8;--border-def:#E7DCCB;
---text-1:#2F261C;--text-2:#786B58;--text-3:#8A7A61;
---brand:#C9B087;--brand-2:#C89A4B;--brand-light:#E7D9BB;--brand-dim:#F1E4C8;--brand-text:#9A7448;
+--bg:#FAF8F4;--surface-1:#FFFFFF;--surface-2:#F4EFE6;--surface-3:#FFFFFF;
+--border-hair:#EFE9DD;--border-def:#E6DECC;
+--text-1:#231D15;--text-2:#6E6252;--text-3:#8A7A61;
+--brand:#C9A15E;--brand-2:#B8863A;--brand-light:#E7D9BB;--brand-dim:#F1E4C8;--brand-text:#8A6530;
 --success:#4CAF50;--success-bg:#F2FAF1;--warning:#E7A93C;--warning-bg:#F3E7D0;--danger:#D95C5C;--danger-bg:#F9E4E4;
 --r-xs:8px;--r-sm:12px;--r-md:18px;--r-lg:24px;
 --sh-1:0 2px 8px rgba(52,42,34,.06);--sh-2:0 8px 24px rgba(52,42,34,.08);--sh-3:0 20px 48px rgba(52,42,34,.10);
@@ -85,7 +85,7 @@ html[data-theme="dark"]{
 color-scheme:dark;
 }
 html.theme-switching,html.theme-switching *{transition:background-color .35s ease,color .35s ease,border-color .35s ease,box-shadow .35s ease!important}
-body{background:linear-gradient(180deg,var(--bg) 0%,var(--surface-2) 45%,var(--surface-2) 100%);background-attachment:fixed;color:var(--text-1);font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;min-height:100vh;padding-bottom:calc(112px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;overscroll-behavior-y:none;text-rendering:optimizeSpeed}
+body{background:var(--bg);color:var(--text-1);font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;min-height:100vh;padding-bottom:calc(112px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;overscroll-behavior-y:none;text-rendering:optimizeSpeed}
 #header{position:relative}
 #header::before{content:'';position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:340px;height:180px;background:radial-gradient(ellipse at center,rgba(200,154,75,.10),transparent 70%);pointer-events:none;z-index:-1}
 #header{will-change:box-shadow;transition:box-shadow .25s ease}
@@ -173,19 +173,19 @@ button{cursor:pointer}
 #announceClose{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.25);border:none;border-radius:50%;width:20px;height:20px;color:var(--text-1);font-size:11px;display:flex;align-items:center;justify-content:center;z-index:202}
 .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:8px}
 .logo{display:flex;align-items:center;gap:11px}
-.logo-icon{width:40px;height:40px;background:var(--brand);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:var(--sh-1);flex-shrink:0}
-.logo-title{font-size:18px;font-weight:800;color:var(--text-1)}
-.logo-sub{font-size:10px;color:var(--text-2);font-weight:600;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:5px;margin-top:3px}
+.logo-icon{width:38px;height:38px;background:linear-gradient(145deg,var(--brand),var(--brand-2));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:var(--sh-1);flex-shrink:0}
+.logo-title{font-size:17px;font-weight:800;color:var(--text-1);letter-spacing:-.01em}
+.logo-sub{font-size:10px;color:var(--text-2);font-weight:600;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:5px;margin-top:2px}
 #syncDot{width:5px;height:5px;border-radius:50%;background:var(--brand);flex-shrink:0;animation:blink 1s infinite}
 #syncDot.ok{background:var(--success);box-shadow:0 0 6px #4CAF5066;animation:breathe 2.6s ease-in-out infinite}
 #syncDot.err{background:var(--danger);animation:none}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 @keyframes breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.85)}}
-#userBadge{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:10px;font-size:12px;font-weight:700;border:1px solid var(--border-def);background:var(--surface-1);color:var(--text-2);transition:background-color .25s,border-color .25s,color .25s;cursor:pointer}
-#userBadge.admin{background:#C9B08717;border-color:#C9B0878a;color:var(--brand-2)}
+#userBadge{display:flex;align-items:center;justify-content:center;gap:6px;width:38px;height:38px;padding:0;border-radius:50%;font-size:13px;font-weight:800;border:1.5px solid var(--brand-light);background:var(--brand-dim);color:var(--brand-text);transition:background-color .25s,border-color .25s,color .25s;cursor:pointer}
+#userBadge.admin{background:#C9A15E22;border-color:#C9A15E7a;color:var(--brand-2)}
 #userBadge.staff{background:#4CAF5017;border-color:#4CAF5088;color:var(--success)}
 #userBadge:active{transform:scale(.95)}
-#menuBtn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:11px;border:1px solid var(--border-def);background:var(--surface-1);color:var(--text-2);font-size:17px;position:relative}
+#menuBtn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1px solid var(--border-def);background:var(--surface-1);color:var(--text-2);font-size:16px;position:relative}
 #menuDot{display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:var(--danger);border:2px solid var(--bg)}
 #menuDot.show{display:block}
 #menuBtn:active{transform:scale(.92)}
@@ -205,12 +205,21 @@ button{cursor:pointer}
 /* UNIFIED CATEGORY BAR — Glass, Back Cover aur sab Spare Parts categories
    ek hi scrollable chip row mein, taaki alag-alag page/tab pe jaaye bina
    sabhi categories ek jagah se turant switch ho sakein. */
-.catbar{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:10px 2px 4px;margin-top:10px}
+.qs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}
+.qs-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:14px 4px 11px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:16px;color:var(--text-2);transition:background .2s ease,border-color .2s ease,color .2s ease,transform .15s ease;box-shadow:0 2px 8px rgba(52,42,34,.04)}
+.qs-tile:active{transform:scale(.94)}
+.qs-tile .qs-ic{font-size:21px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:var(--brand-dim);color:var(--brand-text)}
+.qs-tile .qs-label{font-size:11px;font-weight:700;letter-spacing:.01em}
+.qs-tile.active{border-color:var(--brand);background:linear-gradient(180deg,var(--surface-1),var(--brand-dim) 220%);box-shadow:0 4px 14px rgba(184,138,69,.18)}
+.qs-tile.active .qs-ic{background:linear-gradient(145deg,var(--brand),var(--brand-2));color:#fff}
+.qs-tile.active .qs-label{color:var(--brand-text)}
+
+.catbar{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:9px 2px 4px;margin-top:2px}
 .catbar::-webkit-scrollbar{display:none}
-.cat-chip{flex:0 0 auto;padding:10px 14px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:12px;color:var(--text-2);font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:background .25s cubic-bezier(.22,1,.36,1),border-color .25s cubic-bezier(.22,1,.36,1),color .25s cubic-bezier(.22,1,.36,1),transform .15s ease}
+.cat-chip{flex:0 0 auto;padding:7px 12px;background:transparent;border:1px solid var(--border-hair);border-radius:10px;color:var(--text-3);font-size:11.5px;font-weight:600;display:flex;align-items:center;gap:5px;white-space:nowrap;opacity:.85;transition:background .25s cubic-bezier(.22,1,.36,1),border-color .25s cubic-bezier(.22,1,.36,1),color .25s cubic-bezier(.22,1,.36,1),transform .15s ease}
 .cat-chip:active{transform:scale(.95)}
-.cat-chip .tab-ic-ms{font-size:16px}
-.cat-chip.active{background:linear-gradient(180deg,var(--surface-1),var(--bg));border-color:var(--brand);color:var(--brand-2);box-shadow:0 2px 10px rgba(184,138,69,.15)}
+.cat-chip .tab-ic-ms{font-size:14px}
+.cat-chip.active{background:var(--brand-dim);border-color:var(--brand);color:var(--brand-text);opacity:1;font-weight:700}
 
 /* BODY */
 #body{max-width:680px;margin:0 auto;padding:16px}
@@ -356,7 +365,7 @@ button{cursor:pointer}
 .pf-card-imgwrap{position:relative;border-radius:12px;margin:8px 0;overflow:hidden}
 .pf-card-imgtrack{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .pf-card-imgtrack::-webkit-scrollbar{display:none}
-.pf-card-imgtrack img{width:100%;flex:0 0 100%;scroll-snap-align:start;display:block;object-fit:contain;background:#0000;max-height:70vh;cursor:zoom-in}
+.pf-card-imgtrack img{width:100%;height:auto;flex:0 0 100%;scroll-snap-align:start;display:block;object-fit:contain;background:#0000;cursor:zoom-in}
 .pf-card-swipehint{position:absolute;left:8px;bottom:8px;background:rgba(20,16,10,.6);color:#fff;font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;backdrop-filter:blur(4px)}
 .pf-card-zoomhint{position:absolute;right:8px;bottom:8px;background:rgba(20,16,10,.55);color:#fff;font-size:14px;padding:4px 6px;border-radius:8px;backdrop-filter:blur(4px)}
 #imgViewerBg{display:none;position:fixed;inset:0;background:rgba(4,3,2,.97);z-index:2200;flex-direction:column;overscroll-behavior:none;touch-action:none}
@@ -373,7 +382,7 @@ button{cursor:pointer}
 .iv-dot.active{background:#D9B876;width:16px;border-radius:4px}
 .pf-imgslot{border:1px dashed var(--border-def);border-radius:14px;padding:10px;margin-bottom:12px}
 .pf-imgslot-title{font-size:12px;font-weight:800;color:var(--brand-text);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.pf-imgslot-preview{width:100%;height:130px;border-radius:10px;margin-bottom:10px;object-fit:cover;display:block;background:var(--bg)}
+.pf-imgslot-preview{width:100%;height:auto;max-height:220px;border-radius:10px;margin-bottom:10px;object-fit:contain;display:block;background:var(--bg)}
 .pf-group-card{background:var(--surface-1);border:1px solid var(--surface-2);border-radius:22px;padding:16px 18px;margin-bottom:12px;box-shadow:0 10px 30px rgba(120,90,40,.10),0 2px 6px rgba(255,255,255,.75) inset;transition:transform .2s;contain:content;content-visibility:auto;contain-intrinsic-size:0 220px;opacity:0;animation:fadeUp .3s ease forwards}
 .pf-group-card:active{transform:scale(.98)}
 .pf-group-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
@@ -417,8 +426,8 @@ button{cursor:pointer}
 
 /* SEARCH */
 #searchWrap{margin-bottom:14px;position:sticky;top:var(--header-h,64px);z-index:150;background:var(--bg);padding-top:10px;padding-bottom:2px;margin-top:-10px}
-#searchBox{display:flex;align-items:center;background:linear-gradient(150deg,var(--surface-1),var(--surface-1));border:1px solid var(--border-def);border-radius:16px;padding:0 6px 0 18px;gap:12px;box-shadow:0 4px 14px rgba(120,90,40,.06);transition:border-color .2s ease,box-shadow .2s ease}
-#searchBox.focused{box-shadow:0 4px 14px rgba(120,90,40,.06),0 0 0 3px #C9B0871a;border-color:var(--brand)}
+#searchBox{display:flex;align-items:center;background:var(--surface-1);border:1.5px solid var(--border-def);border-radius:18px;padding:0 6px 0 18px;gap:12px;box-shadow:0 6px 18px rgba(52,42,34,.07);transition:border-color .2s ease,box-shadow .2s ease}
+#searchBox.focused{box-shadow:0 6px 18px rgba(52,42,34,.07),0 0 0 3px #C9A15E22;border-color:var(--brand)}
 #searchInput{flex:1;background:none;border:none;outline:none;color:var(--text-1);font-size:16px;font-weight:500;padding:14px 0}
 #searchInput::placeholder{color:var(--text-2);font-weight:400}
 #searchClear{background:none;border:none;color:var(--text-2);padding:8px;display:none;font-size:16px}
@@ -900,25 +909,41 @@ button{cursor:pointer}
   <div class="header-top">
     <div class="logo">
       <div class="logo-icon">🛡️</div>
-      <div>
-        <div class="logo-title">Universal Combo</div>
-        <div class="logo-sub"><span id="syncDot"></span><span data-i18n="header.sync">Live Sync Active</span></div>
-      </div>
+      <div class="logo-title">Universal Combo<span id="syncDot" style="margin-left:6px;vertical-align:middle"></span></div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
-      <button id="userBadge" onclick="openMenu()">👤 Staff</button>
+      <button id="userBadge" onclick="openMenu()">👤</button>
       <button id="menuBtn" onclick="openMenu()" aria-label="Open menu">☰<span id="menuDot"></span></button>
     </div>
   </div>
 
+  <div class="qs-grid" id="quickShortcuts">
+    <button class="qs-tile active" data-cat="glass" onclick="selectCategory('glass')">
+      <span class="qs-ic material-symbols-rounded">diamond</span>
+      <span class="qs-label" data-i18n="tab.glass">Glass</span>
+    </button>
+    <button class="qs-tile" data-cat="battery" onclick="selectCategory('battery')">
+      <span class="qs-ic">🔋</span>
+      <span class="qs-label">Battery</span>
+    </button>
+    <button class="qs-tile" data-cat="display" onclick="selectCategory('display')">
+      <span class="qs-ic">🖥️</span>
+      <span class="qs-label">Display</span>
+    </button>
+    <button class="qs-tile" data-cat="backcover" onclick="selectCategory('backcover')">
+      <span class="qs-ic material-symbols-rounded">flip_to_back</span>
+      <span class="qs-label" data-i18n="tab.backcover">Back Cover</span>
+    </button>
+  </div>
+
   <div class="catbar" id="catBarHome">
-    <button class="cat-chip active" data-cat="glass" onclick="selectCategory('glass')"><span class="material-symbols-rounded tab-ic-ms">diamond</span> <span data-i18n="tab.glass">Glass</span></button>
-    <button class="cat-chip" data-cat="backcover" onclick="selectCategory('backcover')"><span class="material-symbols-rounded tab-ic-ms">flip_to_back</span> <span data-i18n="tab.backcover">Back Cover</span></button>
+    <button class="cat-chip" data-cat="glass" onclick="selectCategory('glass')"><span class="material-symbols-rounded tab-ic-ms">diamond</span> <span data-i18n="tab.glass">Glass</span></button>
+    <button class="cat-chip" data-cat="battery" onclick="selectCategory('battery')">🔋 <span>Battery</span></button>
     <button class="cat-chip" data-cat="display" onclick="selectCategory('display')">🖥️ <span>Display</span></button>
+    <button class="cat-chip" data-cat="backcover" onclick="selectCategory('backcover')"><span class="material-symbols-rounded tab-ic-ms">flip_to_back</span> <span data-i18n="tab.backcover">Back Cover</span></button>
     <button class="cat-chip" data-cat="frame" onclick="selectCategory('frame')">⬜ <span>Frame</span></button>
     <button class="cat-chip" data-cat="backdoor" onclick="selectCategory('backdoor')">🚪 <span>Back Door</span></button>
     <button class="cat-chip" data-cat="ccboard" onclick="selectCategory('ccboard')">🔌 <span>CC Board</span></button>
-    <button class="cat-chip" data-cat="battery" onclick="selectCategory('battery')">🔋 <span>Battery</span></button>
   </div>
 </div>
 
@@ -3102,7 +3127,7 @@ function selectCategory(key){
 // rahein, chahe switch kahin se bhi trigger hua ho (top chip ya purana
 // internal pf-tab jo ab sirf JS state ke liye chhupa hua hai).
 function updateCatBarActive(key){
-  var chips=document.querySelectorAll('.cat-chip');
+  var chips=document.querySelectorAll('.cat-chip,.qs-tile');
   for(var i=0;i<chips.length;i++)chips[i].classList.toggle('active',chips[i].getAttribute('data-cat')===key);
 }
 
