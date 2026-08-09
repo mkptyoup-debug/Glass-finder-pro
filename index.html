@@ -446,6 +446,9 @@ button{cursor:pointer}
 .tbtn{display:flex;align-items:center;gap:6px;padding:9px 14px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:10px;color:var(--brand);font-size:12px;font-weight:600;transition:transform .15s}
 .tbtn:active{transform:scale(.94)}
 .suggest-box{background:var(--surface-1);border:1px solid var(--border-hair);border-radius:var(--r-md);margin-top:8px;margin-bottom:14px;overflow:hidden;box-shadow:var(--sh-2);animation:suggestIn .16s ease}
+.suggest-box.expanded{max-height:320px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.suggest-viewall{display:flex;align-items:center;justify-content:center;gap:4px;padding:12px 16px;font-size:12.5px;font-weight:700;color:var(--brand-2);background:var(--surface-2)}
+.suggest-viewall:active{background:#C9B08722}
 @keyframes suggestIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .suggest-item{display:flex;align-items:center;gap:11px;padding:12px 16px;font-size:13.5px;font-weight:500;color:var(--text-2);border-bottom:1px solid var(--surface-2);transition:background .12s}
 .suggest-txt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -956,8 +959,8 @@ button{cursor:pointer}
   </div>
 </div>
 
-<div id="aboutSeo" style="max-width:680px;margin:0 auto;padding:8px 16px 24px;color:var(--text-2);font-size:12px;line-height:1.7">
-  <h2 style="font-size:13px;color:var(--text-2);font-weight:700;margin-bottom:8px">Universal Combo - Mobile Tempered Glass Model Finder</h2>
+<div id="aboutSeo" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">
+  <h2>Universal Combo - Mobile Tempered Glass Model Finder</h2>
   <p>Universal Combo is a free tool for shop owners and mobile accessories dealers.</p>
 </div>
 
@@ -3148,15 +3151,34 @@ function uniqueMatches(all,q){
   scored.sort(function(a,b){return a.score-b.score||a.m.localeCompare(b.m);});
   return scored.slice(0,6).map(function(x){return {m:x.m,count:x.count};});
 }
+// Suggestion panel poori list ek saath dikhati thi to screen ka bada hissa
+// cover ho jaata tha. Ab sirf 4 suggestions pehle dikhte hain, baaki ke liye
+// "View all N models" — tap karne par hi poori list scrollable panel me khulti hai.
+var SUGGEST_CAP=4;
+function suggestRowHtml(it,onPick,query){
+  var m=it.m,count=it.count;
+  var countHtml=count?'<span class="suggest-count">'+count+' combo'+(count>1?'s':'')+' mile</span>':'';
+  return '<div class="suggest-item" onmousedown="'+onPick+'(\''+m.replace(/'/g,"\\'")+'\')"><span class="suggest-ic">🔍</span><span class="suggest-txt">'+hlText(m,query)+'</span>'+countHtml+'</div>';
+}
 function showSuggestions(boxId,items,onPick,query){
   var box=document.getElementById(boxId);
-  if(!items.length){box.classList.add('hide');box.innerHTML='';return;}
-  box.innerHTML=items.map(function(it){
-    var m=it.m,count=it.count;
-    var countHtml=count?'<span class="suggest-count">'+count+' combo'+(count>1?'s':'')+' mile</span>':'';
-    return '<div class="suggest-item" onmousedown="'+onPick+'(\''+m.replace(/'/g,"\\'")+'\')"><span class="suggest-ic">🔍</span><span class="suggest-txt">'+hlText(m,query)+'</span>'+countHtml+'</div>';
-  }).join('');
+  if(!items.length){box.classList.add('hide');box.classList.remove('expanded');box.innerHTML='';return;}
+  box._fullItems=items;box._onPick=onPick;box._query=query;
+  var shown=items.slice(0,SUGGEST_CAP);
+  var html=shown.map(function(it){return suggestRowHtml(it,onPick,query);}).join('');
+  if(items.length>SUGGEST_CAP){
+    html+='<div class="suggest-viewall" onmousedown="expandSuggestions(\''+boxId+'\')">View all '+items.length+' models →</div>';
+  }
+  box.innerHTML=html;
+  box.classList.remove('expanded');
   box.classList.remove('hide');
+}
+function expandSuggestions(boxId){
+  var box=document.getElementById(boxId);
+  var items=box._fullItems;
+  if(!items)return;
+  box.innerHTML=items.map(function(it){return suggestRowHtml(it,box._onPick,box._query);}).join('');
+  box.classList.add('expanded');
 }
 function pickGlassSuggestion(m){
   document.getElementById('searchInput').value=m;
