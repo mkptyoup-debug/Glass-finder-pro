@@ -202,6 +202,16 @@ button{cursor:pointer}
 .tab.ab{background:linear-gradient(180deg,var(--surface-1),var(--bg));border-color:#B08D6A3d;border-bottom-color:var(--group);color:var(--group);font-weight:800}
 .tab.ad{background:linear-gradient(180deg,var(--surface-1),var(--bg));border-color:#C9B0873d;border-bottom-color:var(--brand-2);color:var(--warning);font-weight:800}
 
+/* UNIFIED CATEGORY BAR — Glass, Back Cover aur sab Spare Parts categories
+   ek hi scrollable chip row mein, taaki alag-alag page/tab pe jaaye bina
+   sabhi categories ek jagah se turant switch ho sakein. */
+.catbar{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:10px 2px 4px;margin-top:10px}
+.catbar::-webkit-scrollbar{display:none}
+.cat-chip{flex:0 0 auto;padding:10px 14px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:12px;color:var(--text-2);font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:background .25s cubic-bezier(.22,1,.36,1),border-color .25s cubic-bezier(.22,1,.36,1),color .25s cubic-bezier(.22,1,.36,1),transform .15s ease}
+.cat-chip:active{transform:scale(.95)}
+.cat-chip .tab-ic-ms{font-size:16px}
+.cat-chip.active{background:linear-gradient(180deg,var(--surface-1),var(--bg));border-color:var(--brand);color:var(--brand-2);box-shadow:0 2px 10px rgba(184,138,69,.15)}
+
 /* BODY */
 #body{max-width:680px;margin:0 auto;padding:16px}
 
@@ -898,9 +908,14 @@ button{cursor:pointer}
     </div>
   </div>
 
-  <div class="tabs" style="margin-top:14px">
-    <button class="tab af" id="tabGlass" onclick="switchTab('glass')"><span class="material-symbols-rounded tab-ic-ms">diamond</span> <span data-i18n="tab.glass">Glass</span></button>
-    <button class="tab" id="tabBackcover" onclick="switchTab('backcover')"><span class="material-symbols-rounded tab-ic-ms">flip_to_back</span> <span data-i18n="tab.backcover">Back Cover</span></button>
+  <div class="catbar" id="catBarHome">
+    <button class="cat-chip active" data-cat="glass" onclick="selectCategory('glass')"><span class="material-symbols-rounded tab-ic-ms">diamond</span> <span data-i18n="tab.glass">Glass</span></button>
+    <button class="cat-chip" data-cat="backcover" onclick="selectCategory('backcover')"><span class="material-symbols-rounded tab-ic-ms">flip_to_back</span> <span data-i18n="tab.backcover">Back Cover</span></button>
+    <button class="cat-chip" data-cat="display" onclick="selectCategory('display')">🖥️ <span>Display</span></button>
+    <button class="cat-chip" data-cat="frame" onclick="selectCategory('frame')">⬜ <span>Frame</span></button>
+    <button class="cat-chip" data-cat="backdoor" onclick="selectCategory('backdoor')">🚪 <span>Back Door</span></button>
+    <button class="cat-chip" data-cat="ccboard" onclick="selectCategory('ccboard')">🔌 <span>CC Board</span></button>
+    <button class="cat-chip" data-cat="battery" onclick="selectCategory('battery')">🔋 <span>Battery</span></button>
   </div>
 </div>
 
@@ -1047,8 +1062,17 @@ button{cursor:pointer}
 
 <!-- PARTS FINDER SCREEN -->
 <div id="partsScreen">
-  <div class="pf-header">
+  <div class="pf-header" style="flex-wrap:wrap">
     <span class="pf-htitle">🔧 <span data-i18n="pf.header">Spare Parts</span></span>
+    <div class="catbar" id="catBarParts" style="width:100%;margin-top:8px;padding-top:0">
+      <button class="cat-chip" data-cat="glass" onclick="selectCategory('glass')"><span class="material-symbols-rounded tab-ic-ms">diamond</span> <span data-i18n="tab.glass">Glass</span></button>
+      <button class="cat-chip" data-cat="backcover" onclick="selectCategory('backcover')"><span class="material-symbols-rounded tab-ic-ms">flip_to_back</span> <span data-i18n="tab.backcover">Back Cover</span></button>
+      <button class="cat-chip" data-cat="display" onclick="selectCategory('display')">🖥️ <span>Display</span></button>
+      <button class="cat-chip" data-cat="frame" onclick="selectCategory('frame')">⬜ <span>Frame</span></button>
+      <button class="cat-chip" data-cat="backdoor" onclick="selectCategory('backdoor')">🚪 <span>Back Door</span></button>
+      <button class="cat-chip" data-cat="ccboard" onclick="selectCategory('ccboard')">🔌 <span>CC Board</span></button>
+      <button class="cat-chip" data-cat="battery" onclick="selectCategory('battery')">🔋 <span>Battery</span></button>
+    </div>
   </div>
   <div class="pf-body">
     <div id="partsSearchWrap">
@@ -3065,9 +3089,37 @@ function switchTab(t){
   S.tab=t;S.query='';
   document.getElementById('searchInput').value='';
   document.getElementById('searchClear').style.display='none';
-  document.getElementById('tabGlass').className='tab'+(t==='glass'?' af':'');
-  document.getElementById('tabBackcover').className='tab'+(t==='backcover'?' ab':'');
+  updateCatBarActive(t);
   render();
+}
+
+// Unified category switcher — Glass, Back Cover aur sabhi Spare Parts
+// categories (Display/Frame/Back Door/CC Board/Battery) ek hi chip row se,
+// bina alag page pe manually jaaye. Glass/Back Cover Home screen render
+// karte hain, baaki categories internally Parts screen open karke us
+// category ke swipe-tab pe jump kar dete hain — user ko sirf ek unified
+// selector dikhta hai, page-switch invisible rehta hai.
+function selectCategory(key){
+  var isPartsOpen=document.getElementById('partsScreen').classList.contains('show');
+  if(key==='glass'||key==='backcover'){
+    if(isPartsOpen)switchPage('home');
+    switchTab(key);
+  } else {
+    var idx=-1;
+    for(var i=0;i<PART_TYPES.length;i++){if(PART_TYPES[i].key===key){idx=i;break;}}
+    if(idx<0)return;
+    if(!isPartsOpen)switchPage('parts');
+    if(PF.tabsInit)switchPartsTab(idx);
+    else PF.activeIdx=idx; // tabs abhi init nahi huye — openPartsScreen() init hote hi is idx se khulega
+    updateCatBarActive(key);
+  }
+}
+// Dono catbar instances (Home header + Parts screen) hamesha sync rahein,
+// chahe switch kahin se bhi trigger hua ho (top chip, purana pf-tab, ya
+// bottom nav "Spare Parts").
+function updateCatBarActive(key){
+  var chips=document.querySelectorAll('.cat-chip');
+  for(var i=0;i<chips.length;i++)chips[i].classList.toggle('active',chips[i].getAttribute('data-cat')===key);
 }
 
 // Smart Universal Search — agar Home tab (glass) me match na mile, Spare Parts
@@ -4538,6 +4590,7 @@ function moveSwipeTrack(animate){
 
 // Selection ka poora visual feedback ek jagah: glow/border/lift + icon micro-animation + haptic
 function updateActiveTabVisual(animate){
+  updateCatBarActive(PART_TYPES[PF.activeIdx].key); // top unified chip bar bhi sync rahe
   var tabBar=document.getElementById('pfTabBar');
   if(!tabBar)return;
   var tabs=tabBar.querySelectorAll('.pf-tab');
