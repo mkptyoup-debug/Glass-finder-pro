@@ -142,7 +142,7 @@ button{cursor:pointer}
 .login-title{font-size:22px;font-weight:800;text-align:center;color:var(--text-1);margin-bottom:6px}
 .login-sub{font-size:13px;color:var(--text-2);text-align:center;margin-bottom:28px}
 .linp-wrap{position:relative;margin-bottom:14px}
-.linp-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none}
+.linp-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--text-3);pointer-events:none}
 .linp{width:100%;background:var(--surface-1);border:1px solid var(--border-def);border-radius:12px;color:var(--text-1);font-size:15px;padding:13px 14px 13px 42px;outline:none;transition:border .2s,box-shadow .2s}
 .linp:focus{border-color:#C9A15E5e;box-shadow:0 0 0 3px #C9A15E14}
 .login-btn{width:100%;padding:14px;background:linear-gradient(180deg,var(--brand),var(--brand-2));border:none;border-radius:var(--r-sm);color:#fff;font-size:15px;font-weight:800;margin-top:6px;transition:transform .15s;box-shadow:0 6px 16px rgba(184,134,58,.25)}
@@ -174,7 +174,8 @@ button{cursor:pointer}
 .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:8px}
 .logo{display:flex;align-items:center;gap:11px}
 .logo-icon{width:38px;height:38px;background:linear-gradient(145deg,var(--brand),var(--brand-2));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:var(--sh-1);flex-shrink:0}
-.logo-title{font-size:17px;font-weight:800;color:var(--text-1);letter-spacing:-.01em}
+.logo-title{font-size:16.5px;font-weight:800;color:var(--text-1);letter-spacing:-.01em;line-height:1.15}
+.logo-tagline{font-size:10px;color:var(--text-3);font-weight:600;letter-spacing:.02em;margin-top:1px}
 .logo-sub{font-size:10px;color:var(--text-2);font-weight:600;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:5px;margin-top:2px}
 #syncDot{width:5px;height:5px;border-radius:50%;background:var(--brand);flex-shrink:0;animation:blink 1s infinite}
 #syncDot.ok{background:var(--success);box-shadow:0 0 6px #4CAF5066;animation:breathe 2.6s ease-in-out infinite}
@@ -183,7 +184,7 @@ button{cursor:pointer}
 @keyframes breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.85)}}
 #userBadge{display:flex;align-items:center;justify-content:center;gap:6px;width:38px;height:38px;padding:0;border-radius:50%;font-size:13px;font-weight:800;border:1.5px solid var(--brand-light);background:var(--brand-dim);color:var(--brand-text);transition:background-color .25s,border-color .25s,color .25s;cursor:pointer}
 #userBadge.admin{background:#C9A15E22;border-color:#C9A15E7a;color:var(--brand-2)}
-#userBadge.staff{background:#4CAF5017;border-color:#4CAF5088;color:var(--success)}
+#userBadge.staff{background:var(--brand-dim);border-color:var(--brand-light);color:var(--brand-text)}
 #userBadge:active{transform:scale(.95)}
 #menuBtn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1px solid var(--border-def);background:var(--surface-1);color:var(--text-2);font-size:16px;position:relative}
 #menuDot{display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:var(--danger);border:2px solid var(--bg)}
@@ -407,7 +408,7 @@ button{cursor:pointer}
 .pf-result-titlewrap{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0}
 
 /* RECENT */
-#quickAccess{background:linear-gradient(150deg,var(--surface-1),var(--surface-2));border:1px solid #C9A15E26;border-radius:14px;padding:12px 12px 13px;margin-bottom:16px;position:relative;overflow:hidden;box-shadow:0 6px 18px rgba(120,90,40,.06)}
+#quickAccess{background:var(--surface-1);border:1px solid var(--border-hair);border-radius:16px;padding:13px 12px 14px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 2px 10px rgba(35,29,21,.05)}
 #quickAccess::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#C9A15E55,transparent)}
 .qa-title{font-size:10px;font-weight:800;color:var(--text-3);letter-spacing:.1em;margin-bottom:11px;text-transform:uppercase}
 .qa-grid{display:flex;gap:8px}
@@ -458,7 +459,7 @@ button{cursor:pointer}
 .suggest-count{flex-shrink:0;font-size:10.5px;font-weight:700;color:var(--text-3);background:var(--surface-2);border-radius:20px;padding:3px 9px;white-space:nowrap}
 .suggest-item:last-child{border-bottom:none}
 .suggest-item:active,.suggest-item.hovered{background:#C9A15E15}
-.suggest-ic{font-size:12px;opacity:.45;flex-shrink:0}
+.suggest-ic{font-size:15px;opacity:.4;flex-shrink:0;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20}
 .suggest-item .mhl{background:var(--group);color:var(--text-1);border-radius:3px;padding:0 3px;font-weight:800}
 
 /* CARDS */
@@ -552,7 +553,7 @@ button{cursor:pointer}
 #addBtn:active,#uFeedAddBtn:active,#uInfoEditBtn:active{transform:scale(.97)}
 
 /* EMPTY */
-.empty{text-align:center;padding:48px 16px;border:1px dashed var(--border-def);border-radius:16px;animation:fadeUp .4s ease}
+.empty{text-align:center;padding:34px 16px;border:1px dashed var(--border-def);border-radius:16px;animation:fadeUp .4s ease}
 .empty-ico{font-size:40px;margin-bottom:12px}
 .empty-ico .material-symbols-rounded{font-size:40px;opacity:.55;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 40}
 .empty-t{font-weight:700;color:var(--text-2);margin-bottom:5px;font-size:15px}
@@ -881,15 +882,15 @@ button{cursor:pointer}
       <button class="login-tab" id="ltSignup" onclick="switchLoginTab('signup')">✨ <span data-i18n="login.signup">Sign Up</span></button>
     </div>
     <div id="signupNameWrap" class="linp-wrap" style="display:none">
-      <span class="linp-icon">👤</span>
+      <span class="linp-icon material-symbols-rounded">person</span>
       <input class="linp" type="text" id="loginName" placeholder="Aapka naam" data-i18n-ph="login.name" autocomplete="name"/>
     </div>
     <div class="linp-wrap">
-      <span class="linp-icon">✉️</span>
+      <span class="linp-icon material-symbols-rounded">mail</span>
       <input class="linp" type="email" id="loginEmail" placeholder="Email address" data-i18n-ph="login.email" autocomplete="email"/>
     </div>
     <div class="linp-wrap">
-      <span class="linp-icon">🔒</span>
+      <span class="linp-icon material-symbols-rounded">lock</span>
       <input class="linp" type="password" id="loginPass" placeholder="Password" data-i18n-ph="login.password" onkeydown="if(event.key==='Enter')doLogin()"/>
     </div>
     <button class="login-btn" onclick="doLogin()" id="loginBtn">Sign In</button>
@@ -897,13 +898,16 @@ button{cursor:pointer}
   </div>
 </div>
 
-<div id="offlineBar">📡 <span data-i18n="offline.text">No internet — showing cached data</span></div>
+<div id="offlineBar"><span class="material-symbols-rounded" style="font-size:14px;vertical-align:-2px">wifi_off</span> <span data-i18n="offline.text">No internet — showing cached data</span></div>
 
 <div id="header">
   <div class="header-top">
     <div class="logo">
       <div class="logo-icon">🛡️</div>
-      <div class="logo-title">Universal Combo<span id="syncDot" style="margin-left:6px;vertical-align:middle"></span></div>
+      <div>
+        <div class="logo-title">Universal Combo<span id="syncDot" style="margin-left:6px;vertical-align:middle"></span></div>
+        <div class="logo-tagline">One Stop Combo Solution</div>
+      </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       <button id="userBadge" onclick="openMenu()">👤</button>
@@ -916,17 +920,17 @@ button{cursor:pointer}
       <span class="qs-ic material-symbols-rounded">diamond</span>
       <span class="qs-label" data-i18n="tab.glass">Glass</span>
     </button>
-    <button class="qs-tile" data-cat="battery" onclick="selectCategory('battery')">
-      <span class="qs-ic material-symbols-rounded">battery_full</span>
-      <span class="qs-label">Battery</span>
+    <button class="qs-tile" data-cat="backcover" onclick="selectCategory('backcover')">
+      <span class="qs-ic material-symbols-rounded">flip_to_back</span>
+      <span class="qs-label" data-i18n="tab.backcover">Back Cover</span>
     </button>
     <button class="qs-tile" data-cat="display" onclick="selectCategory('display')">
       <span class="qs-ic material-symbols-rounded">desktop_windows</span>
       <span class="qs-label">Display</span>
     </button>
-    <button class="qs-tile" data-cat="backcover" onclick="selectCategory('backcover')">
-      <span class="qs-ic material-symbols-rounded">flip_to_back</span>
-      <span class="qs-label" data-i18n="tab.backcover">Back Cover</span>
+    <button class="qs-tile" data-cat="battery" onclick="selectCategory('battery')">
+      <span class="qs-ic material-symbols-rounded">battery_full</span>
+      <span class="qs-label">Battery</span>
     </button>
     <button class="qs-tile" data-cat="frame" onclick="selectCategory('frame')">
       <span class="qs-ic material-symbols-rounded">crop_free</span>
@@ -939,6 +943,18 @@ button{cursor:pointer}
     <button class="qs-tile" data-cat="ccboard" onclick="selectCategory('ccboard')">
       <span class="qs-ic material-symbols-rounded">developer_board</span>
       <span class="qs-label">CC Board</span>
+    </button>
+    <button class="qs-tile" data-cat="middlestrip" onclick="selectCategory('middlestrip')">
+      <span class="qs-ic material-symbols-rounded">view_agenda</span>
+      <span class="qs-label">Middle Strip</span>
+    </button>
+    <button class="qs-tile" data-cat="onoff" onclick="selectCategory('onoff')">
+      <span class="qs-ic material-symbols-rounded">power_settings_new</span>
+      <span class="qs-label">On/Off Button</span>
+    </button>
+    <button class="qs-tile" data-cat="fingerprint" onclick="selectCategory('fingerprint')">
+      <span class="qs-ic material-symbols-rounded">fingerprint</span>
+      <span class="qs-label">Fingerprint</span>
     </button>
   </div>
 </div>
@@ -959,7 +975,7 @@ button{cursor:pointer}
     <div id="searchWrap">
       <div id="searchBox">
         <span class="search-ic-glow">🔍</span>
-        <input id="searchInput" placeholder="Search Model, Battery Code, Glass Group or Part..." data-i18n-ph="search.placeholder" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused');showSearchHistory()" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
+        <input id="searchInput" placeholder="Search phone model or part..." data-i18n-ph="search.placeholder" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused');showSearchHistory()" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
         <button id="searchClear" onclick="clearSearch()" aria-label="Clear search">✕</button>
         <button id="voiceBtn" class="voice-btn" onclick="startVoiceSearch('searchInput',onSearch)" title="Search by voice" aria-label="Search by voice"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
       </div>
@@ -1262,7 +1278,7 @@ var I18N={
     'login.title':'Universal Combo','login.sub':'Create your account or log in','login.divider':'or with email',
     'login.signin':'Sign In','login.signup':'Sign Up','login.name':'Your name','login.email':'Email address','login.password':'Password',
     'header.sync':'Live Sync Active','tab.glass':'Glass','tab.backcover':'Back Cover',
-    'search.placeholder':'Search Model, Battery Code, Glass Group or Part...','search.clear':'Clear',
+    'search.placeholder':'Search phone model or part...','search.clear':'Clear',
     'quickaccess.title':'Quick Access','pf.title':'Parts Finder','pf.sub':'Display, Frame, Back Door, CC Board, Battery',
     'stat.groups':'Groups','stat.models':'Models','stat.categories':'Categories','stat.updated':'Updated',
     'addbtn.glass':'Add New Glass','offline.text':'No internet — showing cached data',
@@ -1280,7 +1296,7 @@ var I18N={
     'login.title':'Universal Combo','login.sub':'अपना अकाउंट बनाएं या लॉगिन करें','login.divider':'या ईमेल से',
     'login.signin':'साइन इन','login.signup':'साइन अप','login.name':'आपका नाम','login.email':'ईमेल एड्रेस','login.password':'पासवर्ड',
     'header.sync':'लाइव सिंक एक्टिव','tab.glass':'ग्लास','tab.backcover':'बैक कवर',
-    'search.placeholder':'मॉडल, बैटरी कोड, ग्लास ग्रुप या पार्ट खोजें...','search.clear':'हटाएं',
+    'search.placeholder':'फ़ोन मॉडल या पार्ट खोजें...','search.clear':'हटाएं',
     'quickaccess.title':'क्विक एक्सेस','pf.title':'पार्ट्स फाइंडर','pf.sub':'डिस्प्ले, फ्रेम, बैक डोर, CC बोर्ड, बैटरी',
     'stat.groups':'ग्रुप्स','stat.models':'मॉडल्स','stat.categories':'कैटेगरी','stat.updated':'अपडेटेड',
     'addbtn.glass':'नया ग्लास जोड़ें','offline.text':'इंटरनेट नहीं है — सेव्ड डेटा दिखाया जा रहा है',
@@ -1321,10 +1337,13 @@ function initLanguage(){
 
 var PART_TYPES=[
   {key:'display',label:'Display',icon:'🖥️',col:'parts_display',color:'#C89A4B'},
+  {key:'battery',label:'Battery',icon:'🔋',col:'parts_battery',color:'#96892C'},
   {key:'frame',label:'Frame',icon:'⬜',col:'parts_frame',color:'#B08D6A'},
   {key:'backdoor',label:'Back Door',icon:'🚪',col:'parts_backdoor',color:'#96672C'},
   {key:'ccboard',label:'CC Board',icon:'🔌',col:'parts_ccboard',color:'#2C9667'},
-  {key:'battery',label:'Battery',icon:'🔋',col:'parts_battery',color:'#96892C'}
+  {key:'middlestrip',label:'Middle Strip',icon:'▭',col:'parts_middlestrip',color:'#7A8C6E'},
+  {key:'onoff',label:'On/Off Button',icon:'🔘',col:'parts_onoff',color:'#8C6E7A'},
+  {key:'fingerprint',label:'Fingerprint',icon:'👆',col:'parts_fingerprint',color:'#6E7A8C'}
 ];
 var PF={data:{},query:'',editKey:null,editId:null,loaded:false,ready:false,activeIdx:0,tabsInit:false,currentCategory:PART_TYPES[0].key};
 // Single source of truth: har jagah jahan Add Group ke liye category chahiye,
@@ -1387,9 +1406,12 @@ var PF_ICONS={
     '<rect class="pf-batt-cell" data-idx="1" x="15.5" y="26.2" width="17" height="5.4" rx="1.6" fill="var(--success)"/>'+
     '<rect class="pf-batt-cell" data-idx="2" x="15.5" y="19.4" width="17" height="5.4" rx="1.6" fill="var(--success)"/>'+
     '<rect class="pf-batt-cell" data-idx="3" x="15.5" y="12.6" width="17" height="5.4" rx="1.6" fill="var(--success)"/>'+
-    '</svg>'
+    '</svg>',
+  middlestrip:'<span class="material-symbols-rounded" style="font-size:22px">view_agenda</span>',
+  onoff:'<span class="material-symbols-rounded" style="font-size:22px">power_settings_new</span>',
+  fingerprint:'<span class="material-symbols-rounded" style="font-size:22px">fingerprint</span>'
 };
-var PF_ANIM_MS={display:600,frame:500,backdoor:800,ccboard:700,battery:350};
+var PF_ANIM_MS={display:600,frame:500,backdoor:800,ccboard:700,battery:350,middlestrip:400,onoff:400,fingerprint:400};
 
 // ── HELPERS ──────────────────────────────────────────────────────────────
 function isAdmin(){return S.role==='admin';}
@@ -2322,7 +2344,7 @@ function updateUserUI(){
     document.getElementById('uInfoEditBtn').classList.add('hide');
   } else {
     // Guest — auto show login
-    badge.textContent='🔒';
+    badge.innerHTML='<span class="material-symbols-rounded" style="font-size:16px">lock</span>';
     badge.title='Login';
     badge.className='';
     menuUserInfo.classList.add('hide');
@@ -2504,7 +2526,7 @@ function renderStats(){
   document.getElementById('s1').textContent=S.flat.length+S.uv.length+S.backcover.length;
   document.getElementById('s2').textContent=all.reduce(function(a,g){return a+parseModels(g.models).length;},0);
   document.getElementById('s3').textContent=((S.flat.length||S.uv.length)?1:0)+(S.backcover.length?1:0);
-  document.getElementById('s4').textContent=S.log.length?S.log[0].date:'—';
+  document.getElementById('s4').textContent=S.log.length?S.log[0].date.split(',')[0]:'—';
 }
 
 function renderQuickAccess(){
@@ -2695,7 +2717,7 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
   var matchSection='';
   if(hasSearch&&matched.length){
     matchSection='<div class="match-section'+(isFuzzy?' fuzzy':'')+'">'+
-      '<div class="match-section-title">'+(isFuzzy?'🔎 Similar Match':'🎯 Matched ('+matched.length+')')+'</div>'+
+      '<div class="match-section-title">'+(isFuzzy?'<span class="material-symbols-rounded" style="font-size:13px;vertical-align:-2px">manage_search</span> Similar Match':'<span class="material-symbols-rounded" style="font-size:13px;vertical-align:-2px;font-variation-settings:\'FILL\' 1">check_circle</span> Matched ('+matched.length+')')+'</div>'+
       '<div class="match-tags">'+matched.map(function(m){
         return isFuzzy?'<span class="match-tag fuzzy">'+escHtml(m)+'</span>':
           '<span class="match-tag">'+hlText(m,q)+'</span>';
@@ -2714,7 +2736,7 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
         (isExpanded?'▲ Show Less':'▼ Show All ('+other.length+' Models)')+'</button>';
     }
   }
-  var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openEditModal(\''+g.id+'\')" aria-label="Edit">✏️</button><button class="ibtn" onclick="confirmDelete(\''+g.id+'\')" aria-label="Delete">🗑️</button></div>':'';
+  var adm=isAdmin()?'<div class="cadmin"><button class="ibtn" onclick="openEditModal(\''+g.id+'\')" aria-label="Edit"><span class="material-symbols-rounded" style="font-size:15px">edit</span></button><button class="ibtn" onclick="confirmDelete(\''+g.id+'\')" aria-label="Delete"><span class="material-symbols-rounded" style="font-size:15px">delete</span></button></div>':'';
   var delay=Math.min(idx*0.05,0.4);
   var cardClass=isFuzzy?'fuzzy-card':(hasSearch&&matched.length?'match-card':'');
   var noteHtml=g.note?'<div style="font-size:11.5px;color:var(--text-2);margin-top:8px;line-height:1.5;background:rgba(52,42,34,.03);border:1px solid rgba(52,42,34,.06);border-radius:8px;padding:8px 10px">📝 '+escHtml(g.note)+'</div>':'';
@@ -3186,7 +3208,7 @@ var SUGGEST_CAP=4;
 function suggestRowHtml(it,onPick,query){
   var m=it.m,count=it.count;
   var countHtml=count?'<span class="suggest-count">'+count+' combo'+(count>1?'s':'')+' mile</span>':'';
-  return '<div class="suggest-item" onmousedown="'+onPick+'(\''+m.replace(/'/g,"\\'")+'\')"><span class="suggest-ic">🔍</span><span class="suggest-txt">'+hlText(m,query)+'</span>'+countHtml+'</div>';
+  return '<div class="suggest-item" onmousedown="'+onPick+'(\''+m.replace(/'/g,"\\'")+'\')"><span class="suggest-ic material-symbols-rounded">search</span><span class="suggest-txt">'+hlText(m,query)+'</span>'+countHtml+'</div>';
 }
 function showSuggestions(boxId,items,onPick,query){
   var box=document.getElementById(boxId);
@@ -5444,7 +5466,7 @@ function exportBackup(){
   closeMenu();
   if(!db){showToast('❌ No connection',true);return;}
   showToast('⏳ Creating backup...');
-  var cols=['flat_glasses','uv_glasses','display_glasses','backcover_glasses','parts_display','parts_frame','parts_backdoor','parts_ccboard','parts_battery'];
+  var cols=['flat_glasses','uv_glasses','display_glasses','backcover_glasses','parts_display','parts_battery','parts_frame','parts_backdoor','parts_ccboard','parts_middlestrip','parts_onoff','parts_fingerprint'];
   Promise.all(cols.map(function(c){
     return db.collection(c).get().then(function(snap){
       return snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
@@ -5470,7 +5492,7 @@ function restoreBackup(evt){
   reader.onload=function(e){
     var data;
     try{data=JSON.parse(e.target.result);}catch(err){showToast('❌ Invalid backup file',true);evt.target.value='';return;}
-    var cols=['flat_glasses','uv_glasses','display_glasses','backcover_glasses','parts_display','parts_frame','parts_backdoor','parts_ccboard','parts_battery'];
+    var cols=['flat_glasses','uv_glasses','display_glasses','backcover_glasses','parts_display','parts_battery','parts_frame','parts_backdoor','parts_ccboard','parts_middlestrip','parts_onoff','parts_fingerprint'];
     showToast('⏳ Restoring...');
     var batch=db.batch();
     var count=0;
