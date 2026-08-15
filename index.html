@@ -219,9 +219,6 @@ button{cursor:pointer}
 .qs-swipe-hint{display:flex;align-items:center;justify-content:center;gap:5px;font-size:10px;font-weight:700;color:var(--text-2);opacity:.75;margin:5px 2px 0;letter-spacing:.02em}
 .qs-swipe-hint .material-symbols-rounded{animation:qsSwipeMove 1.8s ease-in-out infinite}
 @keyframes qsSwipeMove{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
-.cat-swipe-page{transition:transform .3s cubic-bezier(.22,1,.36,1),opacity .3s ease}
-.cat-swipe-out-left{transform:translateX(-26px);opacity:0}
-.cat-swipe-out-right{transform:translateX(26px);opacity:0}
 
 /* BODY */
 #body{max-width:680px;margin:0 auto;padding:16px}
@@ -478,7 +475,7 @@ button{cursor:pointer}
 .suggest-item .mhl{background:var(--group);color:var(--text-1);border-radius:3px;padding:0 3px;font-weight:800}
 
 /* CARDS */
-#cardList{display:flex;flex-direction:column;gap:14px}
+#cardList-glass,#cardList-backcover{display:flex;flex-direction:column;gap:14px}
 .card{transition:transform .2s;background:var(--surface-1);border:1px solid var(--border-hair);border-radius:20px;overflow:hidden;box-shadow:0 2px 12px rgba(35,29,21,.06);opacity:0;animation:fadeUp .3s ease forwards;contain:content;content-visibility:auto;contain-intrinsic-size:0 220px}
 .card-accent{height:2px;background:var(--border-hair)}
 .card-inner{padding:16px}
@@ -1000,7 +997,12 @@ button{cursor:pointer}
       <button class="tbtn" onclick="openCodeModal()">💾 Data Code</button>
     </div>
     <button id="addBtn" class="hide" onclick="openAddModal()">＋ <span data-i18n="addbtn.glass">Add New Glass</span></button>
-    <div id="cardList"></div>
+    <div id="mcSwipeViewport" class="pf-swipe-viewport">
+      <div id="mcSwipeTrack" class="pf-swipe-track">
+        <div class="pf-swipe-page" id="mcPage-glass" style="width:50%"><div id="cardList-glass"></div></div>
+        <div class="pf-swipe-page" id="mcPage-backcover" style="width:50%"><div id="cardList-backcover"></div></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1361,54 +1363,6 @@ var GQ=''; // Global shared search text — glass/backcover aur sabhi spare-part
            // categories ke beech switch/swipe karne par search box khali NAHI hota,
            // yahi ek variable dono taraf sync rehta hai.
 var CAT_ORDER=['glass','backcover'].concat(PART_TYPES.map(function(t){return t.key;}));
-function currentCatKey(){
-  var partsShown=document.getElementById('partsScreen')&&document.getElementById('partsScreen').classList.contains('show');
-  return partsShown?PART_TYPES[PF.activeIdx].key:S.tab;
-}
-function shiftCategory(dir){
-  var idx=CAT_ORDER.indexOf(currentCatKey());
-  if(idx<0)idx=0;
-  var next=idx+dir;
-  if(next<0||next>=CAT_ORDER.length)return; // dono end par ruk jao, wrap na ho
-  var animClass=dir>0?'cat-swipe-out-left':'cat-swipe-out-right';
-  var stage=document.getElementById('cardList')&&!document.getElementById('mainContent').classList.contains('hide')?
-    document.getElementById('cardList'):document.getElementById('pfSwipeViewport');
-  if(stage){
-    stage.classList.add('cat-swipe-page',animClass);
-    setTimeout(function(){stage.classList.remove(animClass);},260);
-  }
-  if(navigator.vibrate)navigator.vibrate(8);
-  selectCategory(CAT_ORDER[next]);
-}
-var catSwipe={startX:0,startY:0,dragging:false,axis:null};
-function attachCatSwipe(elId){
-  var el=document.getElementById(elId);
-  if(!el||el._catSwipeBound)return;
-  el._catSwipeBound=true;
-  el.addEventListener('touchstart',function(e){
-    var t=e.touches[0];
-    catSwipe.startX=t.clientX;catSwipe.startY=t.clientY;
-    catSwipe.dragging=true;catSwipe.axis=null;
-  },{passive:true});
-  el.addEventListener('touchmove',function(e){
-    if(!catSwipe.dragging)return;
-    var t=e.touches[0];
-    var dx=t.clientX-catSwipe.startX,dy=t.clientY-catSwipe.startY;
-    if(catSwipe.axis===null&&(Math.abs(dx)>6||Math.abs(dy)>6)){
-      catSwipe.axis=Math.abs(dx)>Math.abs(dy)?'x':'y';
-    }
-  },{passive:true});
-  el.addEventListener('touchend',function(e){
-    if(!catSwipe.dragging)return;
-    catSwipe.dragging=false;
-    if(catSwipe.axis!=='x')return;
-    var t=e.changedTouches[0];
-    var dx=t.clientX-catSwipe.startX;
-    if(Math.abs(dx)<48)return;
-    document.getElementById('qsSwipeHint')&&document.getElementById('qsSwipeHint').classList.add('hide');
-    shiftCategory(dx<0?1:-1);
-  },{passive:true});
-}
 // Single source of truth: har jagah jahan Add Group ke liye category chahiye,
 // isi function se lo. Top tabs (click ya swipe) jab bhi badlein, syncCurrentCategory() call hota hai.
 function syncCurrentCategory(){
@@ -2582,7 +2536,76 @@ function jumpToPartsTab(idx){
 }
 
 // ── RENDER ───────────────────────────────────────────────────────────────
-function render(){renderStats();renderCards();var addBtn=document.getElementById('addBtn');if(addBtn)addBtn.innerHTML='＋ Add New '+itemLabel(S.tab);attachCatSwipe('cardList');}
+function render(){renderStats();renderCards();var addBtn=document.getElementById('addBtn');if(addBtn)addBtn.innerHTML='＋ Add New '+itemLabel(S.tab);attachMcSwipe();moveMcTrack(true);}
+
+var mcSwipe={startX:0,startY:0,dragging:false,deltaX:0,axis:null};
+function mcIdx(){return S.tab==='backcover'?1:0;}
+function moveMcTrack(animate){
+  var track=document.getElementById('mcSwipeTrack');
+  if(!track)return;
+  track.style.transition=animate?'transform .38s cubic-bezier(.22,1,.36,1)':'none';
+  track.style.transform='translateX(-'+(mcIdx()*50)+'%)';
+}
+function attachMcSwipe(){
+  var vp=document.getElementById('mcSwipeViewport');
+  if(!vp||vp._mcSwipeBound)return;
+  vp._mcSwipeBound=true;
+  vp.addEventListener('touchstart',function(e){
+    var t=e.touches[0];
+    mcSwipe.startX=t.clientX;mcSwipe.startY=t.clientY;
+    mcSwipe.dragging=true;mcSwipe.deltaX=0;mcSwipe.axis=null;
+    var track=document.getElementById('mcSwipeTrack');
+    if(track)track.style.transition='none';
+  },{passive:true});
+  vp.addEventListener('touchmove',function(e){
+    if(!mcSwipe.dragging)return;
+    var t=e.touches[0];
+    var dx=t.clientX-mcSwipe.startX,dy=t.clientY-mcSwipe.startY;
+    if(mcSwipe.axis===null&&(Math.abs(dx)>6||Math.abs(dy)>6)){
+      mcSwipe.axis=Math.abs(dx)>Math.abs(dy)?'x':'y';
+    }
+    if(mcSwipe.axis==='y')return;
+    e.preventDefault();
+    mcSwipe.deltaX=dx;
+    var atStart=mcIdx()===0&&dx>0; // Glass par right swipe — pehla hi hai, resist karo
+    var atGoingIntoParts=mcIdx()===1&&dx<0; // Back Cover se aage Parts me jaane wala boundary
+    var resist=(atStart)?0.32:(atGoingIntoParts?0.55:1);
+    var vw2=vp.offsetWidth||1;
+    var deltaPercent=(dx/vw2)*50;
+    var basePercent=-(mcIdx()*50);
+    var track=document.getElementById('mcSwipeTrack');
+    if(track)track.style.transform='translateX('+(basePercent+deltaPercent*resist)+'%)';
+  },{passive:false});
+  vp.addEventListener('touchend',onMcSwipeEnd,{passive:true});
+  vp.addEventListener('touchcancel',onMcSwipeEnd,{passive:true});
+}
+function onMcSwipeEnd(){
+  if(!mcSwipe.dragging)return;
+  mcSwipe.dragging=false;
+  var vp=document.getElementById('mcSwipeViewport');
+  var vw2=vp?vp.offsetWidth:1;
+  var threshold=vw2*0.16;
+  document.getElementById('qsSwipeHint')&&document.getElementById('qsSwipeHint').classList.add('hide');
+  if(mcSwipe.axis==='x'){
+    if(mcSwipe.deltaX<=-threshold&&mcIdx()===0){
+      // Glass -> Back Cover
+      if(navigator.vibrate)navigator.vibrate(8);
+      switchTab('backcover');mcSwipe.deltaX=0;mcSwipe.axis=null;return;
+    }
+    if(mcSwipe.deltaX>=threshold&&mcIdx()===1){
+      // Back Cover -> Glass
+      if(navigator.vibrate)navigator.vibrate(8);
+      switchTab('glass');mcSwipe.deltaX=0;mcSwipe.axis=null;return;
+    }
+    if(mcSwipe.deltaX<=-threshold&&mcIdx()===1){
+      // Back Cover se aage swipe — Spare Parts (Display) me chale jao
+      if(navigator.vibrate)navigator.vibrate(8);
+      selectCategory('display');mcSwipe.deltaX=0;mcSwipe.axis=null;return;
+    }
+  }
+  moveMcTrack(true);
+  mcSwipe.deltaX=0;mcSwipe.axis=null;
+}
 
 function renderStats(){
   var s1=document.getElementById('s1');if(!s1)return;
@@ -2665,9 +2688,45 @@ function openNewlyAdded(){
   openModal('<div class="mhead"><span class="mtitle">🆕 Newly Added</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+body);
 }
 
+// Doosri tab (glass<->backcover) ka halka preview pehle se render kar dete hain
+// taaki finger se drag karte waqt dono panels ek saath, bina lag ke, dikhein —
+// jaise flagship apps me carousel swipe hota hai. Yeh sirf ek "preview" hai,
+// side-effects (quota count, banner) is se nahi hote — asli render switch hone
+// par renderCards() khud sahi tarike se ho jaata hai.
+function renderOtherTabPreview(q){
+  var otherTab=S.tab==='glass'?'backcover':'glass';
+  var el=document.getElementById('cardList-'+otherTab);
+  if(!el)return;
+  if(otherTab==='backcover'&&!isAdmin()&&!isPremiumActive()&&!q){
+    el.innerHTML=glassSearchPromptHtml(false);
+    return;
+  }
+  if(otherTab==='glass'&&!isAdmin()&&!q){
+    el.innerHTML=glassSearchPromptHtml(true);
+    return;
+  }
+  var list=otherTab==='glass'?S.flat.concat(S.uv):S.backcover;
+  if(q){
+    var res=findMatchingGroups(list,q);
+    list=res.groups;
+  }
+  if(!list.length){
+    el.innerHTML='<div class="empty"><div class="empty-ico"><span class="material-symbols-rounded">inventory_2</span></div><p class="empty-t">No '+itemLabel(otherTab)+' yet</p></div>';
+    return;
+  }
+  if(otherTab==='backcover'&&!isAdmin()&&!isPremiumActive()){
+    el.innerHTML=categoryTeaserHtml(list.length,'Back Cover');
+    return;
+  }
+  el.innerHTML=list.slice(0,12).map(function(g,idx){
+    return buildCard(g,[],parseModels(g.models),false,false,idx,'');
+  }).join('');
+}
+
 function renderCards(){
   var q=S.query.trim();
-  var el=document.getElementById('cardList');
+  renderOtherTabPreview(q);
+  var el=document.getElementById('cardList-'+S.tab);
   var banner=document.getElementById('resultBanner');
 
   if(!q){
