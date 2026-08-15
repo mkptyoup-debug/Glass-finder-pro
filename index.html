@@ -215,8 +215,13 @@ button{cursor:pointer}
 .qs-tile.active{border-color:var(--brand);background:linear-gradient(180deg,var(--surface-1),var(--brand-dim) 220%);box-shadow:0 4px 14px rgba(184,138,69,.18)}
 .qs-tile.active .qs-ic{background:linear-gradient(145deg,var(--brand),var(--brand-2));color:#fff;font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24}
 .qs-tile.active .qs-label{color:var(--brand-text)}
-.qs-tile.qs-more{background:var(--surface-2);border-style:dashed}
-.qs-tile.qs-more .qs-ic{background:var(--surface-1)}
+.qs-scroll-wrap{position:relative}
+.qs-swipe-hint{display:flex;align-items:center;justify-content:center;gap:5px;font-size:10px;font-weight:700;color:var(--text-2);opacity:.75;margin:5px 2px 0;letter-spacing:.02em}
+.qs-swipe-hint .material-symbols-rounded{animation:qsSwipeMove 1.8s ease-in-out infinite}
+@keyframes qsSwipeMove{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
+.cat-swipe-page{transition:transform .3s cubic-bezier(.22,1,.36,1),opacity .3s ease}
+.cat-swipe-out-left{transform:translateX(-26px);opacity:0}
+.cat-swipe-out-right{transform:translateX(26px);opacity:0}
 
 /* BODY */
 #body{max-width:680px;margin:0 auto;padding:16px}
@@ -244,6 +249,14 @@ button{cursor:pointer}
 .upd-body{padding:16px;max-width:520px;margin:0 auto}
 .upd-sec-title{font-size:10px;font-weight:800;color:var(--text-3);letter-spacing:.1em;margin:22px 0 12px;text-transform:uppercase}
 .upd-sec-title:first-child{margin-top:0}
+.ucat-list{display:flex;flex-direction:column;gap:10px}
+.ucat-card{display:flex;align-items:center;gap:12px;background:var(--surface-1);border:1px solid var(--border-hair);border-radius:14px;padding:12px 14px;box-shadow:0 2px 8px rgba(35,29,21,.04)}
+.ucat-ic{width:38px;height:38px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:11px;background:linear-gradient(135deg,#C9A15E22,#C9A15E0d);font-size:19px}
+.ucat-body{flex:1;min-width:0}
+.ucat-name{font-size:13.5px;font-weight:800;color:var(--text-1);margin-bottom:3px}
+.ucat-stats{display:flex;gap:14px;flex-wrap:wrap}
+.ucat-stat{font-size:11.5px;color:var(--text-2);font-weight:600}
+.ucat-stat b{color:var(--brand-2);font-weight:800}
 .uhero{position:relative;background:linear-gradient(155deg,rgba(212,175,106,.14),rgba(212,175,106,.03));backdrop-filter:blur(20px);border:1px solid rgba(212,175,106,.3);border-radius:var(--r-lg);padding:18px;display:flex;gap:14px;align-items:flex-start;box-shadow:var(--sh-2);opacity:0;animation:fadeUp .45s ease forwards}
 .uhero-ico{width:46px;height:46px;border-radius:14px;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;box-shadow:var(--sh-1)}
 .uhero-body{flex:1;min-width:0}
@@ -574,11 +587,6 @@ button{cursor:pointer}
 .modal{background:var(--surface-3);border:1px solid var(--border-hair);border-radius:var(--r-lg);width:100%;max-width:520px;padding:26px;box-shadow:var(--sh-3);max-height:90vh;overflow-y:auto}
 .mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--border-hair)}
 .mtitle{font-size:16px;font-weight:800;color:var(--brand-2)}
-.allcat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.allcat-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px 6px;background:var(--surface-2);border:1px solid var(--border-hair);border-radius:14px;color:var(--text-2);transition:transform .15s ease,border-color .2s ease}
-.allcat-item:active{transform:scale(.94)}
-.allcat-ic{font-size:22px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:11px;background:var(--brand-dim);color:var(--brand-text)}
-.allcat-lbl{font-size:11.5px;font-weight:700;color:var(--text-1);text-align:center;line-height:1.2}
 .mclose{background:#2F261C0a;border:1px solid #2F261C14;color:var(--text-2);padding:0;width:28px;height:28px;border-radius:9px;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;transition:background .18s ease,color .18s ease,transform .15s ease}
 .mclose:active{transform:scale(.85);background:#2F261C16;color:var(--text-2)}
 .flbl{display:block;color:var(--text-2);font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:8px;text-transform:uppercase}
@@ -922,7 +930,8 @@ button{cursor:pointer}
     </div>
   </div>
 
-  <div class="qs-scroll" id="quickShortcuts">
+  <div class="qs-scroll-wrap">
+    <div class="qs-scroll" id="quickShortcuts">
     <button class="qs-tile active" data-cat="glass" onclick="selectCategory('glass')">
       <span class="qs-ic material-symbols-rounded">diamond</span>
       <span class="qs-label" data-i18n="tab.glass">Glass</span>
@@ -963,26 +972,14 @@ button{cursor:pointer}
       <span class="qs-ic material-symbols-rounded">fingerprint</span>
       <span class="qs-label">Fingerprint</span>
     </button>
-    <button class="qs-tile qs-more" onclick="openAllCategoriesModal()">
-      <span class="qs-ic material-symbols-rounded">apps</span>
-      <span class="qs-label">All</span>
-    </button>
+    </div>
+    <div class="qs-swipe-hint" id="qsSwipeHint"><span class="material-symbols-rounded" style="font-size:13px">swipe</span>Swipe to change category</div>
   </div>
 </div>
 
 <div id="body" class="page-anim">
   <div id="loading" class="hide"><div class="spin"></div>Connecting...</div>
   <div id="mainContent" class="hide">
-    <div class="statsStrip">
-      <div class="statItem"><div class="stat-val" id="s1">0</div><div class="stat-lbl" data-i18n="stat.groups">Groups</div></div>
-      <div class="statItem"><div class="stat-val" id="s2">0</div><div class="stat-lbl" data-i18n="stat.models">Models</div></div>
-      <div class="statItem"><div class="stat-val" id="s3">0</div><div class="stat-lbl" data-i18n="stat.categories">Categories</div></div>
-      <div class="statItem"><div class="stat-val sm" id="s4">—</div><div class="stat-lbl" data-i18n="stat.updated">Updated</div></div>
-    </div>
-    <div id="quickAccess" class="hide">
-      <div class="qa-title" data-i18n="quickaccess.title">Quick Access</div>
-      <div class="qa-grid" id="qaGrid"></div>
-    </div>
     <div id="searchWrap">
       <div id="searchBox">
         <span class="search-ic-glow">🔍</span>
@@ -1150,6 +1147,9 @@ button{cursor:pointer}
       <div class="stat"><div class="stat-ico">🔧</div><div class="stat-val" id="u3">0</div><div class="stat-lbl">Spare Parts</div></div>
       <div class="stat"><div class="stat-ico">🕐</div><div class="stat-val sm" id="u4">—</div><div class="stat-lbl">Last Updated</div></div>
     </div>
+
+    <div class="upd-sec-title" data-i18n="updates.catbreak">Category-wise Details</div>
+    <div id="uCatWrap" class="ucat-list"></div>
 
     <div class="upd-sec-title" data-i18n="updates.appinfo">App Info</div>
     <div id="uInfoWrap"></div>
@@ -1357,6 +1357,58 @@ var PART_TYPES=[
   {key:'fingerprint',label:'Fingerprint',icon:'👆',col:'parts_fingerprint',color:'#6E7A8C'}
 ];
 var PF={data:{},query:'',editKey:null,editId:null,loaded:false,ready:false,activeIdx:0,tabsInit:false,currentCategory:PART_TYPES[0].key};
+var GQ=''; // Global shared search text — glass/backcover aur sabhi spare-parts
+           // categories ke beech switch/swipe karne par search box khali NAHI hota,
+           // yahi ek variable dono taraf sync rehta hai.
+var CAT_ORDER=['glass','backcover'].concat(PART_TYPES.map(function(t){return t.key;}));
+function currentCatKey(){
+  var partsShown=document.getElementById('partsScreen')&&document.getElementById('partsScreen').classList.contains('show');
+  return partsShown?PART_TYPES[PF.activeIdx].key:S.tab;
+}
+function shiftCategory(dir){
+  var idx=CAT_ORDER.indexOf(currentCatKey());
+  if(idx<0)idx=0;
+  var next=idx+dir;
+  if(next<0||next>=CAT_ORDER.length)return; // dono end par ruk jao, wrap na ho
+  var animClass=dir>0?'cat-swipe-out-left':'cat-swipe-out-right';
+  var stage=document.getElementById('cardList')&&!document.getElementById('mainContent').classList.contains('hide')?
+    document.getElementById('cardList'):document.getElementById('pfSwipeViewport');
+  if(stage){
+    stage.classList.add('cat-swipe-page',animClass);
+    setTimeout(function(){stage.classList.remove(animClass);},260);
+  }
+  if(navigator.vibrate)navigator.vibrate(8);
+  selectCategory(CAT_ORDER[next]);
+}
+var catSwipe={startX:0,startY:0,dragging:false,axis:null};
+function attachCatSwipe(elId){
+  var el=document.getElementById(elId);
+  if(!el||el._catSwipeBound)return;
+  el._catSwipeBound=true;
+  el.addEventListener('touchstart',function(e){
+    var t=e.touches[0];
+    catSwipe.startX=t.clientX;catSwipe.startY=t.clientY;
+    catSwipe.dragging=true;catSwipe.axis=null;
+  },{passive:true});
+  el.addEventListener('touchmove',function(e){
+    if(!catSwipe.dragging)return;
+    var t=e.touches[0];
+    var dx=t.clientX-catSwipe.startX,dy=t.clientY-catSwipe.startY;
+    if(catSwipe.axis===null&&(Math.abs(dx)>6||Math.abs(dy)>6)){
+      catSwipe.axis=Math.abs(dx)>Math.abs(dy)?'x':'y';
+    }
+  },{passive:true});
+  el.addEventListener('touchend',function(e){
+    if(!catSwipe.dragging)return;
+    catSwipe.dragging=false;
+    if(catSwipe.axis!=='x')return;
+    var t=e.changedTouches[0];
+    var dx=t.clientX-catSwipe.startX;
+    if(Math.abs(dx)<48)return;
+    document.getElementById('qsSwipeHint')&&document.getElementById('qsSwipeHint').classList.add('hide');
+    shiftCategory(dx<0?1:-1);
+  },{passive:true});
+}
 // Single source of truth: har jagah jahan Add Group ke liye category chahiye,
 // isi function se lo. Top tabs (click ya swipe) jab bhi badlein, syncCurrentCategory() call hota hai.
 function syncCurrentCategory(){
@@ -2530,11 +2582,12 @@ function jumpToPartsTab(idx){
 }
 
 // ── RENDER ───────────────────────────────────────────────────────────────
-function render(){renderStats();renderCards();var addBtn=document.getElementById('addBtn');if(addBtn)addBtn.innerHTML='＋ Add New '+itemLabel(S.tab);}
+function render(){renderStats();renderCards();var addBtn=document.getElementById('addBtn');if(addBtn)addBtn.innerHTML='＋ Add New '+itemLabel(S.tab);attachCatSwipe('cardList');}
 
 function renderStats(){
+  var s1=document.getElementById('s1');if(!s1)return;
   var all=S.flat.concat(S.uv).concat(S.backcover);
-  document.getElementById('s1').textContent=S.flat.length+S.uv.length+S.backcover.length;
+  s1.textContent=S.flat.length+S.uv.length+S.backcover.length;
   document.getElementById('s2').textContent=all.reduce(function(a,g){return a+parseModels(g.models).length;},0);
   document.getElementById('s3').textContent=((S.flat.length||S.uv.length)?1:0)+(S.backcover.length?1:0);
   document.getElementById('s4').textContent=S.log.length?S.log[0].date.split(',')[0]:'—';
@@ -2542,6 +2595,7 @@ function renderStats(){
 
 function renderQuickAccess(){
   var box=document.getElementById('quickAccess');
+  if(!box)return;
   var tiles=[];
   var favs=getFavorites();
   if(favs.length){
@@ -3124,9 +3178,9 @@ function startVoiceSearch(inputId,triggerFn){
 
 // ── CONTROLS ─────────────────────────────────────────────────────────────
 function switchTab(t){
-  S.tab=t;S.query='';
-  document.getElementById('searchInput').value='';
-  document.getElementById('searchClear').style.display='none';
+  S.tab=t;S.query=GQ;
+  document.getElementById('searchInput').value=GQ;
+  document.getElementById('searchClear').style.display=GQ?'block':'none';
   updateCatBarActive(t);
   render();
 }
@@ -3148,9 +3202,13 @@ function selectCategory(key){
     if(idx<0)return;
     if(!PF.loaded){showPartsSkeleton();loadPartsData();}
     renderPartsAddBtn();
+    PF.query=GQ;
+    var psInput=document.getElementById('partsSearchInput');
+    if(psInput)psInput.value=GQ;
     if(PF.tabsInit)switchPartsTab(idx);
     else PF.activeIdx=idx; // tabs abhi init nahi huye — initPartsTabs() init hote hi is idx se khulega
     updateCatBarActive(key);
+    renderPartsCards();
   }
   lsSet('lastCategory',key);
   lsSet('lastPage',isPartCat?'parts':'home');
@@ -3159,35 +3217,12 @@ function selectCategory(key){
 // rahein, chahe switch kahin se bhi trigger hua ho (top chip ya purana
 // internal pf-tab jo ab sirf JS state ke liye chhupa hua hai).
 function updateCatBarActive(key){
-  var chips=document.querySelectorAll('.qs-tile[data-cat]');
+  var chips=document.querySelectorAll('.qs-tile');
   for(var i=0;i<chips.length;i++){
     var isActive=chips[i].getAttribute('data-cat')===key;
     chips[i].classList.toggle('active',isActive);
     if(isActive&&chips[i].scrollIntoView)chips[i].scrollIntoView({behavior:'smooth',inline:'nearest',block:'nearest'});
   }
-}
-
-var ALL_CATEGORIES=[
-  {key:'glass',label:'Glass',ic:'diamond'},
-  {key:'backcover',label:'Back Cover',ic:'flip_to_back'},
-  {key:'display',label:'Display',ic:'desktop_windows'},
-  {key:'battery',label:'Battery',ic:'battery_full'},
-  {key:'frame',label:'Frame',ic:'crop_free'},
-  {key:'backdoor',label:'Back Door',ic:'sensor_door'},
-  {key:'ccboard',label:'CC Board',ic:'developer_board'},
-  {key:'middlestrip',label:'Middle Strip',ic:'view_agenda'},
-  {key:'onoff',label:'On/Off Button',ic:'power_settings_new'},
-  {key:'fingerprint',label:'Fingerprint',ic:'fingerprint'}
-];
-function openAllCategoriesModal(){
-  var html='<div class="mhead"><span class="mtitle">All Categories</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
-    '<div class="allcat-grid">'+ALL_CATEGORIES.map(function(c){
-      return '<button class="allcat-item" onclick="closeModal();selectCategory(\''+c.key+'\')">'+
-        '<span class="allcat-ic material-symbols-rounded">'+c.ic+'</span>'+
-        '<span class="allcat-lbl">'+c.label+'</span>'+
-      '</button>';
-    }).join('')+'</div>';
-  openModal(html);
 }
 
 // Smart Universal Search — agar Home tab (glass) me match na mile, Spare Parts
@@ -3272,6 +3307,7 @@ function pickGlassSuggestion(m){
 }
 function onSearch(){
   var v=document.getElementById('searchInput').value;
+  GQ=v;
   document.getElementById('searchClear').style.display=v?'block':'none';
   var qq=v.trim();
 
@@ -3341,7 +3377,7 @@ function showSearchHistory(){
 function clearSearch(){
   clearTimeout(searchDebounceTimer);
   clearTimeout(searchTrackTimer);
-  S.query='';
+  S.query='';GQ='';
   document.getElementById('searchInput').value='';
   document.getElementById('searchClear').style.display='none';
   render();
@@ -3622,6 +3658,30 @@ function renderUDbInfo(){
   var partsTotal=0;PART_TYPES.forEach(function(t){partsTotal+=(PF.data[t.key]||[]).length;});
   document.getElementById('u3').textContent=partsTotal;
   document.getElementById('u4').textContent=S.log.length?S.log[0].date:'—';
+  renderUCatStats();
+}
+
+function renderUCatStats(){
+  var wrap=document.getElementById('uCatWrap');
+  if(!wrap)return;
+  var lastDate=S.log.length?S.log[0].date.split(',')[0]:'—';
+  var cats=[];
+  var glassGroups=S.flat.concat(S.uv);
+  cats.push({icon:'💎',name:'Glass',groups:glassGroups.length,models:glassGroups.reduce(function(a,g){return a+parseModels(g.models).length;},0)});
+  cats.push({icon:'🧩',name:'Back Cover',groups:S.backcover.length,models:S.backcover.reduce(function(a,g){return a+parseModels(g.models).length;},0)});
+  PART_TYPES.forEach(function(t){
+    var arr=PF.data[t.key]||[];
+    cats.push({icon:t.icon,name:t.label,groups:arr.length,models:arr.reduce(function(a,g){return a+parseModels(g.models).length;},0)});
+  });
+  wrap.innerHTML=cats.map(function(c){
+    return '<div class="ucat-card"><div class="ucat-ic">'+c.icon+'</div><div class="ucat-body">'+
+      '<div class="ucat-name">'+c.name+'</div>'+
+      '<div class="ucat-stats">'+
+        '<span class="ucat-stat">Groups: <b>'+c.groups+'</b></span>'+
+        '<span class="ucat-stat">Models: <b>'+c.models+'</b></span>'+
+        '<span class="ucat-stat">Updated: <b>'+lastDate+'</b></span>'+
+      '</div></div></div>';
+  }).join('');
 }
 
 // -- Hero --
@@ -4067,6 +4127,7 @@ function pickPartsSuggestion(m){
 }
 function onPartsSearch(){
   var v=document.getElementById('partsSearchInput').value;
+  GQ=v;
   var qq=v.trim();
 
   clearTimeout(partsSuggestTimer);
@@ -4747,6 +4808,13 @@ function onPfSwipeEnd(){
   if(pfSwipe.axis==='x'){
     if(pfSwipe.deltaX<=-threshold&&PF.activeIdx<n-1)PF.activeIdx++;
     else if(pfSwipe.deltaX>=threshold&&PF.activeIdx>0)PF.activeIdx--;
+    else if(pfSwipe.deltaX>=threshold&&PF.activeIdx===0){
+      // Pehle parts category (Display) se aage swipe karte hi Back Cover me chale jao
+      pfSwipe.deltaX=0;pfSwipe.axis=null;
+      document.getElementById('qsSwipeHint')&&document.getElementById('qsSwipeHint').classList.add('hide');
+      selectCategory('backcover');
+      return;
+    }
   }
   syncCurrentCategory();
   moveSwipeTrack(true);
