@@ -475,7 +475,12 @@ button{cursor:pointer}
 .suggest-item .mhl{background:var(--group);color:var(--text-1);border-radius:3px;padding:0 3px;font-weight:800}
 
 /* CARDS */
-#cardList-glass,#cardList-backcover{display:flex;flex-direction:column;gap:14px}
+#cardList{display:flex;flex-direction:column;gap:14px}
+#cardList.cl-slide{transition:transform .22s cubic-bezier(.22,1,.36,1),opacity .22s ease}
+#cardList.cl-out-left{transform:translateX(-32px);opacity:0}
+#cardList.cl-out-right{transform:translateX(32px);opacity:0}
+#cardList.cl-in-left{transform:translateX(32px);opacity:0}
+#cardList.cl-in-right{transform:translateX(-32px);opacity:0}
 .card{transition:transform .2s;background:var(--surface-1);border:1px solid var(--border-hair);border-radius:20px;overflow:hidden;box-shadow:0 2px 12px rgba(35,29,21,.06);opacity:0;animation:fadeUp .3s ease forwards;contain:content;content-visibility:auto;contain-intrinsic-size:0 220px}
 .card-accent{height:2px;background:var(--border-hair)}
 .card-inner{padding:16px}
@@ -997,11 +1002,8 @@ button{cursor:pointer}
       <button class="tbtn" onclick="openCodeModal()">💾 Data Code</button>
     </div>
     <button id="addBtn" class="hide" onclick="openAddModal()">＋ <span data-i18n="addbtn.glass">Add New Glass</span></button>
-    <div id="mcSwipeViewport" class="pf-swipe-viewport">
-      <div id="mcSwipeTrack" class="pf-swipe-track">
-        <div class="pf-swipe-page" id="mcPage-glass" style="width:50%"><div id="cardList-glass"></div></div>
-        <div class="pf-swipe-page" id="mcPage-backcover" style="width:50%"><div id="cardList-backcover"></div></div>
-      </div>
+    <div id="cardListViewport" style="overflow:hidden">
+      <div id="cardList"></div>
     </div>
   </div>
 </div>
@@ -2536,26 +2538,21 @@ function jumpToPartsTab(idx){
 }
 
 // ── RENDER ───────────────────────────────────────────────────────────────
-function render(){renderStats();renderCards();var addBtn=document.getElementById('addBtn');if(addBtn)addBtn.innerHTML='＋ Add New '+itemLabel(S.tab);attachMcSwipe();moveMcTrack(true);}
+function render(){renderStats();renderCards();var addBtn=document.getElementById('addBtn');if(addBtn)addBtn.innerHTML='＋ Add New '+itemLabel(S.tab);attachMcSwipe();}
 
-var mcSwipe={startX:0,startY:0,dragging:false,deltaX:0,axis:null};
-function mcIdx(){return S.tab==='backcover'?1:0;}
-function moveMcTrack(animate){
-  var track=document.getElementById('mcSwipeTrack');
-  if(!track)return;
-  track.style.transition=animate?'transform .38s cubic-bezier(.22,1,.36,1)':'none';
-  track.style.transform='translateX(-'+(mcIdx()*50)+'%)';
-}
+// Simple, robust swipe: track sirf swipe DISTANCE detect karta hai (koi live
+// dual-pane drag nahi — wahi purani approach thi jisme percentage-width wale
+// do panels kabhi kabhi ek saath dikh jaate the). Swipe complete hote hi
+// content ek smooth slide+fade transition ke saath badalta hai.
+var mcSwipe={startX:0,startY:0,dragging:false,axis:null};
 function attachMcSwipe(){
-  var vp=document.getElementById('mcSwipeViewport');
+  var vp=document.getElementById('cardListViewport');
   if(!vp||vp._mcSwipeBound)return;
   vp._mcSwipeBound=true;
   vp.addEventListener('touchstart',function(e){
     var t=e.touches[0];
     mcSwipe.startX=t.clientX;mcSwipe.startY=t.clientY;
-    mcSwipe.dragging=true;mcSwipe.deltaX=0;mcSwipe.axis=null;
-    var track=document.getElementById('mcSwipeTrack');
-    if(track)track.style.transition='none';
+    mcSwipe.dragging=true;mcSwipe.axis=null;
   },{passive:true});
   vp.addEventListener('touchmove',function(e){
     if(!mcSwipe.dragging)return;
@@ -2564,47 +2561,41 @@ function attachMcSwipe(){
     if(mcSwipe.axis===null&&(Math.abs(dx)>6||Math.abs(dy)>6)){
       mcSwipe.axis=Math.abs(dx)>Math.abs(dy)?'x':'y';
     }
-    if(mcSwipe.axis==='y')return;
-    e.preventDefault();
-    mcSwipe.deltaX=dx;
-    var atStart=mcIdx()===0&&dx>0; // Glass par right swipe — pehla hi hai, resist karo
-    var atGoingIntoParts=mcIdx()===1&&dx<0; // Back Cover se aage Parts me jaane wala boundary
-    var resist=(atStart)?0.32:(atGoingIntoParts?0.55:1);
-    var vw2=vp.offsetWidth||1;
-    var deltaPercent=(dx/vw2)*50;
-    var basePercent=-(mcIdx()*50);
-    var track=document.getElementById('mcSwipeTrack');
-    if(track)track.style.transform='translateX('+(basePercent+deltaPercent*resist)+'%)';
-  },{passive:false});
-  vp.addEventListener('touchend',onMcSwipeEnd,{passive:true});
-  vp.addEventListener('touchcancel',onMcSwipeEnd,{passive:true});
+  },{passive:true});
+  vp.addEventListener('touchend',function(e){
+    if(!mcSwipe.dragging)return;
+    mcSwipe.dragging=false;
+    if(mcSwipe.axis!=='x')return;
+    var t=e.changedTouches[0];
+    var dx=t.clientX-mcSwipe.startX;
+    if(Math.abs(dx)<50)return;
+    document.getElementById('qsSwipeHint')&&document.getElementById('qsSwipeHint').classList.add('hide');
+    if(dx<0){
+      // Left swipe: Glass -> Back Cover -> Spare Parts(Display)
+      if(S.tab==='glass'){slideToTab('backcover','left');}
+      else if(S.tab==='backcover'){if(navigator.vibrate)navigator.vibrate(8);selectCategory('display');}
+    } else {
+      // Right swipe: Back Cover -> Glass
+      if(S.tab==='backcover'){slideToTab('glass','right');}
+    }
+  },{passive:true});
 }
-function onMcSwipeEnd(){
-  if(!mcSwipe.dragging)return;
-  mcSwipe.dragging=false;
-  var vp=document.getElementById('mcSwipeViewport');
-  var vw2=vp?vp.offsetWidth:1;
-  var threshold=vw2*0.16;
-  document.getElementById('qsSwipeHint')&&document.getElementById('qsSwipeHint').classList.add('hide');
-  if(mcSwipe.axis==='x'){
-    if(mcSwipe.deltaX<=-threshold&&mcIdx()===0){
-      // Glass -> Back Cover
-      if(navigator.vibrate)navigator.vibrate(8);
-      switchTab('backcover');mcSwipe.deltaX=0;mcSwipe.axis=null;return;
-    }
-    if(mcSwipe.deltaX>=threshold&&mcIdx()===1){
-      // Back Cover -> Glass
-      if(navigator.vibrate)navigator.vibrate(8);
-      switchTab('glass');mcSwipe.deltaX=0;mcSwipe.axis=null;return;
-    }
-    if(mcSwipe.deltaX<=-threshold&&mcIdx()===1){
-      // Back Cover se aage swipe — Spare Parts (Display) me chale jao
-      if(navigator.vibrate)navigator.vibrate(8);
-      selectCategory('display');mcSwipe.deltaX=0;mcSwipe.axis=null;return;
-    }
-  }
-  moveMcTrack(true);
-  mcSwipe.deltaX=0;mcSwipe.axis=null;
+function slideToTab(tab,dir){
+  var el=document.getElementById('cardList');
+  if(!el){switchTab(tab);return;}
+  if(navigator.vibrate)navigator.vibrate(8);
+  el.classList.add('cl-slide',dir==='left'?'cl-out-left':'cl-out-right');
+  setTimeout(function(){
+    switchTab(tab);
+    el.classList.remove('cl-out-left','cl-out-right');
+    el.classList.add(dir==='left'?'cl-in-left':'cl-in-right');
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        el.classList.remove('cl-in-left','cl-in-right');
+      });
+    });
+    setTimeout(function(){el.classList.remove('cl-slide');},240);
+  },180);
 }
 
 function renderStats(){
@@ -2688,45 +2679,9 @@ function openNewlyAdded(){
   openModal('<div class="mhead"><span class="mtitle">🆕 Newly Added</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+body);
 }
 
-// Doosri tab (glass<->backcover) ka halka preview pehle se render kar dete hain
-// taaki finger se drag karte waqt dono panels ek saath, bina lag ke, dikhein —
-// jaise flagship apps me carousel swipe hota hai. Yeh sirf ek "preview" hai,
-// side-effects (quota count, banner) is se nahi hote — asli render switch hone
-// par renderCards() khud sahi tarike se ho jaata hai.
-function renderOtherTabPreview(q){
-  var otherTab=S.tab==='glass'?'backcover':'glass';
-  var el=document.getElementById('cardList-'+otherTab);
-  if(!el)return;
-  if(otherTab==='backcover'&&!isAdmin()&&!isPremiumActive()&&!q){
-    el.innerHTML=glassSearchPromptHtml(false);
-    return;
-  }
-  if(otherTab==='glass'&&!isAdmin()&&!q){
-    el.innerHTML=glassSearchPromptHtml(true);
-    return;
-  }
-  var list=otherTab==='glass'?S.flat.concat(S.uv):S.backcover;
-  if(q){
-    var res=findMatchingGroups(list,q);
-    list=res.groups;
-  }
-  if(!list.length){
-    el.innerHTML='<div class="empty"><div class="empty-ico"><span class="material-symbols-rounded">inventory_2</span></div><p class="empty-t">No '+itemLabel(otherTab)+' yet</p></div>';
-    return;
-  }
-  if(otherTab==='backcover'&&!isAdmin()&&!isPremiumActive()){
-    el.innerHTML=categoryTeaserHtml(list.length,'Back Cover');
-    return;
-  }
-  el.innerHTML=list.slice(0,12).map(function(g,idx){
-    return buildCard(g,[],parseModels(g.models),false,false,idx,'');
-  }).join('');
-}
-
 function renderCards(){
   var q=S.query.trim();
-  renderOtherTabPreview(q);
-  var el=document.getElementById('cardList-'+S.tab);
+  var el=document.getElementById('cardList');
   var banner=document.getElementById('resultBanner');
 
   if(!q){
