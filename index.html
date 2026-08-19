@@ -653,6 +653,17 @@ button{cursor:pointer}
 .adash-empty{text-align:center;padding:20px 10px;color:var(--text-2);font-size:12px}
 
 /* ADMIN DASHBOARD v2 — upgraded analytics */
+.adash-tabs{position:sticky;top:0;z-index:5;display:flex;gap:6px;background:var(--surface-2);padding:2px 0 10px;margin:-4px 0 4px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid #2F261C0f}
+.adash-tabs::-webkit-scrollbar{display:none}
+.adash-tab{flex-shrink:0;padding:8px 14px;border-radius:12px;background:var(--surface-1);border:1px solid #2F261C14;color:var(--text-2);font-size:12px;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:background-color .18s ease,color .18s ease,border-color .18s ease}
+.adash-tab.active{background:linear-gradient(135deg,var(--brand-2),var(--brand));color:var(--text-1);border-color:transparent;box-shadow:0 4px 14px #C9A15E3a}
+.adash-tabsec{display:none;flex-direction:column;gap:18px}
+.adash-tabsec.active{display:flex}
+.adash-search-box{position:relative;margin-bottom:2px}
+.adash-search-box input{width:100%;padding:11px 14px 11px 38px;border-radius:12px;border:1px solid #2F261C1a;background:var(--surface-1);color:var(--text-1);font-size:12.5px;font-weight:600;outline:none}
+.adash-search-box input:focus{border-color:#C9A15E60}
+.adash-search-box .material-symbols-rounded{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--text-2)}
+.adash-row-add{font-size:10.5px;font-weight:800;color:var(--text-1);background:var(--brand);border-radius:9px;padding:4px 10px;flex-shrink:0}
 .adash-filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:2px;scrollbar-width:none}
 .adash-filters::-webkit-scrollbar{display:none}
 .adash-chip{flex-shrink:0;padding:7px 14px;border-radius:20px;background:var(--surface-1);border:1px solid #2F261C14;color:var(--text-2);font-size:11.5px;font-weight:700;white-space:nowrap;transition:background-color .18s ease,border-color .18s ease,color .18s ease}
@@ -5152,7 +5163,7 @@ function shareApp(){
 }
 
 // ── ADMIN DASHBOARD v2 — smart cards, insights, trend charts, brand/user/share analytics, live feed ──
-var ADASH={raw:null,filter:'7d'};
+var ADASH={raw:null,filter:'7d',tab:'overview'};
 
 function openAdminDashboard(){
   closeMenu();
@@ -5186,6 +5197,24 @@ function openAdminDashboard(){
 }
 
 function adashSetFilter(f){ADASH.filter=f;adashRender();}
+function adashSetTab(t){ADASH.tab=t;adashRender();}
+function adashUserSearch(v){
+  v=(v||'').toLowerCase().trim();
+  document.querySelectorAll('#adminDashContent .adash-usersec .adash-row,#adminDashContent .adash-usersec .adash-prow').forEach(function(row){
+    var em=(row.getAttribute('data-email')||'').toLowerCase();
+    row.style.display=(!v||em.indexOf(v)>=0)?'':'none';
+  });
+}
+function adashQuickAddMissing(query){
+  closeModal();
+  setTimeout(function(){
+    S.tab='glass';
+    openAddModal();
+    var f=document.getElementById('gModels');
+    if(f)f.value=query;
+    showToast('✏️ Add details for: '+query);
+  },250);
+}
 function adashDateStr(offsetDays){var d=new Date();d.setDate(d.getDate()-offsetDays);return d.toISOString().slice(0,10);}
 function adashDayList(n){var out=[];for(var i=n-1;i>=0;i--)out.push(adashDateStr(i));return out;}
 function adashPct(cur,prev){
@@ -5276,7 +5305,9 @@ function adashRender(){
   }).join(''):'<div class="adash-empty">No search data</div>';
 
   var notFoundHtml=notFoundTop.length?notFoundTop.map(function(s){
-    return '<div class="adash-row"><span class="adash-row-main">'+escHtml(s.query||s.id)+'</span><span class="adash-row-badge" style="background:var(--danger)">'+(s.count||0)+'×</span></div>';
+    var q=escHtml(s.query||s.id);
+    return '<div class="adash-row"><span class="adash-row-main">'+q+'</span><span class="adash-row-badge" style="background:var(--danger);margin-right:6px">'+(s.count||0)+'×</span>'+
+      '<span class="adash-row-add" onclick="adashQuickAddMissing(\''+q.replace(/'/g,"\\'")+'\')">+ Add</span></div>';
   }).join(''):'<div class="adash-empty">No missing models tracked yet</div>';
 
   var trendToday=searchTop.map(function(s){return {q:s.query||s.id,c:s['d_'+todayStr]||0,doc:s};}).filter(function(x){return x.c>0;}).sort(function(a,b){return b.c-a.c;});
@@ -5304,7 +5335,7 @@ function adashRender(){
   function adashDateTime(ts){return ts?new Date(ts).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';}
   var premiumHtml=paidUsersSorted.length?paidUsersSorted.map(function(u){
     var isActive=u.premiumExpiry&&new Date(u.premiumExpiry).getTime()>Date.now();
-    return '<div class="adash-prow clickable" onclick="openUserDetail(\''+u.id+'\')"><div class="adash-prow-top"><span class="adash-prow-email">'+escHtml(u.email||u.id||'—')+'</span>'+
+    return '<div class="adash-prow clickable" data-email="'+escHtml(u.email||'')+'" onclick="openUserDetail(\''+u.id+'\')"><div class="adash-prow-top"><span class="adash-prow-email">'+escHtml(u.email||u.id||'—')+'</span>'+
       '<span class="adash-prow-badge '+(isActive?'active':'expired')+'">'+(isActive?'Active':'Expired')+'</span></div>'+
       '<div class="adash-prow-grid">'+
         '<div><b>Plan:</b> '+(planLbl[u.plan]||escHtml(u.plan||'—'))+'</div>'+
@@ -5351,16 +5382,35 @@ function adashRender(){
   var filters=[['today','Today'],['7d','7 Days'],['30d','30 Days'],['all','All Time']];
   var filterHtml=filters.map(function(f){return '<button class="adash-chip'+(ADASH.filter===f[0]?' active':'')+'" onclick="adashSetFilter(\''+f[0]+'\')">'+f[1]+'</button>';}).join('');
 
+  var tabs=[['overview','📊','Overview'],['search','🔍','Search'],['users','👤','Users'],['shares','📤','Shares']];
+  var tabsHtml='<div class="adash-tabs">'+tabs.map(function(t){
+    return '<button class="adash-tab'+(ADASH.tab===t[0]?' active':'')+'" onclick="adashSetTab(\''+t[0]+'\')">'+t[1]+' '+t[2]+'</button>';
+  }).join('')+'</div>';
+
   var html='';
+  html+=tabsHtml;
+
+  // OVERVIEW TAB
+  html+='<div class="adash-tabsec'+(ADASH.tab==='overview'?' active':'')+'" data-tab="overview">';
   html+='<div class="adash-filters">'+filterHtml+'</div>';
   html+='<div class="adash-hdr">📊 Overview</div><div class="adash-cards">'+cardsHtml+'</div>';
   html+='<div class="adash-hdr">✨ AI Insights</div>'+insightsHtml;
   html+='<div class="adash-hdr">📈 Search Trend</div><div class="adash-chart-box"><canvas id="adashSearchChart" height="130"></canvas></div>';
+  html+='<div class="adash-hdr">🟢 Live Activity Feed</div>'+feedHtml;
+  html+='</div>';
+
+  // SEARCH TAB
+  html+='<div class="adash-tabsec'+(ADASH.tab==='search'?' active':'')+'" data-tab="search">';
   html+='<div class="adash-hdr">🔍 Most Searched Models (Top 10)</div>'+top10Html;
   html+='<div class="adash-hdr">🚫 Missing Models (Searched, Not Found)</div>'+notFoundHtml;
   html+='<div class="adash-hdr">🔥 Today\'s Trending Searches</div>'+trendListHtml(trendToday,'No searches today');
   html+='<div class="adash-hdr">📅 Weekly Trending Searches</div>'+trendListHtml(trendWeek,'No searches tracked this week');
   html+='<div class="adash-hdr">🏷️ Brand Analytics</div><div class="adash-brand-grid">'+brandHtml+'</div>';
+  html+='</div>';
+
+  // USERS TAB
+  html+='<div class="adash-tabsec adash-usersec'+(ADASH.tab==='users'?' active':'')+'" data-tab="users">';
+  html+='<div class="adash-search-box"><span class="material-symbols-rounded">search</span><input placeholder="Search by email..." oninput="adashUserSearch(this.value)"/></div>';
   html+='<div class="adash-hdr">👤 User Analytics</div><div class="adash-mini">'+
     '<div class="adash-mini-box"><div class="adash-mini-val">'+retentionPct+'%</div><div class="adash-mini-lbl">Retention (7d)</div></div>'+
     '<div class="adash-mini-box"><div class="adash-mini-val">'+avgSearchesPerUser+'</div><div class="adash-mini-lbl">Avg Searches/User</div></div>'+
@@ -5369,22 +5419,26 @@ function adashRender(){
   '</div>';
   html+='<div class="adash-hdr">💎 Premium Users ('+paidUsersAll.length+')</div>'+premiumHtml;
   html+='<div class="adash-hdr">🆕 Newly Joined Users</div>'+(newUsers.length?newUsers.map(function(u){
-    return '<div class="adash-row clickable" onclick="openUserDetail(\''+u.id+'\')"><span class="adash-row-main">'+escHtml(u.email||'—')+'</span><span class="adash-row-sub">'+adashTimeAgo(u.joinTs)+'</span></div>';
+    return '<div class="adash-row clickable" data-email="'+escHtml(u.email||'')+'" onclick="openUserDetail(\''+u.id+'\')"><span class="adash-row-main">'+escHtml(u.email||'—')+'</span><span class="adash-row-sub">'+adashTimeAgo(u.joinTs)+'</span></div>';
   }).join(''):'<div class="adash-empty">No users found</div>');
   html+='<div class="adash-hdr">⭐ Most Active Users</div>'+(mostActive.length?mostActive.map(function(u){
-    return '<div class="adash-row clickable" onclick="openUserDetail(\''+u.id+'\')"><span class="adash-row-main">'+escHtml(u.email||'—')+'</span><span class="adash-row-sub">'+adashTimeAgo(u.lastActiveTs)+'</span></div>';
+    return '<div class="adash-row clickable" data-email="'+escHtml(u.email||'')+'" onclick="openUserDetail(\''+u.id+'\')"><span class="adash-row-main">'+escHtml(u.email||'—')+'</span><span class="adash-row-sub">'+adashTimeAgo(u.lastActiveTs)+'</span></div>';
   }).join(''):'<div class="adash-empty">No data</div>');
-  html+='<div class="adash-hdr">🟢 Live Activity Feed</div>'+feedHtml;
-  html+='<div class="adash-hdr">📤 App Share Analytics</div><div class="adash-mini">'+
+  html+='</div>';
+
+  var sharesTabHtml='<div class="adash-tabsec'+(ADASH.tab==='shares'?' active':'')+'" data-tab="shares">';
+  sharesTabHtml+='<div class="adash-hdr">📤 App Share Analytics</div><div class="adash-mini">'+
     '<div class="adash-mini-box"><div class="adash-mini-val">'+totalShares+'</div><div class="adash-mini-lbl">Total Shares</div></div>'+
     '<div class="adash-mini-box"><div class="adash-mini-val">'+sharesToday+'</div><div class="adash-mini-lbl">Shares Today</div></div>'+
     '<div class="adash-mini-box"><div class="adash-mini-val">'+shareConversion+'%</div><div class="adash-mini-lbl">Share Conversion</div></div>'+
     '<div class="adash-mini-box"><div class="adash-mini-val">'+shares.length+'</div><div class="adash-mini-lbl">Users Who Shared</div></div>'+
   '</div>';
-  html+='<div class="adash-chart-box" style="margin-top:8px"><canvas id="adashShareChart" height="110"></canvas></div>';
-  html+='<div class="adash-hdr">🏆 Top Sharers</div>'+(topSharers.length?topSharers.map(function(s){
-    return '<div class="adash-row clickable" onclick="openUserDetail(\''+s.id+'\')"><span class="adash-row-main">'+escHtml(s.email||'—')+'</span><span class="adash-row-badge">'+(s.count||0)+'x</span></div>';
+  sharesTabHtml+='<div class="adash-chart-box" style="margin-top:8px"><canvas id="adashShareChart" height="110"></canvas></div>';
+  sharesTabHtml+='<div class="adash-hdr">🏆 Top Sharers</div>'+(topSharers.length?topSharers.map(function(s){
+    return '<div class="adash-row clickable" data-email="'+escHtml(s.email||'')+'" onclick="openUserDetail(\''+s.id+'\')"><span class="adash-row-main">'+escHtml(s.email||'—')+'</span><span class="adash-row-badge">'+(s.count||0)+'x</span></div>';
   }).join(''):'<div class="adash-empty">No share data</div>');
+  sharesTabHtml+='</div>';
+  html+=sharesTabHtml;
 
   el.innerHTML=html;
   adashDrawChart('adashSearchChart',chartVals,chartLabels,'var(--brand)');
