@@ -997,7 +997,7 @@ button{cursor:pointer}
     <div id="searchWrap">
       <div id="searchBox">
         <span class="search-ic-glow">🔍</span>
-        <input id="searchInput" placeholder="Search phone model or part..." data-i18n-ph="search.placeholder" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused');showSearchHistory()" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
+        <input id="searchInput" placeholder="Search phone model (e.g. Vivo Y21)" data-i18n-ph="search.placeholder" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused');showSearchHistory()" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
         <button id="searchClear" onclick="clearSearch()" aria-label="Clear search">✕</button>
         <button id="voiceBtn" class="voice-btn" onclick="startVoiceSearch('searchInput',onSearch)" title="Search by voice" aria-label="Search by voice"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
       </div>
@@ -1013,7 +1013,8 @@ button{cursor:pointer}
     <div class="toolbar hide" id="toolbarWrap">
       <button class="tbtn" onclick="openCodeModal()">💾 Data Code</button>
     </div>
-    <button id="addBtn" class="hide" onclick="openAddModal()">＋ <span data-i18n="addbtn.glass">Add New Glass</span></button>
+    <button id="addBtn" class="hide" onclick="openAddModal()">＋ <span data-i18n="addbtn.glass">Add New Glass Group</span></button>
+    <button id="bulkAddBtn" class="hide" style="margin-top:8px" onclick="openBulkModal()">📋 Bulk Add</button>
     <div id="cardListViewport" style="overflow:hidden">
       <div id="cardList"></div>
     </div>
@@ -1305,10 +1306,10 @@ var I18N={
     'login.title':'Universal Combo','login.sub':'Create your account or log in','login.divider':'or with email',
     'login.signin':'Sign In','login.signup':'Sign Up','login.name':'Your name','login.email':'Email address','login.password':'Password',
     'header.sync':'Live Sync Active','tab.glass':'Glass','tab.backcover':'Back Cover',
-    'search.placeholder':'Search phone model or part...','search.clear':'Clear',
+    'search.placeholder':'Search phone model (e.g. Vivo Y21)','search.clear':'Clear',
     'quickaccess.title':'Quick Access','pf.title':'Parts Finder','pf.sub':'Display, Frame, Back Door, CC Board, Battery',
     'stat.groups':'Groups','stat.models':'Models','stat.categories':'Categories','stat.updated':'Updated',
-    'addbtn.glass':'Add New Glass','offline.text':'No internet — showing cached data',
+    'addbtn.glass':'Add New Glass Group','offline.text':'No internet — showing cached data',
     'nav.home':'Home','nav.parts':'Spare Parts','nav.updates':'Updates',
     'pf.header':'Spare Parts','pf.searchph':'Search phone model (e.g. Vivo Y21)',
     'updates.header':'Updates','updates.whatsnew':"What's New",'updates.recent':'Recent Updates','updates.version':'Version History','updates.dbinfo':'Database Information','updates.appinfo':'App Info'
@@ -2383,6 +2384,7 @@ function updateUserUI(){
     var adminLbl=document.getElementById('adminSectionLabel');if(adminLbl)adminLbl.classList.remove('hide');
     fab.classList.add('show');
     addBtn.classList.remove('hide');
+    var bulkAddBtn=document.getElementById('bulkAddBtn');if(bulkAddBtn)bulkAddBtn.classList.remove('hide');
     tb.classList.remove('hide');
     document.getElementById('uFeedAddBtn').classList.remove('hide');
     document.getElementById('uInfoEditBtn').classList.remove('hide');
@@ -2412,6 +2414,7 @@ function updateUserUI(){
     var adminLbl2=document.getElementById('adminSectionLabel');if(adminLbl2)adminLbl2.classList.add('hide');
     fab.classList.remove('show');
     addBtn.classList.add('hide');
+    var bulkAddBtnH=document.getElementById('bulkAddBtn');if(bulkAddBtnH)bulkAddBtnH.classList.add('hide');
     tb.classList.add('hide');
     document.getElementById('uFeedAddBtn').classList.add('hide');
     document.getElementById('uInfoEditBtn').classList.add('hide');
@@ -2436,6 +2439,7 @@ function updateUserUI(){
     var avEl3=document.getElementById('menuUserAvatar');if(avEl3)avEl3.textContent='?';
     fab.classList.remove('show');
     addBtn.classList.add('hide');
+    var bulkAddBtnH=document.getElementById('bulkAddBtn');if(bulkAddBtnH)bulkAddBtnH.classList.add('hide');
     tb.classList.add('hide');
     document.getElementById('uFeedAddBtn').classList.add('hide');
     document.getElementById('uInfoEditBtn').classList.add('hide');
@@ -3465,6 +3469,47 @@ function copyList(id){
 // ── GLASS CRUD ───────────────────────────────────────────────────────────
 function openAddModal(){S.editId=null;openModal(glassFormHtml(null));}
 function openEditModal(id){S.editId=id;var g=getList().find(function(x){return x.id===id;});openModal(glassFormHtml(g));}
+
+function openBulkModal(){
+  var iLbl=itemLabel(S.tab);
+  var typeField=S.tab==='glass'?
+    '<div class="fgrp"><label class="flbl">Glass Type (for all lines)</label>'+
+    '<select class="finp" id="gBulkType"><option value="flat">▭ Flat Glass</option><option value="uv">◐ Curved Glass</option></select></div>':'';
+  openModal('<div class="mhead"><span class="mtitle">📋 Bulk Add '+iLbl+'</span>'+
+    '<button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
+    typeField+
+    '<div class="fgrp"><label class="flbl">One line = one '+iLbl+' Group</label>'+
+    '<textarea class="finp" id="gBulkText" rows="10" placeholder="Name | model1, model2, model3 | 100\n9D Matte | Samsung A14, Vivo Y20 | 100\nUV Curved 6D | Redmi Note 12, Redmi 12 | 75"></textarea>'+
+    '<div class="fhint">💡 Format: Name | Models (comma separated) | Confidence (100 / 75 / check). One group per line.</div></div>'+
+    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
+    '<button class="bsave" onclick="submitGlassBulk()">Add All</button></div>');
+}
+
+function submitGlassBulk(){
+  if(!db){showToast('❌ Not connected',true);return;}
+  var typeSel=document.getElementById('gBulkType');
+  var targetKey=typeSel?typeSel.value:S.tab;
+  var lines=document.getElementById('gBulkText').value.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+  if(!lines.length){showToast('❌ Please enter data!',true);return;}
+  var batch=db.batch();var newDocs=[];
+  lines.forEach(function(line){
+    var parts=line.split('|').map(function(p){return p.trim();});
+    var name=parts[0]||'';var models=splitModelsInput(parts[1]||'');
+    var conf=(parts[2]||'100').trim();if(['100','75','check'].indexOf(conf)===-1)conf='100';
+    if(!name||!models.length)return;
+    var id=db.collection(COLLECTIONS[targetKey]).doc().id;
+    var doc={id:id,glassName:name,models:models,confidence:conf,note:''};
+    batch.set(db.collection(COLLECTIONS[targetKey]).doc(id),{glassName:name,models:models,confidence:conf,note:''});
+    newDocs.push(doc);
+  });
+  if(!newDocs.length){showToast('❌ No valid lines found',true);return;}
+  batch.commit().then(function(){
+    closeModal();showToast('✅ '+newDocs.length+' '+itemLabel(S.tab)+' Groups Added!');
+    S[targetKey]=(S[targetKey]||[]).concat(newDocs);
+    render();bumpGlassVersion(targetKey);renderQuickAccess();renderStats();
+    logRecentUpdate('✨ '+itemLabel(S.tab)+': '+newDocs.length+' bulk added');
+  }).catch(function(e){showToast('❌ '+e.message,true);});
+}
 
 function glassFormHtml(g){
   var typeField='';
@@ -4666,15 +4711,15 @@ function buildGroupCard(g,t,idx){
         '<span class="pf-group-name">'+escHtml(g.partName)+'</span>'+
       '</div>'+
       '<div class="pf-group-actions">'+
-        (isAdmin()?'<button class="pf-action-btn img" onclick="openPartsImageModal(\''+t.key+'\',\''+g.id+'\')" title="'+(pfImages(g).length?'Change Images':'Add Image')+'">'+(pfImages(g).length?'🖼️':'📷')+'</button>':'')+
-        '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit" aria-label="Edit">✎</button>'+
-        '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete" aria-label="Delete">✕</button>'+
+        (isAdmin()?'<button class="pf-action-btn img" onclick="openPartsImageModal(\''+t.key+'\',\''+g.id+'\')" title="'+(pfImages(g).length?'Change Images':'Add Image')+'">'+(pfImages(g).length?'<span class="material-symbols-rounded" style="font-size:15px">image</span>':'<span class="material-symbols-rounded" style="font-size:15px">add_a_photo</span>')+'</button>':'')+
+        '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit" aria-label="Edit"><span class="material-symbols-rounded" style="font-size:15px">edit</span></button>'+
+        '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete" aria-label="Delete"><span class="material-symbols-rounded" style="font-size:15px">delete</span></button>'+
       '</div>'+
     '</div>'+
     '<div class="pf-models-count">'+mlist.length+' compatible model'+(mlist.length>1?'s':'')+'</div>'+
     buildModelChipsHtml(mlist.map(function(m){return '<span class="pf-model-chip">'+escHtml(m)+'</span>';}).join(''),mlist.length,g.id)+
     pfThumbHtml(g,t.key)+
-    '<div style="margin-bottom:8px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
+    '<div style="margin-bottom:8px">'+((!g.confidence||g.confidence==='100')?'<span class="bgg">✓ Verified · '+mlist.length+' Models</span>':confidenceBadge(g.confidence))+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     noteHtml+
     (isAdmin()?'<div class="cbtns"><button class="cbtn" onclick="copyPartsList(\''+t.key+'\',\''+g.id+'\')">📋 Copy Group</button><button class="cbtn" onclick="sharePartsResult(\''+t.key+'\',\''+g.id+'\')">📤 Share</button></div>':'')+
     voteButtonsHtml('pf_'+t.key,g)+
@@ -4718,9 +4763,9 @@ function buildResultCard(g,t,q,qu,res){
   }).join('');
   var adm=isAdmin()?
     '<div class="pf-result-actions">'+
-      '<button class="pf-action-btn img" onclick="openPartsImageModal(\''+t.key+'\',\''+g.id+'\')" title="'+(pfImages(g).length?'Change Images':'Add Image')+'">'+(pfImages(g).length?'🖼️':'📷')+'</button>'+
-      '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit" aria-label="Edit">✎</button>'+
-      '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete" aria-label="Delete">✕</button>'+
+      '<button class="pf-action-btn img" onclick="openPartsImageModal(\''+t.key+'\',\''+g.id+'\')" title="'+(pfImages(g).length?'Change Images':'Add Image')+'">'+(pfImages(g).length?'<span class="material-symbols-rounded" style="font-size:15px">image</span>':'<span class="material-symbols-rounded" style="font-size:15px">add_a_photo</span>')+'</button>'+
+      '<button class="pf-action-btn edit" onclick="openPartsEditModal(\''+t.key+'\',\''+g.id+'\')" title="Edit" aria-label="Edit"><span class="material-symbols-rounded" style="font-size:15px">edit</span></button>'+
+      '<button class="pf-action-btn del" onclick="confirmPartsDelete(\''+t.key+'\',\''+g.id+'\')" title="Delete" aria-label="Delete"><span class="material-symbols-rounded" style="font-size:15px">delete</span></button>'+
     '</div>':'';
   var noteHtml=g.note?'<div style="font-size:11px;color:var(--text-2);margin-top:10px;line-height:1.5;background:rgba(52,42,34,.03);border:1px solid rgba(52,42,34,.06);border-radius:8px;padding:7px 9px">📝 '+escHtml(g.note)+'</div>':'';
   return '<div class="pf-result-card" style="border-color:'+t.color+'33">'+
@@ -4737,7 +4782,7 @@ function buildResultCard(g,t,q,qu,res){
     '</div>'+
     buildModelChipsHtml(tagsHtml,mlist.length,g.id)+
     pfThumbHtml(g,t.key)+
-    '<div style="margin-bottom:10px">'+confidenceBadge(g.confidence)+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
+    '<div style="margin-bottom:10px">'+((!g.confidence||g.confidence==='100')?'<span class="bgg">✓ Verified · '+mlist.length+' Models</span>':confidenceBadge(g.confidence))+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     noteHtml+
     (isAdmin()?'<div class="cbtns"><button class="cbtn" onclick="copyPartsList(\''+t.key+'\',\''+g.id+'\')">📋 Copy Group</button><button class="cbtn" onclick="sharePartsResult(\''+t.key+'\',\''+g.id+'\')">📤 Share</button></div>':'')+
     voteButtonsHtml('pf_'+t.key,g)+
