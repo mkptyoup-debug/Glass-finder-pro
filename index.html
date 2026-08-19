@@ -519,20 +519,17 @@ button{cursor:pointer}
 .cbtn.fav-btn.active{border-color:#C9A15E6a;background:#C9A15E14;color:var(--brand-2)}
 .cbtn:active{transform:scale(.95)}
 
-/* ── FEEDBACK CARD (Was this result helpful?) ─────────────────────────── */
-.fb-widget{margin-top:10px;padding:0;border-radius:0;background:none;border:none;border-top:1px solid var(--border-hair);box-shadow:none;position:relative;overflow:visible;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding-top:10px}
+/* ── LIKE / DISLIKE (flagship-style, icon + live count) ──────────────── */
+.fb-widget{margin-top:10px;padding:0;border-radius:0;background:none;border:none;border-top:1px solid var(--border-hair);box-shadow:none;position:relative;overflow:visible;display:flex;align-items:center;gap:10px;padding-top:10px}
 .fb-widget::before{display:none}
-.fb-title{font-size:11.5px;font-weight:600;color:var(--text-2);letter-spacing:.1px;margin:0;position:relative;z-index:1;white-space:nowrap}
-.fb-row{display:flex;gap:6px;position:relative;z-index:1}
-.fbtn{position:relative;overflow:hidden;height:26px;width:26px;display:flex;align-items:center;justify-content:center;padding:0;border-radius:8px;background:none;border:1px solid var(--surface-2);color:var(--text-2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .18s cubic-bezier(.34,1.56,.64,1),background .2s ease-out,border-color .2s ease-out,color .2s ease-out,box-shadow .2s ease-out}
-.fbtn .fbtn-txt{display:none}
-.fbtn:hover{background:var(--surface-1);border-color:rgba(52,42,34,.14);transform:translateY(-1px)}
-.fbtn:active{transform:translateY(0) scale(.96)}
+.fb-row{display:flex;gap:8px;position:relative;z-index:1}
+.fbtn{position:relative;overflow:hidden;height:32px;min-width:52px;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;border-radius:20px;background:var(--surface-2);border:1px solid var(--border-def);color:var(--text-2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .18s cubic-bezier(.34,1.56,.64,1),background .2s ease-out,border-color .2s ease-out,color .2s ease-out,box-shadow .2s ease-out}
+.fbtn:hover{background:var(--surface-1);border-color:rgba(52,42,34,.18);transform:translateY(-1px)}
+.fbtn:active{transform:translateY(0) scale(.94)}
 .fbtn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--surface-1),0 0 0 4px #C9A15E88}
 .fbtn:disabled{cursor:default;opacity:.55;transform:none!important}
-.fbtn .fbtn-ic{font-size:14px;transition:transform .25s cubic-bezier(.34,1.56,.64,1),color .2s ease-out;font-variation-settings:'FILL' 0,'wght' 500,'GRAD' 0,'opsz' 24}
-.fbtn .fbtn-count{font-size:11px;font-weight:600;color:var(--text-2);transition:color .2s ease-out}
-.fbtn .fbtn-count span{display:inline-block}
+.fbtn .fbtn-ic{font-size:16px;line-height:1;transition:transform .25s cubic-bezier(.34,1.56,.64,1),color .2s ease-out;font-variation-settings:'FILL' 0,'wght' 500,'GRAD' 0,'opsz' 24}
+.fbtn .fbtn-count{font-size:12.5px;font-weight:700;color:var(--text-2);transition:color .2s ease-out;min-width:8px;text-align:left}
 
 /* ripple */
 .fbtn .fb-ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.28;transform:scale(0);animation:fbRipple .55s ease-out forwards;pointer-events:none}
@@ -554,14 +551,9 @@ button{cursor:pointer}
 .fbtn-count.fb-bump{animation:fbBump .32s ease-out}
 @keyframes fbBump{0%{transform:translateY(40%);opacity:0}100%{transform:translateY(0);opacity:1}}
 
-/* success message */
-.fb-success{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--success);margin-top:10px;height:0;opacity:0;overflow:hidden;transition:opacity .25s ease-out,height .25s ease-out,margin .25s ease-out;flex-basis:100%}
-.fb-success.show{height:18px;opacity:1;margin-top:10px}
-.fb-success .material-symbols-rounded{font-size:15px;font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24}
-
 @media (max-width:340px){
-  .fbtn{gap:6px;padding:0 6px}
-  .fbtn .fbtn-label{font-size:12.5px}
+  .fbtn{gap:4px;padding:0 9px;min-width:44px}
+  .fbtn .fbtn-count{font-size:11.5px}
 }
 #floatingAdd{display:none;position:fixed;bottom:28px;right:20px;width:56px;height:56px;background:linear-gradient(135deg,var(--brand-2),var(--brand));border:none;border-radius:50%;font-size:26px;color:var(--text-1);box-shadow:0 6px 24px #C9A15E6e;z-index:500;align-items:center;justify-content:center;transition:transform .2s}
 #floatingAdd.show{display:flex}
@@ -1923,7 +1915,7 @@ function updateOfflineBar(){
   if(navigator.onLine){bar.classList.remove('show');}
   else{bar.classList.add('show');}
 }
-window.addEventListener('online',function(){updateOfflineBar();showToast('✅ Internet is back');pollGlassVersion();});
+window.addEventListener('online',function(){updateOfflineBar();showToast('✅ Internet is back');pollGlassVersion();if(PF.loaded)pollPartsVersion();});
 window.addEventListener('offline',function(){updateOfflineBar();showToast('❌ Internet disconnected',true);});
 
 function haptic(ms){
@@ -2002,24 +1994,22 @@ function loadMyVotes(uid){
   }).catch(function(){});
 }
 
-// ── FEEDBACK WIDGET (premium "Was this result helpful?" card) ───────────
+// ── LIKE / DISLIKE WIDGET (flagship-style, icon + live count, no label text) ──
 function voteButtonsHtml(tabKey,g){
   var mkey=tabKey+':'+g.id;
   var mine=S.myVotes[mkey];
   var lc=g.likeCount||0,dc=g.dislikeCount||0;
   return '<div class="fb-widget" data-fb="'+mkey+'">'+
-    '<p class="fb-title">Was this result helpful?</p>'+
     '<div class="fb-row">'+
-      '<button type="button" class="fbtn helpful'+(mine==='like'?' is-selected':'')+'" aria-pressed="'+(mine==='like'?'true':'false')+'" aria-label="Mark as helpful" onclick="fbClick(event,\''+tabKey+'\',\''+g.id+'\',\'like\')">'+
-        '<span class="material-symbols-rounded fbtn-ic">check_circle</span>'+
-        '<span class="fbtn-txt"><span class="fbtn-label">Helpful</span></span>'+
+      '<button type="button" class="fbtn helpful'+(mine==='like'?' is-selected':'')+'" aria-pressed="'+(mine==='like'?'true':'false')+'" aria-label="Like" onclick="fbClick(event,\''+tabKey+'\',\''+g.id+'\',\'like\')">'+
+        '<span class="material-symbols-rounded fbtn-ic">thumb_up</span>'+
+        '<span class="fbtn-count">'+lc+'</span>'+
       '</button>'+
-      '<button type="button" class="fbtn not-helpful'+(mine==='dislike'?' is-selected':'')+'" aria-pressed="'+(mine==='dislike'?'true':'false')+'" aria-label="Mark as not helpful" onclick="fbClick(event,\''+tabKey+'\',\''+g.id+'\',\'dislike\')">'+
-        '<span class="material-symbols-rounded fbtn-ic">cancel</span>'+
-        '<span class="fbtn-txt"><span class="fbtn-label">Not Helpful</span></span>'+
+      '<button type="button" class="fbtn not-helpful'+(mine==='dislike'?' is-selected':'')+'" aria-pressed="'+(mine==='dislike'?'true':'false')+'" aria-label="Dislike" onclick="fbClick(event,\''+tabKey+'\',\''+g.id+'\',\'dislike\')">'+
+        '<span class="material-symbols-rounded fbtn-ic">thumb_down</span>'+
+        '<span class="fbtn-count">'+dc+'</span>'+
       '</button>'+
     '</div>'+
-    '<div class="fb-success'+(mine?' show':'')+'"><span class="material-symbols-rounded">task_alt</span>Thanks for your feedback</div>'+
     '</div>';
 }
 // Ripple ripple + haptic on tap, then hand off to the real vote logic
@@ -2057,16 +2047,6 @@ function updateFeedbackWidget(tabKey,groupId,lc,dc,newVote){
   dislikeBtn.setAttribute('aria-pressed',newVote==='dislike'?'true':'false');
   fbBumpCount(likeBtn.querySelector('.fbtn-count'),lc);
   fbBumpCount(dislikeBtn.querySelector('.fbtn-count'),dc);
-  var succ=widget.querySelector('.fb-success');
-  if(succ){
-    clearTimeout(succ._hideT);
-    if(newVote){
-      succ.classList.add('show');
-      succ._hideT=setTimeout(function(){succ.classList.remove('show');},2200);
-    } else {
-      succ.classList.remove('show');
-    }
-  }
 }
 function castVote(tabKey,groupId,voteType){
   if(!S.user){showToast('❌ Please log in first',true);return;}
@@ -6168,6 +6148,16 @@ document.addEventListener('visibilitychange',function(){
   if(document.visibilityState==='visible'&&db){
     var isEmpty=GLASS_TABS.some(function(t){return !S[t.key]||!S[t.key].length;});
     if(isEmpty)loadGlassData();else pollGlassVersion();
+    // BUG FIX: pehle sirf Glass groups yahan refresh hote the — Parts
+    // (Display/Battery/Frame/etc, jo app khulte hi default dikhta hai) ka
+    // koi check nahi tha. Isliye app background se wapas foreground me
+    // aane par Parts ka data purana hi dikhta rehta tha jab tak agla
+    // 2-min poll na aaye (aur mobile pe background me setInterval khud
+    // bhi throttle/pause ho jaata hai, isliye wo bharosemand nahi tha).
+    if(PF.loaded){
+      var isPartsEmpty=PART_TYPES.some(function(t){return !PF.data[t.key]||!PF.data[t.key].length;});
+      if(isPartsEmpty)loadPartsData();else pollPartsVersion();
+    }
   }
 });
 setTimeout(function(){if(!PF.loaded)loadPartsData();},1500);
