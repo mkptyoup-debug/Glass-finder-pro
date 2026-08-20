@@ -5950,7 +5950,13 @@ function maybeShowLogin(){
 function markLoaded(){
   if(dataLoaded)return;dataLoaded=true;
   document.getElementById('loading').classList.add('hide');
-  document.getElementById('mainContent').classList.remove('hide');
+  // NOTE: yahan pehle mainContent ko turant force-show kar diya jaata tha —
+  // isse agar user pichli baar Display/Battery jaisi Parts category pe tha,
+  // to splash fade hote waqt ek pal ke liye galat se Glass content dikh
+  // jaata tha (chip "Display" highlighted rehti par neeche Glass card flash
+  // hota). Ab mainContent ko sirf restoreLastPageAndScroll() hi dikhayega,
+  // jab use pata ho ki sahi page/category kaunsi hai — isliye yahan se
+  // hataya gaya taaki koi galat flash na ho.
   var elapsed=Date.now()-splashStartTime;
   var wait=Math.max(0,SPLASH_MIN_MS-elapsed);
   setTimeout(function(){
@@ -5998,6 +6004,7 @@ function restoreLastPageAndScroll(){
     switchPage('updates',null);
     scrollToSaved('updates');
   } else {
+    document.getElementById('mainContent').classList.remove('hide');
     scrollToSaved('home');
   }
 }
