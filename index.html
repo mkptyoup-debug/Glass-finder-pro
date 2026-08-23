@@ -5111,7 +5111,10 @@ async function importPartsCode(typeKey){
       showToast('⏳ '+Math.min(i+BATCH_SIZE,total)+'/'+total+' importing...');
       var results=await Promise.all(batch.map(function(it){
         var docId=it.id||db.collection(t.col).doc().id;
-        return withTimeout(db.collection(t.col).doc(docId).set({partName:it.partName,models:it.models,confidence:it.confidence||'100',note:it.note||'',panel:it.panel||'',curve:it.curve||''}))
+        var importPayload={partName:it.partName,models:it.models,confidence:it.confidence||'100',note:it.note||'',panel:it.panel||'',curve:it.curve||''};
+        if(it.imageUrl)importPayload.imageUrl=it.imageUrl;
+        if(it.imageUrl2)importPayload.imageUrl2=it.imageUrl2;
+        return withTimeout(db.collection(t.col).doc(docId).set(importPayload))
           .then(function(){return{ok:true};})
           .catch(function(e){return{ok:false,err:e.message||String(e)};});
       }));
