@@ -992,6 +992,8 @@ button{cursor:pointer}
         <input id="searchInput" placeholder="Search phone model (e.g. Vivo Y21)" data-i18n-ph="search.placeholder" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused');showSearchHistory()" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
         <button id="searchClear" onclick="clearSearch()" aria-label="Clear search">✕</button>
         <button id="voiceBtn" class="voice-btn" onclick="startVoiceSearch('searchInput',onSearch)" title="Search by voice" aria-label="Search by voice"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
+        <button id="aiCameraBtn" class="voice-btn" onclick="document.getElementById('aiCameraInput').click()" title="Search by photo (AI)" aria-label="Search by photo"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3l-1.83 2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.17L15 3H9zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg></button>
+        <input type="file" id="aiCameraInput" accept="image/*" capture="environment" style="display:none" onchange="handleAICameraImage(this)"/>
       </div>
       <div id="searchSuggest" class="suggest-box hide"></div>
     </div>
@@ -3357,6 +3359,64 @@ function pickGlassSuggestion(m){
   document.getElementById('searchClear').style.display='block';
   S.query=m;renderCards();
 }
+// ── AI PHOTO SEARCH (Gemini) ────────────────────────────────────────────
+// NOTE: Apni Gemini API key yahan neeche daalo (aistudio.google.com/apikey se li hui)
+var GEMINI_API_KEY='AQ.Ab8RN6JmKaM-1zYQm5PaZMjAqzkWvVPPzq_iCCZKjsClRniIBg';
+
+function handleAICameraImage(inputEl){
+  var file=inputEl.files&&inputEl.files[0];
+  if(!file)return;
+  if(!GEMINI_API_KEY||GEMINI_API_KEY==='YOUR_GEMINI_API_KEY_HERE'){
+    showToast('❌ AI feature setup nahi hua — API key missing',true);
+    inputEl.value='';
+    return;
+  }
+  showToast('🤖 Photo se model pehchana ja raha hai...');
+  var reader=new FileReader();
+  reader.onload=function(){
+    var base64=reader.result.split(',')[1]; // "data:image/jpeg;base64,XXXX" me se sirf XXXX chahiye
+    askGeminiForModel(base64,file.type||'image/jpeg');
+  };
+  reader.onerror=function(){
+    showToast('❌ Photo padhne me error aayi',true);
+  };
+  reader.readAsDataURL(file);
+  inputEl.value=''; // taaki dobara wahi photo select karne par bhi change event fire ho
+}
+
+function askGeminiForModel(base64Image,mimeType){
+  var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+GEMINI_API_KEY;
+  var body={
+    contents:[{
+      parts:[
+        {text:'Ye ek mobile phone ki photo hai. Iska exact brand aur model number batao (jaise "Samsung A22" ya "Vivo Y21"). Sirf brand+model naam likho, aur kuch mat likho, koi explanation nahi.'},
+        {inline_data:{mime_type:mimeType,data:base64Image}}
+      ]
+    }]
+  };
+  fetch(url,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  }).then(function(res){return res.json();})
+    .then(function(data){
+      var text=data&&data.candidates&&data.candidates[0]&&data.candidates[0].content&&
+                data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&
+                data.candidates[0].content.parts[0].text;
+      if(!text){
+        showToast('❌ AI model pehchan nahi paaya, dobara try karo',true);
+        return;
+      }
+      text=text.trim().replace(/["\n\r]/g,'');
+      document.getElementById('searchInput').value=text;
+      onSearch();
+      showToast('✅ Mila: '+text);
+    })
+    .catch(function(err){
+      showToast('❌ AI se connect nahi ho paaya, internet check karo',true);
+    });
+}
+
 function onSearch(){
   var v=document.getElementById('searchInput').value;
   GQ=v;
