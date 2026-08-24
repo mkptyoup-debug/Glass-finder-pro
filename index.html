@@ -3476,22 +3476,34 @@ function sendAIChatMessage(){
   appendAIChatBubble('bot','...'); // typing indicator
   var thinkingBubble=document.getElementById('aiChatMessages').lastElementChild;
 
-  var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+GEMINI_API_KEY;
+  var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
   fetch(url,{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{'Content-Type':'application/json','X-goog-api-key':GEMINI_API_KEY},
     body:JSON.stringify({
       contents:aiChatHistory,
       systemInstruction:{parts:[{text:'Tum ek mobile phone spare parts dealer ke liye helpful AI assistant ho. Hinglish me chhote, seedhe jawab do. Agar photo bheji jaye to phone ka exact brand+model pehchano.'}]}
     })
-  }).then(function(res){return res.json();})
-    .then(function(data){
+  }).then(function(res){
+      return res.json().then(function(data){return {ok:res.status,data:data};});
+    })
+    .then(function(result){
+      var data=result.data;
       var replyText=data&&data.candidates&&data.candidates[0]&&data.candidates[0].content&&
                 data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&
                 data.candidates[0].content.parts[0].text;
       thinkingBubble.remove();
       if(!replyText){
-        appendAIChatBubble('bot','❌ Jawab nahi mil paaya, dobara try karo.');
+        // Asli error Google se jo bhi aaya use dikhao, taaki debug karna aasan ho
+        var errMsg=data&&data.error&&data.error.message;
+        var blockReason=data&&data.promptFeedback&&data.promptFeedback.blockReason;
+        if(errMsg){
+          appendAIChatBubble('bot','❌ AI error: '+errMsg);
+        }else if(blockReason){
+          appendAIChatBubble('bot','❌ Blocked: '+blockReason);
+        }else{
+          appendAIChatBubble('bot','❌ Jawab nahi mil paaya (status '+result.ok+'), dobara try karo.');
+        }
         return;
       }
       appendAIChatBubble('bot',replyText.trim());
@@ -3499,7 +3511,7 @@ function sendAIChatMessage(){
     })
     .catch(function(err){
       thinkingBubble.remove();
-      appendAIChatBubble('bot','❌ AI se connect nahi ho paaya, internet check karo.');
+      appendAIChatBubble('bot','❌ AI se connect nahi ho paaya: '+(err&&err.message?err.message:'internet check karo.'));
     });
 }
 
