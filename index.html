@@ -986,14 +986,59 @@ button{cursor:pointer}
 <div id="body" class="page-anim">
   <div id="loading" class="hide"><div class="spin"></div>Connecting...</div>
   <div id="mainContent" class="hide">
+    <!-- Standalone AI Assistant call-to-action button, sits above the search box -->
+    <button id="aiAssistantBtn" onclick="openAIChat()" aria-label="Open AI Assistant">
+      <span id="aiAssistantIcon">✨</span>
+      <span id="aiAssistantText">Ask AI — Search by Photo or Chat</span>
+    </button>
+    <style>
+      #aiAssistantBtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;margin:0 0 10px 0;padding:12px 16px;border:none;border-radius:16px;background:linear-gradient(135deg,#8B5E1F,#C79A4B);color:#fff;font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(139,94,31,0.35);cursor:pointer;}
+      #aiAssistantBtn:active{transform:scale(0.98);}
+      #aiAssistantIcon{font-size:18px;}
+      #aiChatOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;display:none;}
+      #aiChatOverlay.show{display:block;}
+      #aiChatSheet{position:fixed;left:0;right:0;bottom:0;max-height:85vh;background:#fff;border-radius:20px 20px 0 0;z-index:9999;display:none;flex-direction:column;box-shadow:0 -6px 24px rgba(0,0,0,0.25);}
+      #aiChatSheet.show{display:flex;}
+      #aiChatHeader{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee;}
+      #aiChatHeader .title{font-weight:800;font-size:15px;color:#4a2f0f;display:flex;align-items:center;gap:8px;}
+      #aiChatClose{background:none;border:none;font-size:20px;color:#888;cursor:pointer;padding:4px 8px;}
+      #aiChatMessages{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-height:200px;}
+      .aiMsg{max-width:82%;padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.4;white-space:pre-wrap;}
+      .aiMsg.user{align-self:flex-end;background:#8B5E1F;color:#fff;border-bottom-right-radius:4px;}
+      .aiMsg.bot{align-self:flex-start;background:#f3ece0;color:#3a2a12;border-bottom-left-radius:4px;}
+      .aiMsg img{max-width:160px;border-radius:10px;display:block;margin-top:6px;}
+      #aiChatInputRow{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid #eee;}
+      #aiChatImgBtn,#aiChatSendBtn{background:#f3ece0;border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;flex-shrink:0;}
+      #aiChatSendBtn{background:#8B5E1F;color:#fff;}
+      #aiChatTextInput{flex:1;border:1px solid #e2d8c8;border-radius:20px;padding:9px 14px;font-size:14px;outline:none;}
+      #aiChatPreviewWrap{padding:0 16px;display:none;}
+      #aiChatPreviewWrap.show{display:block;}
+      #aiChatPreviewWrap img{max-width:90px;border-radius:10px;margin-bottom:6px;}
+    </style>
+
+    <!-- AI Chat popup -->
+    <div id="aiChatOverlay" onclick="closeAIChat()"></div>
+    <div id="aiChatSheet">
+      <div id="aiChatHeader">
+        <div class="title">✨ AI Assistant</div>
+        <button id="aiChatClose" onclick="closeAIChat()" aria-label="Close">✕</button>
+      </div>
+      <div id="aiChatMessages"></div>
+      <div id="aiChatPreviewWrap"><img id="aiChatPreviewImg"/></div>
+      <div id="aiChatInputRow">
+        <button id="aiChatImgBtn" onclick="document.getElementById('aiChatImgInput').click()" title="Attach photo">📷</button>
+        <input type="file" id="aiChatImgInput" accept="image/*" capture="environment" style="display:none" onchange="handleAIChatImage(this)"/>
+        <input id="aiChatTextInput" placeholder="Model ka naam poocho ya photo bhejo..." onkeydown="if(event.key==='Enter')sendAIChatMessage()"/>
+        <button id="aiChatSendBtn" onclick="sendAIChatMessage()" aria-label="Send">➤</button>
+      </div>
+    </div>
+
     <div id="searchWrap">
       <div id="searchBox">
         <span class="search-ic-glow">🔍</span>
         <input id="searchInput" placeholder="Search phone model (e.g. Vivo Y21)" data-i18n-ph="search.placeholder" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused');showSearchHistory()" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
         <button id="searchClear" onclick="clearSearch()" aria-label="Clear search">✕</button>
         <button id="voiceBtn" class="voice-btn" onclick="startVoiceSearch('searchInput',onSearch)" title="Search by voice" aria-label="Search by voice"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
-        <button id="aiCameraBtn" class="voice-btn" onclick="document.getElementById('aiCameraInput').click()" title="Search by photo (AI)" aria-label="Search by photo"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3l-1.83 2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.17L15 3H9zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg></button>
-        <input type="file" id="aiCameraInput" accept="image/*" capture="environment" style="display:none" onchange="handleAICameraImage(this)"/>
       </div>
       <div id="searchSuggest" class="suggest-box hide"></div>
     </div>
@@ -3359,61 +3404,102 @@ function pickGlassSuggestion(m){
   document.getElementById('searchClear').style.display='block';
   S.query=m;renderCards();
 }
-// ── AI PHOTO SEARCH (Gemini) ────────────────────────────────────────────
+// ── AI CHAT ASSISTANT (Gemini) ──────────────────────────────────────────
 // NOTE: Apni Gemini API key yahan neeche daalo (aistudio.google.com/apikey se li hui)
 var GEMINI_API_KEY='AQ.Ab8RN6JmKaM-1zYQm5PaZMjAqzkWvVPPzq_iCCZKjsClRniIBg';
 
-function handleAICameraImage(inputEl){
-  var file=inputEl.files&&inputEl.files[0];
-  if(!file)return;
-  if(!GEMINI_API_KEY||GEMINI_API_KEY==='YOUR_GEMINI_API_KEY_HERE'){
-    showToast('❌ AI feature setup nahi hua — API key missing',true);
-    inputEl.value='';
-    return;
+var aiChatHistory=[]; // {role:'user'|'model', parts:[...]}
+var aiChatPendingImage=null; // {base64, mimeType}
+
+function openAIChat(){
+  document.getElementById('aiChatOverlay').classList.add('show');
+  document.getElementById('aiChatSheet').classList.add('show');
+  if(aiChatHistory.length===0){
+    appendAIChatBubble('bot','Namaste! 👋 Aap mujhse phone model ke baare me kuch bhi pooch sakte ho, ya seedha phone ki photo bhej ke model pehchanwa sakte ho.');
   }
-  showToast('🤖 Photo se model pehchana ja raha hai...');
-  var reader=new FileReader();
-  reader.onload=function(){
-    var base64=reader.result.split(',')[1]; // "data:image/jpeg;base64,XXXX" me se sirf XXXX chahiye
-    askGeminiForModel(base64,file.type||'image/jpeg');
-  };
-  reader.onerror=function(){
-    showToast('❌ Photo padhne me error aayi',true);
-  };
-  reader.readAsDataURL(file);
-  inputEl.value=''; // taaki dobara wahi photo select karne par bhi change event fire ho
+}
+function closeAIChat(){
+  document.getElementById('aiChatOverlay').classList.remove('show');
+  document.getElementById('aiChatSheet').classList.remove('show');
 }
 
-function askGeminiForModel(base64Image,mimeType){
-  var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+GEMINI_API_KEY;
-  var body={
-    contents:[{
-      parts:[
-        {text:'Ye ek mobile phone ki photo hai. Iska exact brand aur model number batao (jaise "Samsung A22" ya "Vivo Y21"). Sirf brand+model naam likho, aur kuch mat likho, koi explanation nahi.'},
-        {inline_data:{mime_type:mimeType,data:base64Image}}
-      ]
-    }]
+function appendAIChatBubble(role,text,imgDataUrl){
+  var box=document.getElementById('aiChatMessages');
+  var div=document.createElement('div');
+  div.className='aiMsg '+(role==='user'?'user':'bot');
+  var safeText=document.createElement('span');
+  safeText.textContent=text;
+  div.appendChild(safeText);
+  if(imgDataUrl){
+    var img=document.createElement('img');
+    img.src=imgDataUrl;
+    div.appendChild(img);
+  }
+  box.appendChild(div);
+  box.scrollTop=box.scrollHeight;
+}
+
+function handleAIChatImage(inputEl){
+  var file=inputEl.files&&inputEl.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(){
+    aiChatPendingImage={base64:reader.result.split(',')[1],mimeType:file.type||'image/jpeg',dataUrl:reader.result};
+    var wrap=document.getElementById('aiChatPreviewWrap');
+    document.getElementById('aiChatPreviewImg').src=reader.result;
+    wrap.classList.add('show');
   };
+  reader.readAsDataURL(file);
+  inputEl.value='';
+}
+
+function sendAIChatMessage(){
+  var input=document.getElementById('aiChatTextInput');
+  var text=input.value.trim();
+  var img=aiChatPendingImage;
+  if(!text&&!img)return;
+  if(!GEMINI_API_KEY||GEMINI_API_KEY==='YOUR_GEMINI_API_KEY_HERE'){
+    appendAIChatBubble('bot','❌ AI setup nahi hua — API key missing.');
+    return;
+  }
+  appendAIChatBubble('user',text||'(Photo bheji)',img?img.dataUrl:null);
+  input.value='';
+  document.getElementById('aiChatPreviewWrap').classList.remove('show');
+  aiChatPendingImage=null;
+
+  var parts=[];
+  if(text)parts.push({text:text});
+  if(img)parts.push({inline_data:{mime_type:img.mimeType,data:img.base64}});
+  if(!text&&img)parts.unshift({text:'Ye phone ki photo hai. Iska exact brand aur model number batao, aur chaho to short me batao ye kis kaam aata hai ya kaunse similar models hain.'});
+  aiChatHistory.push({role:'user',parts:parts});
+
+  appendAIChatBubble('bot','...'); // typing indicator
+  var thinkingBubble=document.getElementById('aiChatMessages').lastElementChild;
+
+  var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+GEMINI_API_KEY;
   fetch(url,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(body)
+    body:JSON.stringify({
+      contents:aiChatHistory,
+      systemInstruction:{parts:[{text:'Tum ek mobile phone spare parts dealer ke liye helpful AI assistant ho. Hinglish me chhote, seedhe jawab do. Agar photo bheji jaye to phone ka exact brand+model pehchano.'}]}
+    })
   }).then(function(res){return res.json();})
     .then(function(data){
-      var text=data&&data.candidates&&data.candidates[0]&&data.candidates[0].content&&
+      var replyText=data&&data.candidates&&data.candidates[0]&&data.candidates[0].content&&
                 data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&
                 data.candidates[0].content.parts[0].text;
-      if(!text){
-        showToast('❌ AI model pehchan nahi paaya, dobara try karo',true);
+      thinkingBubble.remove();
+      if(!replyText){
+        appendAIChatBubble('bot','❌ Jawab nahi mil paaya, dobara try karo.');
         return;
       }
-      text=text.trim().replace(/["\n\r]/g,'');
-      document.getElementById('searchInput').value=text;
-      onSearch();
-      showToast('✅ Mila: '+text);
+      appendAIChatBubble('bot',replyText.trim());
+      aiChatHistory.push({role:'model',parts:[{text:replyText.trim()}]});
     })
     .catch(function(err){
-      showToast('❌ AI se connect nahi ho paaya, internet check karo',true);
+      thinkingBubble.remove();
+      appendAIChatBubble('bot','❌ AI se connect nahi ho paaya, internet check karo.');
     });
 }
 
