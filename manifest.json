@@ -1,8 +1,11 @@
 {
   "name": "Universal Combo",
-"short_name": "UniCombo",
+  "short_name": "UniCombo",
+  "description": "Find compatible screen guards and spare parts for any mobile phone model",
   "start_url": "./",
   "scope": "./",
+  "id": "/",
+  "orientation": "portrait",
   "display": "standalone",
   "background_color": "#07090f",
   "theme_color": "#c9a84c",
