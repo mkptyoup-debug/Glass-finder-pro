@@ -1,6 +1,6 @@
 {
-  "name": "Glass Finder Pro",
-  "short_name": "GlassFinder",
+  "name": "Universal Combo",
+"short_name": "UniCombo",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
