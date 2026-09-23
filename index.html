@@ -1549,6 +1549,20 @@ function detectSearchBrand(text){
   for(var i=0;i<ADASH_BRANDS.length;i++){if(up.indexOf(' '+ADASH_BRANDS[i])>=0)return ADASH_BRANDS[i];}
   return null;
 }
+function adashDedupe(list){
+  // remove repeated identical search logs (same user + same text within 5 min)
+  var seen={},out=[];
+  (list||[]).forEach(function(a){
+    if(a.type==='search'){
+      var k=(a.email||'').toLowerCase()+'|'+(a.detail||'').toLowerCase();
+      var t=new Date(a.ts).getTime()||0;
+      if(seen[k]!==undefined&&Math.abs(seen[k]-t)<300000)return;
+      seen[k]=t;
+    }
+    out.push(a);
+  });
+  return out;
+}
 function logActivity(type,detail){
   if(!db||!S.user||!S.user.email)return;
   db.collection('activity_log').add({type:type,email:S.user.email,detail:detail||'',ts:new Date().toISOString()}).catch(function(){});
@@ -1731,6 +1745,16 @@ function updatePremiumUI(){
       title.textContent='⭐ Premium Member';
       sub.textContent='All features unlocked — thank you!';
       btn.classList.remove('hide');btn.textContent='Manage Plan →';
+      var pdl=S.premium.premiumExpiry?Math.ceil((new Date(S.premium.premiumExpiry).getTime()-Date.now())/864e5):999;
+      if(pdl<=7){
+        title.textContent=pdl<=1?'⏳ Premium aaj/kal khatam ho raha hai':'⏳ Premium '+pdl+' din me khatam';
+        sub.textContent='Renew karo taaki search, Back Cover aur Parts band na ho';
+        btn.textContent='Renew →';
+        try{
+          var rk=lsGetJSON('renewToastDay');
+          if(rk!==todayStr()){lsSetJSON('renewToastDay',todayStr());setTimeout(function(){showToast('⏳ Aapka premium '+pdl+' din me khatam hoga — Menu se renew karo');},2500);}
+        }catch(e){}
+      }
       if(profileBadge){
         profileBadge.classList.remove('hide','trial');
         profileBadge.innerHTML='<span class="material-symbols-rounded" style="font-size:11px">workspace_premium</span>Premium';
@@ -1882,6 +1906,7 @@ function verifyAndActivatePremium(response){
   .then(function(result){
     if(!result.verified){throw new Error('Verification failed');}
     applyPremiumData({trialEnd:S.premium.trialEnd,premiumExpiry:result.premiumExpiry,plan:result.plan});
+    try{logActivity('purchase','bought '+(result.plan||'premium')+' plan 💎');}catch(e){}
     closeModal();
     showPaySuccessAnim();
   })
@@ -1910,9 +1935,13 @@ function exportListCSV(){
   URL.revokeObjectURL(url);
   showToast('✅ List exported!');
 }
+var __lastTrack={key:'',t:0};
 function trackSearch(query){
   if(!db||!query||query.trim().length<2)return;
   var key=query.trim().toUpperCase();
+  var nowT=Date.now();
+  if(__lastTrack.key===key&&(nowT-__lastTrack.t)<60000)return; // same search already logged -> skip duplicate
+  __lastTrack={key:key,t:nowT};
   var brand=detectSearchBrand(key);
   var today=new Date().toISOString().slice(0,10);
   var docUpdate={
@@ -3538,7 +3567,7 @@ function onSearch(){
   searchDebounceTimer=setTimeout(function(){
     window.__searchT0=performance.now();
     S.query=v;renderCards();
-    if(qq.length>=2){saveSearchHistory(qq);haptic();}
+    if(qq.length>=2){haptic();}
   },220);
 
   // Activity log / analytics tracking — separately debounced with a longer delay
@@ -3546,6 +3575,7 @@ function onSearch(){
   clearTimeout(searchTrackTimer);
   if(qq.length>=2){
     searchTrackTimer=setTimeout(function(){
+      saveSearchHistory(qq); // history me sirf tab save hoga jab user type karna rok de
       trackSearch(qq);
       if(S.lastSearchNotFound)trackNotFoundSearch(qq,S.tab);
     },700);
@@ -3555,7 +3585,9 @@ function onSearch(){
 // ── SEARCH HISTORY (last 5, localStorage) ──────────────────────────────────
 function getSearchHistory(){return lsGetJSON('searchHistory')||[];}
 function saveSearchHistory(q){
-  var h=getSearchHistory().filter(function(x){return x.toLowerCase()!==q.toLowerCase();});
+  var ql=q.toLowerCase();
+  // same search ya usका adhura hissa (jaise "Op","Opp" jab "Oppo" ban gaya) hata do
+  var h=getSearchHistory().filter(function(x){var xl=x.toLowerCase();return xl!==ql&&!ql.startsWith(xl);});
   h.unshift(q);
   h=h.slice(0,10);
   lsSetJSON('searchHistory',h);
@@ -3573,7 +3605,10 @@ function pickHistoryItem(q){
 function showSearchHistory(){
   var input=document.getElementById('searchInput');
   if(input.value.trim())return;
-  var h=getSearchHistory();
+  var h=getSearchHistory().filter(function(x,i,arr){
+    var xl=x.toLowerCase();
+    return !arr.some(function(y,j){return j<i&&y.toLowerCase().startsWith(xl);}); // purane ek-ek letter wale entries chhupao
+  });
   var box=document.getElementById('searchSuggest');
   if(!h.length){box.classList.add('hide');box.innerHTML='';return;}
   box.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px 6px"><span style="font-size:10px;font-weight:800;color:var(--brand);letter-spacing:.08em;text-transform:uppercase">Recent Searches</span>'+
@@ -5366,7 +5401,7 @@ function openAdminDashboard(){
     db.collection('share_stats').orderBy('count','desc').limit(20).get().catch(function(e){console.error('share_stats read failed:',e);return null;}),
     db.collection('search_daily').orderBy('date','desc').limit(30).get().catch(function(e){console.error('search_daily read failed:',e);return null;}),
     db.collection('share_daily').orderBy('date','desc').limit(30).get().catch(function(e){console.error('share_daily read failed:',e);return null;}),
-    db.collection('activity_log').orderBy('ts','desc').limit(30).get().catch(function(e){console.error('activity_log read failed:',e);return null;}),
+    db.collection('activity_log').orderBy('ts','desc').limit(100).get().catch(function(e){console.error('activity_log read failed:',e);return null;}),
     db.collection('meta').doc('counters').get().catch(function(e){return null;})
   ]).then(function(r){
     var users=[];if(r[0])r[0].forEach(function(d){var v=d.data();v.id=d.id;users.push(v);});
@@ -5384,6 +5419,24 @@ function openAdminDashboard(){
 
 function adashSetFilter(f){ADASH.filter=f;adashRender();}
 function adashSetTab(t){ADASH.tab=t;adashRender();}
+function adashExportUsers(){
+  var users=(ADASH.raw&&ADASH.raw.users)||[];
+  if(!users.length){showToast('Koi user data nahi',true);return;}
+  var now=Date.now();
+  function fd(t){return t?new Date(t).toISOString().slice(0,10):'';}
+  var rows=[['Email','Status','Plan','Joined','Last Active','Trial End','Premium Expiry','Payment ID']];
+  users.forEach(function(u){
+    var paid=u.premiumExpiry&&new Date(u.premiumExpiry).getTime()>now;
+    var st=paid?'Premium Active':(u.plan&&u.plan!=='trial'&&u.premiumExpiry?'Premium Expired':(u.trialEnd&&new Date(u.trialEnd).getTime()>now?'On Trial':'Trial Ended'));
+    rows.push([u.email||'',st,u.plan||'',fd(u.joinTs),fd(u.lastActiveTs),fd(u.trialEnd),fd(u.premiumExpiry),u.lastPaymentId||'']);
+  });
+  var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='universal-combo-users.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  showToast('✅ Users list download ho gayi');
+}
 function adashUserSearch(v){
   v=(v||'').toLowerCase().trim();
   document.querySelectorAll('#adminDashContent .adash-usersec .adash-row,#adminDashContent .adash-usersec .adash-prow').forEach(function(row){
@@ -5530,15 +5583,70 @@ function adashRender(){
       '</div></div>';
   }).join(''):'<div class="adash-empty">No premium purchases yet</div>';
 
+  // ── Premium tab data ──
+  var __now=Date.now();
+  var planPrice={monthly:49,yearly:499};
+  function premDaysLeft(u){return Math.ceil((new Date(u.premiumExpiry).getTime()-__now)/864e5);}
+  function premRow(u){
+    var d=premDaysLeft(u),isAct=d>0;
+    var left=isAct?(d+' din baaki'):('Expired '+Math.abs(d)+' din pehle');
+    var col=!isAct?'var(--danger)':(d<=7?'#D97706':'var(--text-2)');
+    return '<div class="adash-prow clickable" onclick="openUserDetail(\''+u.id+'\')"><div class="adash-prow-top"><span class="adash-prow-email">'+escHtml(u.email||u.id||'—')+'</span>'+
+      '<span class="adash-prow-badge '+(isAct?'active':'expired')+'">'+(planLbl[u.plan]||escHtml(u.plan||'—'))+'</span></div>'+
+      '<div class="adash-prow-grid">'+
+        '<div><b>Kharida:</b> '+adashDateTime(u.purchaseTs)+'</div>'+
+        '<div><b>Expiry:</b> '+adashDateTime(u.premiumExpiry)+'</div>'+
+        '<div style="color:'+col+';font-weight:700">⏳ '+left+'</div>'+
+        '<div><b>Payment ID:</b> '+escHtml(u.lastPaymentId||'—')+'</div>'+
+      '</div></div>';
+  }
+  var realPaid=paidUsersSorted.filter(function(u){return u.plan!=='test';});
+  var premActiveList=realPaid.filter(function(u){return premDaysLeft(u)>0;});
+  var premExpiredCount=realPaid.length-premActiveList.length;
+  var premSoonList=premActiveList.filter(function(u){return premDaysLeft(u)<=7;}).sort(function(a,b){return premDaysLeft(a)-premDaysLeft(b);});
+  var premRevenue=realPaid.reduce(function(sum,u){return sum+(planPrice[u.plan]||0);},0);
+  // Hot leads: trial jaldi khatam hone wale + trial khatam ho chuke par paid nahi liya
+  var recentSearchBy={};(raw.activity||[]).forEach(function(a){if(a.type==='search'&&a.email){var k=a.email.toLowerCase();recentSearchBy[k]=(recentSearchBy[k]||0)+1;}});
+  function isPaidActive(u){return u.premiumExpiry&&new Date(u.premiumExpiry).getTime()>__now;}
+  function leadRow(u,lbl){
+    var sc=recentSearchBy[(u.email||'').toLowerCase()]||0;
+    return '<div class="adash-row clickable" onclick="openUserDetail(\''+u.id+'\')"><span class="adash-row-main">'+escHtml(u.email||'—')+
+      '<div style="font-size:10.5px;color:var(--text-2);font-weight:600">'+lbl+(sc?' · 🔍 '+sc+' recent searches':'')+' · last active '+adashTimeAgo(u.lastActiveTs)+'</div></span></div>';
+  }
+  var trialEndingSoon=users.filter(function(u){if(isPaidActive(u)||!u.trialEnd)return false;var t=new Date(u.trialEnd).getTime();return t>__now&&t-__now<=3*864e5;})
+    .sort(function(a,b){return (b.lastActiveTs||'').localeCompare(a.lastActiveTs||'');}).slice(0,15);
+  var trialLapsed=users.filter(function(u){if(isPaidActive(u)||u.plan&&u.plan!=='trial'&&u.premiumExpiry||!u.trialEnd)return false;var t=new Date(u.trialEnd).getTime();return t<=__now&&__now-t<=14*864e5;})
+    .sort(function(a,b){return (b.lastActiveTs||'').localeCompare(a.lastActiveTs||'');}).slice(0,15);
+  var hotLeadsHtml=
+    '<div class="adash-hdr">🔥 Trial 3 din me khatam ('+trialEndingSoon.length+')</div>'+
+    (trialEndingSoon.length?trialEndingSoon.map(function(u){var d=Math.max(1,Math.ceil((new Date(u.trialEnd).getTime()-__now)/864e5));return leadRow(u,'⏳ '+d+' din baaki');}).join(''):'<div class="adash-empty">Abhi koi nahi</div>')+
+    '<div class="adash-hdr">💤 Trial khatam, premium nahi liya (14 din) ('+trialLapsed.length+')</div>'+
+    (trialLapsed.length?trialLapsed.map(function(u){return leadRow(u,'Trial khatam '+adashTimeAgo(u.trialEnd));}).join(''):'<div class="adash-empty">Abhi koi nahi</div>');
+  var premLatestHtml=realPaid.length?realPaid.slice(0,3).map(premRow).join(''):'<div class="adash-empty">Abhi tak koi premium purchase nahi</div>';
+  var premiumTabHtml=
+    '<div class="adash-hdr">💎 Premium Overview</div><div class="adash-mini">'+
+      '<div class="adash-mini-box"><div class="adash-mini-val">'+premActiveList.length+'</div><div class="adash-mini-lbl">Active</div></div>'+
+      '<div class="adash-mini-box"><div class="adash-mini-val">'+premExpiredCount+'</div><div class="adash-mini-lbl">Expired</div></div>'+
+      '<div class="adash-mini-box"><div class="adash-mini-val">'+premSoonList.length+'</div><div class="adash-mini-lbl">7 din me expire</div></div>'+
+      '<div class="adash-mini-box"><div class="adash-mini-val">₹'+premRevenue+'</div><div class="adash-mini-lbl">Est. Revenue</div></div>'+
+    '</div>'+
+    '<div style="font-size:10.5px;color:var(--text-2);margin-top:-8px">Est. Revenue = har user ki latest purchase (Monthly ₹49 / Yearly ₹499). Test plan gine nahi jaate.</div>'+
+    '<button class="adash-tab" style="align-self:flex-start" onclick="adashExportUsers()">⬇️ Users CSV Download</button>'+
+    hotLeadsHtml+
+    (premSoonList.length?'<div class="adash-hdr">⚠️ Jaldi Expire Hone Wale</div>'+premSoonList.map(premRow).join(''):'')+
+    '<div class="adash-hdr">🆕 Sabse Latest Purchases</div>'+premLatestHtml+
+    '<div class="adash-hdr">📋 Saare Premium Users ('+realPaid.length+')</div>'+(realPaid.length?realPaid.map(premRow).join(''):'<div class="adash-empty">No premium purchases yet</div>');
+
   // Shares
   var topSharers=shares.slice(0,8);
   var shareConversion=totalUsers?Math.round((shares.length/totalUsers)*100):0;
 
   // Live activity feed
-  var actIco={search:'🔍',share:'📤',signup:'🆕',open:'📲'};
+  var actIco={search:'🔍',share:'📤',signup:'🆕',open:'📲',purchase:'💎'};
   var actVerb={share:'shared the app',signup:'joined the app',open:'opened the app'};
-  var feedHtml=raw.activity.length?raw.activity.map(function(a){
-    var verb=(a.type==='search'&&a.detail)?escHtml(a.detail):(actVerb[a.type]||escHtml(a.detail||'did something'));
+  var feedList=adashDedupe(raw.activity).slice(0,30);
+  var feedHtml=feedList.length?feedList.map(function(a){
+    var verb=((a.type==='search'||a.type==='purchase')&&a.detail)?escHtml(a.detail):(actVerb[a.type]||escHtml(a.detail||'did something'));
     return '<div class="adash-feed-item"><span class="adash-feed-dot">'+(actIco[a.type]||'🟢')+'</span>'+
       '<div class="adash-feed-main"><div class="adash-feed-txt"><b>'+escHtml((a.email||'user').split('@')[0])+'</b> '+verb+'</div>'+
       '<div class="adash-feed-email">'+escHtml(a.email||'')+'</div></div>'+
@@ -5568,7 +5676,7 @@ function adashRender(){
   var filters=[['today','Today'],['7d','7 Days'],['30d','30 Days'],['all','All Time']];
   var filterHtml=filters.map(function(f){return '<button class="adash-chip'+(ADASH.filter===f[0]?' active':'')+'" onclick="adashSetFilter(\''+f[0]+'\')">'+f[1]+'</button>';}).join('');
 
-  var tabs=[['overview','📊','Overview'],['search','🔍','Search'],['users','👤','Users'],['shares','📤','Shares']];
+  var tabs=[['overview','📊','Overview'],['premium','💎','Premium'],['search','🔍','Search'],['users','👤','Users'],['shares','📤','Shares']];
   var tabsHtml='<div class="adash-tabs">'+tabs.map(function(t){
     return '<button class="adash-tab'+(ADASH.tab===t[0]?' active':'')+'" onclick="adashSetTab(\''+t[0]+'\')">'+t[1]+' '+t[2]+'</button>';
   }).join('')+'</div>';
@@ -5579,11 +5687,15 @@ function adashRender(){
   // OVERVIEW TAB
   html+='<div class="adash-tabsec'+(ADASH.tab==='overview'?' active':'')+'" data-tab="overview">';
   html+='<div class="adash-filters">'+filterHtml+'</div>';
+  html+='<div class="adash-hdr">💎 Latest Premium Buyers</div>'+premLatestHtml;
   html+='<div class="adash-hdr">📊 Overview</div><div class="adash-cards">'+cardsHtml+'</div>';
   html+='<div class="adash-hdr">✨ AI Insights</div>'+insightsHtml;
   html+='<div class="adash-hdr">📈 Search Trend</div><div class="adash-chart-box"><canvas id="adashSearchChart" height="130"></canvas></div>';
   html+='<div class="adash-hdr">🟢 Live Activity Feed</div>'+feedHtml;
   html+='</div>';
+
+  // PREMIUM TAB
+  html+='<div class="adash-tabsec'+(ADASH.tab==='premium'?' active':'')+'" data-tab="premium">'+premiumTabHtml+'</div>';
 
   // SEARCH TAB
   html+='<div class="adash-tabsec'+(ADASH.tab==='search'?' active':'')+'" data-tab="search">';
@@ -5654,7 +5766,8 @@ function openUserDetail(uid){
   var udetErr=null;
   Promise.all([
     db.collection('activity_log').where('email','==',u.email).limit(200).get().catch(function(e){udetErr=e;console.error('activity_log query failed:',e);return null;}),
-    db.collection('share_stats').doc(uid).get().catch(function(){return null;})
+    db.collection('share_stats').doc(uid).get().catch(function(){return null;}),
+    db.collection('activity_log').where('email','==',u.email).where('type','==','search').limit(500).get().catch(function(e){console.error('search log query failed:',e);return null;})
   ]).then(function(r){
     var el=document.getElementById('udetContent');
     if(!el)return; // popup closed before data arrived
@@ -5665,8 +5778,9 @@ function openUserDetail(uid){
       var uEmail=u.email.trim().toLowerCase();
       logs=ADASH.raw.activity.filter(function(l){return l.email&&l.email.trim().toLowerCase()===uEmail;});
     }
+    if(r[2]){var seenTs={};logs.forEach(function(l){seenTs[l.ts+'|'+l.type]=1;});r[2].forEach(function(d){var v=d.data();if(!seenTs[v.ts+'|'+v.type])logs.push(v);});}
     logs.sort(function(a,b){return (b.ts||'').localeCompare(a.ts||'');});
-    var searches=logs.filter(function(l){return l.type==='search';});
+    var searches=adashDedupe(logs.filter(function(l){return l.type==='search';}));
     var shareDoc=(r[1]&&r[1].exists)?r[1].data():null;
 
     var planLbl={monthly:'Monthly',yearly:'Yearly',test:'Test'};
