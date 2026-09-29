@@ -1036,7 +1036,7 @@ button{cursor:pointer}
     <div id="searchWrap">
       <div id="searchBox">
         <span class="search-ic-glow">🔍</span>
-        <input id="searchInput" placeholder="Search phone model (e.g. Vivo Y21)" data-i18n-ph="search.placeholder" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused');showSearchHistory()" onblur="document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
+        <input id="searchInput" placeholder="Search phone model (e.g. Vivo Y21)" data-i18n-ph="search.placeholder" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused');showSearchHistory()" onkeydown="if(event.key==='Enter')flushSearchTrack()" onblur="flushSearchTrack();document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
         <button id="searchClear" onclick="clearSearch()" aria-label="Clear search">✕</button>
         <button id="voiceBtn" class="voice-btn" onclick="startVoiceSearch('searchInput',onSearch)" title="Search by voice" aria-label="Search by voice"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
       </div>
@@ -1164,7 +1164,7 @@ button{cursor:pointer}
     <div id="partsSearchWrap">
       <div id="partsSearchBox">
         <span class="search-ic-glow" style="background:linear-gradient(135deg,var(--brand-2),#2C7E96)">🔍</span>
-        <input id="partsSearchInput" placeholder="Search phone model (e.g. Vivo Y21)" data-i18n-ph="pf.searchph" oninput="onPartsSearch()" onblur="setTimeout(function(){document.getElementById('partsSearchSuggest').classList.add('hide')},150)"/>
+        <input id="partsSearchInput" placeholder="Search phone model (e.g. Vivo Y21)" data-i18n-ph="pf.searchph" oninput="onPartsSearch()" onkeydown="if(event.key==='Enter')flushSearchTrack()" onblur="flushSearchTrack();setTimeout(function(){document.getElementById('partsSearchSuggest').classList.add('hide')},150)"/>
         <button id="partsVoiceBtn" class="voice-btn" onclick="startVoiceSearch('partsSearchInput',onPartsSearch)" title="Search by voice" aria-label="Search by voice"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
       </div>
       <div id="partsSearchSuggest" class="suggest-box hide"></div>
@@ -1550,14 +1550,21 @@ function detectSearchBrand(text){
   return null;
 }
 function adashDedupe(list){
-  // remove repeated identical search logs (same user + same text within 5 min)
-  var seen={},out=[];
+  // list newest-first. Ek hi user ki typing-chain ("Vi","Viv","Vivo","Vivo y28") ko sirf newest entry me collapse karo;
+  // exact same search 5 min ke andar bhi ek hi baar
+  var last={},out=[];
   (list||[]).forEach(function(a){
     if(a.type==='search'){
-      var k=(a.email||'').toLowerCase()+'|'+(a.detail||'').toLowerCase();
+      var e=(a.email||'').toLowerCase();
+      var q=(a.detail||'').toLowerCase().replace(/^searched\s*/,'').replace(/^"|"$/g,'').trim();
       var t=new Date(a.ts).getTime()||0;
-      if(seen[k]!==undefined&&Math.abs(seen[k]-t)<300000)return;
-      seen[k]=t;
+      var L=last[e];
+      if(L){
+        var gap=Math.abs(L.t-t);
+        var related=(L.q.startsWith(q)||q.startsWith(L.q));
+        if((related&&gap<120000)||(L.q===q&&gap<300000)){L.t=t;return;}
+      }
+      last[e]={q:q,t:t};
     }
     out.push(a);
   });
@@ -1935,6 +1942,38 @@ function exportListCSV(){
   URL.revokeObjectURL(url);
   showToast('✅ List exported!');
 }
+var __pendingTrack=null,__pendingTimer=null;
+function flushSearchTrack(){
+  clearTimeout(__pendingTimer);
+  var p=__pendingTrack;__pendingTrack=null;
+  if(!p)return;
+  if(p.kind==='parts'){trackSearch(p.q);if(PF.lastSearchNotFound)trackNotFoundSearch(p.q,'parts');}
+  else{saveSearchHistory(p.q);trackSearch(p.q);if(S.lastSearchNotFound)trackNotFoundSearch(p.q,S.tab);}
+}
+function queueSearchTrack(q,kind){
+  if(__pendingTrack&&__pendingTrack.kind!==kind)flushSearchTrack();
+  clearTimeout(__pendingTimer);
+  __pendingTrack={q:q,kind:kind};
+  __pendingTimer=setTimeout(flushSearchTrack,2000);
+}
+document.addEventListener('visibilitychange',function(){if(document.hidden)flushSearchTrack();});
+var __lastSearchLog={ref:null,q:'',t:0};
+function logSearchActivity(q){
+  if(!db||!S.user||!S.user.email)return;
+  var ql=q.toLowerCase(),now=Date.now(),detail='searched "'+q+'"',ts=new Date().toISOString();
+  var L=__lastSearchLog;
+  function addNew(){
+    __lastSearchLog={ref:null,q:ql,t:now};
+    db.collection('activity_log').add({type:'search',email:S.user.email,detail:detail,ts:ts}).then(function(ref){if(__lastSearchLog.q===ql)__lastSearchLog.ref=ref;}).catch(function(){});
+  }
+  // 20 sec ke andar usi search ka aage/peeche wala version -> naya entry nahi, purana update karo
+  if(L.ref&&now-L.t<20000&&(ql.startsWith(L.q)||L.q.startsWith(ql))){
+    __lastSearchLog={ref:L.ref,q:ql,t:now};
+    L.ref.update({detail:detail,ts:ts}).catch(addNew);
+    return;
+  }
+  addNew();
+}
 var __lastTrack={key:'',t:0};
 function trackSearch(query){
   if(!db||!query||query.trim().length<2)return;
@@ -1956,7 +1995,7 @@ function trackSearch(query){
   if(brand)dailyUpdate['b_'+brand]=firebase.firestore.FieldValue.increment(1);
   db.collection('search_daily').doc(today).set(dailyUpdate,{merge:true}).catch(function(){});
   db.collection('meta').doc('counters').set({totalSearches:firebase.firestore.FieldValue.increment(1)},{merge:true}).catch(function(){});
-  logActivity('search','searched "'+query.trim()+'"');
+  logSearchActivity(query.trim());
 }
 function trackNotFoundSearch(query,source){
   if(!db||!query||query.trim().length<2)return;
@@ -2938,7 +2977,7 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
   return '<div class="card '+cardClass+'" style="animation-delay:'+delay+'s">'+
     '<div class="card-accent"></div><div class="card-inner">'+
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
-    '<div style="flex:1"><div class="cname">🛡️ '+escHtml(g.glassName)+'</div>'+
+    '<div style="flex:1"><div class="cname"><span style="display:inline-block;font-size:10.5px;font-weight:800;color:var(--brand-2);background:rgba(154,110,59,.12);border-radius:7px;padding:1px 7px;margin-right:6px;vertical-align:middle">Group '+(idx+1)+'</span>🛡️ '+escHtml(g.glassName)+'</div>'+
     '<div class="cbadges">'+typeBadge+
     (isFuzzy?'<span class="bgy">🔎 Similar Match</span>':(hasSearch&&matched.length?'<span class="bgg">✅ '+mlist.length+' models mein '+matched.length+' match</span>':(!g.confidence||g.confidence==='100'?'<span class="bgg">✓ Verified · '+mlist.length+' Models</span>':'<span class="bg">'+mlist.length+' Models</span>')))+
     ((g.confidence&&g.confidence!=='100')?confidenceBadge(g.confidence):'')+
@@ -3572,14 +3611,9 @@ function onSearch(){
 
   // Activity log / analytics tracking — separately debounced with a longer delay
   // so it only fires once the user actually pauses/finishes typing, not on every keystroke.
-  clearTimeout(searchTrackTimer);
-  if(qq.length>=2){
-    searchTrackTimer=setTimeout(function(){
-      saveSearchHistory(qq); // history me sirf tab save hoga jab user type karna rok de
-      trackSearch(qq);
-      if(S.lastSearchNotFound)trackNotFoundSearch(qq,S.tab);
-    },700);
-  }
+  // Tracking: har keystroke/chhoti pause par nahi — sirf jab user 2 sec ruke, Enter dabaye ya box se bahar jaye
+  if(qq.length>=2){queueSearchTrack(qq,'glass');}
+  else{clearTimeout(__pendingTimer);__pendingTrack=null;}
 }
 
 // ── SEARCH HISTORY (last 5, localStorage) ──────────────────────────────────
@@ -3621,7 +3655,7 @@ function showSearchHistory(){
 
 function clearSearch(){
   clearTimeout(searchDebounceTimer);
-  clearTimeout(searchTrackTimer);
+  flushSearchTrack();
   S.query='';GQ='';
   document.getElementById('searchInput').value='';
   document.getElementById('searchClear').style.display='none';
@@ -4428,7 +4462,7 @@ function onPartsSearch(){
   clearTimeout(partsDebounceTimer);
   partsDebounceTimer=setTimeout(function(){
     PF.query=v;renderPartsCards();
-    if(qq.length>=2){trackSearch(qq);if(PF.lastSearchNotFound)trackNotFoundSearch(qq,'parts');}
+    if(qq.length>=2){queueSearchTrack(qq,'parts');}
   },150);
 }
 
