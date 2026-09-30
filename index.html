@@ -149,7 +149,7 @@ button{cursor:pointer}
 .login-btn:active{transform:scale(.97)}
 .login-err{color:var(--danger);font-size:12px;text-align:center;margin-top:10px;min-height:18px}
 /* HEADER */
-#header{position:sticky;top:0;z-index:200;background:rgba(250,248,244,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-hair);padding:14px 16px 0}
+#header{position:sticky;top:0;z-index:200;background:rgba(250,248,244,0.97);border-bottom:1px solid var(--border-hair);padding:14px 16px 0}
 .search-ic-glow{width:31px;height:31px;border-radius:50%;background:var(--surface-2);color:var(--brand-text);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:none}
 #offlineBar{display:none;position:sticky;top:0;z-index:202;background:#F4EBED;color:var(--danger-bg);font-size:12.5px;font-weight:700;text-align:center;padding:8px 12px}
 #offlineBar.show{display:block}
@@ -289,7 +289,7 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 #partsScreen{display:none}
 #partsScreen.show{display:block;animation:fadeUp .3s ease}
 .pf-back.hide{display:none!important}
-.pf-header{position:sticky;top:0;z-index:10;background:rgba(249,245,239,0.97);backdrop-filter:blur(20px);border-bottom:1px solid #C9A15E26;padding:16px;display:flex;align-items:center;gap:12px}
+.pf-header{position:sticky;top:0;z-index:10;background:rgba(249,245,239,0.97);border-bottom:1px solid #C9A15E26;padding:16px;display:flex;align-items:center;gap:12px}
 .pf-back{width:38px;height:38px;border-radius:10px;border:1px solid var(--border-def);background:var(--surface-1);color:var(--text-2);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .pf-back:active{transform:scale(.92)}
 .pf-htitle{font-size:16px;font-weight:800;color:var(--text-1)}
@@ -1256,9 +1256,9 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js"></script>
+<script defer src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 // ── STICKY SEARCH BAR — keep --header-h synced to actual header height ───
 (function(){
@@ -2860,9 +2860,10 @@ function renderCards(){
       }
       return;
     }
-    el.innerHTML=list.map(function(g,idx){
+    var _lim=S.cardLimit||60;
+    el.innerHTML=list.slice(0,_lim).map(function(g,idx){
       return buildCard(g,[],parseModels(g.models),false,false,idx,'');
-    }).join('');
+    }).join('')+moreBtnHtml(list.length,_lim);
     return;
   }
 
@@ -2918,7 +2919,8 @@ function renderCards(){
     return;
   }
 
-  el.innerHTML=list.map(function(g,idx){
+  var _lim2=S.cardLimit||60;
+  el.innerHTML=list.slice(0,_lim2).map(function(g,idx){
     var mlist=parseModels(g.models);
     var matched,other;
     if(isFuzzy){
@@ -2931,7 +2933,11 @@ function renderCards(){
       other=mlist.filter(function(m){return m.toUpperCase().indexOf(qu2)<0;});
     }
     return buildCard(g,matched,other,true,isFuzzy,idx,q);
-  }).join('');
+  }).join('')+moreBtnHtml(list.length,_lim2);
+}
+function moreBtnHtml(total,lim){
+  if(total<=lim)return '';
+  return '<button class="cbtn" style="margin:8px auto 16px;max-width:260px" onclick="S.cardLimit=(S.cardLimit||60)+60;renderCards()">Show more ('+(total-lim)+' left)</button>';
 }
 
 function confidenceOptions(val){
@@ -3609,7 +3615,7 @@ function onSearch(){
   clearTimeout(searchDebounceTimer);
   searchDebounceTimer=setTimeout(function(){
     window.__searchT0=performance.now();
-    S.query=v;renderCards();
+    S.query=v;S.cardLimit=60;renderCards();
     if(qq.length>=2){haptic();}
   },220);
 
