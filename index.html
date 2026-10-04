@@ -1183,6 +1183,7 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
           <span class="switch-slider"></span>
         </label>
       </div>
+      <button class="menu-item" onclick="testNotification()"><span class="material-symbols-rounded menu-ic">notifications_active</span><span class="menu-item-label">Test Notification</span></button>
       <button class="menu-item" onclick="openFeedback()"><span class="material-symbols-rounded menu-ic">chat_bubble</span><span class="menu-item-label">Send Feedback</span></button>
       <button class="menu-item" onclick="openAboutLegal()"><span class="material-symbols-rounded menu-ic">info</span><span class="menu-item-label">About &amp; Legal</span></button>
     </div>
@@ -6319,6 +6320,17 @@ function setupNotifications(){
   if(!('serviceWorker' in navigator)||!('Notification' in window)){showToast('❌ Not supported',true);return;}
   if(Notification.permission==='denied'){showToast('❌ Blocked',true);return;}
   Notification.requestPermission().then(function(p){if(p!=='granted'){showToast('❌ Permission denied',true);return;}registerForPush();});
+}
+// Is phone par seedha ek test notification dikhata hai (phone ki settings check karne ke liye)
+function testNotification(){
+  closeMenu();
+  if(!('Notification' in window)||!('serviceWorker' in navigator)){showToast('❌ Is browser mein notifications support nahi hain',true);return;}
+  if(Notification.permission!=='granted'){showToast('❌ Pehle Notifications on karke Allow dabayein',true);return;}
+  navigator.serviceWorker.ready.then(function(reg){
+    return reg.showNotification('Universal Combo',{body:'Test notification ✅ Agar ye dikh raha hai to is phone ki settings sahi hain',icon:'icon-192-1.png'});
+  }).then(function(){
+    showToast('✅ Test bhej diya — notification panel dekhein');
+  }).catch(function(e){showToast('❌ '+(e&&e.message?e.message:e),true);});
 }
 function registerForPush(silent){
   navigator.serviceWorker.ready.then(function(reg){
