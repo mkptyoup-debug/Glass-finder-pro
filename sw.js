@@ -1,4 +1,20 @@
-const CACHE_NAME = 'universal-combo-v1';
+// ── PUSH NOTIFICATIONS (Firebase) ───────────────────────────────────
+importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
+
+firebase.initializeApp({
+  apiKey: 'AIzaSyC_OXACPuxzAerOWiQ6O1BZBL0Du8Axdtg',
+  authDomain: 'glass-finder-pro.firebaseapp.com',
+  projectId: 'glass-finder-pro',
+  messagingSenderId: '1082015655381',
+  appId: '1:1082015655381:web:cf24bbc2d7442b10a6c95c',
+});
+
+// App band ho tab bhi notification dikhana aur click par app kholna Firebase khud sambhalta hai
+firebase.messaging();
+// ────────────────────────────────────────────────────────────────────
+
+const CACHE_NAME = 'universal-combo-v2';
 const urlsToCache = [
   './',
   './index.html',
