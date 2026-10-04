@@ -4286,21 +4286,34 @@ function sendPushNotification(){
     snap.forEach(function(d){tokens.push(d.id);});
     if(!tokens.length){showToast('❌ No devices registered yet',true);if(btn){btn.disabled=false;btn.textContent='Send';}return;}
     S.user.getIdToken().then(function(idToken){
-      fetch(NOTIFY_WORKER_URL,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({idToken:idToken,title:title,message:msg,tokens:tokens})
-      }).then(function(res){return res.json();}).then(function(result){
-        if(btn){btn.disabled=false;btn.textContent='Send';}
-        if(result.error){showToast('❌ '+result.error,true);return;}
-        showToast('✅ Sent to '+result.sent+' device(s)'+(result.failed?', '+result.failed+' failed':''));
-        // Clean up dead tokens so future sends don't waste time on them
-        if(result.invalidTokens&&result.invalidTokens.length){
-          result.invalidTokens.forEach(function(t){db.collection('fcm_tokens').doc(t).delete().catch(function(){});});
-        }
+      // Cloudflare free plan ek request mein ~50 calls allow karta hai, isliye 40-40 devices ke group mein bhejte hain
+      var CH=40,chunks=[];
+      for(var i=0;i<tokens.length;i+=CH)chunks.push(tokens.slice(i,i+CH));
+      var tot={sent:0,failed:0,invalid:[]},errMsg='';
+      function resetBtn(){if(btn){btn.disabled=false;btn.textContent='Send';}}
+      function next(idx){
+        if(idx>=chunks.length)return Promise.resolve();
+        if(btn)btn.textContent='Sending '+(idx+1)+'/'+chunks.length+'...';
+        return fetch(NOTIFY_WORKER_URL,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({idToken:idToken,title:title,message:msg,tokens:chunks[idx]})
+        }).then(function(res){return res.json();}).then(function(r){
+          if(r.error){errMsg=r.error;return;}
+          tot.sent+=r.sent||0;tot.failed+=r.failed||0;
+          if(r.invalidTokens)tot.invalid=tot.invalid.concat(r.invalidTokens);
+          return next(idx+1);
+        });
+      }
+      next(0).then(function(){
+        resetBtn();
+        // Dead tokens hata do taaki aage ke sends waste na hon
+        tot.invalid.forEach(function(t){db.collection('fcm_tokens').doc(t).delete().catch(function(){});});
+        if(errMsg){showToast((tot.sent?'⚠️ Sent '+tot.sent+', but ':'❌ ')+errMsg,true);return;}
+        showToast('✅ Sent to '+tot.sent+' device(s)'+(tot.failed?', '+tot.failed+' failed':''));
         closeModal();
       }).catch(function(e){
-        if(btn){btn.disabled=false;btn.textContent='Send';}
+        resetBtn();
         showToast('❌ Send failed: '+e.message,true);
       });
     });
@@ -6307,17 +6320,28 @@ function setupNotifications(){
   if(Notification.permission==='denied'){showToast('❌ Blocked',true);return;}
   Notification.requestPermission().then(function(p){if(p!=='granted'){showToast('❌ Permission denied',true);return;}registerForPush();});
 }
-function registerForPush(){
+function registerForPush(silent){
   navigator.serviceWorker.ready.then(function(reg){
     try{
-      if(!notifMessaging)notifMessaging=firebase.messaging();
+      if(!notifMessaging){
+        notifMessaging=firebase.messaging();
+        // App khula ho (foreground) tab system notification nahi aata, isliye yahan dikhate hain
+        notifMessaging.onMessage(function(payload){
+          var n=(payload&&payload.notification)||{};
+          showToast('🔔 '+(n.title||'Universal Combo')+(n.body?' — '+n.body:''));
+        });
+      }
       notifMessaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:reg}).then(function(token){
-        if(token)db.collection('fcm_tokens').doc(token).set({token:token,createdAt:new Date().toISOString(),uid:S.user?S.user.uid:'',email:S.user?S.user.email:''}).then(function(){
-          showToast('✅ Notifications ON!');
+        if(!token)return;
+        return db.collection('fcm_tokens').doc(token).set({token:token,createdAt:new Date().toISOString(),uid:S.user?S.user.uid:'',email:S.user?S.user.email:''},{merge:true}).then(function(){
+          if(!silent)showToast('✅ Notifications ON!');
           setNotifSwitch(true);
         });
+      }).catch(function(e){
+        if(!silent)showToast('❌ Notification setup failed: '+(e&&e.message?e.message:e),true);
+        else console.warn('push register failed',e);
       });
-    }catch(e){showToast('❌ '+e.message,true);}
+    }catch(e){if(!silent)showToast('❌ '+e.message,true);}
   });
 }
 // ── Flagship-style auto notification prompt ──
@@ -6366,6 +6390,8 @@ function setNotifSwitch(on){
 function checkNotifStatus(){
   if('Notification' in window&&Notification.permission==='granted'){
     setNotifSwitch(true);
+    // Permission pehle se di hui hai to token dobara chupchap save kar do (purane devices bhi list mein aa jaayen)
+    registerForPush(true);
   }
 }
 
@@ -6390,6 +6416,7 @@ auth.onAuthStateChanged(function(user){
     // Check if admin email
     S.role=user.email.toLowerCase().trim()===ADMIN_EMAIL.toLowerCase().trim()?'admin':'staff';
     hideLogin();
+    if('Notification' in window&&'serviceWorker' in navigator&&Notification.permission==='granted')setTimeout(function(){registerForPush(true);},1500);
     updateUserUI();
     trackUserSession(user);
     loadMyVotes(user.uid);
