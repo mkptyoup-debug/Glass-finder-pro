@@ -798,6 +798,26 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .adm-prev{background:var(--surface-1);border:1px solid #2F261C14;border-radius:14px;padding:11px 13px;margin-bottom:12px}
 .adm-prev-t{font-size:13px;font-weight:800;color:var(--text-1)}
 .adm-prev-b{font-size:12px;color:var(--text-2);margin-top:3px;line-height:1.45}
+.pm-box{position:relative;overflow:hidden;margin:2px 0 4px;padding:14px 14px 12px;border-radius:18px;background:linear-gradient(135deg,rgba(76,175,80,.14),rgba(76,175,80,.04));border:1px solid rgba(76,175,80,.38);animation:pmPop .5s cubic-bezier(.2,.9,.3,1.2) both}
+.pm-box.pm-soft{background:linear-gradient(135deg,rgba(200,154,75,.16),rgba(200,154,75,.05));border-color:rgba(200,154,75,.45)}
+.pm-box::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);animation:pmShine 1.4s .5s ease-out 1 both}
+.pm-head{display:flex;align-items:center;gap:12px}
+.pm-check{width:42px;height:42px;flex:none;filter:drop-shadow(0 3px 6px rgba(76,175,80,.35))}
+.pm-c{fill:var(--success);stroke:none;transform-origin:center;animation:pmDot .45s .1s cubic-bezier(.2,.9,.3,1.3) both}
+.pm-t{fill:none;stroke:#fff;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40;animation:pmDraw .45s .45s ease-out forwards}
+.pm-soft .pm-c{fill:var(--brand-2)}
+.pm-label{font-size:13px;font-weight:800;letter-spacing:.09em;color:var(--success)}
+.pm-soft .pm-label{color:var(--brand-2)}
+.pm-sub{font-size:12px;color:var(--text-2);margin-top:2px;font-weight:600}
+.pm-models{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pm-chip{font-size:15.5px;font-weight:800;color:var(--text-1);background:var(--surface-0,#fff);border:1px solid rgba(76,175,80,.45);border-radius:12px;padding:8px 14px;box-shadow:0 2px 8px rgba(76,175,80,.14);animation:pmUp .45s ease-out both}
+.pm-soft .pm-chip{border-color:rgba(200,154,75,.5);box-shadow:0 2px 8px rgba(200,154,75,.16)}
+@keyframes pmPop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes pmDot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes pmDraw{to{stroke-dashoffset:0}}
+@keyframes pmUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pmShine{from{left:-60%}to{left:130%}}
+@media (prefers-reduced-motion:reduce){.pm-box,.pm-box::after,.pm-c,.pm-t,.pm-chip{animation:none!important}.pm-t{stroke-dashoffset:0}}
 .adm-cnt{font-size:10px;color:var(--text-2);text-align:right;margin-top:3px}
 .menu-item{position:relative;display:flex;align-items:center;gap:14px;padding:13px 12px;border-radius:14px;color:var(--text-2);font-size:14.5px;font-weight:600;transition:background .18s ease,transform .12s ease;width:100%;text-align:left;border:none;background:rgba(52,42,34,.015);overflow:hidden;isolation:isolate;letter-spacing:.01em}
 .menu-item+.menu-item{margin-top:2px}
@@ -3229,7 +3249,16 @@ var expandedCards={};
 function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
   var mlist=parseModels(g.models);
   var matchSection='';
-  if(hasSearch&&matched.length){
+  if(!isFuzzy&&hasSearch&&matched.length){
+    var pmExact=matched.some(function(m){return rankScore(m,q)===0;});
+    var pmSure=!g.confidence||g.confidence==='100';
+    var pmPerfect=pmExact&&pmSure;
+    matchSection='<div class="pm-box'+(pmPerfect?'':' pm-soft')+'">'+
+      '<div class="pm-head"><svg class="pm-check" viewBox="0 0 52 52" aria-hidden="true"><circle class="pm-c" cx="26" cy="26" r="23"/><path class="pm-t" d="M15 27l8 8 14-16"/></svg>'+
+      '<div><div class="pm-label">'+(pmPerfect?'100% PERFECT MATCH':(pmExact?'MATCH FOUND · VERIFY BEFORE FITTING':'COMPATIBLE MODEL'+(matched.length>1?'S':'')))+'</div>'+
+      '<div class="pm-sub">This glass fits your model</div></div></div>'+
+      '<div class="pm-models">'+matched.map(function(m,i){return '<span class="pm-chip" style="animation-delay:'+(0.3+i*0.07)+'s">'+escHtml(m)+'</span>';}).join('')+'</div></div>';
+  } else if(hasSearch&&matched.length){
     matchSection='<div class="match-section'+(isFuzzy?' fuzzy':'')+'">'+
       '<div class="match-section-title">'+(isFuzzy?'<span class="material-symbols-rounded" style="font-size:13px;vertical-align:-2px">manage_search</span> Similar Match':'<span class="material-symbols-rounded" style="font-size:13px;vertical-align:-2px;font-variation-settings:\'FILL\' 1">check_circle</span> Matched ('+matched.length+')')+'</div>'+
       (!isFuzzy&&matched.length<=3?'<div style="font-size:15px;font-weight:800;color:var(--success);margin:2px 0 9px;line-height:1.35">✔ '+matched.map(escHtml).join(', ')+' — is glass me fit hota hai</div>':'')+
@@ -3243,7 +3272,7 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
   var needsToggle=other.length>CHIP_LIMIT;
   var otherTags='';
   if(other.length){
-    otherTags=(hasSearch&&matched.length&&!isFuzzy?'<div style="font-size:11.5px;font-weight:700;color:var(--text-2);margin:12px 0 6px">Isi glass me ye models bhi fit hote hain:</div>':'')+
+    otherTags=(hasSearch&&matched.length&&!isFuzzy?'<div style="font-size:11.5px;font-weight:700;color:var(--text-2);margin:12px 0 6px">Also compatible with these models</div>':'')+
       '<div class="all-models'+(needsToggle&&!isExpanded?' collapsed':'')+'" id="chips_'+g.id+'">'+
       other.map(function(m){return '<span class="mtag">'+escHtml(m)+'</span>';}).join('')+'</div>';
     if(needsToggle){
@@ -3262,7 +3291,7 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
     '<div style="flex:1"><div class="cname"><span style="display:inline-block;font-size:10.5px;font-weight:800;color:var(--brand-2);background:rgba(154,110,59,.12);border-radius:7px;padding:1px 7px;margin-right:6px;vertical-align:middle">Group '+(idx+1)+'</span>🛡️ '+escHtml(g.glassName)+'</div>'+
     '<div class="cbadges">'+typeBadge+
-    (isFuzzy?'<span class="bgy">🔎 Similar Match</span>':(hasSearch&&matched.length?'<span class="bgg">✅ '+mlist.length+' models mein '+matched.length+' match</span>':(!g.confidence||g.confidence==='100'?'<span class="bgg">✓ Verified · '+mlist.length+' Models</span>':'<span class="bg">'+mlist.length+' Models</span>')))+
+    (isFuzzy?'<span class="bgy">🔎 Similar Match</span>':(hasSearch&&matched.length?'<span class="bgg">✓ '+matched.length+' of '+mlist.length+' models matched</span>':(!g.confidence||g.confidence==='100'?'<span class="bgg">✓ Verified · '+mlist.length+' Models</span>':'<span class="bg">'+mlist.length+' Models</span>')))+
     ((g.confidence&&g.confidence!=='100')?confidenceBadge(g.confidence):'')+
     '</div></div>'+adm+'</div>'+matchSection+otherTags+noteHtml+
     '<div class="cbtns">'+(isAdmin()?'<button class="cbtn" onclick="copyList(\''+g.id+'\')"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">content_copy</span> Copy Group</button>':'')+
