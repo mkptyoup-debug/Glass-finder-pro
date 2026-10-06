@@ -2210,8 +2210,8 @@ function trackSearch(query,cat){
 }
 function trackNotFoundSearch(query,source){
   if(!db||!query||query.trim().length<2)return;
-  var key=query.trim().toUpperCase();
-  var brand=detectSearchBrand(key);
+  var key=normStr(query).replace(/ /g,'_')||query.trim().toUpperCase(); // Moto G54 / moto g 54 / MOTOROLA G54 = ek hi entry
+  var brand=detectSearchBrand(key.replace(/_/g,' '));
   var docUpdate={
     query:query.trim(),
     brand:brand,
@@ -5810,7 +5810,7 @@ function openAdminDashboard(force){
   Promise.all([
     db.collection('app_users').get().catch(function(e){console.error('app_users read failed:',e);return null;}),
     db.collection('search_stats').orderBy('count','desc').limit(10).get().catch(function(e){console.error('search_stats read failed:',e);return null;}),
-    db.collection('not_found_searches').orderBy('count','desc').limit(15).get().catch(function(e){console.error('not_found_searches read failed:',e);return null;}),
+    db.collection('not_found_searches').orderBy('count','desc').limit(30).get().catch(function(e){console.error('not_found_searches read failed:',e);return null;}),
     db.collection('share_stats').orderBy('count','desc').limit(20).get().catch(function(e){console.error('share_stats read failed:',e);return null;}),
     db.collection('search_daily').orderBy('date','desc').limit(30).get().catch(function(e){console.error('search_daily read failed:',e);return null;}),
     db.collection('share_daily').orderBy('date','desc').limit(30).get().catch(function(e){console.error('share_daily read failed:',e);return null;}),
@@ -5889,10 +5889,18 @@ function adashUserSearch(v){
     row.style.display=(!v||em.indexOf(v)>=0)?'':'none';
   });
 }
-function adashQuickAddMissing(query){
+function adashDismissMissing(id){
+  if(!confirm('Remove this from the Missing list? (use for typos / junk searches)'))return;
+  db.collection('not_found_searches').doc(id).delete().then(function(){
+    var el=document.getElementById('nf_'+id);if(el)el.remove();
+    showToast('🗑️ Removed from Missing list');
+  }).catch(function(e){showToast('❌ '+e.message,true);});
+}
+function adashQuickAddMissing(query,src){
   closeModal();
+  if(src==='parts'){showToast('🔧 Open Parts Finder → pick the category → Add: '+query);return;}
   setTimeout(function(){
-    S.tab='glass';
+    S.tab=(src==='display'||src==='backcover')?src:'glass';
     openAddModal();
     var f=document.getElementById('gModels');
     if(f)f.value=query;
@@ -6054,9 +6062,12 @@ function adashRender(){
     return adashProgress('#'+(i+1)+' '+escHtml(s.query||s.id),s.count||0,p);
   }).join(''):'<div class="adash-empty">No search data yet</div>';
   var notFoundHtml=notFoundTop.length?notFoundTop.map(function(s){
-    var q=escHtml(s.query||s.id);
-    return '<div class="adash-row"><span class="adash-row-main">'+q+'</span><span class="adash-row-badge" style="background:var(--danger);color:#fff;margin-right:6px">'+(s.count||0)+'×</span>'+
-      '<span class="adash-row-add" onclick="adashQuickAddMissing(\''+q.replace(/'/g,"\\'")+'\')">+ Add</span></div>';
+    var q=escHtml(s.query||s.id),qa=q.replace(/'/g,"\\'"),src=s.source||'glass';
+    var hot=(s.count||0)>=5?'<span class="adm-new" style="margin:0 0 0 6px">HOT</span>':'';
+    return '<div class="adash-row" id="nf_'+escHtml(s.id)+'"><span class="adash-row-main">'+q+hot+'<div class="adash-row-hint">'+escHtml(searchCatLabel(src))+' · last '+adashTimeAgo(s.lastSearched)+'</div></span>'+
+      '<span class="adash-row-badge" style="background:var(--danger);color:#fff;margin-right:6px">'+(s.count||0)+'×</span>'+
+      '<span class="adash-row-add" onclick="adashQuickAddMissing(\''+qa+'\',\''+escHtml(src)+'\')">+ Add</span>'+
+      '<span class="adash-row-add" style="margin-left:6px;background:transparent;color:var(--text-2);border:1px solid var(--border-hair)" onclick="adashDismissMissing(\''+escHtml(s.id)+'\')" title="Not a real model — remove">✕</span></div>';
   }).join(''):'<div class="adash-empty">No missing models tracked yet — great!</div>';
   var trendToday=searchTop.map(function(s){return {q:s.query||s.id,c:s['d_'+todayStr]||0,doc:s};}).filter(function(x){return x.c>0;}).sort(function(a,b){return b.c-a.c;});
   var trendWeek=searchTop.map(function(s){var c=last7.reduce(function(sum,d){return sum+(s['d_'+d]||0);},0);return {q:s.query||s.id,c:c};}).filter(function(x){return x.c>0;}).sort(function(a,b){return b.c-a.c;});
@@ -6216,7 +6227,7 @@ function adashRender(){
   html+=tabOpen('search');
   html+=adashSec('🗂️','Searches by Category','Where users search the most (last 30 days).')+catHtml;
   html+=adashSec('🔍','Most Searched Models','Top 10 models of all time.')+top10Html;
-  html+=adashSec('🚫','Missing Models','Users searched these but nothing was found. Tap + Add to create the entry.')+notFoundHtml;
+  html+=adashSec('🚫','Missing Models','Users searched these but nothing was found. HOT = searched 5+ times. Tap + Add to create the entry, or ✕ to remove junk searches.')+notFoundHtml;
   html+=adashSec('🔥','Trending Today','Most searched among the top models today.')+trendListHtml(trendToday,'No searches yet today');
   html+=adashSec('📅','Trending This Week','Most searched among the top models in the last 7 days.')+trendListHtml(trendWeek,'No searches tracked this week');
   html+=adashSec('🏷️','Brand Share','Share of each brand among the top searched models.')+'<div class="adash-brand-grid">'+brandHtml+'</div>';
