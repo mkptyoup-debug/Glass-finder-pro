@@ -3200,9 +3200,9 @@ function renderCards(){
       matched=fm?[fm.matchedModel]:[];
       other=mlist.filter(function(m){return !matched.includes(m);});
     } else {
-      var qu2=q.toUpperCase();
-      matched=mlist.filter(function(m){return m.toUpperCase().indexOf(qu2)>=0;});
-      other=mlist.filter(function(m){return m.toUpperCase().indexOf(qu2)<0;});
+      // rankScore = wahi alias-aware matching jo group dhoondhne me use hoti hai (Moto = Motorola, 1+ = OnePlus, Pro+ = Pro Plus)
+      matched=mlist.filter(function(m){return rankScore(m,q)<5;});
+      other=mlist.filter(function(m){return rankScore(m,q)>=5;});
     }
     return buildCard(g,matched,other,true,isFuzzy,idx,q);
   }).join('')+moreBtnHtml(list.length,_lim2);
@@ -3232,17 +3232,18 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
   if(hasSearch&&matched.length){
     matchSection='<div class="match-section'+(isFuzzy?' fuzzy':'')+'">'+
       '<div class="match-section-title">'+(isFuzzy?'<span class="material-symbols-rounded" style="font-size:13px;vertical-align:-2px">manage_search</span> Similar Match':'<span class="material-symbols-rounded" style="font-size:13px;vertical-align:-2px;font-variation-settings:\'FILL\' 1">check_circle</span> Matched ('+matched.length+')')+'</div>'+
+      (!isFuzzy&&matched.length<=3?'<div style="font-size:15px;font-weight:800;color:var(--success);margin:2px 0 9px;line-height:1.35">✔ '+matched.map(escHtml).join(', ')+' — is glass me fit hota hai</div>':'')+
       '<div class="match-tags">'+matched.map(function(m){
         return isFuzzy?'<span class="match-tag fuzzy">'+escHtml(m)+'</span>':
           '<span class="match-tag">'+hlText(m,q)+'</span>';
       }).join('')+'</div></div>';
   }
-  var CHIP_LIMIT=15;
+  var CHIP_LIMIT=(hasSearch&&matched.length&&!isFuzzy)?6:15;
   var isExpanded=!!expandedCards[g.id];
   var needsToggle=other.length>CHIP_LIMIT;
   var otherTags='';
   if(other.length){
-    otherTags=''+
+    otherTags=(hasSearch&&matched.length&&!isFuzzy?'<div style="font-size:11.5px;font-weight:700;color:var(--text-2);margin:12px 0 6px">Isi glass me ye models bhi fit hote hain:</div>':'')+
       '<div class="all-models'+(needsToggle&&!isExpanded?' collapsed':'')+'" id="chips_'+g.id+'">'+
       other.map(function(m){return '<span class="mtag">'+escHtml(m)+'</span>';}).join('')+'</div>';
     if(needsToggle){
@@ -5328,7 +5329,7 @@ function buildResultCard(g,t,q,qu,res){
   var isFuzzy=res.fuzzy;
   var matchedModel=isFuzzy&&res.fuzzyMap[g.id]?res.fuzzyMap[g.id].matchedModel:null;
   var tagsHtml=mlist.map(function(m){
-    var isMatch=isFuzzy?(m===matchedModel):(m.toUpperCase().indexOf(qu)>=0);
+    var isMatch=isFuzzy?(m===matchedModel):(rankScore(m,q)<5);
     return isMatch?
       '<span class="match-tag'+(isFuzzy?' fuzzy':'')+'">'+(isFuzzy?escHtml(m):hlText(m,q))+'</span>':
       '<span class="pf-model-chip">'+escHtml(m)+'</span>';
