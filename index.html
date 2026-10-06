@@ -2888,7 +2888,12 @@ function _rank1(candidate,query){
     var startIdx=wm.index+(wm[1]?wm[1].length:0);
     if(validBoundaryAfter(m,startIdx,q.length,qLast))return 3;
   }
-  if(m.indexOf(q)>=0)return 4;
+  // Contains-match: har occurrence pe digit-boundary check ("Y20" ko "Y200" se match nahi hona chahiye)
+  var _p=m.indexOf(q);
+  while(_p>=0){
+    if(validBoundaryAfter(m,_p,q.length,qLast))return 4;
+    _p=m.indexOf(q,_p+1);
+  }
   return 5;
 }
 function rankScore(candidate,query){
@@ -5396,7 +5401,9 @@ function buildResultCard(g,t,q,qu,res){
   var isFuzzy=res.fuzzy;
   var matchedModel=isFuzzy&&res.fuzzyMap[g.id]?res.fuzzyMap[g.id].matchedModel:null;
   var pmList=isFuzzy?[]:mlist.filter(function(m){return rankScore(m,q)<5;});
-  var tagsHtml=mlist.map(function(m){
+  // Jab upar match box (pmList) dikh raha ho, niche "Also compatible" me sirf baaki models dikhao
+  var chipModels=(pmList.length&&!isFuzzy)?mlist.filter(function(m){return rankScore(m,q)>=5;}):mlist;
+  var tagsHtml=chipModels.map(function(m){
     var isMatch=isFuzzy?(m===matchedModel):(rankScore(m,q)<5);
     return isMatch?
       '<span class="match-tag'+(isFuzzy?' fuzzy':'')+'">'+(isFuzzy?escHtml(m):hlText(m,q))+'</span>':
@@ -5421,8 +5428,8 @@ function buildResultCard(g,t,q,qu,res){
       '</div>'+
       adm+
     '</div>'+
-    (pmList.length?pmBoxHtml(g,pmList,q,t.label)+'<div style="font-size:11.5px;font-weight:700;color:var(--text-2);margin:12px 0 6px">Also compatible with these models</div>':'')+
-    buildModelChipsHtml(tagsHtml,mlist.length,g.id)+
+    (pmList.length?pmBoxHtml(g,pmList,q,t.label)+(chipModels.length?'<div style="font-size:11.5px;font-weight:700;color:var(--text-2);margin:12px 0 6px">Also compatible with these models</div>':''):'')+
+    (chipModels.length?buildModelChipsHtml(tagsHtml,chipModels.length,g.id):'')+
     pfThumbHtml(g,t.key)+
     '<div style="margin-bottom:10px">'+((!g.confidence||g.confidence==='100')?'<span class="bgg">✓ Verified · '+mlist.length+' Models</span>':confidenceBadge(g.confidence))+(g.panel==='OLED'?' <span class="bgy">OLED</span>':(t.key==='display'?' <span class="bg">TFT</span>':''))+(g.curve==='curved'?' <span class="bgy">Curved</span>':'')+(g.curve==='quadcurve'?' <span class="bgy">Quad Curve</span>':'')+'</div>'+
     noteHtml+
@@ -5968,7 +5975,17 @@ function adashDismissMissing(id){
 }
 function adashQuickAddMissing(query,src){
   closeModal();
-  if(src==='parts'){showToast('🔧 Open Parts Finder → pick the category → Add: '+query);return;}
+  if(src==='parts'){
+    // Spare Parts: add form seedha kholo, model pehle se bhara hua (part type form me select karo)
+    setTimeout(function(){
+      PF.editKey=null;PF.editId=null;
+      openModal(partsFormHtml(null,null));
+      var f=document.getElementById('pf_models');
+      if(f)f.value=query;
+      showToast('✏️ Pick part type & add details for: '+query);
+    },250);
+    return;
+  }
   setTimeout(function(){
     S.tab=(src==='display'||src==='backcover')?src:'glass';
     openAddModal();
