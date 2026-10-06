@@ -2816,7 +2816,12 @@ function normStr(s){
   var key=String(s||'');
   var cached=_normCache[key];
   if(cached!==undefined)return cached;
-  var out=key.toUpperCase().replace(/[-_]+/g,' ').replace(/[^A-Z0-9 ]+/g,'').replace(/\s+/g,' ').trim();
+  var out=key.toUpperCase().replace(/[-_]+/g,' ')
+    .replace(/(^|\s)1\s*\+/g,'$1ONEPLUS ')            // 1+ / 1 + -> ONEPLUS
+    .replace(/\+/g,' PLUS ')                              // Pro+ -> Pro Plus
+    .replace(/\bONE\s+PLUS\b/g,'ONEPLUS').replace(/\bREAL\s+ME\b/g,'REALME').replace(/\bRED\s+MI\b/g,'REDMI').replace(/\bI\s+PHONE\b/g,'IPHONE').replace(/\bI\s+QOO\b/g,'IQOO')
+    .replace(/\bMOTO\b/g,'MOTOROLA')                    // Moto -> Motorola
+    .replace(/[^A-Z0-9 ]+/g,'').replace(/\s+/g,' ').trim();
   _normCache[key]=out;
   return out;
 }
@@ -2826,7 +2831,7 @@ function validBoundaryAfter(str,idx,qLen,qLastChar){
   if(/[0-9]/.test(qLastChar)&&/[0-9]/.test(after))return false;
   return true;
 }
-function rankScore(candidate,query){
+function _rank1(candidate,query){
   var m=normStr(candidate),q=normStr(query);
   if(!q)return 5;
   if(m===q)return 0;
@@ -2847,6 +2852,19 @@ function rankScore(candidate,query){
   }
   if(m.indexOf(q)>=0)return 4;
   return 5;
+}
+function rankScore(candidate,query){
+  var best=_rank1(candidate,query);
+  if(best<=0)return best;
+  var q=normStr(query);
+  // "Mi 12" -> also try "Redmi 12" (customers drop "Red")
+  if(/^MI( |$)/.test(q)){var s2=_rank1(candidate,'REDMI'+q.slice(2));if(s2<best)best=s2;}
+  // Space-insensitive fallback: "redmi12", "oneplus12r", "nord ce3"
+  if(best===5){
+    var mc=normStr(candidate).replace(/ /g,''),qc=q.replace(/ /g,'');
+    if(qc.length>=3){var ix=mc.indexOf(qc);if(ix>=0&&validBoundaryAfter(mc,ix,qc.length,qc.charAt(qc.length-1)))best=4;}
+  }
+  return best;
 }
 function bestGroupScore(g,query){
   var cands=parseModels(g.models).slice();
