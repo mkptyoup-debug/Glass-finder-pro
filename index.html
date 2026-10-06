@@ -692,6 +692,27 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .adash-progress-bar{height:7px;border-radius:6px;background:#2F261C0a;overflow:hidden}
 .adash-progress-fill{height:100%;border-radius:6px;background:var(--brand);transition:width .5s cubic-bezier(.4,0,.2,1)}
 .adash-brand-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.adash-sec{margin:10px 0 4px}
+.adash-sec:first-child{margin-top:0}
+.adash-sec-t{font-size:14px;font-weight:800;color:var(--text-1);letter-spacing:.01em}
+.adash-sec-d{font-size:11px;color:var(--text-2);line-height:1.5;margin-top:3px}
+.adash-sub{font-size:11.5px;font-weight:800;color:var(--text-1);margin:8px 0 2px}
+.adash-note{font-size:10.5px;color:var(--text-2);line-height:1.5}
+.adash-updated{font-size:10.5px;color:var(--text-2);text-align:right;margin-top:4px}
+.adash-updated span{color:var(--brand);font-weight:800;cursor:pointer}
+.adash-card-hint{font-size:9.5px;color:var(--text-2);margin-top:2px;opacity:.8}
+.adash-row-hint{font-size:10.5px;color:var(--text-2);font-weight:600;white-space:normal}
+.adash-progress-sub{font-size:11px;color:var(--text-2);margin-top:4px}
+.adash-conv{font-size:10px;color:var(--text-2);font-weight:700}
+.adash-action{align-self:flex-start;padding:10px 16px;border-radius:12px;background:linear-gradient(135deg,var(--brand-2),var(--brand));color:var(--text-1);font-size:12px;font-weight:800;border:none;box-shadow:0 4px 14px #C9A15E3a}
+.adash-sum{background:var(--brand-dim);border:1px solid #C9A15E2e;border-radius:var(--r-md);padding:4px}
+.adash-sum-item{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:10px;cursor:pointer}
+.adash-sum-item:active{background:#C9A15E1a}
+.adash-sum-ic{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.adash-sum-txt{flex:1;font-size:12px;font-weight:600;color:var(--text-1);line-height:1.45}
+.adash-sum-txt b{font-weight:800}
+.adash-sum-item.warn .adash-sum-txt b{color:var(--danger)}
+.adash-sum-go{font-size:15px;color:var(--text-2);flex-shrink:0}
 .adash-brand-card{background:var(--surface-1);border:1px solid #2F261C0d;border-radius:12px;padding:11px 12px}
 .adash-brand-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
 .adash-brand-name{font-size:12px;font-weight:800;color:var(--text-1)}
@@ -1627,9 +1648,100 @@ function logActivity(type,detail){
   if(!db||!S.user||!S.user.email)return;
   db.collection('activity_log').add({type:type,email:S.user.email,detail:detail||'',ts:new Date().toISOString()}).catch(function(){});
 }
+// ── ADMIN DASHBOARD v3 — low-cost tracking helpers ───────────────────────
+// Per-user counters (opens, searches, favorites, paywall hits, payments) pehle memory me
+// jama hote hain, aur phir ek hi merged write me user_stats/{uid} me jaate hain
+// (har 30 sec me ya app background me jaate hi). Isse writes kam rehte hain.
+var US={pend:{},sets:{},tmr:null,uid:null};
+function usUid(){return (S.user&&S.user.uid)||US.uid||null;}
+function usInc(f,n){
+  if(!db||!usUid())return;
+  US.pend[f]=(US.pend[f]||0)+(n||1);
+  if(!US.tmr)US.tmr=setTimeout(usFlush,30000);
+}
+function usSet(o){
+  if(!db||!usUid())return;
+  for(var k in o)US.sets[k]=o[k];
+  if(!US.tmr)US.tmr=setTimeout(usFlush,30000);
+}
+function usFlush(){
+  clearTimeout(US.tmr);US.tmr=null;
+  var uid=usUid();
+  if(!db||!uid)return;
+  var keys=Object.keys(US.pend),skeys=Object.keys(US.sets);
+  if(!keys.length&&!skeys.length)return;
+  var d={};
+  skeys.forEach(function(k){d[k]=US.sets[k];});
+  keys.forEach(function(k){d[k]=firebase.firestore.FieldValue.increment(US.pend[k]);});
+  US.pend={};US.sets={};
+  d.email=(S.user&&S.user.email)||'';
+  d.lastSeenTs=new Date().toISOString();
+  db.collection('user_stats').doc(uid).set(d,{merge:true}).catch(function(){});
+}
+document.addEventListener('visibilitychange',function(){if(document.hidden)usFlush();});
+window.addEventListener('pagehide',usFlush);
+
+// Daily funnel counters — search_daily ke aaj wale doc me hi jodte hain (naya collection nahi)
+function funnelDaily(field,n){
+  if(!db)return;
+  var today=new Date().toISOString().slice(0,10);
+  var d={date:today};d[field]=firebase.firestore.FieldValue.increment(n||1);
+  db.collection('search_daily').doc(today).set(d,{merge:true}).catch(function(){});
+}
+// Free limit / locked category par user atka — 5 min me ek hi baar gino (spam nahi)
+var __phT={};
+function trackPaywallHit(kind,label){
+  var t=Date.now();
+  if(__phT[kind]&&t-__phT[kind]<300000)return;
+  __phT[kind]=t;
+  funnelDaily(kind==='limit'?'f_limit':'f_lock');
+  usInc(kind==='limit'?'limitHits':'lockHits');
+  usSet({lastHitTs:new Date().toISOString(),lastHitKind:kind==='limit'?'Free search limit':'Locked: '+(label||'category')});
+}
+// Admin Action Log — admin ne kya add/edit/delete/import kiya (activity_log me, type admin_action)
+function logAdminAction(msg){
+  if(!db||!S.user||!isAdmin())return;
+  db.collection('activity_log').add({type:'admin_action',email:S.user.email,detail:String(msg).slice(0,140),ts:new Date().toISOString()}).catch(function(){});
+}
+function glassTypeLabel(k){return k==='backcover'?'Back Cover':(k==='uv'?'Curved Glass':'Flat Glass');}
+// Device info — Android par Chrome real model chhupata hai, isliye high-entropy API se model bhi mangte hain
+function usDeviceLabel(model,platVer){
+  var ua=navigator.userAgent||'',os='',m;
+  if(ua.match(/Android\s([\d.]+)/))os='Android '+(platVer||ua.match(/Android\s([\d.]+)/)[1]);
+  else if((m=ua.match(/iPhone OS ([\d_]+)/)))os='iOS '+m[1].replace(/_/g,'.');
+  else if(/Windows/.test(ua))os='Windows';
+  else if(/Mac OS X/.test(ua))os='Mac';
+  else os='Other';
+  var br='Browser';
+  if((m=ua.match(/SamsungBrowser\/(\d+)/)))br='Samsung Browser '+m[1];
+  else if((m=ua.match(/Firefox\/(\d+)/)))br='Firefox '+m[1];
+  else if((m=ua.match(/(?:Chrome|CriOS)\/(\d+)/)))br='Chrome '+m[1];
+  else if(/Safari/.test(ua))br='Safari';
+  if(!model){m=ua.match(/Android[^;]*;\s*([^;)]+)/);if(m&&m[1].trim().length>1)model=m[1].trim();}
+  return (model?model+' · ':'')+os+' · '+br;
+}
+function usSession(user){
+  if(!db||!user||!user.uid)return;
+  US.uid=user.uid;
+  try{if(sessionStorage.getItem('us_sess_'+user.uid))return;sessionStorage.setItem('us_sess_'+user.uid,'1');}catch(e){}
+  var pwa=false;
+  try{pwa=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;}catch(e){}
+  usInc('opens');
+  usSet({dev:usDeviceLabel('',''),pwa:pwa,scr:(screen.width||0)+'x'+(screen.height||0),lang:navigator.language||'',lastOpenTs:new Date().toISOString()});
+  try{
+    if(navigator.userAgentData&&navigator.userAgentData.getHighEntropyValues){
+      navigator.userAgentData.getHighEntropyValues(['model','platformVersion']).then(function(v){
+        var pv=v.platformVersion?String(v.platformVersion).split('.')[0]:'';
+        if(v.model||pv)usSet({dev:usDeviceLabel(v.model||'',pv)});
+      }).catch(function(){});
+    }
+  }catch(e){}
+}
+
 function trackUserSession(user){
   if(!db||!user||!user.email)return;
   checkStaffFreeStatus(user.email);
+  usSession(user);
   var ref=db.collection('app_users').doc(user.uid);
   ref.get().then(function(doc){
     var now=new Date().toISOString();
@@ -1749,6 +1861,7 @@ function categoryLockedBrowseHtml(label){
     '<button class="cbtn" style="max-width:220px;margin:0 auto" onclick="openUpgradeModal()">⭐ Upgrade</button></div>';
 }
 function categoryTeaserHtml(count,label){
+  trackPaywallHit('lock',label);
   return '<div class="empty" style="padding-top:26px">'+
     '<div class="empty-ico"><span class="material-symbols-rounded">lock</span></div>'+
     '<p class="empty-t">'+count+' '+label+' result'+(count>1?'s':'')+' mile!</p>'+
@@ -1835,6 +1948,10 @@ function updatePremiumUI(){
 }
 function openUpgradeModal(){
   closeMenu();
+  try{
+    var __paid=S.premium&&S.premium.premiumExpiry&&new Date(S.premium.premiumExpiry).getTime()>Date.now();
+    if(!isAdmin()&&!__paid){funnelDaily('f_popup');usInc('popups');}
+  }catch(e){}
   var trialHtml=S.user&&isOnTrial()?'<div class="pw-trial-banner"><span class="material-symbols-rounded">redeem</span>Your free trial is active — '+trialDaysLeft()+' days left</div>':'';
   var notLoggedInHtml=!S.user?'<div class="pw-trial-banner" style="background:var(--warning-bg);border-color:var(--brand);color:var(--brand)"><span class="material-symbols-rounded">waving_hand</span>Log in or sign up first — new users get 7 days FREE</div>':'';
   openModal(
@@ -1932,16 +2049,19 @@ function startCheckout(){
       },
       modal:{
         ondismiss:function(){
+          funnelDaily('f_paycancel');logActivity('pay_cancel','closed the payment window ('+selectedPlan+')');
           if(ctaBtn){ctaBtn.disabled=false;ctaBtn.textContent='Continue';}
         }
       }
     };
     var rzp=new Razorpay(options);
     rzp.on('payment.failed',function(){
+      funnelDaily('f_payfail');usInc('payFails');logActivity('pay_fail','payment failed ('+selectedPlan+')');
       showToast('❌ Payment failed, please try again',true);
       if(ctaBtn){ctaBtn.disabled=false;ctaBtn.textContent='Continue';}
     });
     rzp.open();
+    funnelDaily('f_paystart');usInc('payStarts');logActivity('pay_start','started '+selectedPlan+' payment');
   })
   .catch(function(err){
     showDebugBox('CATCH ERROR: '+err.message);
@@ -1967,6 +2087,7 @@ function verifyAndActivatePremium(response){
     if(!result.verified){throw new Error('Verification failed');}
     applyPremiumData({trialEnd:S.premium.trialEnd,premiumExpiry:result.premiumExpiry,plan:result.plan});
     try{logActivity('purchase','bought '+(result.plan||'premium')+' plan 💎');}catch(e){}
+    try{funnelDaily('f_paydone');usInc('payDone');var __rv=result.plan==='yearly'?499:(result.plan==='monthly'?49:0);if(__rv>0)funnelDaily('f_rev',__rv);}catch(e){}
     closeModal();
     showPaySuccessAnim();
   })
@@ -2047,6 +2168,7 @@ function trackSearch(query,cat){
   var dedupeKey=key+'|'+(cat||'');
   if(__lastTrack.key===dedupeKey&&(nowT-__lastTrack.t)<60000)return; // same search same category already logged -> skip duplicate
   __lastTrack={key:dedupeKey,t:nowT};
+  usInc('searches');if(cat)usInc('c_'+cat);
   var brand=detectSearchBrand(key);
   var today=new Date().toISOString().slice(0,10);
   var docUpdate={
@@ -2129,6 +2251,7 @@ function toggleFavorite(id,tab,name){
     favs.unshift({id:id,tab:tab,name:name});
     if(btn){btn.classList.add('active');btn.innerHTML='⭐';}
     showToast('⭐ Saved to Favorites');
+    usInc('favs');
     trackCardUsage(id,tab,name);
   }
   lsSetJSON('favGroups',favs);
@@ -2902,6 +3025,7 @@ function getMostUsed(){
   return Object.keys(mu).map(function(k){return mu[k];}).sort(function(a,b){return b.count-a.count;}).slice(0,5);
 }
 function trackCardUsage(id,tab,name){
+  usInc('cardActions');
   var ro=getRecentOpened().filter(function(r){return !(r.id===id&&r.tab===tab);});
   ro.unshift({id:id,tab:tab,name:name,ts:Date.now()});
   lsSetJSON('recentOpened',ro.slice(0,8));
@@ -2976,6 +3100,7 @@ function renderCards(){
   }
 
   if(S.tab==='glass'&&q.length>=2&&!registerGlassSearch(q)){
+    trackPaywallHit('limit');
     banner.style.display='none';
     el.innerHTML=glassLimitReachedHtml();
     return;
@@ -3940,6 +4065,7 @@ function proceedSaveGlass(name,models,confidence,note,targetKey,isEdit){
   setSyncDot('syncing');
 
   db.collection(COLLECTIONS[targetKey]).doc(id).set({glassName:name,models:models,confidence:confidence,note:note}).then(function(){
+    logAdminAction((isEdit?'✏️ ':'✨ ')+glassTypeLabel(targetKey)+': '+name+(isEdit?' updated':' added'));
     var entry={msg:(isEdit?'✏️ ':'✨ ')+name+(isEdit?' updated':' added'),date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
     S.log=[entry].concat(S.log).slice(0,20);
     db.collection('meta').doc('log').set({entries:S.log});
@@ -3969,6 +4095,7 @@ function doDelete(id){
   var g=getList().find(function(x){return x.id===id;});setSyncDot('syncing');
   var targetKey=(g&&g._type)||S.tab;
   db.collection(COLLECTIONS[targetKey]).doc(id).delete().then(function(){
+    if(g)logAdminAction('🗑️ '+glassTypeLabel(targetKey)+': '+g.glassName+' removed');
     if(g){var entry={msg:'🗑️ '+g.glassName+' removed',date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
     S.log=[entry].concat(S.log).slice(0,20);
     db.collection('meta').doc('log').set({entries:S.log});
@@ -4034,6 +4161,7 @@ async function importCode(){
       });
     }));
     render();
+    if(okCount>0)logAdminAction('📥 Glass import: '+okCount+' items'+(failCount?' ('+failCount+' failed)':''));
     if(failCount===total){
       setSyncDot('err');
       showToast('❌ Import fail: '+(firstErr||'Permission/network error'),true);
@@ -4240,6 +4368,7 @@ function addStaffFreeEmail(){
   if(!db){showToast('❌ Not connected',true);return;}
   db.collection('staff_whitelist').doc(email).set({email:email,addedTs:new Date().toISOString(),addedBy:S.user?S.user.email:''}).then(function(){
     showToast('✅ Added');
+    logAdminAction('⭐ Free access given: '+email);
     input.value='';
     loadStaffFreeList();
   },function(e){showToast('❌ Save failed: '+e.message,true);});
@@ -4248,6 +4377,7 @@ function removeStaffFreeEmail(id){
   if(!db)return;
   db.collection('staff_whitelist').doc(id).delete().then(function(){
     showToast('🗑️ Removed');
+    logAdminAction('⭐ Free access removed: '+id);
     loadStaffFreeList();
   },function(e){showToast('❌ Save failed: '+e.message,true);});
 }
@@ -5502,6 +5632,7 @@ async function importPartsCode(typeKey){
     var snap=await db.collection(t.col).get();
     PF.data[typeKey]=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
     bumpPartsVersion(typeKey);refreshPartsPage(typeKey);
+    if(okCount>0)logAdminAction('📥 '+t.label+' import: '+okCount+' items'+(failCount?' ('+failCount+' failed)':''));
     if(failCount===total){
       setSyncDot('err');
       showToast('❌ Import fail: '+(firstErr||'Permission/network error'),true);
@@ -5539,6 +5670,7 @@ function doPartsDelete(typeKey,id){
 // Ek hi jagah se Recent Updates log + "Last Updated" dono update karo —
 // glass ya spare parts, kahi se bhi change ho, dashboard turant sahi date/time dikhaye.
 function logRecentUpdate(msg){
+  logAdminAction(msg);
   var entry={msg:msg,date:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
   S.log=[entry].concat(S.log).slice(0,20);
   if(db)db.collection('meta').doc('log').set({entries:S.log});
@@ -5573,9 +5705,9 @@ function shareApp(){
 }
 
 // ── ADMIN DASHBOARD v2 — smart cards, insights, trend charts, brand/user/share analytics, live feed ──
-var ADASH={raw:null,filter:'7d',tab:'overview'};
+var ADASH={raw:null,filter:'7d',pfilter:'30d',tab:'overview',t:0};
 
-function openAdminDashboard(){
+function openAdminDashboard(force){
   closeMenu();
   if(!isAdmin()){showToast('❌ Access denied',true);return;}
   if(!db){showToast('❌ No connection',true);return;}
@@ -5583,6 +5715,12 @@ function openAdminDashboard(){
     '<div id="adminDashContent" class="adash-wrap">'+
       '<div class="adash-skel"></div><div class="adash-skel"></div><div class="adash-skel"></div><div class="adash-skel"></div>'+
     '</div>');
+  // 2-minute cache: reopening the dashboard costs no Firestore reads (Refresh fetches fresh data)
+  if(!force&&ADASH.raw&&ADASH.t&&Date.now()-ADASH.t<120000){adashRender();return;}
+  var fbSeen=lsGet('fb_lastSeen')||new Date(Date.now()-7*864e5).toISOString();
+  var reqSeen=lsGet('req_lastSeen')||new Date(Date.now()-7*864e5).toISOString();
+  var rulesErr=false;
+  function rd(p,label){return p.catch(function(e){console.error(label+' read failed:',e);if(label.indexOf('user_stats')===0)rulesErr=true;return null;});}
   Promise.all([
     db.collection('app_users').get().catch(function(e){console.error('app_users read failed:',e);return null;}),
     db.collection('search_stats').orderBy('count','desc').limit(10).get().catch(function(e){console.error('search_stats read failed:',e);return null;}),
@@ -5591,7 +5729,13 @@ function openAdminDashboard(){
     db.collection('search_daily').orderBy('date','desc').limit(30).get().catch(function(e){console.error('search_daily read failed:',e);return null;}),
     db.collection('share_daily').orderBy('date','desc').limit(30).get().catch(function(e){console.error('share_daily read failed:',e);return null;}),
     db.collection('activity_log').orderBy('ts','desc').limit(100).get().catch(function(e){console.error('activity_log read failed:',e);return null;}),
-    db.collection('meta').doc('counters').get().catch(function(e){return null;})
+    db.collection('meta').doc('counters').get().catch(function(e){return null;}),
+    rd(db.collection('activity_log').where('type','==','admin_action').limit(60).get(),'admin_log'),
+    rd(db.collection('user_stats').where('limitHits','>',0).limit(40).get(),'user_stats limit'),
+    rd(db.collection('user_stats').where('payStarts','>',0).limit(40).get(),'user_stats pay'),
+    rd(db.collection('user_stats').orderBy('searches','desc').limit(8).get(),'user_stats top'),
+    rd(db.collection('feedback').where('date','>',fbSeen).limit(30).get(),'feedback'),
+    rd(db.collection('update_requests').where('date','>',reqSeen).limit(30).get(),'requests')
   ]).then(function(r){
     var users=[];if(r[0])r[0].forEach(function(d){var v=d.data();v.id=d.id;users.push(v);});
     var searchTop=[];if(r[1])r[1].forEach(function(d){var v=d.data();v.id=d.id;searchTop.push(v);});
@@ -5601,16 +5745,42 @@ function openAdminDashboard(){
     var shareDaily=[];if(r[5])r[5].forEach(function(d){shareDaily.push(d.data());});
     var activity=[];if(r[6])r[6].forEach(function(d){var v=d.data();v.id=d.id;activity.push(v);});
     var counters=(r[7]&&r[7].exists)?r[7].data():{};
-    ADASH.raw={users:users,searchTop:searchTop,notFoundTop:notFoundTop,shares:shares,searchDaily:searchDaily,shareDaily:shareDaily,activity:activity,counters:counters};
+    function toList(s){var out=[];if(s)s.forEach(function(d){var v=d.data();v.id=d.id;out.push(v);});return out;}
+    ADASH.raw={users:users,searchTop:searchTop,notFoundTop:notFoundTop,shares:shares,searchDaily:searchDaily,shareDaily:shareDaily,activity:activity,counters:counters,
+      adminLog:toList(r[8]),limitUsers:toList(r[9]),payUsers:toList(r[10]),topUsers:toList(r[11]),
+      extra:{newFeedback:r[12]?r[12].size:0,newRequests:r[13]?r[13].size:0,rulesErr:rulesErr}};
+    ADASH.t=Date.now();
+    adashCleanup();
     adashRender();
   });
 }
 
-function adashSetFilter(f){ADASH.filter=f;adashRender();}
+// Auto-cleanup: 45 din se purane activity logs din me ek baar delete (purchase logs aur 90 din tak admin logs rakhe jaate hain)
+function adashCleanup(){
+  if(!db||!isAdmin())return;
+  var day=new Date().toISOString().slice(0,10);
+  if(lsGet('adash_clean')===day)return;
+  lsSet('adash_clean',day);
+  var c45=new Date(Date.now()-45*864e5).toISOString(),c90=new Date(Date.now()-90*864e5).toISOString();
+  db.collection('activity_log').where('ts','<',c45).limit(300).get().then(function(snap){
+    if(snap.empty)return;
+    var batch=db.batch(),n=0;
+    snap.forEach(function(d){
+      var v=d.data();
+      if(v.type==='purchase')return;
+      if(v.type==='admin_action'&&(v.ts||'')>=c90)return;
+      batch.delete(d.ref);n++;
+    });
+    if(n)batch.commit().catch(function(){});
+  }).catch(function(){});
+}
+function adashRefresh(){ADASH.raw=null;openAdminDashboard(true);}
+
+function adashSetFilter(f,scope){if(scope==='p')ADASH.pfilter=f;else ADASH.filter=f;adashRender();}
 function adashSetTab(t){ADASH.tab=t;adashRender();}
 function adashExportUsers(){
   var users=(ADASH.raw&&ADASH.raw.users)||[];
-  if(!users.length){showToast('Koi user data nahi',true);return;}
+  if(!users.length){showToast('No user data to export',true);return;}
   var now=Date.now();
   function fd(t){return t?new Date(t).toISOString().slice(0,10):'';}
   var rows=[['Email','Status','Plan','Joined','Last Active','Trial End','Premium Expiry','Payment ID']];
@@ -5624,7 +5794,7 @@ function adashExportUsers(){
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');a.href=url;a.download='universal-combo-users.csv';
   document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-  showToast('✅ Users list download ho gayi');
+  showToast('✅ Users list downloaded');
 }
 function adashUserSearch(v){
   v=(v||'').toLowerCase().trim();
@@ -5666,15 +5836,48 @@ function adashTimeAgo(ts){
 }
 function adashDailyMap(list){var m={};list.forEach(function(d){if(d&&d.date)m[d.date]=d;});return m;}
 
+// ── Admin dashboard UI helpers (consistent, easy-to-read sections) ──
+function adashSec(ic,title,desc){
+  return '<div class="adash-sec"><div class="adash-sec-t">'+ic+' '+title+'</div>'+(desc?'<div class="adash-sec-d">'+desc+'</div>':'')+'</div>';
+}
+function adashNote(t){return '<div class="adash-note">'+t+'</div>';}
+function adashMini(boxes){
+  return '<div class="adash-mini">'+boxes.map(function(b){
+    return '<div class="adash-mini-box"><div class="adash-mini-val">'+b[0]+'</div><div class="adash-mini-lbl">'+b[1]+'</div></div>';
+  }).join('')+'</div>';
+}
+function adashChips(list,cur,scope){
+  return '<div class="adash-filters">'+list.map(function(f){
+    return '<button class="adash-chip'+(cur===f[0]?' active':'')+'" onclick="adashSetFilter(\''+f[0]+'\''+(scope?',\''+scope+'\'':'')+')">'+f[1]+'</button>';
+  }).join('')+'</div>';
+}
+function adashDateTime(ts){return ts?new Date(ts).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';}
+function adashUserBadge(u){
+  if(u.email&&u.email.toLowerCase().trim()===ADMIN_EMAIL.toLowerCase().trim())return '<span class="udet-badge admin">Admin</span>';
+  return udetPlanBadge(u);
+}
+function adashUserRow(u,right){
+  return '<div class="adash-row clickable" data-email="'+escHtml(u.email||'')+'" onclick="openUserDetail(\''+u.id+'\')"><span class="adash-row-main">'+escHtml(u.email||u.id||'—')+'</span>'+adashUserBadge(u)+'<span class="adash-row-sub">'+right+'</span></div>';
+}
+function adashProgress(name,count,pct,sub){
+  return '<div class="adash-progress-row"><div class="adash-progress-top"><span class="adash-progress-name">'+name+'</span><span class="adash-progress-count">'+count+'</span></div>'+
+    '<div class="adash-progress-bar"><div class="adash-progress-fill" style="width:'+pct+'%"></div></div>'+(sub?'<div class="adash-progress-sub">'+sub+'</div>':'')+'</div>';
+}
+
 function adashRender(){
   var el=document.getElementById('adminDashContent');
   if(!el||!ADASH.raw)return;
   var raw=ADASH.raw,users=raw.users,searchTop=raw.searchTop,notFoundTop=raw.notFoundTop||[],shares=raw.shares;
+  var adminLog=(raw.adminLog||[]).slice().sort(function(a,b){return (b.ts||'').localeCompare(a.ts||'');});
+  var limitUsers=raw.limitUsers||[],payUsers=raw.payUsers||[],topUsers=raw.topUsers||[],xtra=raw.extra||{};
+  var now=Date.now();
   var todayStr=adashDateStr(0),yestStr=adashDateStr(1);
   var last7=adashDayList(7),last30=adashDayList(30);
   var sdMap=adashDailyMap(raw.searchDaily),shdMap=adashDailyMap(raw.shareDaily);
+  var tdoc=sdMap[todayStr]||{};
+  var rulesHint='⚠️ Permission denied for user_stats — add the user_stats rule in Firestore (see setup steps).';
 
-  // Users
+  // ── Users ──
   var totalUsers=users.length;
   var joinedToday=users.filter(function(u){return u.joinTs&&u.joinTs.slice(0,10)===todayStr;}).length;
   var joinedYest=users.filter(function(u){return u.joinTs&&u.joinTs.slice(0,10)===yestStr;}).length;
@@ -5683,121 +5886,31 @@ function adashRender(){
   var activeToday=users.filter(function(u){return u.lastActiveTs&&u.lastActiveTs.slice(0,10)===todayStr;}).length;
   var activeWeek=users.filter(function(u){return u.lastActiveTs&&last7.indexOf(u.lastActiveTs.slice(0,10))>=0;}).length;
 
-  // Searches / Shares
+  // ── Searches / shares ──
   var searchesToday=(sdMap[todayStr]&&sdMap[todayStr].total)||0;
   var searchesYest=(sdMap[yestStr]&&sdMap[yestStr].total)||0;
   var totalSearches=raw.counters.totalSearches!=null?raw.counters.totalSearches:searchTop.reduce(function(s,d){return s+(d.count||0);},0);
   var sharesToday=(shdMap[todayStr]&&shdMap[todayStr].total)||0;
-  var sharesYest=(shdMap[yestStr]&&shdMap[yestStr].total)||0;
   var totalShares=raw.counters.totalShares!=null?raw.counters.totalShares:shares.reduce(function(s,d){return s+(d.count||0);},0);
+  var gJoinedToday=adashPct(joinedToday,joinedYest),gSearchToday=adashPct(searchesToday,searchesYest),gJoinedWeek=adashPct(joinedWeek,joinedPrevWeek);
 
-  var gJoinedToday=adashPct(joinedToday,joinedYest);
-  var gSearchToday=adashPct(searchesToday,searchesYest);
-  var gJoinedWeek=adashPct(joinedWeek,joinedPrevWeek);
-
-  var paidUsersAll=users.filter(function(u){return u.plan&&u.plan!=='trial'&&u.premiumExpiry;});
-  var paidActiveCount=paidUsersAll.filter(function(u){return new Date(u.premiumExpiry).getTime()>Date.now();}).length;
-
-  var cards=[
-    {ic:'👥',val:totalUsers,lbl:'Total Users',g:null},
-    {ic:'💎',val:paidActiveCount,lbl:'Active Premium',g:null},
-    {ic:'🟢',val:activeToday,lbl:'Active Today',g:null},
-    {ic:'📅',val:activeWeek,lbl:'Active This Week',g:null},
-    {ic:'🆕',val:joinedToday,lbl:'Joined Today',g:gJoinedToday},
-    {ic:'📈',val:joinedWeek,lbl:'Joined This Week',g:gJoinedWeek},
-    {ic:'🔍',val:totalSearches,lbl:'Total Searches',g:null},
-    {ic:'⚡',val:searchesToday,lbl:'Searches Today',g:gSearchToday},
-    {ic:'📤',val:totalShares,lbl:'Total App Shares',g:null}
-  ];
-  var cardsHtml=cards.map(function(c){
-    return '<div class="adash-card"><div class="adash-card-top"><div class="adash-card-ico">'+c.ic+'</div>'+(c.g?adashGrowthBadge(c.g):'')+'</div>'+
-      '<div class="adash-card-val">'+c.val+'</div><div class="adash-card-lbl">'+c.lbl+'</div></div>';
-  }).join('');
-
-  // Brand analytics (built from tracked brand field on top-10 search_stats docs)
-  var brandTotals={};
-  searchTop.forEach(function(s){var b=s.brand||'OTHER';brandTotals[b]=(brandTotals[b]||0)+(s.count||0);});
-  var brandList=Object.keys(brandTotals).filter(function(b){return b!=='OTHER';}).map(function(b){return {name:b,count:brandTotals[b]};}).sort(function(a,b){return b.count-a.count;});
-  var brandSum=brandList.reduce(function(s,b){return s+b.count;},0)||1;
-  var brandHtml=brandList.length?brandList.slice(0,6).map(function(b){
-    var p=Math.round((b.count/brandSum)*100);
-    return '<div class="adash-brand-card"><div class="adash-brand-top"><span class="adash-brand-name">'+b.name+'</span><span class="adash-brand-pct">'+p+'%</span></div>'+
-      '<div class="adash-progress-bar"><div class="adash-progress-fill" style="width:'+p+'%"></div></div></div>';
-  }).join(''):'<div class="adash-empty">Brand data will build up as new searches are tracked</div>';
-
-  // Search analytics
-  var top10Html=searchTop.length?searchTop.map(function(s,i){
-    var p=searchTop[0].count?Math.round((s.count/searchTop[0].count)*100):0;
-    return '<div class="adash-progress-row"><div class="adash-progress-top"><span class="adash-progress-name">#'+(i+1)+' '+escHtml(s.query||s.id)+'</span><span class="adash-progress-count">'+(s.count||0)+'</span></div>'+
-      '<div class="adash-progress-bar"><div class="adash-progress-fill" style="width:'+p+'%"></div></div></div>';
-  }).join(''):'<div class="adash-empty">No search data</div>';
-
-  var notFoundHtml=notFoundTop.length?notFoundTop.map(function(s){
-    var q=escHtml(s.query||s.id);
-    return '<div class="adash-row"><span class="adash-row-main">'+q+'</span><span class="adash-row-badge" style="background:var(--danger);margin-right:6px">'+(s.count||0)+'×</span>'+
-      '<span class="adash-row-add" onclick="adashQuickAddMissing(\''+q.replace(/'/g,"\\'")+'\')">+ Add</span></div>';
-  }).join(''):'<div class="adash-empty">No missing models tracked yet</div>';
-
-  var trendToday=searchTop.map(function(s){return {q:s.query||s.id,c:s['d_'+todayStr]||0,doc:s};}).filter(function(x){return x.c>0;}).sort(function(a,b){return b.c-a.c;});
-  var trendWeek=searchTop.map(function(s){var c=last7.reduce(function(sum,d){return sum+(s['d_'+d]||0);},0);return {q:s.query||s.id,c:c};}).filter(function(x){return x.c>0;}).sort(function(a,b){return b.c-a.c;});
-  function trendListHtml(list,emptyMsg){
-    return list.length?list.slice(0,5).map(function(x,i){
-      return '<div class="adash-row"><span class="adash-row-main">#'+(i+1)+' '+escHtml(x.q)+'</span><span class="adash-row-badge">'+x.c+'</span></div>';
-    }).join(''):'<div class="adash-empty">'+emptyMsg+'</div>';
-  }
-
-  // Category analytics — log kis category (Glass / Back Cover / Display / Battery...) mein search kar rahe hain
-  var catKeys=['glass','backcover'].concat(PART_TYPES.map(function(t){return t.key;}));
-  function catSum(days,k){return days.reduce(function(sum,d){return sum+((sdMap[d]&&sdMap[d]['c_'+k])||0);},0);}
-  var catRows=catKeys.map(function(k){return {k:k,today:catSum([todayStr],k),w:catSum(last7,k),m:catSum(last30,k)};})
-    .filter(function(r){return r.m>0;}).sort(function(a,b){return (b.w-a.w)||(b.m-a.m);});
-  var catMax=catRows.reduce(function(mx,r){return Math.max(mx,r.m);},0)||1;
-  var catHtml=catRows.length?catRows.map(function(r){
-    var pct=Math.round((r.m/catMax)*100);
-    return '<div class="adash-progress-row"><div class="adash-progress-top"><span class="adash-progress-name">'+searchCatLabel(r.k)+'</span><span class="adash-progress-count">'+r.m+'</span></div>'+
-      '<div class="adash-progress-bar"><div class="adash-progress-fill" style="width:'+pct+'%"></div></div>'+
-      '<div style="font-size:11px;color:var(--text-2);margin-top:3px">Aaj: <b>'+r.today+'</b> · 7 din: <b>'+r.w+'</b> · 30 din: <b>'+r.m+'</b></div></div>';
-  }).join(''):'<div class="adash-empty">Category data ab se build hoga — nayi searches track hone ke baad yahan dikhega</div>';
-
-  // User analytics
-  var newUsers=users.slice().sort(function(a,b){return (b.joinTs||'').localeCompare(a.joinTs||'');}).slice(0,10);
-  var lastActive=users.slice().sort(function(a,b){return (b.lastActiveTs||'').localeCompare(a.lastActiveTs||'');});
-  var mostActive=lastActive.slice(0,8);
-  var oldUsers=users.filter(function(u){return u.joinTs&&u.joinTs.slice(0,10)<last7[0];});
-  var returningWeek=oldUsers.filter(function(u){return u.lastActiveTs&&last7.indexOf(u.lastActiveTs.slice(0,10))>=0;}).length;
-  var retentionPct=oldUsers.length?Math.round((returningWeek/oldUsers.length)*100):0;
-  var avgSearchesPerUser=totalUsers?(totalSearches/totalUsers).toFixed(1):'0';
-  var fourteenAgo=adashDateStr(14);
-  var inactiveUsers=users.filter(function(u){return (!u.lastActiveTs||u.lastActiveTs.slice(0,10)<fourteenAgo);}).length;
-
-  // Premium / paid users
+  // ── Premium ──
   var planLbl={monthly:'Monthly',yearly:'Yearly',test:'Test'};
-  var paidUsersSorted=paidUsersAll.slice().sort(function(a,b){return (b.purchaseTs||b.premiumExpiry||'').localeCompare(a.purchaseTs||a.premiumExpiry||'');});
-  function adashDateTime(ts){return ts?new Date(ts).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';}
-  var premiumHtml=paidUsersSorted.length?paidUsersSorted.map(function(u){
-    var isActive=u.premiumExpiry&&new Date(u.premiumExpiry).getTime()>Date.now();
-    return '<div class="adash-prow clickable" data-email="'+escHtml(u.email||'')+'" onclick="openUserDetail(\''+u.id+'\')"><div class="adash-prow-top"><span class="adash-prow-email">'+escHtml(u.email||u.id||'—')+'</span>'+
-      '<span class="adash-prow-badge '+(isActive?'active':'expired')+'">'+(isActive?'Active':'Expired')+'</span></div>'+
-      '<div class="adash-prow-grid">'+
-        '<div><b>Plan:</b> '+(planLbl[u.plan]||escHtml(u.plan||'—'))+'</div>'+
-        '<div><b>Purchased:</b> '+adashDateTime(u.purchaseTs)+'</div>'+
-        '<div><b>Expires:</b> '+adashDateTime(u.premiumExpiry)+'</div>'+
-      '</div></div>';
-  }).join(''):'<div class="adash-empty">No premium purchases yet</div>';
-
-  // ── Premium tab data ──
-  var __now=Date.now();
   var planPrice={monthly:49,yearly:499};
-  function premDaysLeft(u){return Math.ceil((new Date(u.premiumExpiry).getTime()-__now)/864e5);}
+  var paidUsersAll=users.filter(function(u){return u.plan&&u.plan!=='trial'&&u.premiumExpiry;});
+  var paidActiveCount=paidUsersAll.filter(function(u){return new Date(u.premiumExpiry).getTime()>now;}).length;
+  var paidUsersSorted=paidUsersAll.slice().sort(function(a,b){return (b.purchaseTs||b.premiumExpiry||'').localeCompare(a.purchaseTs||a.premiumExpiry||'');});
+  function isPaidActive(u){return u.premiumExpiry&&new Date(u.premiumExpiry).getTime()>now;}
+  function premDaysLeft(u){return Math.ceil((new Date(u.premiumExpiry).getTime()-now)/864e5);}
   function premRow(u){
     var d=premDaysLeft(u),isAct=d>0;
-    var left=isAct?(d+' din baaki'):('Expired '+Math.abs(d)+' din pehle');
+    var left=isAct?(d+' day'+(d>1?'s':'')+' left'):('Expired '+Math.abs(d)+' day'+(Math.abs(d)>1?'s':'')+' ago');
     var col=!isAct?'var(--danger)':(d<=7?'#D97706':'var(--text-2)');
-    return '<div class="adash-prow clickable" onclick="openUserDetail(\''+u.id+'\')"><div class="adash-prow-top"><span class="adash-prow-email">'+escHtml(u.email||u.id||'—')+'</span>'+
-      '<span class="adash-prow-badge '+(isAct?'active':'expired')+'">'+(planLbl[u.plan]||escHtml(u.plan||'—'))+'</span></div>'+
+    return '<div class="adash-prow clickable" data-email="'+escHtml(u.email||'')+'" onclick="openUserDetail(\''+u.id+'\')"><div class="adash-prow-top"><span class="adash-prow-email">'+escHtml(u.email||u.id||'—')+'</span>'+
+      '<span class="adash-prow-badge '+(isAct?'active':'expired')+'">'+(planLbl[u.plan]||escHtml(u.plan||'—'))+(isAct?'':' · Expired')+'</span></div>'+
       '<div class="adash-prow-grid">'+
-        '<div><b>Kharida:</b> '+adashDateTime(u.purchaseTs)+'</div>'+
-        '<div><b>Expiry:</b> '+adashDateTime(u.premiumExpiry)+'</div>'+
+        '<div><b>Purchased:</b> '+adashDateTime(u.purchaseTs)+'</div>'+
+        '<div><b>Expires:</b> '+adashDateTime(u.premiumExpiry)+'</div>'+
         '<div style="color:'+col+';font-weight:700">⏳ '+left+'</div>'+
         '<div><b>Payment ID:</b> '+escHtml(u.lastPaymentId||'—')+'</div>'+
       '</div></div>';
@@ -5807,139 +5920,259 @@ function adashRender(){
   var premExpiredCount=realPaid.length-premActiveList.length;
   var premSoonList=premActiveList.filter(function(u){return premDaysLeft(u)<=7;}).sort(function(a,b){return premDaysLeft(a)-premDaysLeft(b);});
   var premRevenue=realPaid.reduce(function(sum,u){return sum+(planPrice[u.plan]||0);},0);
-  // Hot leads: trial jaldi khatam hone wale + trial khatam ho chuke par paid nahi liya
   var recentSearchBy={};(raw.activity||[]).forEach(function(a){if(a.type==='search'&&a.email){var k=a.email.toLowerCase();recentSearchBy[k]=(recentSearchBy[k]||0)+1;}});
-  function isPaidActive(u){return u.premiumExpiry&&new Date(u.premiumExpiry).getTime()>__now;}
   function leadRow(u,lbl){
     var sc=recentSearchBy[(u.email||'').toLowerCase()]||0;
     return '<div class="adash-row clickable" onclick="openUserDetail(\''+u.id+'\')"><span class="adash-row-main">'+escHtml(u.email||'—')+
-      '<div style="font-size:10.5px;color:var(--text-2);font-weight:600">'+lbl+(sc?' · 🔍 '+sc+' recent searches':'')+' · last active '+adashTimeAgo(u.lastActiveTs)+'</div></span></div>';
+      '<div class="adash-row-hint">'+lbl+(sc?' · 🔍 '+sc+' recent searches':'')+' · last active '+adashTimeAgo(u.lastActiveTs)+'</div></span></div>';
   }
-  var trialEndingSoon=users.filter(function(u){if(isPaidActive(u)||!u.trialEnd)return false;var t=new Date(u.trialEnd).getTime();return t>__now&&t-__now<=3*864e5;})
+  var trialEndingSoon=users.filter(function(u){if(isPaidActive(u)||!u.trialEnd)return false;var t=new Date(u.trialEnd).getTime();return t>now&&t-now<=3*864e5;})
     .sort(function(a,b){return (b.lastActiveTs||'').localeCompare(a.lastActiveTs||'');}).slice(0,15);
-  var trialLapsed=users.filter(function(u){if(isPaidActive(u)||u.plan&&u.plan!=='trial'&&u.premiumExpiry||!u.trialEnd)return false;var t=new Date(u.trialEnd).getTime();return t<=__now&&__now-t<=14*864e5;})
+  var trialLapsed=users.filter(function(u){if(isPaidActive(u)||(u.plan&&u.plan!=='trial'&&u.premiumExpiry)||!u.trialEnd)return false;var t=new Date(u.trialEnd).getTime();return t<=now&&now-t<=14*864e5;})
     .sort(function(a,b){return (b.lastActiveTs||'').localeCompare(a.lastActiveTs||'');}).slice(0,15);
-  var hotLeadsHtml=
-    '<div class="adash-hdr">🔥 Trial 3 din me khatam ('+trialEndingSoon.length+')</div>'+
-    (trialEndingSoon.length?trialEndingSoon.map(function(u){var d=Math.max(1,Math.ceil((new Date(u.trialEnd).getTime()-__now)/864e5));return leadRow(u,'⏳ '+d+' din baaki');}).join(''):'<div class="adash-empty">Abhi koi nahi</div>')+
-    '<div class="adash-hdr">💤 Trial khatam, premium nahi liya (14 din) ('+trialLapsed.length+')</div>'+
-    (trialLapsed.length?trialLapsed.map(function(u){return leadRow(u,'Trial khatam '+adashTimeAgo(u.trialEnd));}).join(''):'<div class="adash-empty">Abhi koi nahi</div>');
-  var premLatestHtml=realPaid.length?realPaid.slice(0,3).map(premRow).join(''):'<div class="adash-empty">Abhi tak koi premium purchase nahi</div>';
-  var premiumTabHtml=
-    '<div class="adash-hdr">💎 Premium Overview</div><div class="adash-mini">'+
-      '<div class="adash-mini-box"><div class="adash-mini-val">'+premActiveList.length+'</div><div class="adash-mini-lbl">Active</div></div>'+
-      '<div class="adash-mini-box"><div class="adash-mini-val">'+premExpiredCount+'</div><div class="adash-mini-lbl">Expired</div></div>'+
-      '<div class="adash-mini-box"><div class="adash-mini-val">'+premSoonList.length+'</div><div class="adash-mini-lbl">7 din me expire</div></div>'+
-      '<div class="adash-mini-box"><div class="adash-mini-val">₹'+premRevenue+'</div><div class="adash-mini-lbl">Est. Revenue</div></div>'+
-    '</div>'+
-    '<div style="font-size:10.5px;color:var(--text-2);margin-top:-8px">Est. Revenue = har user ki latest purchase (Monthly ₹49 / Yearly ₹499). Test plan gine nahi jaate.</div>'+
-    '<button class="adash-tab" style="align-self:flex-start" onclick="adashExportUsers()">⬇️ Users CSV Download</button>'+
-    hotLeadsHtml+
-    (premSoonList.length?'<div class="adash-hdr">⚠️ Jaldi Expire Hone Wale</div>'+premSoonList.map(premRow).join(''):'')+
-    '<div class="adash-hdr">🆕 Sabse Latest Purchases</div>'+premLatestHtml+
-    '<div class="adash-hdr">📋 Saare Premium Users ('+realPaid.length+')</div>'+(realPaid.length?realPaid.map(premRow).join(''):'<div class="adash-empty">No premium purchases yet</div>');
+  var premLatestHtml=realPaid.length?realPaid.slice(0,3).map(premRow).join(''):'<div class="adash-empty">No premium purchases yet</div>';
 
-  // Shares
-  var topSharers=shares.slice(0,8);
-  var shareConversion=totalUsers?Math.round((shares.length/totalUsers)*100):0;
+  // Funnel (Premium tab, own period filter)
+  var pf=ADASH.pfilter||'30d';
+  var fDays=pf==='today'?[todayStr]:(pf==='7d'?last7:last30);
+  var fLabel=pf==='today'?'Today':(pf==='7d'?'Last 7 days':'Last 30 days');
+  function fSum(k){return fDays.reduce(function(s,d){return s+((sdMap[d]&&sdMap[d][k])||0);},0);}
+  var fLimit=fSum('f_limit'),fLock=fSum('f_lock'),fPop=fSum('f_popup'),fStart=fSum('f_paystart'),fDone=fSum('f_paydone'),fFail=fSum('f_payfail'),fCancel=fSum('f_paycancel'),fRev=fSum('f_rev');
+  function fPct(a,b){return b?Math.round(a/b*100)+'%':'—';}
+  var fSteps=[['🔒','Hit free limit / locked section',fLimit+fLock],['👆','Opened Premium popup',fPop],['💳','Started payment',fStart],['✅','Completed payment',fDone]];
+  var fMax=Math.max.apply(null,fSteps.map(function(s){return s[2];}).concat([1]));
+  var funnelRowsHtml=fSteps.map(function(s,i){
+    var conv=i>=2?' <span class="adash-conv">'+fPct(s[2],fSteps[i-1][2])+' of previous step</span>':'';
+    return adashProgress(s[0]+' '+s[1]+conv,s[2],Math.round(s[2]/fMax*100));
+  }).join('');
+  var paidSet={};users.forEach(function(u){if(isPaidActive(u))paidSet[u.id]=1;});
+  function usLeadRow(s,sub){
+    return '<div class="adash-row clickable" onclick="openUserDetail(\''+s.id+'\')"><span class="adash-row-main">'+escHtml(s.email||s.id)+
+      '<div class="adash-row-hint">'+sub+'</div></span><span class="adash-row-sub">'+adashTimeAgo(s.lastHitTs||s.lastSeenTs)+'</span></div>';
+  }
+  var leadEmpty='<div class="adash-empty">'+(xtra.rulesErr?rulesHint:'Nobody yet — this fills up as users open the updated app')+'</div>';
+  var limitLeads=limitUsers.filter(function(s){return !paidSet[s.id];}).sort(function(a,b){return (b.lastHitTs||'').localeCompare(a.lastHitTs||'');}).slice(0,15);
+  var payNot=payUsers.filter(function(s){return !paidSet[s.id]&&(s.payStarts||0)>(s.payDone||0);}).sort(function(a,b){return (b.lastSeenTs||'').localeCompare(a.lastSeenTs||'');}).slice(0,15);
 
-  // Live activity feed
-  var actIco={search:'🔍',share:'📤',signup:'🆕',open:'📲',purchase:'💎'};
+  // ── Search ──
+  var catKeys=['glass','backcover'].concat(PART_TYPES.map(function(t){return t.key;}));
+  function catSum(days,k){return days.reduce(function(sum,d){return sum+((sdMap[d]&&sdMap[d]['c_'+k])||0);},0);}
+  var catRows=catKeys.map(function(k){return {k:k,today:catSum([todayStr],k),w:catSum(last7,k),m:catSum(last30,k)};})
+    .filter(function(r){return r.m>0;}).sort(function(a,b){return (b.w-a.w)||(b.m-a.m);});
+  var catMax=catRows.reduce(function(mx,r){return Math.max(mx,r.m);},0)||1;
+  var catHtml=catRows.length?catRows.map(function(r){
+    return adashProgress(searchCatLabel(r.k),r.m,Math.round((r.m/catMax)*100),'Today <b>'+r.today+'</b> · 7 days <b>'+r.w+'</b> · 30 days <b>'+r.m+'</b>');
+  }).join(''):'<div class="adash-empty">No category data yet — it builds up as new searches are tracked</div>';
+  var top10Html=searchTop.length?searchTop.map(function(s,i){
+    var p=searchTop[0].count?Math.round((s.count/searchTop[0].count)*100):0;
+    return adashProgress('#'+(i+1)+' '+escHtml(s.query||s.id),s.count||0,p);
+  }).join(''):'<div class="adash-empty">No search data yet</div>';
+  var notFoundHtml=notFoundTop.length?notFoundTop.map(function(s){
+    var q=escHtml(s.query||s.id);
+    return '<div class="adash-row"><span class="adash-row-main">'+q+'</span><span class="adash-row-badge" style="background:var(--danger);color:#fff;margin-right:6px">'+(s.count||0)+'×</span>'+
+      '<span class="adash-row-add" onclick="adashQuickAddMissing(\''+q.replace(/'/g,"\\'")+'\')">+ Add</span></div>';
+  }).join(''):'<div class="adash-empty">No missing models tracked yet — great!</div>';
+  var trendToday=searchTop.map(function(s){return {q:s.query||s.id,c:s['d_'+todayStr]||0,doc:s};}).filter(function(x){return x.c>0;}).sort(function(a,b){return b.c-a.c;});
+  var trendWeek=searchTop.map(function(s){var c=last7.reduce(function(sum,d){return sum+(s['d_'+d]||0);},0);return {q:s.query||s.id,c:c};}).filter(function(x){return x.c>0;}).sort(function(a,b){return b.c-a.c;});
+  function trendListHtml(list,emptyMsg){
+    return list.length?list.slice(0,5).map(function(x,i){
+      return '<div class="adash-row"><span class="adash-row-main">#'+(i+1)+' '+escHtml(x.q)+'</span><span class="adash-row-badge">'+x.c+'</span></div>';
+    }).join(''):'<div class="adash-empty">'+emptyMsg+'</div>';
+  }
+  var brandTotals={};
+  searchTop.forEach(function(s){var b=s.brand||'OTHER';brandTotals[b]=(brandTotals[b]||0)+(s.count||0);});
+  var brandList=Object.keys(brandTotals).filter(function(b){return b!=='OTHER';}).map(function(b){return {name:b,count:brandTotals[b]};}).sort(function(a,b){return b.count-a.count;});
+  var brandSum=brandList.reduce(function(s,b){return s+b.count;},0)||1;
+  var brandHtml=brandList.length?brandList.slice(0,6).map(function(b){
+    var p=Math.round((b.count/brandSum)*100);
+    return '<div class="adash-brand-card"><div class="adash-brand-top"><span class="adash-brand-name">'+b.name+'</span><span class="adash-brand-pct">'+p+'%</span></div>'+
+      '<div class="adash-progress-bar"><div class="adash-progress-fill" style="width:'+p+'%"></div></div></div>';
+  }).join(''):'<div class="adash-empty">Brand data builds up as new searches are tracked</div>';
+
+  // ── User health ──
+  var newUsers=users.slice().sort(function(a,b){return (b.joinTs||'').localeCompare(a.joinTs||'');}).slice(0,10);
+  var lastActive=users.slice().sort(function(a,b){return (b.lastActiveTs||'').localeCompare(a.lastActiveTs||'');});
+  var mostActive=lastActive.slice(0,8);
+  var oldUsers=users.filter(function(u){return u.joinTs&&u.joinTs.slice(0,10)<last7[0];});
+  var returningWeek=oldUsers.filter(function(u){return u.lastActiveTs&&last7.indexOf(u.lastActiveTs.slice(0,10))>=0;}).length;
+  var retentionPct=oldUsers.length?Math.round((returningWeek/oldUsers.length)*100):0;
+  var avgSearchesPerUser=totalUsers?(totalSearches/totalUsers).toFixed(1):'0';
+  var fourteenAgo=adashDateStr(14);
+  var inactiveList=lastActive.filter(function(u){return (!u.lastActiveTs||u.lastActiveTs.slice(0,10)<fourteenAgo);});
+  var inactiveUsers=inactiveList.length;
+
+  // ── Live feed ──
+  var actIco={search:'🔍',share:'📤',signup:'🆕',open:'📲',purchase:'💎',pay_start:'💳',pay_fail:'⚠️',pay_cancel:'↩️',admin_action:'🛠️'};
   var actVerb={share:'shared the app',signup:'joined the app',open:'opened the app'};
+  var detailTypes={search:1,purchase:1,pay_start:1,pay_fail:1,pay_cancel:1,admin_action:1};
   var feedList=adashDedupe(raw.activity).slice(0,30);
   var feedHtml=feedList.length?feedList.map(function(a){
-    var verb=((a.type==='search'||a.type==='purchase')&&a.detail)?escHtml(a.detail):(actVerb[a.type]||escHtml(a.detail||'did something'));
+    var verb=(detailTypes[a.type]&&a.detail)?escHtml(a.detail):(actVerb[a.type]||escHtml(a.detail||'did something'));
     return '<div class="adash-feed-item"><span class="adash-feed-dot">'+(actIco[a.type]||'🟢')+'</span>'+
       '<div class="adash-feed-main"><div class="adash-feed-txt"><b>'+escHtml((a.email||'user').split('@')[0])+'</b> '+verb+'</div>'+
       '<div class="adash-feed-email">'+escHtml(a.email||'')+'</div></div>'+
       '<div class="adash-feed-time">'+adashTimeAgo(a.ts)+'</div></div>';
-  }).join(''):'<div class="adash-empty">No activity yet — new data will appear here once tracked</div>';
+  }).join(''):'<div class="adash-empty">No activity yet — it appears here as users use the app</div>';
 
-  // AI Insights
+  // ── Insights ──
   var insights=[];
   if(trendToday.length){
     var topToday=trendToday[0];
-    var yestVal=(topToday.doc&&topToday.doc['d_'+yestStr])||0;
-    var g=adashPct(topToday.c,yestVal);
+    var g=adashPct(topToday.c,(topToday.doc&&topToday.doc['d_'+yestStr])||0);
     if(g.dir==='up')insights.push({ic:'🔥',txt:'<b>'+escHtml(topToday.q)+'</b> searches are up '+g.v+'% today.'});
   }
-  if(brandList.length)insights.push({ic:'📈',txt:'<b>'+brandList[0].name+'</b> is your most searched brand overall ('+Math.round((brandList[0].count/brandSum)*100)+'% share).'});
-  if(oldUsers.length)insights.push({ic:'⚡',txt:retentionPct+'% of eligible users returned within the last 7 days.'});
-  if(gJoinedWeek.dir!=='flat')insights.push({ic:'👥',txt:'New signups are '+gJoinedWeek.dir+' '+gJoinedWeek.v+'% vs last week.'});
+  if(brandList.length)insights.push({ic:'📈',txt:'<b>'+brandList[0].name+'</b> is the most searched brand ('+Math.round((brandList[0].count/brandSum)*100)+'% of top searches).'});
+  if(oldUsers.length)insights.push({ic:'⚡',txt:retentionPct+'% of older users came back in the last 7 days.'});
+  if(gJoinedWeek.dir!=='flat')insights.push({ic:'👥',txt:'New signups are '+gJoinedWeek.dir+' '+gJoinedWeek.v+'% compared to last week.'});
   if(!insights.length)insights.push({ic:'✨',txt:'Insights will appear here once more usage data is tracked.'});
   var insightsHtml=insights.map(function(x){return '<div class="adash-insight"><span class="adash-insight-ico">'+x.ic+'</span><span class="adash-insight-txt">'+x.txt+'</span></div>';}).join('');
 
-  // Chart data
-  var chartDays=ADASH.filter==='30d'?last30:(ADASH.filter==='today'?[todayStr]:last7);
+  // ── Admin log ──
+  var adminToday=adminLog.filter(function(a){return a.ts&&a.ts.slice(0,10)===todayStr;}).length;
+  var alAdd=0,alEdit=0,alDel=0;
+  adminLog.forEach(function(a){var d=a.detail||'';if(d.indexOf('🗑')===0)alDel++;else if(d.indexOf('✏')===0)alEdit++;else if(d.indexOf('✨')===0||d.indexOf('📥')===0)alAdd++;});
+
+  // ── Smart Summary ──
+  var sumItems=[];
+  function sAdd(ic,txt,go,warn){sumItems.push({ic:ic,txt:txt,go:go,warn:warn});}
+  sAdd('🆕','<b>'+joinedToday+'</b> new user'+(joinedToday===1?'':'s')+' today'+(joinedYest?' (yesterday '+joinedYest+')':''),"adashSetTab('users')");
+  sAdd('🔍','<b>'+searchesToday+'</b> search'+(searchesToday===1?'':'es')+' today'+(searchesYest?' (yesterday '+searchesYest+')':''),"adashSetTab('search')");
+  if(premSoonList.length)sAdd('💎','<b>'+premSoonList.length+'</b> premium plan'+(premSoonList.length===1?'':'s')+' expiring within 7 days',"adashSetTab('premium')",true);
+  if(trialEndingSoon.length)sAdd('🔥','<b>'+trialEndingSoon.length+'</b> trial'+(trialEndingSoon.length===1?'':'s')+' ending within 3 days — a good time to follow up',"adashSetTab('premium')",true);
+  if(trialLapsed.length)sAdd('💤','<b>'+trialLapsed.length+'</b> trial'+(trialLapsed.length===1?'':'s')+' ended without upgrading (last 14 days)',"adashSetTab('premium')");
+  var tStart=tdoc.f_paystart||0,tDone=tdoc.f_paydone||0,tRev=tdoc.f_rev||0;
+  if(tStart)sAdd('💳','<b>'+tStart+'</b> payment'+(tStart===1?'':'s')+' started today, <b>'+tDone+'</b> completed'+(tRev?' · ₹'+tRev:''),"adashSetTab('premium')",tStart>tDone);
+  var tHits=(tdoc.f_limit||0)+(tdoc.f_lock||0);
+  if(tHits)sAdd('🔒','Users hit the free limit or a locked section <b>'+tHits+'</b> time'+(tHits===1?'':'s')+' today',"adashSetTab('premium')");
+  if(notFoundTop.length)sAdd('🚫','<b>'+notFoundTop.length+'</b> missing model'+(notFoundTop.length===1?'':'s')+' — most searched: <b>'+escHtml(notFoundTop[0].query||notFoundTop[0].id)+'</b> ('+(notFoundTop[0].count||0)+'×)',"adashSetTab('search')",true);
+  if(xtra.newFeedback)sAdd('💬','<b>'+xtra.newFeedback+(xtra.newFeedback>=30?'+':'')+'</b> new feedback',"openFeedbackDashboard()");
+  if(xtra.newRequests)sAdd('📥','<b>'+xtra.newRequests+(xtra.newRequests>=30?'+':'')+'</b> new update request'+(xtra.newRequests===1?'':'s'),"openRequestsDashboard()");
+  if(adminToday)sAdd('🛠️','You made <b>'+adminToday+'</b> change'+(adminToday===1?'':'s')+' today',"adashSetTab('adminlog')");
+  if(inactiveUsers)sAdd('😴','<b>'+inactiveUsers+'</b> user'+(inactiveUsers===1?'':'s')+' inactive for 14+ days',"adashSetTab('users')");
+  if(xtra.rulesErr)sAdd('⚠️','user_stats rule missing — per-user data and funnel lists are unavailable',"adashSetTab('premium')",true);
+  var sumHtml=adashSec('🧠','Today at a Glance','What needs your attention right now. Tap any line to open the details.')+
+    '<div class="adash-sum">'+sumItems.map(function(x){
+      return '<div class="adash-sum-item'+(x.warn?' warn':'')+'" onclick="'+x.go+'"><span class="adash-sum-ic">'+x.ic+'</span><span class="adash-sum-txt">'+x.txt+'</span><span class="adash-sum-go">›</span></div>';
+    }).join('')+'</div>'+
+    '<div class="adash-updated">Updated '+adashTimeAgo(new Date(ADASH.t||Date.now()).toISOString())+' · <span onclick="adashRefresh()">🔄 Refresh</span></div>';
+
+  // ── Key numbers (cards) ──
+  function cardsOf(list){
+    return '<div class="adash-cards">'+list.map(function(c){
+      return '<div class="adash-card"><div class="adash-card-top"><div class="adash-card-ico">'+c.ic+'</div>'+(c.g?adashGrowthBadge(c.g):'')+'</div>'+
+        '<div class="adash-card-val">'+c.val+'</div><div class="adash-card-lbl">'+c.lbl+'</div><div class="adash-card-hint">'+c.hint+'</div></div>';
+    }).join('')+'</div>';
+  }
+  var userCards=cardsOf([
+    {ic:'👥',val:totalUsers,lbl:'Total Users',hint:'All registered accounts'},
+    {ic:'💎',val:paidActiveCount,lbl:'Active Premium',hint:'Paid plans running now'},
+    {ic:'🟢',val:activeToday,lbl:'Active Today',hint:'Opened the app today'},
+    {ic:'📅',val:activeWeek,lbl:'Active This Week',hint:'Last 7 days'},
+    {ic:'🆕',val:joinedToday,lbl:'New Today',g:gJoinedToday,hint:'vs yesterday'},
+    {ic:'📈',val:joinedWeek,lbl:'New This Week',g:gJoinedWeek,hint:'vs previous week'}
+  ]);
+  var usageCards=cardsOf([
+    {ic:'⚡',val:searchesToday,lbl:'Searches Today',g:gSearchToday,hint:'vs yesterday'},
+    {ic:'🔍',val:totalSearches,lbl:'Total Searches',hint:'Since tracking began'},
+    {ic:'📤',val:totalShares,lbl:'App Shares',hint:'Times the app was shared'}
+  ]);
+
+  // ── Chart ──
+  var chartDays=ADASH.filter==='30d'?last30:last7;
   var chartVals=chartDays.map(function(d){return (sdMap[d]&&sdMap[d].total)||0;});
   var chartLabels=chartDays.map(function(d){return d.slice(5);});
   var shareChartVals=chartDays.map(function(d){return (shdMap[d]&&shdMap[d].total)||0;});
 
-  var filters=[['today','Today'],['7d','7 Days'],['30d','30 Days'],['all','All Time']];
-  var filterHtml=filters.map(function(f){return '<button class="adash-chip'+(ADASH.filter===f[0]?' active':'')+'" onclick="adashSetFilter(\''+f[0]+'\')">'+f[1]+'</button>';}).join('');
-
-  var tabs=[['overview','📊','Overview'],['premium','💎','Premium'],['search','🔍','Search'],['users','👤','Users'],['shares','📤','Shares']];
-  var tabsHtml='<div class="adash-tabs">'+tabs.map(function(t){
+  // ── Tabs ──
+  var tabs=[['overview','📊','Overview'],['premium','💎','Premium'],['search','🔍','Search'],['users','👤','Users'],['shares','📤','Shares'],['adminlog','🛠️','Admin Log']];
+  var html='<div class="adash-tabs">'+tabs.map(function(t){
     return '<button class="adash-tab'+(ADASH.tab===t[0]?' active':'')+'" onclick="adashSetTab(\''+t[0]+'\')">'+t[1]+' '+t[2]+'</button>';
-  }).join('')+'</div>';
+  }).join('')+'<button class="adash-tab" onclick="adashRefresh()" aria-label="Refresh">🔄</button></div>';
+  function tabOpen(k,extra){return '<div class="adash-tabsec'+(extra||'')+(ADASH.tab===k?' active':'')+'" data-tab="'+k+'">';}
 
-  var html='';
-  html+=tabsHtml;
-
-  // OVERVIEW TAB
-  html+='<div class="adash-tabsec'+(ADASH.tab==='overview'?' active':'')+'" data-tab="overview">';
-  html+='<div class="adash-filters">'+filterHtml+'</div>';
-  html+='<div class="adash-hdr">💎 Latest Premium Buyers</div>'+premLatestHtml;
-  html+='<div class="adash-hdr">📊 Overview</div><div class="adash-cards">'+cardsHtml+'</div>';
-  html+='<div class="adash-hdr">✨ AI Insights</div>'+insightsHtml;
-  html+='<div class="adash-hdr">📈 Search Trend</div><div class="adash-chart-box"><canvas id="adashSearchChart" height="130"></canvas></div>';
-  html+='<div class="adash-hdr">🟢 Live Activity Feed</div>'+feedHtml;
+  // OVERVIEW
+  html+=tabOpen('overview');
+  html+=sumHtml;
+  html+=adashSec('👥','Users & Premium','How many people use the app and how many are paying.')+userCards;
+  html+=adashSec('⚡','Usage','Search and sharing activity.')+usageCards;
+  html+=adashSec('📈','Search Trend','Daily searches over the selected period.')+adashChips([['7d','7 Days'],['30d','30 Days']],ADASH.filter==='30d'?'30d':'7d')+
+    '<div class="adash-chart-box"><canvas id="adashSearchChart" height="130"></canvas></div>';
+  html+=adashSec('✨','Insights','Automatic observations from your data.')+insightsHtml;
+  html+=adashSec('💎','Latest Premium Buyers','Your 3 most recent paying users.')+premLatestHtml;
+  html+=adashSec('🟢','Live Activity','The latest actions by users and by you (searches from the same user are merged).')+feedHtml;
   html+='</div>';
 
-  // PREMIUM TAB
-  html+='<div class="adash-tabsec'+(ADASH.tab==='premium'?' active':'')+'" data-tab="premium">'+premiumTabHtml+'</div>';
-
-  // SEARCH TAB
-  html+='<div class="adash-tabsec'+(ADASH.tab==='search'?' active':'')+'" data-tab="search">';
-  html+='<div class="adash-hdr">🗂️ Searches by Category (Last 30 Days)</div>'+catHtml;
-  html+='<div class="adash-hdr">🔍 Most Searched Models (Top 10)</div>'+top10Html;
-  html+='<div class="adash-hdr">🚫 Missing Models (Searched, Not Found)</div>'+notFoundHtml;
-  html+='<div class="adash-hdr">🔥 Today\'s Trending Searches</div>'+trendListHtml(trendToday,'No searches today');
-  html+='<div class="adash-hdr">📅 Weekly Trending Searches</div>'+trendListHtml(trendWeek,'No searches tracked this week');
-  html+='<div class="adash-hdr">🏷️ Brand Analytics</div><div class="adash-brand-grid">'+brandHtml+'</div>';
+  // PREMIUM
+  html+=tabOpen('premium');
+  html+=adashSec('💎','Premium Overview','Paying users and estimated revenue (each user\'s latest purchase; test plans are excluded).')+
+    adashMini([[premActiveList.length,'Active'],[premExpiredCount,'Expired'],[premSoonList.length,'Expiring in 7 days'],['₹'+premRevenue,'Est. Revenue']])+
+    '<button class="adash-action" onclick="adashExportUsers()">⬇️ Download all users (CSV)</button>';
+  html+=adashSec('🔥','Follow-up Leads','Users who are most likely to upgrade — contact them first.');
+  html+='<div class="adash-sub">Trial ending in 3 days ('+trialEndingSoon.length+')</div>'+
+    (trialEndingSoon.length?trialEndingSoon.map(function(u){var d=Math.max(1,Math.ceil((new Date(u.trialEnd).getTime()-now)/864e5));return leadRow(u,'⏳ '+d+' day'+(d>1?'s':'')+' left');}).join(''):'<div class="adash-empty">None right now</div>');
+  html+='<div class="adash-sub">Trial ended, not upgraded — last 14 days ('+trialLapsed.length+')</div>'+
+    (trialLapsed.length?trialLapsed.map(function(u){return leadRow(u,'Trial ended '+adashTimeAgo(u.trialEnd));}).join(''):'<div class="adash-empty">None right now</div>');
+  if(premSoonList.length)html+='<div class="adash-sub">Premium expiring soon ('+premSoonList.length+')</div>'+premSoonList.map(premRow).join('');
+  html+=adashSec('🎯','Premium Funnel — '+fLabel,'Shows where users drop off on the way to buying Premium.')+adashChips([['today','Today'],['7d','7 Days'],['30d','30 Days']],pf,'p')+
+    '<div class="adash-chart-box" style="padding:14px 14px 4px">'+funnelRowsHtml+'</div>'+
+    adashMini([[fFail,'Payments failed'],[fCancel,'Payments cancelled'],['₹'+fRev,'Revenue (tracked)'],[fPct(fDone,fPop),'Popup → Paid']])+
+    adashNote('Funnel data starts building once users open the updated app. Revenue counts only payments completed inside the app.');
+  html+=adashSec('🚧','Users Who Got Stuck','Hit a limit or lock, or started paying but did not finish.');
+  html+='<div class="adash-sub">Hit free limit / locked section ('+limitLeads.length+')</div>'+
+    (limitLeads.length?limitLeads.map(function(s){return usLeadRow(s,'🔒 '+(s.limitHits||0)+' limit · '+(s.lockHits||0)+' lock · '+escHtml(s.lastHitKind||''));}).join(''):leadEmpty);
+  html+='<div class="adash-sub">Started payment, did not complete ('+payNot.length+')</div>'+
+    (payNot.length?payNot.map(function(s){return usLeadRow(s,'💳 '+(s.payStarts||0)+' tries · '+(s.payFails||0)+' failed');}).join(''):leadEmpty);
+  html+=adashSec('🆕','Latest Purchases')+premLatestHtml;
+  html+=adashSec('📋','All Premium Users ('+realPaid.length+')','Tap a user to see the full profile.')+(realPaid.length?realPaid.map(premRow).join(''):'<div class="adash-empty">No premium purchases yet</div>');
   html+='</div>';
 
-  // USERS TAB
-  html+='<div class="adash-tabsec adash-usersec'+(ADASH.tab==='users'?' active':'')+'" data-tab="users">';
-  html+='<div class="adash-search-box"><span class="material-symbols-rounded">search</span><input placeholder="Search by email..." oninput="adashUserSearch(this.value)"/></div>';
-  html+='<div class="adash-hdr">👤 User Analytics</div><div class="adash-mini">'+
-    '<div class="adash-mini-box"><div class="adash-mini-val">'+retentionPct+'%</div><div class="adash-mini-lbl">Retention (7d)</div></div>'+
-    '<div class="adash-mini-box"><div class="adash-mini-val">'+avgSearchesPerUser+'</div><div class="adash-mini-lbl">Avg Searches/User</div></div>'+
-    '<div class="adash-mini-box"><div class="adash-mini-val">'+returningWeek+'</div><div class="adash-mini-lbl">Returning Users</div></div>'+
-    '<div class="adash-mini-box"><div class="adash-mini-val">'+inactiveUsers+'</div><div class="adash-mini-lbl">Inactive (14d+)</div></div>'+
-  '</div>';
-  html+='<div class="adash-hdr">💎 Premium Users ('+paidUsersAll.length+')</div>'+premiumHtml;
-  html+='<div class="adash-hdr">🆕 Newly Joined Users</div>'+(newUsers.length?newUsers.map(function(u){
-    return '<div class="adash-row clickable" data-email="'+escHtml(u.email||'')+'" onclick="openUserDetail(\''+u.id+'\')"><span class="adash-row-main">'+escHtml(u.email||'—')+'</span><span class="adash-row-sub">'+adashTimeAgo(u.joinTs)+'</span></div>';
-  }).join(''):'<div class="adash-empty">No users found</div>');
-  html+='<div class="adash-hdr">⭐ Most Active Users</div>'+(mostActive.length?mostActive.map(function(u){
-    return '<div class="adash-row clickable" data-email="'+escHtml(u.email||'')+'" onclick="openUserDetail(\''+u.id+'\')"><span class="adash-row-main">'+escHtml(u.email||'—')+'</span><span class="adash-row-sub">'+adashTimeAgo(u.lastActiveTs)+'</span></div>';
-  }).join(''):'<div class="adash-empty">No data</div>');
+  // SEARCH
+  html+=tabOpen('search');
+  html+=adashSec('🗂️','Searches by Category','Where users search the most (last 30 days).')+catHtml;
+  html+=adashSec('🔍','Most Searched Models','Top 10 models of all time.')+top10Html;
+  html+=adashSec('🚫','Missing Models','Users searched these but nothing was found. Tap + Add to create the entry.')+notFoundHtml;
+  html+=adashSec('🔥','Trending Today','Most searched among the top models today.')+trendListHtml(trendToday,'No searches yet today');
+  html+=adashSec('📅','Trending This Week','Most searched among the top models in the last 7 days.')+trendListHtml(trendWeek,'No searches tracked this week');
+  html+=adashSec('🏷️','Brand Share','Share of each brand among the top searched models.')+'<div class="adash-brand-grid">'+brandHtml+'</div>';
   html+='</div>';
 
-  var sharesTabHtml='<div class="adash-tabsec'+(ADASH.tab==='shares'?' active':'')+'" data-tab="shares">';
-  sharesTabHtml+='<div class="adash-hdr">📤 App Share Analytics</div><div class="adash-mini">'+
-    '<div class="adash-mini-box"><div class="adash-mini-val">'+totalShares+'</div><div class="adash-mini-lbl">Total Shares</div></div>'+
-    '<div class="adash-mini-box"><div class="adash-mini-val">'+sharesToday+'</div><div class="adash-mini-lbl">Shares Today</div></div>'+
-    '<div class="adash-mini-box"><div class="adash-mini-val">'+shareConversion+'%</div><div class="adash-mini-lbl">Share Conversion</div></div>'+
-    '<div class="adash-mini-box"><div class="adash-mini-val">'+shares.length+'</div><div class="adash-mini-lbl">Users Who Shared</div></div>'+
-  '</div>';
-  sharesTabHtml+='<div class="adash-chart-box" style="margin-top:8px"><canvas id="adashShareChart" height="110"></canvas></div>';
-  sharesTabHtml+='<div class="adash-hdr">🏆 Top Sharers</div>'+(topSharers.length?topSharers.map(function(s){
-    return '<div class="adash-row clickable" data-email="'+escHtml(s.email||'')+'" onclick="openUserDetail(\''+s.id+'\')"><span class="adash-row-main">'+escHtml(s.email||'—')+'</span><span class="adash-row-badge">'+(s.count||0)+'x</span></div>';
-  }).join(''):'<div class="adash-empty">No share data</div>');
-  sharesTabHtml+='</div>';
-  html+=sharesTabHtml;
+  // USERS
+  html+=tabOpen('users',' adash-usersec');
+  html+='<div class="adash-search-box"><span class="material-symbols-rounded">search</span><input placeholder="Search users by email..." oninput="adashUserSearch(this.value)"/></div>';
+  html+=adashSec('❤️','User Health','How well users stay engaged.')+
+    adashMini([[retentionPct+'%','Retention (7 days)'],[avgSearchesPerUser,'Avg searches per user'],[returningWeek,'Returning this week'],[inactiveUsers,'Inactive 14+ days']])+
+    adashNote('Retention = share of users who joined before this week and were active again in the last 7 days.');
+  html+=(topUsers.length?adashSec('⭐','Most Active Users','Top users by number of searches.'):adashSec('🕒','Recently Active Users','Who used the app most recently. Top-by-searches appears once the updated app collects data.'))+
+    (topUsers.length?topUsers.map(function(u){
+      return '<div class="adash-row clickable" data-email="'+escHtml(u.email||'')+'" onclick="openUserDetail(\''+u.id+'\')"><span class="adash-row-main">'+escHtml(u.email||u.id)+'</span><span class="adash-row-sub">'+(u.searches||0)+' searches · '+(u.opens||0)+' opens</span></div>';
+    }).join(''):(mostActive.length?mostActive.map(function(u){return adashUserRow(u,adashTimeAgo(u.lastActiveTs));}).join(''):'<div class="adash-empty">No data</div>'));
+  html+=adashSec('🆕','Newly Joined','The 10 most recent signups.')+(newUsers.length?newUsers.map(function(u){return adashUserRow(u,adashTimeAgo(u.joinTs));}).join(''):'<div class="adash-empty">No users found</div>');
+  html+=adashSec('😴','Inactive Users (14+ days)','Users who stopped coming back — a message from you may bring them back.')+
+    (inactiveList.length?inactiveList.slice(0,10).map(function(u){return adashUserRow(u,'seen '+adashTimeAgo(u.lastActiveTs));}).join('')+(inactiveList.length>10?adashNote('Showing 10 of '+inactiveList.length+'. Use search above or download the CSV from the Premium tab.'):''):'<div class="adash-empty">Everyone has been active recently 🎉</div>');
+  html+=adashSec('💎','Premium Users ('+paidUsersAll.length+')','All users who have bought a plan.')+(paidUsersSorted.length?paidUsersSorted.map(premRow).join(''):'<div class="adash-empty">No premium purchases yet</div>');
+  html+='</div>';
+
+  // SHARES
+  html+=tabOpen('shares');
+  html+=adashSec('📤','App Shares','How often users share the app with others — free marketing.')+
+    adashMini([[totalShares,'Total shares'],[sharesToday,'Shares today'],[totalUsers?(totalShares/totalUsers).toFixed(1):'0','Avg shares per user'],[shares.length>=20?'20+':shares.length,'Users who shared']])+
+    '<div class="adash-chart-box" style="margin-top:2px"><canvas id="adashShareChart" height="110"></canvas></div>'+
+    adashNote('Chart shows daily shares for the period chosen in Overview.');
+  html+=adashSec('🏆','Top Sharers','Your best promoters. Tap to see their profile.')+(shares.slice(0,8).length?shares.slice(0,8).map(function(s){
+    return '<div class="adash-row clickable" data-email="'+escHtml(s.email||'')+'" onclick="openUserDetail(\''+s.id+'\')"><span class="adash-row-main">'+escHtml(s.email||'—')+'</span><span class="adash-row-badge">'+(s.count||0)+'×</span></div>';
+  }).join(''):'<div class="adash-empty">No share data yet</div>');
+  html+='</div>';
+
+  // ADMIN LOG
+  html+=tabOpen('adminlog');
+  html+=adashSec('🛠️','Admin Action Log','A record of every change you make: add, edit, delete, import and free-access updates.')+
+    adashMini([[adminToday,'Changes today'],[alAdd,'Added / imported'],[alEdit,'Edited'],[alDel,'Deleted']])+
+    adashNote('Counts cover the latest 60 changes. Older than 90 days is removed automatically.')+
+    (adminLog.length?adminLog.map(function(a){
+      var when=a.ts?new Date(a.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+      return '<div class="adash-row"><span class="adash-row-main" style="white-space:normal">'+escHtml(a.detail||'—')+'</span><span class="adash-row-sub">'+when+'</span></div>';
+    }).join(''):'<div class="adash-empty">No changes recorded yet — every add, edit, delete and import will show up here</div>');
+  html+='</div>';
 
   el.innerHTML=html;
   adashDrawChart('adashSearchChart',chartVals,chartLabels,'var(--brand)');
@@ -5966,11 +6199,12 @@ function openUserDetail(uid){
     '</div>'+
     '<div id="udetContent"><div class="udet-skel"></div><div class="udet-skel"></div><div class="udet-skel"></div></div>');
 
-  var udetErr=null;
+  var udetErr=null,usErr2=null;
   Promise.all([
     db.collection('activity_log').where('email','==',u.email).limit(200).get().catch(function(e){udetErr=e;console.error('activity_log query failed:',e);return null;}),
     db.collection('share_stats').doc(uid).get().catch(function(){return null;}),
-    db.collection('activity_log').where('email','==',u.email).where('type','==','search').limit(500).get().catch(function(e){console.error('search log query failed:',e);return null;})
+    db.collection('activity_log').where('email','==',u.email).where('type','==','search').limit(500).get().catch(function(e){console.error('search log query failed:',e);return null;}),
+    db.collection('user_stats').doc(uid).get().catch(function(e){usErr2=e;console.error('user_stats read failed:',e);return null;})
   ]).then(function(r){
     var el=document.getElementById('udetContent');
     if(!el)return; // popup closed before data arrived
@@ -6002,6 +6236,45 @@ function openUserDetail(uid){
         '<div><b>Expires:</b> '+(u.premiumExpiry?new Date(u.premiumExpiry).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—')+'</div>'+
         '<div><b>Payment ID:</b> '+escHtml(u.lastPaymentId||'—')+'</div>'+
       '</div></div>';
+
+    // ── Deep Record (user_stats) ──
+    var us=(r[3]&&r[3].exists)?r[3].data():null;
+    if(us){
+      var ucats=['glass','backcover'].concat(PART_TYPES.map(function(t){return t.key;}));
+      var crow=ucats.map(function(k){return {k:k,c:us['c_'+k]||0};}).filter(function(x){return x.c>0;}).sort(function(a,b){return b.c-a.c;});
+      var cmax=crow.length?crow[0].c:1;
+      html+='<div class="adash-hdr">📊 Deep Record</div><div class="adash-mini">'+
+        '<div class="adash-mini-box"><div class="adash-mini-val">'+(us.opens||0)+'</div><div class="adash-mini-lbl">App Opens</div></div>'+
+        '<div class="adash-mini-box"><div class="adash-mini-val">'+(us.searches||0)+'</div><div class="adash-mini-lbl">Total Searches</div></div>'+
+        '<div class="adash-mini-box"><div class="adash-mini-val">'+(us.favs||0)+'</div><div class="adash-mini-lbl">Favorites Saved</div></div>'+
+        '<div class="adash-mini-box"><div class="adash-mini-val">'+((us.limitHits||0)+(us.lockHits||0))+'</div><div class="adash-mini-lbl">Paywall Hits</div></div>'+
+      '</div>';
+      if(crow.length){
+        html+='<div class="adash-hdr">🗂️ Searches by Category</div>'+crow.map(function(x){
+          return '<div class="adash-progress-row"><div class="adash-progress-top"><span class="adash-progress-name">'+searchCatLabel(x.k)+'</span><span class="adash-progress-count">'+x.c+'</span></div>'+
+            '<div class="adash-progress-bar"><div class="adash-progress-fill" style="width:'+Math.round(x.c/cmax*100)+'%"></div></div></div>';
+        }).join('');
+      }
+      html+='<div class="adash-hdr">📱 Device</div><div class="adash-prow"><div class="adash-prow-grid" style="grid-template-columns:1fr 1fr">'+
+        '<div style="grid-column:1/-1"><b>Device:</b> '+escHtml(us.dev||'—')+'</div>'+
+        '<div><b>Installed app:</b> '+(us.pwa?'Yes (PWA)':'No (browser)')+'</div>'+
+        '<div><b>Screen:</b> '+escHtml(us.scr||'—')+'</div>'+
+        '<div><b>Language:</b> '+escHtml(us.lang||'—')+'</div>'+
+        '<div><b>Last seen:</b> '+adashTimeAgo(us.lastSeenTs)+'</div>'+
+        '<div><b>Card actions:</b> '+(us.cardActions||0)+'</div>'+
+      '</div></div>';
+      html+='<div class="adash-hdr">🔒 Paywall & Payments</div><div class="adash-prow"><div class="adash-prow-grid" style="grid-template-columns:1fr 1fr">'+
+        '<div><b>Popup opened:</b> '+(us.popups||0)+'</div>'+
+        '<div><b>Limit hits:</b> '+(us.limitHits||0)+'</div>'+
+        '<div><b>Lock hits:</b> '+(us.lockHits||0)+'</div>'+
+        '<div><b>Payments started:</b> '+(us.payStarts||0)+'</div>'+
+        '<div><b>Failed:</b> '+(us.payFails||0)+'</div>'+
+        '<div><b>Completed:</b> '+(us.payDone||0)+'</div>'+
+        (us.lastHitKind?'<div style="grid-column:1/-1"><b>Last hit:</b> '+escHtml(us.lastHitKind)+' · '+adashTimeAgo(us.lastHitTs)+'</div>':'')+
+      '</div></div>';
+    } else {
+      html+='<div class="adash-hdr">📊 Deep Record</div><div class="adash-empty">'+(usErr2?'⚠️ Could not read — add the <b>user_stats</b> rule in Firestore':'Detailed data for this user will appear once they open the updated app')+'</div>';
+    }
 
     var searchEmptyMsg=udetErr?('<div class="adash-empty">⚠️ Could not load: '+escHtml(udetErr.message||String(udetErr))+'</div>'):'<div class="adash-empty">No searches tracked yet</div>';
     html+='<div class="adash-hdr">🔍 Recent Searches</div>'+(searches.length?searches.slice(0,20).map(function(s){
@@ -6061,6 +6334,7 @@ function adashDrawChart(canvasId,values,labels,color){
 function openFeedbackDashboard(){
   closeMenu();
   if(!db){showToast('❌ No connection',true);return;}
+  lsSet('fb_lastSeen',new Date().toISOString());
   openModal('<div class="mhead"><span class="mtitle">💬 Feedback Dashboard</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
     '<div id="fbDashContent"><div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">hourglass_top</span></div><p style="color:var(--text-2)">Loading...</p></div></div>');
   db.collection('feedback').orderBy('date','desc').limit(50).get().then(function(snap){
@@ -6434,6 +6708,7 @@ auth.onAuthStateChanged(function(user){
     loadMyVotes(user.uid);
     maybeShowNotifPrompt();
   } else {
+    usFlush();US.uid=null;
     S.user=null;S.role='staff';S.myVotes={};
     S.premium={isPremium:false,plan:null,trialEnd:null,premiumExpiry:null,loaded:false,staffFree:false};
     updateUserUI();
