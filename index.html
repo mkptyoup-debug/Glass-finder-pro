@@ -4413,76 +4413,113 @@ function checkStaffFreeStatus(email){
 }
 
 // -- Send Notification (push to all registered devices) --
+var SN={aud:'all',tokens:null,users:null,focus:'snTitle'};
+var SN_TPL=[
+ ['🆕 New models','New models added! 📱','We just added new screen guards & parts. Open the app and check now.'],
+ ['💎 Premium offer','Go Premium — ₹49/month 💎','Unlimited searches, all parts unlocked. Upgrade today.'],
+ ['🔄 App update','App updated ✨','A new version is live with improvements. Refresh the app to get it.'],
+ ['🎉 Festival','Festival Offer 🎉','Special offer for our dealers this week. Open the app to know more.']
+];
+var SN_EMO=['📱','🔥','✨','🎉','💎','🆕','⚡','✅'];
 function openSendNotifModal(){
   if(!isAdmin())return;
+  SN.aud='all';SN.tokens=null;SN.focus='snTitle';
+  var hist=lsGetJSON('sn_hist')||[];
   openModal('<div class="mhead"><span class="mtitle">📣 Send Notification</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
-    '<div class="adm-intro">This sends a push notification to <b>every device</b> that allowed notifications. Keep it short and useful.</div>'+
-    '<div class="fgrp"><label class="flbl">Title</label><input class="finp" id="snTitle" maxlength="60" placeholder="e.g. New models added!" oninput="snPreview()"/><div class="adm-cnt" id="snTc">0/60</div></div>'+
-    '<div class="fgrp"><label class="flbl">Message</label><textarea class="finp" id="snBody" rows="3" maxlength="160" placeholder="Short message..." oninput="snPreview()"></textarea><div class="adm-cnt" id="snBc">0/160</div></div>'+
+    '<div class="adm-intro">Push message to users\' phones. Write short and clear — best results come with 1 clear benefit and 1 action.</div>'+
+    '<div class="adash-hdr">⚡ Quick templates</div><div class="adash-filters">'+SN_TPL.map(function(t,i){return '<button class="adash-chip" onclick="snTpl('+i+')">'+t[0]+'</button>';}).join('')+'</div>'+
+    '<div class="adash-hdr" style="margin-top:6px">🎯 Send to</div><div class="adash-filters" id="snAud">'+
+      '<button class="adash-chip active" data-a="all" onclick="snAudience(\'all\')">All users</button>'+
+      '<button class="adash-chip" data-a="premium" onclick="snAudience(\'premium\')">Premium only</button>'+
+      '<button class="adash-chip" data-a="free" onclick="snAudience(\'free\')">Free / Trial</button></div>'+
+    '<div class="adash-note" id="snDeviceCount" style="margin-bottom:12px">Counting devices...</div>'+
+    '<div class="fgrp"><label class="flbl">Title</label><input class="finp" id="snTitle" maxlength="60" placeholder="e.g. New models added! 📱" oninput="snPreview()" onfocus="SN.focus=\'snTitle\'"/><div class="adm-cnt" id="snTc">0/60</div></div>'+
+    '<div class="fgrp"><label class="flbl">Message</label><textarea class="finp" id="snBody" rows="3" maxlength="160" placeholder="Short message..." oninput="snPreview()" onfocus="SN.focus=\'snBody\'"></textarea><div class="adm-cnt" id="snBc">0/160</div></div>'+
+    '<div class="adash-filters">'+SN_EMO.map(function(e){return '<button class="adash-chip" onclick="snEmoji(\''+e+'\')">'+e+'</button>';}).join('')+'</div>'+
     '<div class="adash-hdr">👁️ Preview</div><div class="adm-prev"><div class="adm-prev-t" id="snPt">Title</div><div class="adm-prev-b" id="snPb">Your message will appear here</div></div>'+
-    '<div class="adash-empty" id="snDeviceCount" style="padding:6px 0">Loading device count...</div>'+
-    '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button><button class="bsave" id="snSendBtn" onclick="sendPushNotification()">Send</button></div>');
-  db.collection('fcm_tokens').get().then(function(snap){
-    var el=document.getElementById('snDeviceCount');
-    if(el)el.textContent=snap.size+' device(s) registered for notifications';
-  }).catch(function(){
-    var el=document.getElementById('snDeviceCount');
-    if(el)el.textContent='Could not load device count';
+    '<div class="adash-note" id="snTip" style="margin-bottom:10px"></div>'+
+    (hist.length?'<div class="adash-hdr">🕘 Recently sent (tap to reuse)</div>'+hist.map(function(h,i){return '<div class="adash-row clickable" onclick="snReuse('+i+')"><span class="adash-row-main">'+escHtml(h.t)+'<div class="adash-row-hint">'+escHtml(h.a)+' · '+h.n+' devices · '+adashTimeAgo(h.ts)+'</div></span></div>';}).join(''):'')+
+    '<div class="brow"><button class="bcancel" id="snTestBtn" onclick="sendPushNotification(true)">Test on my phone</button><button class="bsave" id="snSendBtn" onclick="sendPushNotification()">Send</button></div>');
+  snLoad();
+}
+function snLoad(){
+  var jobs=[db.collection('fcm_tokens').get().catch(function(){return null;})];
+  if(SN.users)jobs.push(Promise.resolve(SN.users));else jobs.push(db.collection('app_users').get().then(function(s){var m={};s.forEach(function(d){var v=d.data();if(v.email)m[v.email.toLowerCase()]=v;});return m;}).catch(function(){return {};}));
+  Promise.all(jobs).then(function(r){
+    SN.users=r[1];SN.tokens=[];
+    if(r[0])r[0].forEach(function(d){var v=d.data();SN.tokens.push({id:d.id,email:(v.email||'').toLowerCase()});});
+    snCount();
   });
 }
+function snPaid(email){var u=SN.users&&SN.users[email];return !!(u&&u.premiumExpiry&&new Date(u.premiumExpiry).getTime()>Date.now());}
+function snTargets(){
+  var t=SN.tokens||[];
+  if(SN.aud==='premium')return t.filter(function(x){return snPaid(x.email);});
+  if(SN.aud==='free')return t.filter(function(x){return !snPaid(x.email);});
+  return t;
+}
+function snCount(){
+  var el=document.getElementById('snDeviceCount');if(!el)return;
+  el.innerHTML='📲 <b>'+snTargets().length+'</b> device'+(snTargets().length===1?'':'s')+' will receive this ('+(SN.tokens||[]).length+' registered in total)';
+}
+function snAudience(a){
+  SN.aud=a;
+  document.querySelectorAll('#snAud .adash-chip').forEach(function(c){c.classList.toggle('active',c.getAttribute('data-a')===a);});
+  snCount();
+}
+function snTpl(i){document.getElementById('snTitle').value=SN_TPL[i][1];document.getElementById('snBody').value=SN_TPL[i][2];snPreview();}
+function snEmoji(e){var f=document.getElementById(SN.focus)||document.getElementById('snTitle');if(f.value.length+e.length<=f.maxLength){f.value+=e;snPreview();}}
+function snReuse(i){var h=(lsGetJSON('sn_hist')||[])[i];if(!h)return;document.getElementById('snTitle').value=h.t;document.getElementById('snBody').value=h.m;snPreview();}
 function snPreview(){
   var t=document.getElementById('snTitle').value,m=document.getElementById('snBody').value;
   document.getElementById('snTc').textContent=t.length+'/60';document.getElementById('snBc').textContent=m.length+'/160';
   document.getElementById('snPt').textContent=t||'Title';document.getElementById('snPb').textContent=m||'Your message will appear here';
+  var tip=document.getElementById('snTip'),w=[];
+  if(t&&t.length>40)w.push('Title is long — it may get cut on some phones.');
+  if(m&&m.length<25)w.push('Message is very short — add what the user gets.');
+  if(t&&!/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/u.test(t+m))w.push('Tip: one emoji improves open rate.');
+  if(tip)tip.textContent=w.length?('💡 '+w.join(' ')):'';
 }
-function sendPushNotification(){
+function sendPushNotification(testOnly){
   var title=(document.getElementById('snTitle').value||'').trim();
   var msg=(document.getElementById('snBody').value||'').trim();
   if(!title||!msg){showToast('❌ Please enter title and message',true);return;}
-  if(!confirm('Send this notification to ALL users now?'))return;
   if(!NOTIFY_WORKER_URL||NOTIFY_WORKER_URL.indexOf('your-')>=0){showToast('❌ Notify worker not configured yet',true);return;}
-  var btn=document.getElementById('snSendBtn');
-  if(btn){btn.disabled=true;btn.textContent='Sending...';}
-  db.collection('fcm_tokens').get().then(function(snap){
-    var tokens=[];
-    snap.forEach(function(d){tokens.push(d.id);});
-    if(!tokens.length){showToast('❌ No devices registered yet',true);if(btn){btn.disabled=false;btn.textContent='Send';}return;}
-    S.user.getIdToken().then(function(idToken){
-      // Cloudflare free plan ek request mein ~50 calls allow karta hai, isliye 40-40 devices ke group mein bhejte hain
-      var CH=40,chunks=[];
-      for(var i=0;i<tokens.length;i+=CH)chunks.push(tokens.slice(i,i+CH));
-      var tot={sent:0,failed:0,invalid:[]},errMsg='';
-      function resetBtn(){if(btn){btn.disabled=false;btn.textContent='Send';}}
-      function next(idx){
-        if(idx>=chunks.length)return Promise.resolve();
-        if(btn)btn.textContent='Sending '+(idx+1)+'/'+chunks.length+'...';
-        return fetch(NOTIFY_WORKER_URL,{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({idToken:idToken,title:title,message:msg,tokens:chunks[idx]})
-        }).then(function(res){return res.json();}).then(function(r){
+  var me=(S.user&&S.user.email||'').toLowerCase();
+  var list=testOnly?(SN.tokens||[]).filter(function(x){return x.email===me;}):snTargets();
+  if(!list.length){showToast(testOnly?'❌ No registered device found for your account':'❌ No devices in this audience',true);return;}
+  var audLbl={all:'All users',premium:'Premium only',free:'Free / Trial'}[SN.aud];
+  if(!testOnly&&!confirm('Send to '+list.length+' device(s) — '+audLbl+'?\n\n'+title+'\n'+msg))return;
+  var btn=document.getElementById('snSendBtn'),tb=document.getElementById('snTestBtn');
+  function setBusy(x,txt){if(btn){btn.disabled=x;btn.textContent=txt||'Send';}if(tb)tb.disabled=x;}
+  setBusy(true,'Sending...');
+  S.user.getIdToken().then(function(idToken){
+    var tokens=list.map(function(x){return x.id;});
+    var CH=40,chunks=[];
+    for(var i=0;i<tokens.length;i+=CH)chunks.push(tokens.slice(i,i+CH));
+    var tot={sent:0,failed:0,invalid:[]},errMsg='';
+    function next(idx){
+      if(idx>=chunks.length)return Promise.resolve();
+      setBusy(true,'Sending '+(idx+1)+'/'+chunks.length+'...');
+      return fetch(NOTIFY_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:idToken,title:title,message:msg,tokens:chunks[idx]})})
+        .then(function(res){return res.json();}).then(function(r){
           if(r.error){errMsg=r.error;return;}
           tot.sent+=r.sent||0;tot.failed+=r.failed||0;
           if(r.invalidTokens)tot.invalid=tot.invalid.concat(r.invalidTokens);
           return next(idx+1);
         });
-      }
-      next(0).then(function(){
-        resetBtn();
-        // Dead tokens hata do taaki aage ke sends waste na hon
-        tot.invalid.forEach(function(t){db.collection('fcm_tokens').doc(t).delete().catch(function(){});});
-        if(errMsg){showToast((tot.sent?'⚠️ Sent '+tot.sent+', but ':'❌ ')+errMsg,true);return;}
-        showToast('✅ Sent to '+tot.sent+' device(s)'+(tot.failed?', '+tot.failed+' failed':''));
-        closeModal();
-      }).catch(function(e){
-        resetBtn();
-        showToast('❌ Send failed: '+e.message,true);
-      });
-    });
-  },function(e){
-    if(btn){btn.disabled=false;btn.textContent='Send';}
-    showToast('❌ Could not load devices: '+e.message,true);
-  });
+    }
+    next(0).then(function(){
+      setBusy(false);
+      tot.invalid.forEach(function(t){db.collection('fcm_tokens').doc(t).delete().catch(function(){});});
+      if(errMsg){showToast((tot.sent?'⚠️ Sent '+tot.sent+', but ':'❌ ')+errMsg,true);return;}
+      if(testOnly){showToast('✅ Test sent to your phone');return;}
+      var h=lsGetJSON('sn_hist')||[];h.unshift({t:title,m:msg,a:audLbl,n:tot.sent,ts:new Date().toISOString()});lsSet('sn_hist',JSON.stringify(h.slice(0,5)));
+      logAdminAction('📣 Notification sent: "'+title+'" → '+tot.sent+' device(s) ('+audLbl+')');
+      showToast('✅ Delivered to '+tot.sent+' device(s)'+(tot.failed?' · '+tot.failed+' failed':''));
+      closeModal();
+    }).catch(function(e){setBusy(false);showToast('❌ Send failed: '+e.message,true);});
+  }).catch(function(e){setBusy(false);showToast('❌ Auth error: '+e.message,true);});
 }
 function openUFeedModal(id){
   var it=id?U.feed.find(function(x){return x.id===id;}):null;
