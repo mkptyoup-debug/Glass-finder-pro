@@ -782,6 +782,23 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .menu-section-label{font-size:10.5px;font-weight:800;color:var(--text-3);text-transform:uppercase;letter-spacing:.11em;margin:14px 10px 8px;opacity:.85}
 .menu-section:first-child .menu-section-label{margin-top:2px}
 .menu-divider{height:1px;background:var(--border-hair);margin:14px 4px}
+.adm-sub{font-size:10px;font-weight:800;color:var(--brand);letter-spacing:.08em;text-transform:uppercase;margin:12px 10px 2px}
+#adminSectionLabel.hide ~ .adm-sub{display:none}
+.adm-desc{display:block;font-size:10.5px;font-weight:500;color:var(--text-3);margin-top:1px;overflow:hidden;text-overflow:ellipsis}
+.adm-intro{font-size:11.5px;color:var(--text-2);line-height:1.55;background:var(--brand-dim);border:1px solid #C9A15E2e;border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.adm-new{font-size:9.5px;font-weight:800;color:#fff;background:var(--danger);border-radius:8px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+.adm-stats{display:flex;gap:8px;margin-bottom:14px}
+.adm-stat{flex:1;background:var(--surface-1);border-radius:12px;padding:10px;text-align:center}
+.adm-stat b{display:block;font-size:18px;font-weight:800;color:var(--brand-2)}
+.adm-stat span{font-size:10.5px;color:var(--text-2);font-weight:600}
+.adm-acts{display:flex;gap:8px;margin-top:12px}
+.adm-btn{flex:1;padding:10px;border-radius:12px;font-size:12.5px;font-weight:800;border:1px solid transparent}
+.adm-btn.ok{background:var(--success);color:#fff}
+.adm-btn.no{background:transparent;border-color:var(--danger);color:var(--danger)}
+.adm-prev{background:var(--surface-1);border:1px solid #2F261C14;border-radius:14px;padding:11px 13px;margin-bottom:12px}
+.adm-prev-t{font-size:13px;font-weight:800;color:var(--text-1)}
+.adm-prev-b{font-size:12px;color:var(--text-2);margin-top:3px;line-height:1.45}
+.adm-cnt{font-size:10px;color:var(--text-2);text-align:right;margin-top:3px}
 .menu-item{position:relative;display:flex;align-items:center;gap:14px;padding:13px 12px;border-radius:14px;color:var(--text-2);font-size:14.5px;font-weight:600;transition:background .18s ease,transform .12s ease;width:100%;text-align:left;border:none;background:rgba(52,42,34,.015);overflow:hidden;isolation:isolate;letter-spacing:.01em}
 .menu-item+.menu-item{margin-top:2px}
 .menu-item:hover{background:rgba(212,175,106,.09)}
@@ -1211,14 +1228,18 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 
     <div class="menu-divider hide" id="adminDivider"></div>
     <div class="menu-section" id="adminSection">
-      <div class="menu-section-label hide" id="adminSectionLabel">Admin</div>
-      <button class="menu-item hide" id="menuAdminDashBtn" onclick="openAdminDashboard()"><span class="material-symbols-rounded menu-ic">admin_panel_settings</span><span class="menu-item-label">Admin Dashboard</span></button>
-      <button class="menu-item hide" id="menuStaffFreeBtn" onclick="openStaffFreeModal()"><span class="material-symbols-rounded menu-ic">badge</span><span class="menu-item-label">Manage Free Staff</span></button>
-      <button class="menu-item hide" id="menuSendNotifBtn" onclick="openSendNotifModal()"><span class="material-symbols-rounded menu-ic">campaign</span><span class="menu-item-label">Send Notification</span></button>
-      <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="material-symbols-rounded menu-ic">forum</span><span class="menu-item-label">View Feedback</span></button>
-      <button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="material-symbols-rounded menu-ic">move_to_inbox</span><span class="menu-item-label">View Update Requests</span></button>
-      <button class="menu-item hide" id="menuBackupBtn" onclick="exportBackup()"><span class="material-symbols-rounded menu-ic">cloud_download</span><span class="menu-item-label">Backup Data (JSON)</span></button>
-      <button class="menu-item hide" id="menuRestoreBtn" onclick="document.getElementById('restoreFileInput').click()"><span class="material-symbols-rounded menu-ic">cloud_upload</span><span class="menu-item-label">Restore Data</span></button>
+      <div class="menu-section-label hide" id="adminSectionLabel">Admin Panel</div>
+      <div class="adm-sub">📊 Analytics</div>
+      <button class="menu-item hide" id="menuAdminDashBtn" onclick="openAdminDashboard()"><span class="material-symbols-rounded menu-ic">admin_panel_settings</span><span class="menu-item-label">Admin Dashboard<small class="adm-desc">Users, searches, premium, shares</small></span></button>
+      <div class="adm-sub">👥 Users</div>
+      <button class="menu-item hide" id="menuStaffFreeBtn" onclick="openStaffFreeModal()"><span class="material-symbols-rounded menu-ic">badge</span><span class="menu-item-label">Manage Free Staff<small class="adm-desc">Give free premium access by email</small></span></button>
+      <div class="adm-sub">📨 Messages</div>
+      <button class="menu-item hide" id="menuSendNotifBtn" onclick="openSendNotifModal()"><span class="material-symbols-rounded menu-ic">campaign</span><span class="menu-item-label">Send Notification<small class="adm-desc">Push message to all users</small></span></button>
+      <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="material-symbols-rounded menu-ic">forum</span><span class="menu-item-label">View Feedback<small class="adm-desc">What users are telling you</small></span></button>
+      <button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="material-symbols-rounded menu-ic">move_to_inbox</span><span class="menu-item-label">View Update Requests<small class="adm-desc">Models users want you to add</small></span></button>
+      <div class="adm-sub">💾 Data Safety</div>
+      <button class="menu-item hide" id="menuBackupBtn" onclick="exportBackup()"><span class="material-symbols-rounded menu-ic">cloud_download</span><span class="menu-item-label">Backup Data (JSON)<small class="adm-desc">Download a copy of all data</small></span></button>
+      <button class="menu-item hide" id="menuRestoreBtn" onclick="document.getElementById('restoreFileInput').click()"><span class="material-symbols-rounded menu-ic">cloud_upload</span><span class="menu-item-label">Restore Data<small class="adm-desc">Upload a backup file</small></span></button>
       <input type="file" id="restoreFileInput" accept="application/json" class="hide" onchange="restoreBackup(event)">
     </div>
   </div>
@@ -4337,9 +4358,10 @@ function renderUFeed(){
 function openStaffFreeModal(){
   if(!isAdmin())return;
   openModal('<div class="mhead"><span class="mtitle">👥 Manage Free Staff</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
-    '<div class="fgrp"><label class="flbl">Staff Email</label><input class="finp" id="sfEmailInput" type="email" placeholder="employee@example.com"/></div>'+
+    '<div class="adm-intro">People added here get <b>full premium access for free</b> when they log in with this email (for your own staff/helpers). Remove an email to take access back.</div>'+
+    '<div class="fgrp"><label class="flbl">Staff Email</label><input class="finp" id="sfEmailInput" type="email" placeholder="employee@example.com" onkeydown="if(event.key===\'Enter\')addStaffFreeEmail()"/></div>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Close</button><button class="bsave" onclick="addStaffFreeEmail()">Add</button></div>'+
-    '<div id="sfList" style="margin-top:14px">Loading...</div>');
+    '<div class="adash-hdr" style="margin-top:16px">⭐ Free access list <span id="sfCount"></span></div><div id="sfList" style="margin-top:6px">Loading...</div>');
   loadStaffFreeList();
 }
 function loadStaffFreeList(){
@@ -4349,10 +4371,10 @@ function loadStaffFreeList(){
     var wrap=document.getElementById('sfList');
     if(!wrap)return;
     if(snap.empty){wrap.innerHTML='<div class="adash-empty">No free staff added yet</div>';return;}
-    var rows=[];
+    var rows=[];var sc=document.getElementById('sfCount');if(sc)sc.textContent='('+snap.size+')';
     snap.forEach(function(doc){
       var d=doc.data();
-      rows.push('<div class="adash-row"><span class="adash-row-main">'+escHtml(d.email||doc.id)+'</span><button class="ibtn" onclick="removeStaffFreeEmail(\''+doc.id+'\')" aria-label="Delete">🗑️</button></div>');
+      rows.push('<div class="adash-row"><span class="adash-row-main">'+escHtml(d.email||doc.id)+'<div class="adash-row-hint">Added '+(d.addedTs?adashTimeAgo(d.addedTs):'—')+'</div></span><button class="ibtn" onclick="removeStaffFreeEmail(\''+doc.id+'\')" aria-label="Delete">🗑️</button></div>');
     });
     wrap.innerHTML=rows.join('');
   },function(e){
@@ -4364,7 +4386,7 @@ function loadStaffFreeList(){
 function addStaffFreeEmail(){
   var input=document.getElementById('sfEmailInput');
   var email=(input.value||'').trim().toLowerCase();
-  if(!email||email.indexOf('@')<0){showToast('❌ Please enter a valid email',true);return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showToast('❌ Please enter a valid email',true);return;}
   if(!db){showToast('❌ Not connected',true);return;}
   db.collection('staff_whitelist').doc(email).set({email:email,addedTs:new Date().toISOString(),addedBy:S.user?S.user.email:''}).then(function(){
     showToast('✅ Added');
@@ -4375,6 +4397,7 @@ function addStaffFreeEmail(){
 }
 function removeStaffFreeEmail(id){
   if(!db)return;
+  if(!confirm('Remove free access for '+id+'?'))return;
   db.collection('staff_whitelist').doc(id).delete().then(function(){
     showToast('🗑️ Removed');
     logAdminAction('⭐ Free access removed: '+id);
@@ -4393,8 +4416,10 @@ function checkStaffFreeStatus(email){
 function openSendNotifModal(){
   if(!isAdmin())return;
   openModal('<div class="mhead"><span class="mtitle">📣 Send Notification</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
-    '<div class="fgrp"><label class="flbl">Title</label><input class="finp" id="snTitle" maxlength="60" placeholder="e.g. New models added!"/></div>'+
-    '<div class="fgrp"><label class="flbl">Message</label><textarea class="finp" id="snBody" rows="3" maxlength="160" placeholder="Short message..."></textarea></div>'+
+    '<div class="adm-intro">This sends a push notification to <b>every device</b> that allowed notifications. Keep it short and useful.</div>'+
+    '<div class="fgrp"><label class="flbl">Title</label><input class="finp" id="snTitle" maxlength="60" placeholder="e.g. New models added!" oninput="snPreview()"/><div class="adm-cnt" id="snTc">0/60</div></div>'+
+    '<div class="fgrp"><label class="flbl">Message</label><textarea class="finp" id="snBody" rows="3" maxlength="160" placeholder="Short message..." oninput="snPreview()"></textarea><div class="adm-cnt" id="snBc">0/160</div></div>'+
+    '<div class="adash-hdr">👁️ Preview</div><div class="adm-prev"><div class="adm-prev-t" id="snPt">Title</div><div class="adm-prev-b" id="snPb">Your message will appear here</div></div>'+
     '<div class="adash-empty" id="snDeviceCount" style="padding:6px 0">Loading device count...</div>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button><button class="bsave" id="snSendBtn" onclick="sendPushNotification()">Send</button></div>');
   db.collection('fcm_tokens').get().then(function(snap){
@@ -4405,10 +4430,16 @@ function openSendNotifModal(){
     if(el)el.textContent='Could not load device count';
   });
 }
+function snPreview(){
+  var t=document.getElementById('snTitle').value,m=document.getElementById('snBody').value;
+  document.getElementById('snTc').textContent=t.length+'/60';document.getElementById('snBc').textContent=m.length+'/160';
+  document.getElementById('snPt').textContent=t||'Title';document.getElementById('snPb').textContent=m||'Your message will appear here';
+}
 function sendPushNotification(){
   var title=(document.getElementById('snTitle').value||'').trim();
   var msg=(document.getElementById('snBody').value||'').trim();
   if(!title||!msg){showToast('❌ Please enter title and message',true);return;}
+  if(!confirm('Send this notification to ALL users now?'))return;
   if(!NOTIFY_WORKER_URL||NOTIFY_WORKER_URL.indexOf('your-')>=0){showToast('❌ Notify worker not configured yet',true);return;}
   var btn=document.getElementById('snSendBtn');
   if(btn){btn.disabled=true;btn.textContent='Sending...';}
@@ -6334,6 +6365,7 @@ function adashDrawChart(canvasId,values,labels,color){
 function openFeedbackDashboard(){
   closeMenu();
   if(!db){showToast('❌ No connection',true);return;}
+  var fbPrev=lsGet('fb_lastSeen')||'';
   lsSet('fb_lastSeen',new Date().toISOString());
   openModal('<div class="mhead"><span class="mtitle">💬 Feedback Dashboard</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
     '<div id="fbDashContent"><div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">hourglass_top</span></div><p style="color:var(--text-2)">Loading...</p></div></div>');
@@ -6344,14 +6376,15 @@ function openFeedbackDashboard(){
       el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">forum</span></div><p style="color:var(--text-2);font-size:14px">No feedback yet</p></div>';
       return;
     }
-    var html='<div class="fb-count">'+snap.size+' feedback'+(snap.size>1?'s':'')+' mile</div>';
+    var fbNew=0;snap.forEach(function(doc){if((doc.data().date||'')>fbPrev)fbNew++;});
+    var html='<div class="adm-intro">Messages sent by users from the app menu. Newest first.</div><div class="adm-stats"><div class="adm-stat"><b>'+snap.size+'</b><span>Total</span></div><div class="adm-stat"><b>'+fbNew+'</b><span>New</span></div></div>';
     snap.forEach(function(doc){
       var d=doc.data();
       var date=d.date?new Date(d.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
       var user=d.userEmail||d.userName||'Anonymous';
       html+='<div class="fb-card">'+
         '<div class="fb-card-top">'+
-          '<span class="fb-user">👤 '+escHtml(user)+'</span>'+
+          '<span class="fb-user">👤 '+escHtml(user)+((d.date||'')>fbPrev?'<span class="adm-new">NEW</span>':'')+'</span>'+
           '<span class="fb-date">'+date+'</span>'+
         '</div>'+
         '<div class="fb-text">'+escHtml(d.text)+'</div>'+
@@ -6391,6 +6424,7 @@ function sendFeedback(){
 function openRequestsDashboard(){
   closeMenu();
   if(!db){showToast('❌ No connection',true);return;}
+  var reqPrev=lsGet('req_lastSeen')||'';
   lsSet('req_lastSeen',new Date().toISOString());
   document.getElementById('menuDot').classList.remove('show');
   openModal('<div class="mhead"><span class="mtitle">📥 Update Requests</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
@@ -6402,21 +6436,21 @@ function openRequestsDashboard(){
       el.innerHTML='<div class="fb-empty"><div class="fb-empty-ico"><span class="material-symbols-rounded">move_to_inbox</span></div><p style="color:var(--text-2);font-size:14px">No requests yet</p></div>';
       return;
     }
-    var html='<div class="fb-count">'+snap.size+' request'+(snap.size>1?'s':'')+' mile</div>';
+    var reqNew=0;snap.forEach(function(doc){if((doc.data().date||'')>reqPrev)reqNew++;});
+    var html='<div class="adm-intro">Users asked for these models. <b>Add &amp; Clear</b> opens the add form with the model name filled in and removes the request. <b>Reject</b> just removes it.</div><div class="adm-stats"><div class="adm-stat"><b>'+snap.size+'</b><span>Pending</span></div><div class="adm-stat"><b>'+reqNew+'</b><span>New</span></div></div>';
     snap.forEach(function(doc){
       var d=doc.data();
       var date=d.date?new Date(d.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
       var user=d.userEmail||d.userName||'Anonymous';
-      html+='<div class="fb-card" id="req_'+doc.id+'">'+
+      html+='<div class="fb-card" id="req_'+doc.id+'" data-model="'+escHtml(d.model||'')+'" data-type="'+escHtml(d.type||'glass')+'">'+
         '<div class="fb-card-top">'+
-          '<span class="fb-user">👤 '+escHtml(user)+'</span>'+
+          '<span class="fb-user">👤 '+escHtml(user)+((d.date||'')>reqPrev?'<span class="adm-new">NEW</span>':'')+'</span>'+
           '<span class="fb-date">'+date+'</span>'+
         '</div>'+
         '<div class="fb-text"><b>'+escHtml(d.model)+'</b>'+(d.details?'<br>'+escHtml(d.details):'')+'</div>'+
         '<span class="fb-tab-badge">'+(d.type==='display'?'Display':'Glass')+'</span>'+
         (d.count>1?' <span class="fb-tab-badge" style="background:#C9A15E22;color:var(--brand)">×'+d.count+' requested</span>':'')+'<br>'+
-        '<button class="menu-item" style="display:inline-block;width:auto;padding:6px 12px;margin-top:8px;font-size:12px;color:var(--success)" onclick="acceptRequest(\''+doc.id+'\')">✓ Accept</button> '+
-        '<button class="menu-item" style="display:inline-block;width:auto;padding:6px 12px;margin-top:8px;font-size:12px;color:var(--danger)" onclick="resolveRequest(\''+doc.id+'\')">✕ Reject</button>'+
+        '<div class="adm-acts"><button class="adm-btn ok" onclick="acceptRequest(\''+doc.id+'\')">＋ Add &amp; Clear</button><button class="adm-btn no" onclick="resolveRequest(\''+doc.id+'\')">Reject</button></div>'+
       '</div>';
     });
     el.innerHTML=html;
@@ -6426,13 +6460,20 @@ function openRequestsDashboard(){
   });
 }
 function acceptRequest(id){
+  var el=document.getElementById('req_'+id);
+  var model=el?el.getAttribute('data-model'):'',type=el?el.getAttribute('data-type'):'glass';
   db.collection('update_requests').doc(id).delete().then(function(){
-    var el=document.getElementById('req_'+id);
-    if(el)el.remove();
-    showToast('✅ Accepted — now add the model');
-  });
+    closeModal();
+    setTimeout(function(){
+      S.tab=(type==='display')?'display':'glass';
+      openAddModal();
+      var f=document.getElementById('gModels');if(f)f.value=model;
+      showToast('✏️ Add details for: '+model);
+    },250);
+  }).catch(function(e){showToast('❌ '+e.message,true);});
 }
 function resolveRequest(id){
+  if(!confirm('Reject and remove this request?'))return;
   db.collection('update_requests').doc(id).delete().then(function(){
     var el=document.getElementById('req_'+id);
     if(el)el.remove();
