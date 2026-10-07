@@ -995,6 +995,12 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
   .card,.modal,#modalBg,.page-anim,#loginScreen.show,#loginScreen.show .login-box,#menuPanel,#menuOverlay{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
 
+/* ── PROFESSIONAL ICONS (emoji -> Material Symbols, auto-converted) ── */
+.emo-ic{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;font-size:1.18em;line-height:1;display:inline-block;vertical-align:-.2em;letter-spacing:normal;text-transform:none;white-space:nowrap;-webkit-font-feature-settings:'liga';font-feature-settings:'liga';-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 500,'opsz' 24;user-select:none}
+.emo-ic::before{content:attr(data-ic)}
+.emo-ic.f{font-variation-settings:'FILL' 1,'wght' 500,'opsz' 24}
+.emo-ic.ok{color:#3E8E5A}.emo-ic.err{color:#C0453F}.emo-ic.warn{color:#B7791F}.emo-ic.gold{color:var(--brand,#B88A45)}
+#toast .emo-ic,button .emo-ic.ok,button .emo-ic.err{color:inherit}
 /* ── SEARCH BAR POLISH: pinned, premium look, subtle motion ── */
 #searchWrap,#partsSearchWrap{padding-top:10px;padding-bottom:8px;margin-top:-10px;transition:box-shadow .3s ease,background .3s ease;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);background:rgba(250,248,244,.94)}
 #searchWrap.is-stuck,#partsSearchWrap.is-stuck{box-shadow:0 10px 18px -12px rgba(52,42,34,.28);border-bottom:1px solid var(--border-hair)}
@@ -1452,6 +1458,86 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
     });
   }
   setInterval(rotate,3200);
+})();
+// ── PROFESSIONAL ICONS: emoji ko Material Symbols icons se replace karta hai (static + dynamic text) ──
+(function(){
+  // 'icon_name|class' ; f = filled, ok/err/warn/gold = colour
+  var M={'❌':'cancel|f err','✅':'check_circle|f ok','⚠':'warning|f warn','⏳':'hourglass_top','🗑':'delete','🛡':'shield|f','✏':'edit','✨':'auto_awesome|f gold','🔍':'search','🔎':'search','⭐':'star|f gold','💎':'workspace_premium|f gold','📱':'smartphone','📋':'content_copy','💡':'lightbulb|f gold','📥':'download','👥':'group','📢':'campaign','📣':'campaign','🔥':'local_fire_department|f','➕':'add','👤':'person','🔒':'lock','🎉':'celebration|f gold','✔':'check','✓':'check','⚡':'bolt|f gold','📤':'upload','📊':'bar_chart','❤':'favorite|f err','🔧':'build','🛠':'build','📲':'install_mobile','🔄':'sync','💳':'credit_card','📝':'edit_note','🖼':'image','🟢':'circle|f ok','📈':'trending_up','💬':'chat','📷':'photo_camera','🕐':'schedule','🕒':'schedule','🕘':'schedule','👆':'touch_app','🎁':'redeem','🎯':'target','🚫':'block','😴':'bedtime','💤':'bedtime','📅':'calendar_month','🗂':'folder','🔔':'notifications','🔑':'key','☰':'menu','➤':'send|f','📨':'mail','💾':'save','🖥':'desktop_windows','🔋':'battery_full','🚪':'door_front','🔌':'power','🔘':'radio_button_checked','🎤':'mic','👋':'waving_hand','🧩':'extension','🙈':'visibility_off','👁':'visibility','⬆':'arrow_upward','⬇':'arrow_downward','🧠':'psychology','🚧':'construction','🏷':'sell','🏆':'emoji_events','📡':'sensors','✕':'close'};
+  var keys=Object.keys(M).join('|'); // alternation (astral emoji ke liye character-class galat hota)
+  var RE=new RegExp('('+keys+')\\uFE0F?|\\uFE0F','g');
+  var TEST=new RegExp(keys+'|\\uFE0F');
+  var SKIP='SCRIPT,STYLE,TEXTAREA,INPUT,SELECT,NOSCRIPT,CODE,PRE';
+  function strip(t){return String(t==null?'':t).replace(RE,'').replace(/^\s+/,'');}
+  function skipEl(el){
+    while(el&&el.nodeType===1){
+      if(SKIP.indexOf(el.tagName)>=0||el.isContentEditable||el.classList.contains('noemo'))return true;
+      el=el.parentNode;
+    }
+    return false;
+  }
+  function convert(tn){
+    var t=tn.nodeValue;
+    if(!t||!TEST.test(t))return;
+    var par=tn.parentNode;if(!par)return;
+    if(par.tagName==='OPTION'||par.tagName==='TITLE'){tn.nodeValue=strip(t);return;}
+    if(skipEl(par))return;
+    var frag=document.createDocumentFragment(),last=0,m;
+    RE.lastIndex=0;
+    while((m=RE.exec(t))){
+      if(m.index>last)frag.appendChild(document.createTextNode(t.slice(last,m.index)));
+      if(m[1]){
+        var d=M[m[1]].split('|'),sp=document.createElement('span');
+        sp.className='emo-ic'+(d[1]?' '+d[1]:'');
+        sp.setAttribute('data-ic',d[0]);sp.setAttribute('aria-hidden','true');
+        frag.appendChild(sp);
+      }
+      last=m.index+m[0].length;
+    }
+    if(last<t.length)frag.appendChild(document.createTextNode(t.slice(last)));
+    par.replaceChild(frag,tn);
+  }
+  function walk(root){
+    if(!root)return;
+    if(root.nodeType===3){convert(root);return;}
+    if(root.nodeType!==1||skipEl(root))return;
+    var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null),n,list=[];
+    while((n=w.nextNode()))if(TEST.test(n.nodeValue))list.push(n);
+    list.forEach(convert);
+    // attributes jahan icon nahi dikha sakte (placeholder / title / aria-label / alt)
+    var els=root.querySelectorAll?root.querySelectorAll('[placeholder],[title],[aria-label],[alt]'):[];
+    for(var i=0;i<els.length;i++)fixAttrs(els[i]);
+    if(root.hasAttribute&&(root.hasAttribute('placeholder')||root.hasAttribute('title')||root.hasAttribute('aria-label')))fixAttrs(root);
+  }
+  function fixAttrs(el){
+    ['placeholder','title','aria-label','alt'].forEach(function(a){
+      var v=el.getAttribute&&el.getAttribute(a);
+      if(v&&TEST.test(v)){var nv=strip(v);if(nv!==v)el.setAttribute(a,nv);}
+    });
+  }
+  var queue=[],scheduled=false;
+  function flush(){
+    scheduled=false;
+    var q=queue;queue=[];
+    q.forEach(function(n){if(n.isConnected!==false)walk(n);});
+  }
+  function enqueue(n){queue.push(n);if(!scheduled){scheduled=true;(window.requestAnimationFrame||setTimeout)(flush);}}
+  function start(){
+    walk(document.body);
+    new MutationObserver(function(muts){
+      muts.forEach(function(m){
+        if(m.type==='childList')m.addedNodes.forEach(function(n){if(n.nodeType===1||n.nodeType===3)enqueue(n);});
+        else if(m.type==='characterData')enqueue(m.target);
+        else if(m.type==='attributes')fixAttrs(m.target);
+      });
+    }).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['placeholder','title','aria-label','alt']});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+  // Native popups (alert / confirm / prompt) me bhi emoji nahi
+  ['alert','confirm','prompt'].forEach(function(k){
+    var o=window[k];if(!o)return;
+    window[k]=function(msg,def){return o.call(window,strip(msg),def);};
+  });
+  window.stripEmoji=strip;
 })();
 // ── ADMIN CONFIG ─────────────────────────────────────────────────────────
 // Sirf ye email admin hai — baaki sab staff
