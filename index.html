@@ -13,7 +13,7 @@
 <meta name="geo.placename" content="India">
 <link rel="canonical" href="https://mkptyoup-debug.github.io/Glass-finder-pro/">
 <meta property="og:title" content="Universal Combo - Mobile Screen Guard Model Finder">
-<meta property="og:description" content="Instantly find the right tempered glass for your phone model. Flat Glass, UV Curved, Display - all in one place.">
+<meta ="og:description" content="Instantly find the right tempered glass for your phone model. Flat Glass, UV Curved, Display - all in one place.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_IN">
 <link rel="manifest" href="manifest.json">
@@ -1026,6 +1026,44 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 #partsCodeBtn{display:flex;align-items:center;gap:6px;width:fit-content;margin:0 0 14px auto!important;padding:9px 14px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:10px;color:var(--brand);font-size:12px;font-weight:600;transition:transform .15s}
 #partsCodeBtn:active{transform:scale(.94)}
 #partsCodeBtn.hide{display:none!important}
+/* ── DISLIKE REASON SHEET + REPORT ── */
+#rsOverlay{position:fixed;inset:0;z-index:2550;background:rgba(20,14,8,.45);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .22s}
+#rsOverlay.show{opacity:1}
+#rsSheet{width:100%;max-width:560px;background:#fff;border-radius:24px 24px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -20px 50px -20px rgba(20,14,8,.5);transform:translateY(100%);transition:transform .4s cubic-bezier(.2,1.05,.3,1)}
+#rsOverlay.show #rsSheet{transform:none}
+#rsSheet h4{margin:12px 0 2px;text-align:center;font-size:16px;color:var(--text-1,#2b221b)}
+#rsSheet p{margin:0 0 14px;text-align:center;font-size:12.5px;color:var(--text-2)}
+.rs-chip{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--surface-1);border:1.5px solid var(--border-def);border-radius:14px;padding:13px 14px;margin-bottom:8px;font-size:14px;font-weight:600;color:var(--text-1,#2b221b);transition:transform .15s,border-color .2s,background .2s}
+.rs-chip:active{transform:scale(.97);border-color:var(--brand);background:#C9A15E14}
+.rs-chip .material-symbols-rounded{color:var(--brand);font-size:20px}
+.rs-skip{display:block;margin:6px auto 0;background:none;border:none;color:var(--text-2);font-size:13px;padding:8px 14px}
+.cmt-flag.done{color:#3E8E5A}
+.cmt-rep{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.04em;background:#C0453F;color:#fff;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:1px}
+@media (prefers-reduced-motion:reduce){#rsSheet,#rsOverlay{transition:none}}
+/* ── MY PROFILE ── */
+.pf2{text-align:center;padding:2px 2px 6px}
+.pf2-av{width:92px;height:92px;margin:6px auto 10px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:800;color:#fff;text-transform:uppercase;background:linear-gradient(135deg,#CFA765,#A97E3E);box-shadow:0 0 0 4px #fff,0 0 0 6px #CFA76588,0 18px 30px -12px rgba(169,126,62,.8);animation:pf2Pop .6s cubic-bezier(.2,1.3,.3,1)}
+@keyframes pf2Pop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
+.pf2 h2{margin:10px 0 2px;font-size:20px;color:var(--text-1,#2b221b)}
+.pf2-mail{font-size:12.5px;color:var(--text-2);word-break:break-all}
+.pf2-chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:10px 0 14px}
+.pf2-chip{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--surface-2);color:var(--text-2);display:inline-flex;align-items:center;gap:4px}
+.pf2-chip.role{background:#C9A15E26;color:#8C6A2C}
+.pf2-chip.plan{background:#3E8E5A1f;color:#2F7A49}
+.pf2-chip.free{background:var(--surface-2);color:var(--text-2)}
+.pf2-chip .material-symbols-rounded{font-size:14px}
+.pf2-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.pf2-stat{background:var(--surface-1);border:1px solid var(--border-def);border-radius:14px;padding:11px 4px}
+.pf2-stat b{display:block;font-size:17px;color:var(--text-1,#2b221b);font-variant-numeric:tabular-nums}
+.pf2-stat span{font-size:10.5px;color:var(--text-2);font-weight:600}
+.pf2-form{text-align:left}
+.pf2-form .fgrp{margin-bottom:11px}
+.pf2-cnt{float:right;font-size:10.5px;color:var(--text-2);font-weight:500}
+.pf2-err{min-height:16px;font-size:12px;color:#C0453F;margin:2px 0 8px;text-align:left}
+.pf2-save{width:100%;border:none;border-radius:14px;padding:13px;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#CFA765,#A97E3E);box-shadow:0 10px 20px -10px rgba(169,126,62,.8);transition:transform .15s,opacity .2s}
+.pf2-save:active{transform:scale(.97)}.pf2-save:disabled{opacity:.6}
+.pf2-out{width:100%;margin-top:10px;background:none;border:1.5px solid var(--border-def);border-radius:14px;padding:11px;font-size:14px;font-weight:700;color:#C0453F;display:flex;align-items:center;justify-content:center;gap:6px}
+@media (prefers-reduced-motion:reduce){.pf2-av{animation:none}}
 /* ── USERNAME POPUP ── */
 #unOverlay{position:fixed;inset:0;z-index:2600;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(20,14,8,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;transition:opacity .25s}
 #unOverlay.show{opacity:1}
@@ -1158,10 +1196,6 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
     <div id="signupNameWrap" class="linp-wrap" style="display:none">
       <span class="linp-icon material-symbols-rounded">person</span>
       <input class="linp" type="text" id="loginName" placeholder="Your name" data-i18n-ph="login.name" autocomplete="name"/>
-    </div>
-    <div id="signupUserWrap" class="linp-wrap" style="display:none">
-      <span class="linp-icon material-symbols-rounded">alternate_email</span>
-      <input class="linp" type="text" id="signupUsername" placeholder="Username (shown in comments)" maxlength="20" autocomplete="off" autocapitalize="none" oninput="this.value=this.value.replace(/[^a-zA-Z0-9._]/g,'')"/>
     </div>
     <div class="linp-wrap">
       <span class="linp-icon material-symbols-rounded">mail</span>
@@ -1329,7 +1363,7 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 <div id="menuPanel">
   <div class="menu-header">
     <div class="menu-avatar" id="menuUserAvatar">?</div>
-    <div id="menuUserInfo" class="menu-user-info hide">
+    <div id="menuUserInfo" class="menu-user-info hide" onclick="openProfile()" style="cursor:pointer">
       <div class="menu-user-name" id="menuUserName">—</div>
       <div class="menu-user-email" id="menuUserEmail">—</div>
       <span class="menu-user-role" id="menuUserRole">Staff</span>
@@ -1339,6 +1373,7 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
   </div>
 
   <div class="menu-body">
+    <div class="menu-section" id="profileMenuSection"><button class="menu-item" id="menuProfileBtn" onclick="openProfile()"><span class="material-symbols-rounded menu-ic">account_circle</span><span class="menu-item-label">My Profile<small class="adm-desc">Name, shop details and your activity</small></span></button></div>
     <div class="menu-premium-card" id="menuPremiumCard" onclick="openUpgradeModal()">
       <div class="menu-premium-top"><span class="material-symbols-rounded" style="font-size:18px">workspace_premium</span><span id="menuPremiumTitle">Go Premium</span></div>
       <div class="menu-premium-sub" id="menuPremiumSub">Unlimited search, Back Cover/Parts unlock and Bulk Export</div>
@@ -1694,9 +1729,13 @@ function cmtLoadName(){
   var uid=S.user.uid,k='uc_username_'+uid;
   try{var c=localStorage.getItem(k);if(c){CMT.name=c;return Promise.resolve(c);}}catch(e){}
   if(!db)return Promise.resolve(null);
-  return db.collection('profiles').doc(uid).get().then(function(d){
-    CMT.name=(d.exists&&d.data().username)||null;
-    if(CMT.name){try{localStorage.setItem(k,CMT.name);}catch(e){}}
+  return db.collection('app_users').doc(uid).get().then(function(d){
+    var n=d.exists&&d.data().profileName;
+    if(n)return n;
+    return db.collection('profiles').doc(uid).get().then(function(o){return o.exists&&o.data().username||null;}).catch(function(){return null;});
+  }).then(function(n){
+    CMT.name=n||null;
+    if(n){try{localStorage.setItem(k,n);}catch(e){}}
     return CMT.name;
   }).catch(function(){return null;});
 }
@@ -1722,18 +1761,19 @@ function cmtRenderList(){
     var nm=c.username||'user',canDel=(c.uid===S.user.uid)||isAdmin();
     return '<div class="cmt-row" style="animation-delay:'+Math.min(i,8)*30+'ms"><div class="cmt-av" style="background:'+cmtColor(nm)+'">'+escHtml(nm.charAt(0))+'</div>'+
       '<div class="cmt-body"><div class="cmt-meta">'+(c.isAdmin?'<span class="cmt-tag">ADMIN</span>':'')+'<b>'+escHtml(nm)+'</b><span class="cmt-t">'+cmtAgo(c.tsNum||0)+'</span></div><div class="cmt-txt">'+escHtml(c.text||'')+'</div></div>'+
-      (canDel?'<button class="cmt-del" aria-label="Delete comment" onclick="cmtDel(\''+c.id+'\')"><span class="material-symbols-rounded">delete</span></button>':'')+'</div>';
+      (canDel?'<button class="cmt-del" aria-label="Delete comment" onclick="cmtDel(\''+c.id+'\')"><span class="material-symbols-rounded">delete</span></button>':
+        (cmtReported(c.id)?'<button class="cmt-del cmt-flag done" disabled aria-label="Reported"><span class="material-symbols-rounded">check_circle</span></button>':'<button class="cmt-del cmt-flag" aria-label="Report comment" onclick="cmtReport(\''+c.id+'\')"><span class="material-symbols-rounded">flag</span></button>'))+'</div>';
   }).join('');
 }
 function cmtRenderFoot(){
   var f=document.getElementById('cmtFoot');if(!f||!S.user)return;
   if(!CMT.name||CMT.editing){
-    f.innerHTML='<div class="cmt-setup"><h4>'+(CMT.name?'Change username':'Choose a username')+'</h4><p>This name is shown with your comments. 3-20 letters, numbers, . or _</p></div>'+
-      '<div class="cmt-compose"><div class="cmt-in"><input id="cmtNameIn" maxlength="20" autocomplete="off" autocapitalize="none" placeholder="username" value="'+escHtml(CMT.name||'')+'" oninput="this.value=this.value.replace(/[^a-zA-Z0-9._]/g,\'\')"></div><button class="cmt-send" onclick="cmtSaveName()">Save</button></div><div class="cmt-err" id="cmtErr"></div>';
+    f.innerHTML='<div class="cmt-setup"><h4>'+(CMT.name?'Change your name':'Enter your name')+'</h4><p>Shown with your comments. 3-20 characters.</p></div>'+
+      '<div class="cmt-compose"><div class="cmt-in"><input id="cmtNameIn" maxlength="20" autocomplete="off" placeholder="Your name" value="'+escHtml(CMT.name||'')+'" oninput="this.value=this.value.replace(/[<>]/g,\'\')"></div><button class="cmt-send" onclick="cmtSaveName()">Save</button></div><div class="cmt-err" id="cmtErr"></div>';
     return;
   }
   var used=cmtMineCount(),left=CMT_MAX_PER_GROUP-used;
-  f.innerHTML='<div class="cmt-quota"><span>'+(left>0?used+' of '+CMT_MAX_PER_GROUP+' comments used in this group':'You have used both comments in this group')+'</span><a href="#" onclick="cmtEditName();return false">@'+escHtml(CMT.name)+' · Edit</a></div>'+
+  f.innerHTML='<div class="cmt-quota"><span>'+(left>0?used+' of '+CMT_MAX_PER_GROUP+' comments used in this group':'You have used both comments in this group')+'</span><a href="#" onclick="cmtEditName();return false">'+escHtml(CMT.name)+' · Edit</a></div>'+
     '<div class="cmt-compose"><div class="cmt-av" style="width:34px;height:34px;flex:0 0 34px;font-size:13px;background:'+cmtColor(CMT.name)+'">'+escHtml(CMT.name.charAt(0))+'</div>'+
     '<div class="cmt-in"><input id="cmtIn" maxlength="'+CMT_MAX_LEN+'" autocomplete="off" '+(left>0?'':'disabled ')+'placeholder="'+(left>0?'Add a comment...':'Comment limit reached')+'" oninput="cmtOnInput()" onkeydown="if(event.key===\'Enter\')cmtPost()"><span class="cmt-cnt" id="cmtCnt">0/'+CMT_MAX_LEN+'</span></div>'+
     '<button class="cmt-send" id="cmtSend" disabled onclick="cmtPost()">Post</button></div><div class="cmt-err" id="cmtErr"></div>';
@@ -1748,11 +1788,9 @@ function cmtOnInput(){
 function cmtEditName(){CMT.editing=true;cmtRenderFoot();var i=document.getElementById('cmtNameIn');if(i)i.focus();}
 function cmtSaveName(){
   var v=(document.getElementById('cmtNameIn').value||'').trim();
-  if(!/^[a-zA-Z0-9._]{3,20}$/.test(v)){cmtErr('Use 3-20 letters, numbers, . or _');return;}
-  if(cmtHasLink(v)){cmtErr('Username cannot look like a link.');return;}
-  if(!isAdmin()&&/admin|universalcombo|support/i.test(v)){cmtErr('This username is reserved.');return;}
+  var m=cmtValidName(v);if(m){cmtErr(m);return;}
   cmtStoreName(S.user.uid,v).then(function(){
-    CMT.editing=false;cmtRenderFoot();showToast('✅ Username saved');
+    CMT.editing=false;cmtRenderFoot();showToast('✅ Name saved');
   }).catch(function(err){cmtErr(cmtStoreErr(err));});
 }
 function cmtBumpCount(delta){
@@ -1800,32 +1838,23 @@ function cmtDel(id){
   }).catch(function(){showToast('❌ Could not delete comment',true);});
 }
 // ══ USERNAME: signup me field + purane users ke liye popup ══
-function cmtValidName(v,isFixedAdmin){
-  if(!/^[a-zA-Z0-9._]{3,20}$/.test(v))return 'Username must be 3-20 letters, numbers, . or _';
-  if(cmtHasLink(v))return 'Username cannot look like a link';
-  if(!isAdmin()&&!isFixedAdmin&&/admin|universalcombo|support/i.test(v))return 'This username is reserved';
+function cmtValidName(v){
+  v=String(v||'').replace(/\s+/g,' ').trim();
+  if(v.length<3||v.length>20)return 'Name must be 3-20 characters';
+  if(!/^[\p{L}\p{N}][\p{L}\p{M}\p{N} ._]*$/u.test(v))return 'Use letters, numbers, spaces, . or _ only';
+  if(cmtHasLink(v))return 'Name cannot look like a link';
+  if(!isAdmin()&&/admin|support|universal\s?combo/i.test(v))return 'This name is reserved';
   return '';
 }
 function cmtStoreName(uid,v){
-  // usernames/{lowercase} doc naam ko lock karta hai: ek naam = ek user
-  var low=v.toLowerCase(),uref=db.collection('usernames').doc(low),pref=db.collection('profiles').doc(uid);
-  return pref.get().then(function(pd){
-    var old=pd.exists?(pd.data().usernameLower||''):'';
-    return db.runTransaction(function(tx){
-      return tx.get(uref).then(function(d){
-        if(d.exists&&d.data().uid!==uid)throw new Error('taken');
-        tx.set(uref,{uid:uid,username:v});
-        if(old&&old!==low)tx.delete(db.collection('usernames').doc(old));
-        tx.set(pref,{username:v,usernameLower:low,updatedAt:new Date().toISOString()},{merge:true});
-      });
-    });
-  }).then(function(){
+  v=String(v||'').replace(/\s+/g,' ').trim();
+  return db.collection('app_users').doc(uid).set({profileName:v,profileUpdated:new Date().toISOString()},{merge:true}).then(function(){
     CMT.name=v;try{localStorage.setItem('uc_username_'+uid,v);}catch(e){}
+    try{if(auth.currentUser)auth.currentUser.updateProfile({displayName:v}).then(function(){updateUserUI();}).catch(function(){});}catch(e){}
   });
 }
 function cmtStoreErr(err){
-  if(err&&err.message==='taken')return 'This username is already taken. Try another one.';
-  if(err&&err.code==='permission-denied')return 'Permission denied: Firestore rules for "usernames" are missing.';
+  if(err&&err.code==='permission-denied')return 'Permission denied. Please log in again.';
   return 'Could not save. Check your connection.';
 }
 function usernamePromptIfNeeded(){
@@ -1836,9 +1865,9 @@ function usernamePromptIfNeeded(){
     window._unShown=true;
     var o=document.createElement('div');o.id='unOverlay';
     o.innerHTML='<div id="unCard" role="dialog" aria-label="Choose username"><div class="un-ic"><span class="material-symbols-rounded">alternate_email</span></div>'+
-      '<h3>Choose your username</h3><p>Pick a name that will be shown with your comments. You can change it later from the comment box.</p>'+
-      '<div class="un-field"><b>@</b><input id="unIn" maxlength="20" autocomplete="off" autocapitalize="none" placeholder="username" oninput="this.value=this.value.replace(/[^a-zA-Z0-9._]/g,\'\')" onkeydown="if(event.key===\'Enter\')unSave()"></div>'+
-      '<div id="unErr"></div><button id="unSave" onclick="unSave()">Save username</button><button id="unLater" onclick="unClose()">Later</button></div>';
+      '<h3>What should we call you?</h3><p>Enter your name. It will be shown with your comments and on your profile. You can change it anytime from My Profile.</p>'+
+      '<div class="un-field"><span class="material-symbols-rounded" style="color:var(--brand);font-size:20px">person</span><input id="unIn" maxlength="20" autocomplete="name" placeholder="Your name" oninput="this.value=this.value.replace(/[<>]/g,\'\')" onkeydown="if(event.key===\'Enter\')unSave()"></div>'+
+      '<div id="unErr"></div><button id="unSave" onclick="unSave()">Save name</button><button id="unLater" onclick="unClose()">Later</button></div>';
     document.body.appendChild(o);
     requestAnimationFrame(function(){requestAnimationFrame(function(){o.classList.add('show');});});
     setTimeout(function(){var i=document.getElementById('unIn');if(i)i.focus();},350);
@@ -1849,8 +1878,8 @@ function unSave(){
   var v=(document.getElementById('unIn').value||'').trim(),er=document.getElementById('unErr'),b=document.getElementById('unSave');
   var m=cmtValidName(v);if(m){er.textContent=m;return;}
   b.disabled=true;b.textContent='Saving...';er.textContent='';
-  cmtStoreName(S.user.uid,v).then(function(){unClose();showToast('✅ Username saved: @'+v);})
-  .catch(function(err){b.disabled=false;b.textContent='Save username';er.textContent=cmtStoreErr(err);});
+  cmtStoreName(S.user.uid,v).then(function(){unClose();showToast('✅ Welcome, '+v+'!');})
+  .catch(function(err){b.disabled=false;b.textContent='Save name';er.textContent=cmtStoreErr(err);});
 }
 // ══ ADMIN: saare groups ke latest comments ek jagah ══
 function openAdminComments(){
@@ -1858,14 +1887,16 @@ function openAdminComments(){
   if(typeof closeMenu==='function')closeMenu();
   openModal('<div class="mhead"><span class="mtitle">💬 Comments</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
     '<div class="adm-intro">Latest 60 comments from all groups. Delete spam or wrong info from here.</div><div id="acList" style="margin-top:8px">Loading...</div>');
-  db.collection('comments').orderBy('tsNum','desc').limit(60).get().then(function(snap){
+  Promise.all([db.collection('comments').orderBy('tsNum','desc').limit(60).get(),
+    db.collection('feedback').where('kind','==','comment_report').limit(200).get().catch(function(){return {docs:[]};})]).then(function(rr){
+    var snap=rr[0],rep={};rr[1].docs.forEach(function(d){var id=d.data().commentId;if(id)rep[id]=(rep[id]||0)+1;});
     var el=document.getElementById('acList');if(!el)return;
     if(snap.empty){el.innerHTML='<div class="cmt-empty"><span class="material-symbols-rounded">forum</span>No comments yet.</div>';return;}
-    el.innerHTML=snap.docs.map(function(d){
+    el.innerHTML=snap.docs.slice().sort(function(x,y){return (rep[y.id]?1:0)-(rep[x.id]?1:0);}).map(function(d){
       var c=d.data(),g=findGroupObj(c.tabKey,c.groupId);
       var gn=g?(g.glassName||g.name||g.partName||g.code||'Group'):'Group';
       return '<div class="cmt-row" id="ac_'+d.id+'"><div class="cmt-av" style="background:'+cmtColor(c.username||'u')+'">'+escHtml((c.username||'u').charAt(0))+'</div>'+
-        '<div class="cmt-body"><div class="cmt-meta"><b>'+escHtml(c.username||'user')+'</b><span class="cmt-t">'+cmtAgo(c.tsNum||0)+'</span></div>'+
+        '<div class="cmt-body"><div class="cmt-meta"><b>'+escHtml(c.username||'user')+'</b><span class="cmt-t">'+cmtAgo(c.tsNum||0)+'</span>'+(rep[d.id]?'<span class="cmt-rep">REPORTED x'+rep[d.id]+'</span>':'')+'</div>'+
         '<div class="cmt-txt">'+escHtml(c.text||'')+'</div>'+
         '<div class="cmt-t" style="font-size:11px;color:var(--brand);margin-top:3px">in '+escHtml(gn)+' · '+escHtml(String(c.tabKey||'').replace('pf_',''))+'</div></div>'+
         '<button class="cmt-del" aria-label="Delete" onclick="acDel(\''+d.id+'\',\''+escHtml(c.tabKey||'')+'\',\''+escHtml(c.groupId||'')+'\')"><span class="material-symbols-rounded">delete</span></button></div>';
@@ -1880,6 +1911,92 @@ function acDel(id,tab,gid){
     var g=findGroupObj(tab,gid);if(g&&g.commentCount)g.commentCount--;
     showToast('✅ Comment deleted');
   }).catch(function(){showToast('❌ Could not delete comment',true);});
+}
+// ══ MY PROFILE (har user ke liye) ══
+function pfDate(v){var t=v?new Date(v).getTime():0;return t?new Date(t).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'';}
+function openProfile(){
+  if(!S.user){if(typeof closeMenu==='function')closeMenu();showLogin();return;}
+  if(typeof closeMenu==='function')closeMenu();
+  var u=S.user,nm=CMT.name||u.displayName||u.email.split('@')[0];
+  var pe=S.premium.premiumExpiry?new Date(S.premium.premiumExpiry).getTime():0,te=S.premium.trialEnd?new Date(S.premium.trialEnd).getTime():0,now=Date.now();
+  var role=isAdmin()?'Admin':'Staff',planChip;
+  if(isAdmin())planChip='<span class="pf2-chip plan"><span class="material-symbols-rounded">verified</span>Full access</span>';
+  else if(S.premium.staffFree)planChip='<span class="pf2-chip plan"><span class="material-symbols-rounded">workspace_premium</span>Premium (Staff)</span>';
+  else if(isPremiumActive()&&pe>now)planChip='<span class="pf2-chip plan"><span class="material-symbols-rounded">workspace_premium</span>Premium until '+pfDate(pe)+'</span>';
+  else if(isPremiumActive()&&te>now)planChip='<span class="pf2-chip plan"><span class="material-symbols-rounded">schedule</span>Free trial ends '+pfDate(te)+'</span>';
+  else if(isPremiumActive())planChip='<span class="pf2-chip plan"><span class="material-symbols-rounded">workspace_premium</span>Premium</span>';
+  else planChip='<span class="pf2-chip free"><span class="material-symbols-rounded">lock</span>Free plan</span>';
+  var likes=Object.keys(S.myVotes||{}).filter(function(k){return S.myVotes[k]==='like';}).length;
+  var since=u.metadata&&u.metadata.creationTime?new Date(u.metadata.creationTime).toLocaleDateString('en-IN',{month:'short',year:'numeric'}):'-';
+  openModal('<div class="mhead"><span class="mtitle">My Profile</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
+    '<div class="pf2"><div class="pf2-av" id="pf2Av">'+escHtml(nm.charAt(0))+'</div><h2 id="pf2Name">'+escHtml(nm)+'</h2><div class="pf2-mail">'+escHtml(u.email)+'</div>'+
+    '<div class="pf2-chips"><span class="pf2-chip role">'+role+'</span>'+planChip+'</div>'+
+    '<div class="pf2-stats"><div class="pf2-stat"><b id="pfStC">-</b><span>Comments</span></div><div class="pf2-stat"><b>'+likes+'</b><span>Likes given</span></div><div class="pf2-stat"><b>'+escHtml(since)+'</b><span>Member since</span></div></div>'+
+    '<div class="pf2-form">'+
+    '<div class="fgrp"><label class="flbl">Your name</label><input class="finp" id="pfName" maxlength="20" autocomplete="name" value="'+escHtml(nm)+'" placeholder="Your name"/></div>'+
+    '<div class="fgrp"><label class="flbl">Shop / business name</label><input class="finp" id="pfShop" maxlength="30" placeholder="e.g. Patel Mobile Accessories"/></div>'+
+    '<div class="fgrp"><label class="flbl">City</label><input class="finp" id="pfCity" maxlength="24" placeholder="e.g. Surat"/></div>'+
+    '<div class="fgrp"><label class="flbl">About <span class="pf2-cnt" id="pfBioCnt">0/100</span></label><input class="finp" id="pfBio" maxlength="100" placeholder="A short line about you" oninput="document.getElementById(\'pfBioCnt\').textContent=this.value.length+\'/100\'"/></div>'+
+    '<div class="pf2-err" id="pfErr"></div><button class="pf2-save" id="pfSave" onclick="saveProfile()">Save changes</button></div>'+
+    '<button class="pf2-out" onclick="closeModal();doLogout()"><span class="material-symbols-rounded" style="font-size:18px">logout</span>Log out</button></div>');
+  if(db){
+    db.collection('app_users').doc(u.uid).get().then(function(d){
+      var x=d.exists?d.data():{},set=function(id,v){var e=document.getElementById(id);if(e&&v)e.value=v;};
+      set('pfShop',x.profileShop);set('pfCity',x.profileCity);set('pfBio',x.profileBio);
+      if(x.profileName&&!CMT.name){set('pfName',x.profileName);}
+      var b=document.getElementById('pfBio');if(b)document.getElementById('pfBioCnt').textContent=b.value.length+'/100';
+    }).catch(function(){});
+    db.collection('comments').where('uid','==',u.uid).get().then(function(sn){var e=document.getElementById('pfStC');if(e)e.textContent=sn.size;}).catch(function(){var e=document.getElementById('pfStC');if(e)e.textContent='0';});
+  }
+}
+function saveProfile(){
+  var g=function(id){return (document.getElementById(id).value||'').replace(/\s+/g,' ').trim();};
+  var name=g('pfName'),shop=g('pfShop'),city=g('pfCity'),bio=g('pfBio'),er=document.getElementById('pfErr'),b=document.getElementById('pfSave');
+  var m=cmtValidName(name);
+  if(!m&&(cmtHasLink(shop)||cmtHasLink(city)||cmtHasLink(bio)))m='Links are not allowed in profile';
+  if(m){er.textContent=m;return;}
+  b.disabled=true;b.textContent='Saving...';er.textContent='';
+  db.collection('app_users').doc(S.user.uid).set({profileName:name,profileShop:shop,profileCity:city,profileBio:bio,profileUpdated:new Date().toISOString()},{merge:true}).then(function(){
+    CMT.name=name;try{localStorage.setItem('uc_username_'+S.user.uid,name);}catch(e){}
+    try{if(auth.currentUser)auth.currentUser.updateProfile({displayName:name}).then(function(){updateUserUI();}).catch(function(){});}catch(e){}
+    var a=document.getElementById('pf2Av'),n=document.getElementById('pf2Name');if(a)a.textContent=name.charAt(0);if(n)n.textContent=name;
+    b.disabled=false;b.textContent='Save changes';showToast('✅ Profile updated');
+  }).catch(function(err){b.disabled=false;b.textContent='Save changes';er.textContent=cmtStoreErr(err);});
+}
+// ══ DISLIKE REASON + COMMENT REPORT (feedback collection use hota hai, naye rules nahi chahiye) ══
+function fbGroupName(tab,gid){var g=findGroupObj(tab,gid);return g?(g.glassName||g.name||g.partName||g.code||'Group'):'Group';}
+function sendFlag(kind,text,extra){
+  var o={kind:kind,text:text,date:new Date().toISOString(),tab:S.tab,userEmail:S.user?S.user.email:'Anonymous',userName:S.user?(S.user.displayName||S.user.email.split('@')[0]):'Anonymous'};
+  for(var k in extra)o[k]=extra[k];
+  return db.collection('feedback').add(o);
+}
+function showDislikeReason(tabKey,gid){
+  window._rsDone=window._rsDone||{};
+  var gk=tabKey+':'+gid;if(window._rsDone[gk]||document.getElementById('rsOverlay')||!S.user)return;
+  var opts=[['straighten','Glass does not fit'],['search_off','My model is missing'],['rule','Wrong group / wrong models'],['more_horiz','Other issue']];
+  var o=document.createElement('div');o.id='rsOverlay';
+  o.innerHTML='<div id="rsSheet"><div class="cmt-grab"></div><h4>What went wrong?</h4><p>'+escHtml(fbGroupName(tabKey,gid))+' · helps us fix the data</p>'+
+    opts.map(function(x,i){return '<button class="rs-chip" onclick="rsPick('+i+')"><span class="material-symbols-rounded">'+x[0]+'</span>'+x[1]+'</button>';}).join('')+
+    '<button class="rs-skip" onclick="rsClose()">Skip</button></div>';
+  o._ctx={tab:tabKey,gid:gid,gk:gk,opts:opts};
+  o.addEventListener('click',function(e){if(e.target===o)rsClose();});
+  document.body.appendChild(o);
+  requestAnimationFrame(function(){requestAnimationFrame(function(){o.classList.add('show');});});
+}
+function rsClose(){var o=document.getElementById('rsOverlay');if(!o)return;o.classList.remove('show');setTimeout(function(){o.remove();},320);}
+function rsPick(i){
+  var o=document.getElementById('rsOverlay');if(!o)return;var c=o._ctx;
+  window._rsDone[c.gk]=1;rsClose();
+  sendFlag('dislike','Dislike on "'+fbGroupName(c.tab,c.gid)+'" ('+String(c.tab).replace('pf_','')+'): '+c.opts[i][1],{gkey:c.gk}).then(function(){showToast('✅ Thanks, we will check this group');}).catch(function(){});
+}
+function cmtReported(id){try{return (JSON.parse(localStorage.getItem('uc_reported')||'[]')).indexOf(id)>=0;}catch(e){return false;}}
+function cmtReport(id){
+  var c=CMT.list.filter(function(x){return x.id===id;})[0];if(!c||!S.user)return;
+  if(!confirm('Report this comment to the admin?'))return;
+  sendFlag('comment_report','Reported comment by "'+(c.username||'user')+'" in "'+fbGroupName(CMT.tab,CMT.gid)+'": '+c.text,{commentId:id,gkey:CMT.key}).then(function(){
+    try{var a=JSON.parse(localStorage.getItem('uc_reported')||'[]');a.push(id);localStorage.setItem('uc_reported',JSON.stringify(a.slice(-200)));}catch(e){}
+    cmtRenderList();showToast('✅ Reported. Thank you');
+  }).catch(function(){showToast('❌ Could not send report',true);});
 }
 // ── ADMIN CONFIG ─────────────────────────────────────────────────────────
 // Sirf ye email admin hai — baaki sab staff
@@ -2947,6 +3064,7 @@ function castVote(tabKey,groupId,voteType){
     if(g){g.likeCount=res.likeCount;g.dislikeCount=res.dislikeCount;}
     bumpVersionForTab(tabKey); // background sync so other devices see updated counts
     updateFeedbackWidget(tabKey,groupId,res.likeCount,res.dislikeCount,newVote);
+    if(newVote==='dislike')setTimeout(function(){showDislikeReason(tabKey,groupId);},350);
   }).catch(function(){
     if(widget)widget.querySelectorAll('.fbtn').forEach(function(b){b.disabled=false;});
     showToast('❌ Vote could not be saved, please try again',true);
@@ -3127,7 +3245,6 @@ function switchLoginTab(tab){
   document.getElementById('ltSignin').classList.toggle('active',tab==='signin');
   document.getElementById('ltSignup').classList.toggle('active',tab==='signup');
   document.getElementById('signupNameWrap').style.display=tab==='signup'?'block':'none';
-  document.getElementById('signupUserWrap').style.display=tab==='signup'?'block':'none';
   document.getElementById('loginBtn').textContent=tab==='signin'?'Sign In':'Create Account';
   document.getElementById('loginErr').textContent='';
 }
@@ -3188,13 +3305,13 @@ function doLogin(){
   if(currentLoginTab==='signup'){
     // Sign Up
     var name=document.getElementById('loginName').value.trim()||email.split('@')[0];
-    var uname=(document.getElementById('signupUsername').value||'').trim();
-    var unErr=cmtValidName(uname,false);
+    var typedName=document.getElementById('loginName').value.trim();
+    var unErr=typedName?cmtValidName(typedName):'';
     if(unErr){errEl.textContent='❌ '+unErr;btn.textContent='Create Account';btn.disabled=false;return;}
     auth.createUserWithEmailAndPassword(email,pass)
       .then(function(cred){
         return cred.user.updateProfile({displayName:name}).then(function(){
-          return cmtStoreName(cred.user.uid,uname).catch(function(err){if(err&&err.message==='taken')setTimeout(function(){showToast('❌ Username is taken. Please choose another.',true);},1200);}); // popup baad me phir poochega
+          return typedName?cmtStoreName(cred.user.uid,typedName).catch(function(){}):null; // fail ho to baad me popup poochega
         });
       })
       .then(function(){
@@ -7806,7 +7923,7 @@ function scrollToTop(){haptic();window.scrollTo({top:0,behavior:'smooth'});}
     span.style.width=span.style.height=d+'px';
     span.style.left=(e.clientX-r.left-d/2)+'px';
     span.style.top=(e.clientY-r.top-d/2)+'px';
-    item.appendChild(span);
+    (span);
     setTimeout(function(){span.remove();},500);
   });
 })();
