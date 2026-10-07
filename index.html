@@ -298,7 +298,7 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .pf-back:active{transform:scale(.92)}
 .pf-htitle{font-size:16px;font-weight:800;color:var(--text-1)}
 .pf-body{max-width:680px;margin:0 auto;padding:16px}
-#partsSearchWrap{position:sticky;top:var(--pf-header-h,60px);z-index:150;background:var(--bg);padding-top:4px;margin-top:-4px}
+#partsSearchWrap{position:sticky;top:var(--header-h,64px);z-index:150;background:var(--bg);padding-top:4px;margin-top:-4px}
 #partsSearchBox{display:flex;align-items:center;background:var(--surface-1);border:1px solid #E6DCCF;border-radius:18px;padding:0 6px 0 18px;gap:12px;margin-bottom:16px;box-shadow:0 4px 14px rgba(52,42,34,.06);transition:border-color .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1)}
 .pf-body{padding-top:4px}
 #partsSearchBox:focus-within{border-color:var(--brand);box-shadow:0 4px 14px rgba(52,42,34,.06),0 0 0 3px #C9A15E22}
@@ -994,6 +994,23 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 @media (prefers-reduced-motion:reduce){
   .card,.modal,#modalBg,.page-anim,#loginScreen.show,#loginScreen.show .login-box,#menuPanel,#menuOverlay{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
+
+/* ── SEARCH BAR POLISH: pinned, premium look, subtle motion ── */
+#searchWrap,#partsSearchWrap{padding-top:10px;padding-bottom:8px;margin-top:-10px;transition:box-shadow .3s ease,background .3s ease;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);background:rgba(250,248,244,.94)}
+#searchWrap.is-stuck,#partsSearchWrap.is-stuck{box-shadow:0 10px 18px -12px rgba(52,42,34,.28);border-bottom:1px solid var(--border-hair)}
+#partsSearchWrap{padding-top:8px;margin-top:-8px}
+#searchBox,#partsSearchBox{position:relative;min-height:54px;border-radius:16px;border:1.5px solid var(--border-def);background:linear-gradient(180deg,#fff,var(--surface-1));box-shadow:0 8px 22px -10px rgba(52,42,34,.22),inset 0 1px 0 #fff;transition:transform .25s cubic-bezier(.22,1,.36,1),border-color .25s ease,box-shadow .25s ease;overflow:hidden}
+#searchBox::after,#partsSearchBox::after{content:'';position:absolute;left:0;bottom:0;height:2px;width:100%;background:linear-gradient(90deg,transparent,var(--brand),var(--brand-2),transparent);transform:scaleX(0);transform-origin:center;transition:transform .45s cubic-bezier(.22,1,.36,1)}
+#searchBox.focused,#partsSearchBox:focus-within{transform:translateY(-1px);border-color:var(--brand);box-shadow:0 12px 26px -10px rgba(184,138,69,.38),0 0 0 3px #C9A15E22}
+#searchBox.focused::after,#partsSearchBox:focus-within::after{transform:scaleX(1)}
+#searchBox.focused .search-ic-glow,#partsSearchBox:focus-within .search-ic-glow{animation:sbIcPulse 1.8s ease-out infinite}
+@keyframes sbIcPulse{0%{box-shadow:0 0 0 0 rgba(184,138,69,.45)}70%{box-shadow:0 0 0 10px rgba(184,138,69,0)}100%{box-shadow:0 0 0 0 rgba(184,138,69,0)}}
+#searchInput,#partsSearchInput{font-size:16px;letter-spacing:.1px}
+#searchInput::placeholder,#partsSearchInput::placeholder{transition:opacity .35s ease;opacity:.75}
+#searchInput.ph-out::placeholder,#partsSearchInput.ph-out::placeholder{opacity:0}
+#searchClear{animation:sbPop .2s ease}
+@keyframes sbPop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){#searchBox,#partsSearchBox,#searchBox::after,#partsSearchBox::after{transition:none}#searchBox.focused .search-ic-glow,#partsSearchBox:focus-within .search-ic-glow{animation:none}}
 </style>
 </head>
 <body>
@@ -1032,7 +1049,7 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
     </div>
     <div id="signupNameWrap" class="linp-wrap" style="display:none">
       <span class="linp-icon material-symbols-rounded">person</span>
-      <input class="linp" type="text" id="loginName" placeholder="Aapka naam" data-i18n-ph="login.name" autocomplete="name"/>
+      <input class="linp" type="text" id="loginName" placeholder="Your name" data-i18n-ph="login.name" autocomplete="name"/>
     </div>
     <div class="linp-wrap">
       <span class="linp-icon material-symbols-rounded">mail</span>
@@ -1156,7 +1173,7 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
       <div id="aiChatInputRow">
         <button id="aiChatImgBtn" onclick="document.getElementById('aiChatImgInput').click()" title="Attach photo">📷</button>
         <input type="file" id="aiChatImgInput" accept="image/*" capture="environment" style="display:none" onchange="handleAIChatImage(this)"/>
-        <input id="aiChatTextInput" placeholder="Model ka naam poocho ya photo bhejo..." onkeydown="if(event.key==='Enter')sendAIChatMessage()"/>
+        <input id="aiChatTextInput" placeholder="Ask about a model or send a photo..." onkeydown="if(event.key==='Enter')sendAIChatMessage()"/>
         <button id="aiChatSendBtn" onclick="sendAIChatMessage()" aria-label="Send">➤</button>
       </div>
     </div>
@@ -1404,6 +1421,37 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
   window.addEventListener('resize',syncHeaderH);
   document.addEventListener('DOMContentLoaded',syncHeaderH);
   syncHeaderH();
+})();
+// ── SEARCH BAR: stuck shadow + rotating placeholder ──────────────────────
+(function(){
+  var wraps=['searchWrap','partsSearchWrap'];
+  function stuckCheck(){
+    var h=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'))||64;
+    wraps.forEach(function(id){
+      var el=document.getElementById(id);if(!el)return;
+      el.classList.toggle('is-stuck',el.offsetParent!==null&&el.getBoundingClientRect().top<=h+1&&window.scrollY>40);
+    });
+  }
+  window.addEventListener('scroll',stuckCheck,{passive:true});
+  window.addEventListener('resize',stuckCheck);
+  var EX=['Vivo Y21','Samsung A54','Redmi Note 12','Oppo A17','Realme 11','Infinix Hot 30'];
+  var ei=0;
+  function rotate(){
+    if(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+    ei=(ei+1)%EX.length;
+    ['searchInput','partsSearchInput'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el||el.value||document.activeElement===el)return;
+      var ph=el.getAttribute('placeholder')||'';
+      if(!/\(e\.g\. [^)]*\)\s*$/.test(ph))return; // Hindi/other language me chhedna nahi
+      el.classList.add('ph-out');
+      setTimeout(function(){
+        el.setAttribute('placeholder',ph.replace(/\(e\.g\. [^)]*\)\s*$/,'(e.g. '+EX[ei]+')'));
+        el.classList.remove('ph-out');
+      },350);
+    });
+  }
+  setInterval(rotate,3200);
 })();
 // ── ADMIN CONFIG ─────────────────────────────────────────────────────────
 // Sirf ye email admin hai — baaki sab staff
@@ -1979,12 +2027,12 @@ function updatePremiumUI(){
       btn.classList.remove('hide');btn.textContent='Manage Plan →';
       var pdl=S.premium.premiumExpiry?Math.ceil((new Date(S.premium.premiumExpiry).getTime()-Date.now())/864e5):999;
       if(pdl<=7){
-        title.textContent=pdl<=1?'⏳ Premium aaj/kal khatam ho raha hai':'⏳ Premium '+pdl+' din me khatam';
-        sub.textContent='Renew karo taaki search, Back Cover aur Parts band na ho';
+        title.textContent=pdl<=1?'⏳ Premium expires today or tomorrow':'⏳ Premium expires in '+pdl+' days';
+        sub.textContent='Renew now so Search, Back Cover and Parts stay unlocked';
         btn.textContent='Renew →';
         try{
           var rk=lsGetJSON('renewToastDay');
-          if(rk!==todayStr()){lsSetJSON('renewToastDay',todayStr());setTimeout(function(){showToast('⏳ Aapka premium '+pdl+' din me khatam hoga — Menu se renew karo');},2500);}
+          if(rk!==todayStr()){lsSetJSON('renewToastDay',todayStr());setTimeout(function(){showToast('⏳ Your premium expires in '+pdl+' days — renew from the Menu');},2500);}
         }catch(e){}
       }
       if(profileBadge){
@@ -2657,7 +2705,7 @@ function showLogin(){
   var gateNote=document.getElementById('loginGateNote');
   if(gateNote){
     gateNote.style.display=forced?'block':'none';
-    if(forced)gateNote.textContent='🔍 Aapki '+GUEST_FREE_SEARCHES+' free searches complete ho gayi. Aage search karne ke liye Login / Sign Up karein.';
+    if(forced)gateNote.textContent='🔍 You have used your '+GUEST_FREE_SEARCHES+' free searches. Please Login / Sign Up to continue searching.';
   }
   document.getElementById('loginScreen').classList.add('show');
   document.getElementById('loginErr').textContent='';
@@ -3284,7 +3332,7 @@ function buildCard(g,matched,other,hasSearch,isFuzzy,idx,q){
   } else if(hasSearch&&matched.length){
     matchSection='<div class="match-section'+(isFuzzy?' fuzzy':'')+'">'+
       '<div class="match-section-title">'+(isFuzzy?'<span class="material-symbols-rounded" style="font-size:13px;vertical-align:-2px">manage_search</span> Similar Match':'<span class="material-symbols-rounded" style="font-size:13px;vertical-align:-2px;font-variation-settings:\'FILL\' 1">check_circle</span> Matched ('+matched.length+')')+'</div>'+
-      (!isFuzzy&&matched.length<=3?'<div style="font-size:15px;font-weight:800;color:var(--success);margin:2px 0 9px;line-height:1.35">✔ '+matched.map(escHtml).join(', ')+' — is glass me fit hota hai</div>':'')+
+      (!isFuzzy&&matched.length<=3?'<div style="font-size:15px;font-weight:800;color:var(--success);margin:2px 0 9px;line-height:1.35">✔ '+matched.map(escHtml).join(', ')+' — fits this glass</div>':'')+
       '<div class="match-tags">'+matched.map(function(m){
         return isFuzzy?'<span class="match-tag fuzzy">'+escHtml(m)+'</span>':
           '<span class="match-tag">'+hlText(m,q)+'</span>';
@@ -3492,6 +3540,31 @@ function collapseRepeatedPhrases(text){
 // Voice engine kai baar ek hi cheez ke liye alag-alag alternatives deta hai.
 // Agar unme se koi ek humare existing model list se match kar jaaye, to wahi
 // use karo (zyada sahi hoga) — warna engine ka sabse confident (pehla) answer lo.
+// Voice engine aksar model code ka letter gira deta hai ("Vivo Y20" -> "Vivo 20").
+// Agar bola gaya last word sirf 2-3 digit number hai aur database me us number ke saath
+// sirf EK hi letter-prefix wala model family hai (jaise sirf Y20/Y20i/Y20s), to letter wapas jod do.
+// Agar V20 aur Y20 dono hain (confusion) ya "Note 12" jaisa plain number model hai, to text ko chhedte nahi.
+function fixVoiceModelLetter(text){
+  var tokens=String(text||'').trim().split(/\s+/);
+  var last=tokens[tokens.length-1];
+  if(!/^\d{2,3}$/.test(last))return text;
+  var pool=[];
+  try{pool=pool.concat(getAllModelsForTab());}catch(e){}
+  try{PART_TYPES.forEach(function(t){(PF.data[t.key]||[]).forEach(function(g){pool=pool.concat(parseModels(g.models));});});}catch(e){}
+  if(!pool.length)return text;
+  var plain=new RegExp('(^|\\s)'+last+'$','i');
+  var bases={};
+  for(var i=0;i<pool.length;i++){
+    var raw=String(pool[i]).trim();
+    if(plain.test(raw))return text; // "Redmi 12" / "Note 12" jaisa number-only model maujood hai
+    var mm=/^([A-Z]{1,2})(\d{2,3})([A-Z]{0,2})$/.exec(raw.toUpperCase().replace(/[^A-Z0-9]/g,''));
+    if(mm&&mm[2]===last)bases[mm[1]+mm[2]]=1;
+  }
+  var keys=Object.keys(bases);
+  if(keys.length!==1)return text;
+  tokens[tokens.length-1]=keys[0];
+  return tokens.join(' ');
+}
 function pickBestVoiceAlternative(resultItem){
   if(resultItem.length<=1)return resultItem[0].transcript;
   var pool=[];
@@ -3591,7 +3664,7 @@ function startVoiceSearch(inputId,triggerFn){
           // Same final result index dobara na jode — kai baar engine ek hi
           // final result repeat bhej deta hai jisse text galat/double ho jata tha
           if(i>lastFinalIndex){
-            var bestText=pickBestVoiceAlternative(event.results[i]);
+            var bestText=fixVoiceModelLetter(pickBestVoiceAlternative(event.results[i]));
             voiceAccumulated=(voiceAccumulated+' '+bestText).trim();
             lastFinalIndex=i;
           }
@@ -3813,7 +3886,7 @@ function openAIChat(){
   document.getElementById('aiChatOverlay').classList.add('show');
   document.getElementById('aiChatSheet').classList.add('show');
   if(aiChatHistory.length===0){
-    appendAIChatBubble('bot','Namaste! 👋 Aap mujhse phone model ke baare me kuch bhi pooch sakte ho, ya seedha phone ki photo bhej ke model pehchanwa sakte ho.');
+    appendAIChatBubble('bot','Hello! 👋 Ask me anything about a phone model, or send a photo of the phone and I will identify the model.');
   }
 }
 function closeAIChat(){
@@ -3857,7 +3930,7 @@ function sendAIChatMessage(){
   var img=aiChatPendingImage;
   if(!text&&!img)return;
   if(!GEMINI_API_KEY||GEMINI_API_KEY==='YOUR_GEMINI_API_KEY_HERE'){
-    appendAIChatBubble('bot','❌ AI setup nahi hua — API key missing.');
+    appendAIChatBubble('bot','❌ AI is not set up — API key missing.');
     return;
   }
   appendAIChatBubble('user',text||'(Photo bheji)',img?img.dataUrl:null);
@@ -3880,7 +3953,7 @@ function sendAIChatMessage(){
     headers:{'Content-Type':'application/json','X-goog-api-key':GEMINI_API_KEY},
     body:JSON.stringify({
       contents:aiChatHistory,
-      systemInstruction:{parts:[{text:'Tum ek mobile phone spare parts dealer ke liye helpful AI assistant ho. Hinglish me chhote, seedhe jawab do. Agar photo bheji jaye to phone ka exact brand+model pehchano.'}]}
+      systemInstruction:{parts:[{text:'You are a helpful assistant for a mobile phone spare parts dealer. Give short, direct answers in simple Indian English. If a photo is sent, identify the phone\'s exact brand and model.'}]}
     })
   }).then(function(res){
       return res.json().then(function(data){return {ok:res.status,data:data};});
@@ -3900,7 +3973,7 @@ function sendAIChatMessage(){
         }else if(blockReason){
           appendAIChatBubble('bot','❌ Blocked: '+blockReason);
         }else{
-          appendAIChatBubble('bot','❌ Jawab nahi mil paaya (status '+result.ok+'), dobara try karo.');
+          appendAIChatBubble('bot','❌ Could not get a reply (status '+result.ok+'). Please try again.');
         }
         return;
       }
@@ -3909,7 +3982,7 @@ function sendAIChatMessage(){
     })
     .catch(function(err){
       thinkingBubble.remove();
-      appendAIChatBubble('bot','❌ AI se connect nahi ho paaya: '+(err&&err.message?err.message:'internet check karo.'));
+      appendAIChatBubble('bot','❌ Could not connect to AI: '+(err&&err.message?err.message:'please check your internet.'));
     });
 }
 
@@ -4808,7 +4881,7 @@ function bumpPartsVersion(typeKey){
   PF_matchCache.q=null;PF_matchCache.byType={}; // stale search-result cache clear karo
   db.collection('meta').doc('partsVersion').set(v,{merge:true}).catch(function(e){
     console.error('bumpPartsVersion write failed:',e);
-    showToast('⚠️ Sync warning: change save hua par version-update fail hua, reload karke confirm karo',true);
+    showToast('⚠️ Sync warning: change was saved but the version update failed. Reload to confirm.',true);
   });
   lsSet('pv_'+typeKey,String(v[typeKey]));
   lsSetJSON('pc_'+typeKey,PF.data[typeKey]);
@@ -4943,7 +5016,7 @@ function renderPartsPageHtml(t,q){
     if(elsewhere.length){
       crossHtml='<div class="pf-cross-wrap">'+elsewhere.map(function(e){
         return '<button class="pf-cross-hint" style="--tc:'+e.color+'" onclick="jumpToPartsTab('+e.idx+')">'+
-          '<span>✅ '+e.count+' match mila <b>'+e.label+'</b> mein</span>'+
+          '<span>✅ '+e.count+' match found in <b>'+e.label+'</b></span>'+
           '<span class="pf-cross-arrow">→</span></button>';
       }).join('')+'</div>';
     }
@@ -5044,7 +5117,7 @@ function handlePfImgFileSelect(input,slot){
   if(!file)return;
   PF['_pendingImgFile'+slot]=file;
   var statusEl=document.getElementById('pfImgStatus'+slot);
-  if(statusEl)statusEl.textContent='✅ Photo select ho gayi: '+file.name;
+  if(statusEl)statusEl.textContent='✅ Photo selected: '+file.name;
   // Poori original photo (kai MB) ko base64 text mein badalna bhaari/slow
   // kaam hai aur preview flash/flicker karta hai — uski jagah ek halka
   // "blob URL" reference use karte hain, jo turant aur smooth dikhta hai.
@@ -5059,13 +5132,13 @@ function handlePfImgFileSelect(input,slot){
 }
 function uploadPartsGroupImage(slot,btnEl){
   var ctx=PF._imgCtx;
-  if(!ctx){showToast('❌ Kuch galat ho gaya (context missing) — modal band karke dobara kholo',true);return;}
-  if(PF._uploadInProgress){showToast('⏳ Ek upload pehle se chal raha hai, thoda ruko',true);return;}
+  if(!ctx){showToast('❌ Something went wrong (context missing) — close the popup and open it again',true);return;}
+  if(PF._uploadInProgress){showToast('⏳ An upload is already in progress, please wait',true);return;}
   var typeKey=ctx.typeKey,groupId=ctx.groupId;
   var statusEl=document.getElementById('pfImgStatus'+slot);
   var file=PF['_pendingImgFile'+slot];
-  if(!file){showToast('❌ Pehle photo select karo (Camera ya Gallery)',true);return;}
-  if(CLOUDINARY_CLOUD_NAME==='YOUR_CLOUD_NAME'){showToast('❌ Cloudinary setup abhi baaki hai',true);return;}
+  if(!file){showToast('❌ Please select a photo first (Camera or Gallery)',true);return;}
+  if(CLOUDINARY_CLOUD_NAME==='YOUR_CLOUD_NAME'){showToast('❌ Cloudinary setup is not complete yet',true);return;}
   var t=PART_TYPES.find(function(x){return x.key===typeKey;});
   var field=slot===1?'imageUrl':'imageUrl2';
   var publicId='parts_images/'+typeKey+'/'+groupId+(slot===2?'_2':'')+'_'+Date.now();
@@ -5082,7 +5155,7 @@ function uploadPartsGroupImage(slot,btnEl){
   var timedOut=false;
   var timeoutId=setTimeout(function(){
     timedOut=true;
-    finishUpload(new Error('Timeout — network bahut slow hai, dobara try karo'));
+    finishUpload(new Error('Timeout — network is very slow, please try again'));
   },timeoutMs);
 
   function finishUpload(err,url){
@@ -6554,7 +6627,7 @@ function openFeedbackDashboard(){
 function openFeedback(){
   closeMenu();
   openModal('<div class="mhead"><span class="mtitle">💬 Feedback</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
-    '<div class="fgrp"><label class="flbl">Aapka Feedback</label>'+
+    '<div class="fgrp"><label class="flbl">Your Feedback</label>'+
     '<textarea class="finp" id="fbText" rows="5" placeholder="Any suggestion or request..."></textarea></div>'+
     '<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
     '<button class="bsave" onclick="sendFeedback()">Send</button></div>');
@@ -6792,10 +6865,10 @@ function setupNotifications(){
 // Is phone par seedha ek test notification dikhata hai (phone ki settings check karne ke liye)
 function testNotification(){
   closeMenu();
-  if(!('Notification' in window)||!('serviceWorker' in navigator)){showToast('❌ Is browser mein notifications support nahi hain',true);return;}
+  if(!('Notification' in window)||!('serviceWorker' in navigator)){showToast('❌ This browser does not support notifications',true);return;}
   if(Notification.permission!=='granted'){showToast('❌ Pehle Notifications on karke Allow dabayein',true);return;}
   navigator.serviceWorker.ready.then(function(reg){
-    return reg.showNotification('Universal Combo',{body:'Test notification ✅ Agar ye dikh raha hai to is phone ki settings sahi hain',icon:'icon-192-1.png'});
+    return reg.showNotification('Universal Combo',{body:'Test notification ✅ If you can see this, your phone settings are correct',icon:'icon-192-1.png'});
   }).then(function(){
     showToast('✅ Test bhej diya — notification panel dekhein');
   }).catch(function(e){showToast('❌ '+(e&&e.message?e.message:e),true);});
