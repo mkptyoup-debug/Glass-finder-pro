@@ -1026,6 +1026,24 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 #partsCodeBtn{display:flex;align-items:center;gap:6px;width:fit-content;margin:0 0 14px auto!important;padding:9px 14px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:10px;color:var(--brand);font-size:12px;font-weight:600;transition:transform .15s}
 #partsCodeBtn:active{transform:scale(.94)}
 #partsCodeBtn.hide{display:none!important}
+/* ── USERNAME POPUP ── */
+#unOverlay{position:fixed;inset:0;z-index:2600;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(20,14,8,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;transition:opacity .25s}
+#unOverlay.show{opacity:1}
+#unCard{width:100%;max-width:360px;background:#fff;border-radius:26px;padding:26px 22px 18px;text-align:center;box-shadow:0 30px 60px -20px rgba(20,14,8,.6);transform:translateY(24px) scale(.94);transition:transform .45s cubic-bezier(.2,1.2,.3,1)}
+#unOverlay.show #unCard{transform:none}
+.un-ic{width:62px;height:62px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#CFA765,#A97E3E);color:#fff;box-shadow:0 10px 22px -8px rgba(169,126,62,.7)}
+.un-ic .material-symbols-rounded{font-size:30px}
+#unCard h3{margin:0 0 6px;font-size:18px;color:var(--text-1,#2b221b)}
+#unCard p{margin:0 0 16px;font-size:13px;line-height:1.45;color:var(--text-2)}
+.un-field{display:flex;align-items:center;gap:6px;border:1.5px solid var(--border-def);border-radius:14px;padding:0 14px;background:var(--surface-1);transition:border-color .2s,box-shadow .2s}
+.un-field:focus-within{border-color:var(--brand);box-shadow:0 0 0 3px #C9A15E22}
+.un-field b{color:var(--brand);font-size:16px}
+.un-field input{flex:1;min-width:0;border:none;background:transparent;outline:none;font-size:16px;padding:13px 0;color:var(--text-1)}
+#unErr{min-height:16px;margin:7px 0 10px;font-size:12px;color:#C0453F;text-align:left}
+#unSave{width:100%;border:none;border-radius:14px;padding:13px;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#CFA765,#A97E3E);box-shadow:0 10px 20px -10px rgba(169,126,62,.8);transition:transform .15s,opacity .2s}
+#unSave:active{transform:scale(.97)}#unSave:disabled{opacity:.6}
+#unLater{background:none;border:none;color:var(--text-2);font-size:13px;padding:12px 8px 2px}
+@media (prefers-reduced-motion:reduce){#unCard,#unOverlay{transition:none}}
 /* ── COMMENTS (Instagram-style bottom sheet) ── */
 .fbtn.cmt .fbtn-ic{color:var(--brand)}
 #cmtOverlay{position:fixed;inset:0;z-index:2500;background:rgba(20,14,8,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);opacity:0;transition:opacity .25s ease;display:flex;align-items:flex-end;justify-content:center}
@@ -1140,6 +1158,10 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
     <div id="signupNameWrap" class="linp-wrap" style="display:none">
       <span class="linp-icon material-symbols-rounded">person</span>
       <input class="linp" type="text" id="loginName" placeholder="Your name" data-i18n-ph="login.name" autocomplete="name"/>
+    </div>
+    <div id="signupUserWrap" class="linp-wrap" style="display:none">
+      <span class="linp-icon material-symbols-rounded">alternate_email</span>
+      <input class="linp" type="text" id="signupUsername" placeholder="Username (shown in comments)" maxlength="20" autocomplete="off" autocapitalize="none" oninput="this.value=this.value.replace(/[^a-zA-Z0-9._]/g,'')"/>
     </div>
     <div class="linp-wrap">
       <span class="linp-icon material-symbols-rounded">mail</span>
@@ -1684,8 +1706,10 @@ function cmtLoad(){
     if(CMT.key!==key)return;
     CMT.list=snap.docs.map(function(d){var x=d.data();x.id=d.id;return x;}).sort(function(a,b){return (b.tsNum||0)-(a.tsNum||0);});
     cmtRenderList();cmtRenderFoot();
-  }).catch(function(){
-    document.getElementById('cmtList').innerHTML='<div class="cmt-empty"><span class="material-symbols-rounded">cloud_off</span>Could not load comments.<br>Please try again.</div>';
+  }).catch(function(err){
+    var denied=err&&err.code==='permission-denied';
+    document.getElementById('cmtList').innerHTML='<div class="cmt-empty"><span class="material-symbols-rounded">'+(denied?'lock':'cloud_off')+'</span>'+(denied?'Comments are not enabled yet.<br>Database permission is missing (Firestore rules).':'Could not load comments.<br>Please try again.')+'</div>';
+    if(denied)console.warn('Comments: Firestore rules block collection "comments"');
   });
 }
 function cmtMineCount(){return CMT.list.filter(function(c){return c.uid===S.user.uid;}).length;}
@@ -1729,7 +1753,7 @@ function cmtSaveName(){
   db.collection('profiles').doc(S.user.uid).set({username:v,usernameLower:v.toLowerCase(),updatedAt:new Date().toISOString()},{merge:true}).then(function(){
     CMT.name=v;CMT.editing=false;try{localStorage.setItem('uc_username_'+S.user.uid,v);}catch(e){}
     cmtRenderFoot();showToast('✅ Username saved');
-  }).catch(function(){cmtErr('Could not save. Check your connection.');});
+  }).catch(function(err){cmtErr(err&&err.code==='permission-denied'?'Permission denied: Firestore rules for "profiles" are missing.':'Could not save. Check your connection.');});
 }
 function cmtBumpCount(delta){
   var g=findGroupObj(CMT.tab,CMT.gid);
@@ -1766,7 +1790,7 @@ function cmtPost(){
       var l=document.getElementById('cmtList');if(l)l.scrollTop=0;
       done();
     });
-  }).catch(function(){cmtErr('Could not post. Please try again.');done();});
+  }).catch(function(err){cmtErr(err&&err.code==='permission-denied'?'Permission denied: Firestore rules for comments are missing.':'Could not post. Please try again.');done();});
 }
 function cmtDel(id){
   if(!confirm('Delete this comment?'))return;
@@ -1774,6 +1798,42 @@ function cmtDel(id){
     CMT.list=CMT.list.filter(function(c){return c.id!==id;});
     cmtBumpCount(-1);cmtRenderList();cmtRenderFoot();showToast('✅ Comment deleted');
   }).catch(function(){showToast('❌ Could not delete comment',true);});
+}
+// ══ USERNAME: signup me field + purane users ke liye popup ══
+function cmtValidName(v,isFixedAdmin){
+  if(!/^[a-zA-Z0-9._]{3,20}$/.test(v))return 'Username must be 3-20 letters, numbers, . or _';
+  if(cmtHasLink(v))return 'Username cannot look like a link';
+  if(!isAdmin()&&!isFixedAdmin&&/admin|universalcombo|support/i.test(v))return 'This username is reserved';
+  return '';
+}
+function cmtStoreName(uid,v){
+  return db.collection('profiles').doc(uid).set({username:v,usernameLower:v.toLowerCase(),updatedAt:new Date().toISOString()},{merge:true}).then(function(){
+    CMT.name=v;try{localStorage.setItem('uc_username_'+uid,v);}catch(e){}
+  });
+}
+function usernamePromptIfNeeded(){
+  if(!S.user||window._unShown||document.getElementById('unOverlay'))return;
+  var lv=document.getElementById('loginScreen')||document.getElementById('loginOverlay');
+  cmtLoadName().then(function(n){
+    if(n||!S.user||window._unShown)return;
+    window._unShown=true;
+    var o=document.createElement('div');o.id='unOverlay';
+    o.innerHTML='<div id="unCard" role="dialog" aria-label="Choose username"><div class="un-ic"><span class="material-symbols-rounded">alternate_email</span></div>'+
+      '<h3>Choose your username</h3><p>Pick a name that will be shown with your comments. You can change it later from the comment box.</p>'+
+      '<div class="un-field"><b>@</b><input id="unIn" maxlength="20" autocomplete="off" autocapitalize="none" placeholder="username" oninput="this.value=this.value.replace(/[^a-zA-Z0-9._]/g,\'\')" onkeydown="if(event.key===\'Enter\')unSave()"></div>'+
+      '<div id="unErr"></div><button id="unSave" onclick="unSave()">Save username</button><button id="unLater" onclick="unClose()">Later</button></div>';
+    document.body.appendChild(o);
+    requestAnimationFrame(function(){requestAnimationFrame(function(){o.classList.add('show');});});
+    setTimeout(function(){var i=document.getElementById('unIn');if(i)i.focus();},350);
+  });
+}
+function unClose(){var o=document.getElementById('unOverlay');if(!o)return;o.classList.remove('show');setTimeout(function(){o.remove();},300);}
+function unSave(){
+  var v=(document.getElementById('unIn').value||'').trim(),er=document.getElementById('unErr'),b=document.getElementById('unSave');
+  var m=cmtValidName(v);if(m){er.textContent=m;return;}
+  b.disabled=true;b.textContent='Saving...';er.textContent='';
+  cmtStoreName(S.user.uid,v).then(function(){unClose();showToast('✅ Username saved: @'+v);})
+  .catch(function(err){b.disabled=false;b.textContent='Save username';er.textContent=err&&err.code==='permission-denied'?'Permission denied: Firestore rules for "profiles" are missing.':'Could not save. Check your connection.';});
 }
 // ── ADMIN CONFIG ─────────────────────────────────────────────────────────
 // Sirf ye email admin hai — baaki sab staff
@@ -3021,6 +3081,7 @@ function switchLoginTab(tab){
   document.getElementById('ltSignin').classList.toggle('active',tab==='signin');
   document.getElementById('ltSignup').classList.toggle('active',tab==='signup');
   document.getElementById('signupNameWrap').style.display=tab==='signup'?'block':'none';
+  document.getElementById('signupUserWrap').style.display=tab==='signup'?'block':'none';
   document.getElementById('loginBtn').textContent=tab==='signin'?'Sign In':'Create Account';
   document.getElementById('loginErr').textContent='';
 }
@@ -3081,9 +3142,14 @@ function doLogin(){
   if(currentLoginTab==='signup'){
     // Sign Up
     var name=document.getElementById('loginName').value.trim()||email.split('@')[0];
+    var uname=(document.getElementById('signupUsername').value||'').trim();
+    var unErr=cmtValidName(uname,false);
+    if(unErr){errEl.textContent='❌ '+unErr;btn.textContent='Create Account';btn.disabled=false;return;}
     auth.createUserWithEmailAndPassword(email,pass)
       .then(function(cred){
-        return cred.user.updateProfile({displayName:name});
+        return cred.user.updateProfile({displayName:name}).then(function(){
+          return cmtStoreName(cred.user.uid,uname).catch(function(){}); // fail ho to baad me popup poochega
+        });
       })
       .then(function(){
         btn.textContent='Create Account';btn.disabled=false;hideLogin();
@@ -7327,6 +7393,7 @@ auth.onAuthStateChanged(function(user){
     trackUserSession(user);
     loadMyVotes(user.uid);
     maybeShowNotifPrompt();
+    setTimeout(function(){usernamePromptIfNeeded();},3500);
   } else {
     usFlush();US.uid=null;
     S.user=null;S.role='staff';S.myVotes={};
