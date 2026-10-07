@@ -153,7 +153,7 @@ button{cursor:pointer}
 .in-app .google-btn,.in-app .login-divider{display:none}
 .login-err{color:var(--danger);font-size:12px;text-align:center;margin-top:10px;min-height:18px}
 /* HEADER */
-#header{position:sticky;top:0;z-index:200;background:rgba(250,248,244,0.97);border-bottom:1px solid var(--border-hair);padding:14px 16px 0}
+#header{position:sticky;top:0;z-index:200;background:var(--bg,#FAF8F4);border-bottom:1px solid var(--border-hair);padding:14px 16px 0}
 .search-ic-glow{width:31px;height:31px;border-radius:50%;background:var(--surface-2);color:var(--brand-text);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:none}
 #offlineBar{display:none;position:sticky;top:0;z-index:202;background:#F4EBED;color:var(--danger-bg);font-size:12.5px;font-weight:700;text-align:center;padding:8px 12px}
 #offlineBar.show{display:block}
@@ -1002,7 +1002,7 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 .emo-ic.ok{color:#3E8E5A}.emo-ic.err{color:#C0453F}.emo-ic.warn{color:#B7791F}.emo-ic.gold{color:var(--brand,#B88A45)}
 #toast .emo-ic,button .emo-ic.ok,button .emo-ic.err{color:inherit}
 /* ── SEARCH BAR POLISH: pinned, premium look, subtle motion ── */
-#searchWrap,#partsSearchWrap{padding-top:10px;padding-bottom:8px;margin-top:-10px;transition:box-shadow .3s ease,background .3s ease;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);background:rgba(250,248,244,.94)}
+#searchWrap,#partsSearchWrap{padding-top:10px;padding-bottom:8px;margin-top:-10px;transition:box-shadow .3s ease,background .3s ease;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);background:rgba(250,248,244,.98)}
 #searchWrap.is-stuck,#partsSearchWrap.is-stuck{box-shadow:0 10px 18px -12px rgba(52,42,34,.28);border-bottom:1px solid var(--border-hair)}
 #searchBox,#partsSearchBox{position:relative;min-height:54px;border-radius:16px;border:1.5px solid var(--border-def);background:linear-gradient(180deg,#fff,var(--surface-1));box-shadow:0 8px 22px -10px rgba(52,42,34,.22),inset 0 1px 0 #fff;transition:transform .25s cubic-bezier(.22,1,.36,1),border-color .25s ease,box-shadow .25s ease;overflow:hidden}
 #searchBox::after,#partsSearchBox::after{content:'';position:absolute;left:0;bottom:0;height:2px;width:100%;background:linear-gradient(90deg,transparent,var(--brand),var(--brand-2),transparent);transform:scaleX(0);transform-origin:center;transition:transform .45s cubic-bezier(.22,1,.36,1)}
@@ -1399,6 +1399,7 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
       <div class="adm-sub">📊 Analytics</div>
       <button class="menu-item hide" id="menuAdminDashBtn" onclick="openAdminDashboard()"><span class="material-symbols-rounded menu-ic">admin_panel_settings</span><span class="menu-item-label">Admin Dashboard<small class="adm-desc">Users, searches, premium, shares</small></span></button>
       <div class="adm-sub">👥 Users</div>
+      <button class="menu-item hide" id="menuCommentsBtn" onclick="openAdminComments()"><span class="material-symbols-rounded menu-ic">forum</span><span class="menu-item-label">Comments<small class="adm-desc">Latest comments from all groups</small></span></button>
       <button class="menu-item hide" id="menuStaffFreeBtn" onclick="openStaffFreeModal()"><span class="material-symbols-rounded menu-ic">badge</span><span class="menu-item-label">Manage Free Staff<small class="adm-desc">Give free premium access by email</small></span></button>
       <div class="adm-sub">📨 Messages</div>
       <button class="menu-item hide" id="menuSendNotifBtn" onclick="openSendNotifModal()"><span class="material-symbols-rounded menu-ic">campaign</span><span class="menu-item-label">Send Notification<small class="adm-desc">Push message to all users</small></span></button>
@@ -1750,10 +1751,9 @@ function cmtSaveName(){
   if(!/^[a-zA-Z0-9._]{3,20}$/.test(v)){cmtErr('Use 3-20 letters, numbers, . or _');return;}
   if(cmtHasLink(v)){cmtErr('Username cannot look like a link.');return;}
   if(!isAdmin()&&/admin|universalcombo|support/i.test(v)){cmtErr('This username is reserved.');return;}
-  db.collection('profiles').doc(S.user.uid).set({username:v,usernameLower:v.toLowerCase(),updatedAt:new Date().toISOString()},{merge:true}).then(function(){
-    CMT.name=v;CMT.editing=false;try{localStorage.setItem('uc_username_'+S.user.uid,v);}catch(e){}
-    cmtRenderFoot();showToast('✅ Username saved');
-  }).catch(function(err){cmtErr(err&&err.code==='permission-denied'?'Permission denied: Firestore rules for "profiles" are missing.':'Could not save. Check your connection.');});
+  cmtStoreName(S.user.uid,v).then(function(){
+    CMT.editing=false;cmtRenderFoot();showToast('✅ Username saved');
+  }).catch(function(err){cmtErr(cmtStoreErr(err));});
 }
 function cmtBumpCount(delta){
   var g=findGroupObj(CMT.tab,CMT.gid);
@@ -1807,9 +1807,26 @@ function cmtValidName(v,isFixedAdmin){
   return '';
 }
 function cmtStoreName(uid,v){
-  return db.collection('profiles').doc(uid).set({username:v,usernameLower:v.toLowerCase(),updatedAt:new Date().toISOString()},{merge:true}).then(function(){
+  // usernames/{lowercase} doc naam ko lock karta hai: ek naam = ek user
+  var low=v.toLowerCase(),uref=db.collection('usernames').doc(low),pref=db.collection('profiles').doc(uid);
+  return pref.get().then(function(pd){
+    var old=pd.exists?(pd.data().usernameLower||''):'';
+    return db.runTransaction(function(tx){
+      return tx.get(uref).then(function(d){
+        if(d.exists&&d.data().uid!==uid)throw new Error('taken');
+        tx.set(uref,{uid:uid,username:v});
+        if(old&&old!==low)tx.delete(db.collection('usernames').doc(old));
+        tx.set(pref,{username:v,usernameLower:low,updatedAt:new Date().toISOString()},{merge:true});
+      });
+    });
+  }).then(function(){
     CMT.name=v;try{localStorage.setItem('uc_username_'+uid,v);}catch(e){}
   });
+}
+function cmtStoreErr(err){
+  if(err&&err.message==='taken')return 'This username is already taken. Try another one.';
+  if(err&&err.code==='permission-denied')return 'Permission denied: Firestore rules for "usernames" are missing.';
+  return 'Could not save. Check your connection.';
 }
 function usernamePromptIfNeeded(){
   if(!S.user||window._unShown||document.getElementById('unOverlay'))return;
@@ -1833,7 +1850,36 @@ function unSave(){
   var m=cmtValidName(v);if(m){er.textContent=m;return;}
   b.disabled=true;b.textContent='Saving...';er.textContent='';
   cmtStoreName(S.user.uid,v).then(function(){unClose();showToast('✅ Username saved: @'+v);})
-  .catch(function(err){b.disabled=false;b.textContent='Save username';er.textContent=err&&err.code==='permission-denied'?'Permission denied: Firestore rules for "profiles" are missing.':'Could not save. Check your connection.';});
+  .catch(function(err){b.disabled=false;b.textContent='Save username';er.textContent=cmtStoreErr(err);});
+}
+// ══ ADMIN: saare groups ke latest comments ek jagah ══
+function openAdminComments(){
+  if(!isAdmin())return;
+  if(typeof closeMenu==='function')closeMenu();
+  openModal('<div class="mhead"><span class="mtitle">💬 Comments</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
+    '<div class="adm-intro">Latest 60 comments from all groups. Delete spam or wrong info from here.</div><div id="acList" style="margin-top:8px">Loading...</div>');
+  db.collection('comments').orderBy('tsNum','desc').limit(60).get().then(function(snap){
+    var el=document.getElementById('acList');if(!el)return;
+    if(snap.empty){el.innerHTML='<div class="cmt-empty"><span class="material-symbols-rounded">forum</span>No comments yet.</div>';return;}
+    el.innerHTML=snap.docs.map(function(d){
+      var c=d.data(),g=findGroupObj(c.tabKey,c.groupId);
+      var gn=g?(g.glassName||g.name||g.partName||g.code||'Group'):'Group';
+      return '<div class="cmt-row" id="ac_'+d.id+'"><div class="cmt-av" style="background:'+cmtColor(c.username||'u')+'">'+escHtml((c.username||'u').charAt(0))+'</div>'+
+        '<div class="cmt-body"><div class="cmt-meta"><b>'+escHtml(c.username||'user')+'</b><span class="cmt-t">'+cmtAgo(c.tsNum||0)+'</span></div>'+
+        '<div class="cmt-txt">'+escHtml(c.text||'')+'</div>'+
+        '<div class="cmt-t" style="font-size:11px;color:var(--brand);margin-top:3px">in '+escHtml(gn)+' · '+escHtml(String(c.tabKey||'').replace('pf_',''))+'</div></div>'+
+        '<button class="cmt-del" aria-label="Delete" onclick="acDel(\''+d.id+'\',\''+escHtml(c.tabKey||'')+'\',\''+escHtml(c.groupId||'')+'\')"><span class="material-symbols-rounded">delete</span></button></div>';
+    }).join('');
+  }).catch(function(){var el=document.getElementById('acList');if(el)el.innerHTML='<div class="cmt-empty"><span class="material-symbols-rounded">cloud_off</span>Could not load comments.</div>';});
+}
+function acDel(id,tab,gid){
+  if(!confirm('Delete this comment?'))return;
+  db.collection('comments').doc(id).delete().then(function(){
+    var r=document.getElementById('ac_'+id);if(r)r.remove();
+    try{var col=collectionForTab(tab);if(col)db.collection(col).doc(gid).update({commentCount:firebase.firestore.FieldValue.increment(-1)}).catch(function(){});}catch(e){}
+    var g=findGroupObj(tab,gid);if(g&&g.commentCount)g.commentCount--;
+    showToast('✅ Comment deleted');
+  }).catch(function(){showToast('❌ Could not delete comment',true);});
 }
 // ── ADMIN CONFIG ─────────────────────────────────────────────────────────
 // Sirf ye email admin hai — baaki sab staff
@@ -3148,7 +3194,7 @@ function doLogin(){
     auth.createUserWithEmailAndPassword(email,pass)
       .then(function(cred){
         return cred.user.updateProfile({displayName:name}).then(function(){
-          return cmtStoreName(cred.user.uid,uname).catch(function(){}); // fail ho to baad me popup poochega
+          return cmtStoreName(cred.user.uid,uname).catch(function(err){if(err&&err.message==='taken')setTimeout(function(){showToast('❌ Username is taken. Please choose another.',true);},1200);}); // popup baad me phir poochega
         });
       })
       .then(function(){
@@ -3230,7 +3276,7 @@ function updateUserUI(){
     menuLoginBtn.classList.add('hide');
     if(menuAnnounceBtn)menuAnnounceBtn.classList.remove('hide');
     var menuAdminDashBtn=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn)menuAdminDashBtn.classList.remove('hide');
-    var menuStaffFreeBtn=document.getElementById('menuStaffFreeBtn');if(menuStaffFreeBtn)menuStaffFreeBtn.classList.remove('hide');
+    var menuStaffFreeBtn=document.getElementById('menuStaffFreeBtn');if(menuStaffFreeBtn)menuStaffFreeBtn.classList.remove('hide');var _mc=document.getElementById('menuCommentsBtn');if(_mc)_mc.classList.remove('hide');
     var menuSendNotifBtn=document.getElementById('menuSendNotifBtn');if(menuSendNotifBtn)menuSendNotifBtn.classList.remove('hide');
     menuFeedbackBtn.classList.remove('hide');
     menuRequestsBtn.classList.remove('hide');
@@ -3260,7 +3306,7 @@ function updateUserUI(){
     menuLoginBtn.classList.add('hide');
     if(menuAnnounceBtn)menuAnnounceBtn.classList.add('hide');
     var menuAdminDashBtn2=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn2)menuAdminDashBtn2.classList.add('hide');
-    var menuStaffFreeBtn2=document.getElementById('menuStaffFreeBtn');if(menuStaffFreeBtn2)menuStaffFreeBtn2.classList.add('hide');
+    var menuStaffFreeBtn2=document.getElementById('menuStaffFreeBtn');if(menuStaffFreeBtn2)menuStaffFreeBtn2.classList.add('hide');var _mc2=document.getElementById('menuCommentsBtn');if(_mc2)_mc2.classList.add('hide');
     var menuSendNotifBtn2=document.getElementById('menuSendNotifBtn');if(menuSendNotifBtn2)menuSendNotifBtn2.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
@@ -3284,7 +3330,7 @@ function updateUserUI(){
     menuLoginBtn.classList.remove('hide');
     if(menuAnnounceBtn)menuAnnounceBtn.classList.add('hide');
     var menuAdminDashBtn3=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn3)menuAdminDashBtn3.classList.add('hide');
-    var menuStaffFreeBtn3=document.getElementById('menuStaffFreeBtn');if(menuStaffFreeBtn3)menuStaffFreeBtn3.classList.add('hide');
+    var menuStaffFreeBtn3=document.getElementById('menuStaffFreeBtn');if(menuStaffFreeBtn3)menuStaffFreeBtn3.classList.add('hide');var _mc3=document.getElementById('menuCommentsBtn');if(_mc3)_mc3.classList.add('hide');
     var menuSendNotifBtn3=document.getElementById('menuSendNotifBtn');if(menuSendNotifBtn3)menuSendNotifBtn3.classList.add('hide');
     menuFeedbackBtn.classList.add('hide');
     menuRequestsBtn.classList.add('hide');
