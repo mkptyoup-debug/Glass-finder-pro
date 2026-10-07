@@ -13,7 +13,7 @@
 <meta name="geo.placename" content="India">
 <link rel="canonical" href="https://mkptyoup-debug.github.io/Glass-finder-pro/">
 <meta property="og:title" content="Universal Combo - Mobile Screen Guard Model Finder">
-<meta ="og:description" content="Instantly find the right tempered glass for your phone model. Flat Glass, UV Curved, Display - all in one place.">
+<meta property="og:description" content="Instantly find the right tempered glass for your phone model. Flat Glass, UV Curved, Display - all in one place.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_IN">
 <link rel="manifest" href="manifest.json">
@@ -1026,6 +1026,10 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 #partsCodeBtn{display:flex;align-items:center;gap:6px;width:fit-content;margin:0 0 14px auto!important;padding:9px 14px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:10px;color:var(--brand);font-size:12px;font-weight:600;transition:transform .15s}
 #partsCodeBtn:active{transform:scale(.94)}
 #partsCodeBtn.hide{display:none!important}
+.pf2-sw{width:100%;display:flex;align-items:center;gap:10px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:14px;padding:11px 14px;margin-bottom:14px;font-size:14px;font-weight:600;color:var(--text-1,#2b221b)}
+.pf2-sw-l{flex:1;text-align:left}
+.pf2-sw-t{font-size:12px;font-weight:800;padding:3px 12px;border-radius:14px;background:var(--surface-2);color:var(--text-2);transition:all .25s}
+.pf2-sw.on .pf2-sw-t{background:linear-gradient(135deg,#3DBE78,#1F8F52);color:#fff}
 /* ── DISLIKE REASON SHEET + REPORT ── */
 #rsOverlay{position:fixed;inset:0;z-index:2550;background:rgba(20,14,8,.45);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .22s}
 #rsOverlay.show{opacity:1}
@@ -1932,6 +1936,7 @@ function openProfile(){
     '<div class="pf2"><div class="pf2-av" id="pf2Av">'+escHtml(nm.charAt(0))+'</div><h2 id="pf2Name">'+escHtml(nm)+'</h2><div class="pf2-mail">'+escHtml(u.email)+'</div>'+
     '<div class="pf2-chips"><span class="pf2-chip role">'+role+'</span>'+planChip+'</div>'+
     '<div class="pf2-stats"><div class="pf2-stat"><b id="pfStC">-</b><span>Comments</span></div><div class="pf2-stat"><b>'+likes+'</b><span>Likes given</span></div><div class="pf2-stat"><b>'+escHtml(since)+'</b><span>Member since</span></div></div>'+
+    '<button class="pf2-sw'+(soundOn()?' on':'')+'" aria-pressed="'+(soundOn()?'true':'false')+'" onclick="toggleSound(this)"><span class="material-symbols-rounded" style="font-size:20px;color:var(--brand)">volume_up</span><span class="pf2-sw-l">Like sound</span><span class="pf2-sw-t">'+(soundOn()?'On':'Off')+'</span></button>'+
     '<div class="pf2-form">'+
     '<div class="fgrp"><label class="flbl">Your name</label><input class="finp" id="pfName" maxlength="20" autocomplete="name" value="'+escHtml(nm)+'" placeholder="Your name"/></div>'+
     '<div class="fgrp"><label class="flbl">Shop / business name</label><input class="finp" id="pfShop" maxlength="30" placeholder="e.g. Patel Mobile Accessories"/></div>'+
@@ -1997,6 +2002,41 @@ function cmtReport(id){
     try{var a=JSON.parse(localStorage.getItem('uc_reported')||'[]');a.push(id);localStorage.setItem('uc_reported',JSON.stringify(a.slice(-200)));}catch(e){}
     cmtRenderList();showToast('✅ Reported. Thank you');
   }).catch(function(){showToast('❌ Could not send report',true);});
+}
+// ══ LIKE SOUND: Web Audio se chhota "pop-ding" (koi audio file nahi) ══
+var _uAudio=null;
+function soundOn(){try{return localStorage.getItem('uc_sound')!=='off';}catch(e){return true;}}
+function playLikeSound(){
+  if(!soundOn())return;
+  try{
+    var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+    if(!_uAudio)_uAudio=new AC();
+    var c=_uAudio;if(c.state==='suspended')c.resume();
+    var t=c.currentTime,master=c.createGain();master.gain.value=0.22;master.connect(c.destination);
+    // 1) soft "pop" (neeche se upar slide)
+    var o0=c.createOscillator(),g0=c.createGain();
+    o0.type='sine';o0.frequency.setValueAtTime(320,t);o0.frequency.exponentialRampToValueAtTime(760,t+.07);
+    g0.gain.setValueAtTime(0.0001,t);g0.gain.exponentialRampToValueAtTime(0.9,t+.012);g0.gain.exponentialRampToValueAtTime(0.0001,t+.12);
+    o0.connect(g0);g0.connect(master);o0.start(t);o0.stop(t+.14);
+    // 2) do note ki chime (E6 -> A6), halka harmonic ke saath
+    [[1318.5,.06],[1760,.15]].forEach(function(n){
+      [['sine',1,.9],['triangle',2,.18]].forEach(function(h){
+        var o=c.createOscillator(),g=c.createGain();
+        o.type=h[0];o.frequency.value=n[0]*h[1];
+        g.gain.setValueAtTime(0.0001,t+n[1]);
+        g.gain.exponentialRampToValueAtTime(h[2],t+n[1]+.015);
+        g.gain.exponentialRampToValueAtTime(0.0001,t+n[1]+.42);
+        o.connect(g);g.connect(master);o.start(t+n[1]);o.stop(t+n[1]+.45);
+      });
+    });
+  }catch(e){}
+}
+function toggleSound(btn){
+  var on=!soundOn();
+  try{localStorage.setItem('uc_sound',on?'on':'off');}catch(e){}
+  btn.classList.toggle('on',on);btn.setAttribute('aria-pressed',on?'true':'false');
+  btn.querySelector('.pf2-sw-t').textContent=on?'On':'Off';
+  if(on)playLikeSound();
 }
 // ── ADMIN CONFIG ─────────────────────────────────────────────────────────
 // Sirf ye email admin hai — baaki sab staff
@@ -2988,7 +3028,7 @@ function fbClick(ev,tabKey,groupId,voteType){
   ripple.style.left=x+'px';ripple.style.top=y+'px';
   btn.appendChild(ripple);
   setTimeout(function(){ripple.remove();},600);
-  if(voteType==='like'&&S.user&&!btn.classList.contains('is-selected'))fbBurst(btn);
+  if(voteType==='like'&&S.user&&!btn.classList.contains('is-selected')){fbBurst(btn);playLikeSound();}
   castVote(tabKey,groupId,voteType);
 }
 // Like par chhote sparks icon se bikharte hain (flagship-style celebration)
@@ -3022,7 +3062,7 @@ function updateFeedbackWidget(tabKey,groupId,lc,dc,newVote){
   if(!widget)return;
   var likeBtn=widget.querySelector('.fbtn.helpful');
   var dislikeBtn=widget.querySelector('.fbtn.not-helpful');
-  likeBtn.disabled=false;dislikeBtn.disabled=false;
+  widget.querySelectorAll('.fbtn').forEach(function(b){b.disabled=false;});
   likeBtn.classList.toggle('is-selected',newVote==='like');
   dislikeBtn.classList.toggle('is-selected',newVote==='dislike');
   likeBtn.setAttribute('aria-pressed',newVote==='like'?'true':'false');
@@ -3038,7 +3078,7 @@ function castVote(tabKey,groupId,voteType){
   if(!col)return;
   var mkey=tabKey+':'+groupId;
   var widget=document.querySelector('[data-fb="'+mkey+'"]');
-  if(widget)widget.querySelectorAll('.fbtn').forEach(function(b){b.disabled=true;}); // loading state — dobara tap na ho jab tak save na ho
+  if(widget)widget.querySelectorAll('.fbtn.helpful,.fbtn.not-helpful').forEach(function(b){b.disabled=true;}); // loading state (comment button free rehta hai) — dobara tap na ho jab tak save na ho
   var voteRef=db.collection('votes').doc(uid+'_'+tabKey+'_'+groupId);
   var groupRef=db.collection(col).doc(groupId);
   var prevVote=S.myVotes[mkey]||null;
@@ -7923,7 +7963,7 @@ function scrollToTop(){haptic();window.scrollTo({top:0,behavior:'smooth'});}
     span.style.width=span.style.height=d+'px';
     span.style.left=(e.clientX-r.left-d/2)+'px';
     span.style.top=(e.clientY-r.top-d/2)+'px';
-    (span);
+    item.appendChild(span);
     setTimeout(function(){span.remove();},500);
   });
 })();
