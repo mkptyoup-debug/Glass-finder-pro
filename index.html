@@ -1026,6 +1026,49 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 #partsCodeBtn{display:flex;align-items:center;gap:6px;width:fit-content;margin:0 0 14px auto!important;padding:9px 14px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:10px;color:var(--brand);font-size:12px;font-weight:600;transition:transform .15s}
 #partsCodeBtn:active{transform:scale(.94)}
 #partsCodeBtn.hide{display:none!important}
+/* ── COMMENTS (Instagram-style bottom sheet) ── */
+.fbtn.cmt .fbtn-ic{color:var(--brand)}
+#cmtOverlay{position:fixed;inset:0;z-index:2500;background:rgba(20,14,8,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);opacity:0;transition:opacity .25s ease;display:flex;align-items:flex-end;justify-content:center}
+#cmtOverlay.show{opacity:1}
+#cmtSheet{width:100%;max-width:560px;height:78vh;height:78dvh;display:flex;flex-direction:column;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -20px 50px -20px rgba(20,14,8,.5);transform:translateY(100%);transition:transform .42s cubic-bezier(.2,1.05,.3,1)}
+#cmtOverlay.show #cmtSheet{transform:translateY(0)}
+.cmt-grab{width:42px;height:4.5px;border-radius:4px;background:#D9D0C4;margin:9px auto 0}
+.cmt-head{display:flex;align-items:center;justify-content:center;position:relative;padding:12px 16px 12px;border-bottom:1px solid var(--border-hair,#eee);font-weight:800;font-size:15px;color:var(--text-1,#2b221b)}
+.cmt-head small{font-weight:600;color:var(--text-2);margin-left:6px}
+.cmt-x{position:absolute;right:10px;top:7px;width:34px;height:34px;border-radius:50%;background:none;border:none;color:var(--text-2);display:flex;align-items:center;justify-content:center}
+.cmt-list{flex:1;overflow-y:auto;padding:6px 16px;-webkit-overflow-scrolling:touch}
+.cmt-row{display:flex;gap:11px;padding:11px 0;animation:cmtIn .35s ease both}
+@keyframes cmtIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.cmt-av{flex:0 0 36px;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;text-transform:uppercase}
+.cmt-body{flex:1;min-width:0}
+.cmt-meta{font-size:13px;color:var(--text-1,#2b221b);line-height:1.35}
+.cmt-meta b{font-weight:800;margin-right:6px}
+.cmt-meta .cmt-t{color:var(--text-2);font-size:11.5px;font-weight:500}
+.cmt-txt{font-size:14px;line-height:1.4;color:var(--text-1,#2b221b);word-break:break-word;margin-top:2px}
+.cmt-del{flex:0 0 auto;align-self:flex-start;background:none;border:none;color:var(--text-2);padding:4px;border-radius:50%}
+.cmt-del .material-symbols-rounded{font-size:18px}
+.cmt-tag{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.04em;background:var(--brand);color:#fff;border-radius:6px;padding:1px 6px;margin-right:6px;vertical-align:1px}
+.cmt-empty{text-align:center;color:var(--text-2);padding:46px 20px;font-size:13.5px;line-height:1.5}
+.cmt-empty .material-symbols-rounded{font-size:46px;color:#D9D0C4;display:block;margin-bottom:8px}
+.cmt-skel{height:46px;border-radius:12px;margin:12px 0;background:linear-gradient(90deg,#F1ECE4 25%,#F8F5EF 50%,#F1ECE4 75%);background-size:200% 100%;animation:cmtSh 1.2s linear infinite}
+@keyframes cmtSh{to{background-position:-200% 0}}
+.cmt-foot{padding:8px 14px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border-hair,#eee);background:#fff}
+.cmt-quota{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--text-2);margin:0 4px 7px}
+.cmt-quota a{color:var(--brand);font-weight:700}
+.cmt-compose{display:flex;align-items:center;gap:10px}
+.cmt-in{flex:1;display:flex;align-items:center;gap:8px;border:1.5px solid var(--border-def);border-radius:24px;padding:0 14px;background:var(--surface-1);transition:border-color .2s,box-shadow .2s}
+.cmt-in:focus-within{border-color:var(--brand);box-shadow:0 0 0 3px #C9A15E22}
+.cmt-in input{flex:1;min-width:0;border:none;background:transparent;font-size:15px;padding:11px 0;outline:none;color:var(--text-1)}
+.cmt-cnt{font-size:11px;color:var(--text-2);font-variant-numeric:tabular-nums}
+.cmt-cnt.warn{color:#C0453F;font-weight:700}
+.cmt-send{background:none;border:none;color:var(--brand);font-weight:800;font-size:14px;padding:8px 4px;transition:opacity .2s,transform .15s}
+.cmt-send:disabled{opacity:.35}
+.cmt-send:not(:disabled):active{transform:scale(.92)}
+.cmt-setup{text-align:center;padding:4px 6px 2px}
+.cmt-setup h4{margin:0 0 4px;font-size:14.5px;color:var(--text-1)}
+.cmt-setup p{margin:0 0 10px;font-size:12px;color:var(--text-2);line-height:1.4}
+.cmt-err{color:#C0453F;font-size:11.5px;margin:6px 6px 0;min-height:14px}
+@media (prefers-reduced-motion:reduce){#cmtSheet,#cmtOverlay{transition:none}.cmt-row{animation:none}}
 /* ── FLAGSHIP TOAST: top pe, island-style spring animation ── */
 #toast{top:calc(env(safe-area-inset-top,0px) + 14px);bottom:auto;left:50%;transform:translateX(-50%);max-width:min(92vw,420px);white-space:normal;line-height:1.35;gap:11px;padding:12px 18px 12px 14px;border:1px solid rgba(255,255,255,.08);border-radius:22px;background:rgba(30,25,21,.94);-webkit-backdrop-filter:blur(14px) saturate(160%);backdrop-filter:blur(14px) saturate(160%);color:#F6F1EA;font-size:13.5px;font-weight:600;box-shadow:0 18px 40px -12px rgba(20,14,8,.55),0 2px 0 rgba(255,255,255,.05) inset;overflow:hidden;will-change:transform,opacity}
 #toast.show,#toast.error,#toast.warn,#toast.info{display:flex;animation:toastIsland .62s cubic-bezier(.2,1.25,.35,1) forwards}
@@ -1580,6 +1623,158 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
   });
   window.stripEmoji=strip;
 })();
+// ══ COMMENTS: har group ke andar (max 2 / user / group, 100 chars, no links, 5 / ghanta) ══
+var CMT={key:null,tab:null,gid:null,list:[],name:null,editing:false,busy:false};
+var CMT_MAX_PER_GROUP=2,CMT_MAX_LEN=100,CMT_PER_HOUR=5;
+function cmtHasLink(t){
+  var x=String(t||'').toLowerCase();
+  var y=x.replace(/\s+/g,'').replace(/\(dot\)|\[dot\]|\{dot\}/g,'.');
+  var tld='(com|in|net|org|co|io|me|app|xyz|info|link|ly|gl|be|tv|shop|store|online|site|live|click|top|biz|cc|pk|us|uk|ai)';
+  return /(https?:|ftp:|www\.|wa\.me|t\.me|bit\.ly|instagram\.com|youtube\.com|youtu\.be|whatsapp)/.test(y)||new RegExp('[a-z0-9-]\\.'+tld+'(\\/|$|[^a-z0-9])').test(y)||/\bdot\s?(com|in|net|org)\b/.test(x);
+}
+function cmtAgo(ms){
+  var d=Math.max(0,(Date.now()-ms)/1000);
+  if(d<60)return 'now';if(d<3600)return Math.floor(d/60)+'m';if(d<86400)return Math.floor(d/3600)+'h';
+  if(d<604800)return Math.floor(d/86400)+'d';return Math.floor(d/604800)+'w';
+}
+function cmtColor(str){
+  var h=0;for(var i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))%360;
+  return 'linear-gradient(135deg,hsl('+h+',55%,52%),hsl('+((h+40)%360)+',60%,42%))';
+}
+function cmtEnsureDom(){
+  if(document.getElementById('cmtOverlay'))return;
+  var o=document.createElement('div');o.id='cmtOverlay';o.className='hide';
+  o.innerHTML='<div id="cmtSheet" role="dialog" aria-label="Comments"><div class="cmt-grab"></div>'+
+    '<div class="cmt-head"><span>Comments<small id="cmtCountTxt"></small></span><button class="cmt-x" onclick="cmtClose()" aria-label="Close"><span class="material-symbols-rounded">close</span></button></div>'+
+    '<div class="cmt-list" id="cmtList"></div><div class="cmt-foot" id="cmtFoot"></div></div>';
+  o.addEventListener('click',function(e){if(e.target===o)cmtClose();});
+  document.body.appendChild(o);
+}
+function cmtOpen(tabKey,gid){
+  if(!S.user){showToast('❌ Please log in to view comments',true);return;}
+  cmtEnsureDom();
+  CMT.tab=tabKey;CMT.gid=gid;CMT.key=tabKey+':'+gid;CMT.list=[];CMT.editing=false;
+  var o=document.getElementById('cmtOverlay');
+  o.classList.remove('hide');document.body.style.overflow='hidden';
+  requestAnimationFrame(function(){requestAnimationFrame(function(){o.classList.add('show');});});
+  document.getElementById('cmtList').innerHTML='<div class="cmt-skel"></div><div class="cmt-skel"></div><div class="cmt-skel"></div>';
+  cmtRenderFoot();
+  cmtLoadName().then(cmtRenderFoot);
+  cmtLoad();
+}
+function cmtClose(){
+  var o=document.getElementById('cmtOverlay');if(!o)return;
+  o.classList.remove('show');document.body.style.overflow='';
+  setTimeout(function(){o.classList.add('hide');},350);
+}
+function cmtLoadName(){
+  var uid=S.user.uid,k='uc_username_'+uid;
+  try{var c=localStorage.getItem(k);if(c){CMT.name=c;return Promise.resolve(c);}}catch(e){}
+  if(!db)return Promise.resolve(null);
+  return db.collection('profiles').doc(uid).get().then(function(d){
+    CMT.name=(d.exists&&d.data().username)||null;
+    if(CMT.name){try{localStorage.setItem(k,CMT.name);}catch(e){}}
+    return CMT.name;
+  }).catch(function(){return null;});
+}
+function cmtLoad(){
+  if(!db)return;
+  var key=CMT.key;
+  db.collection('comments').where('gkey','==',key).get().then(function(snap){
+    if(CMT.key!==key)return;
+    CMT.list=snap.docs.map(function(d){var x=d.data();x.id=d.id;return x;}).sort(function(a,b){return (b.tsNum||0)-(a.tsNum||0);});
+    cmtRenderList();cmtRenderFoot();
+  }).catch(function(){
+    document.getElementById('cmtList').innerHTML='<div class="cmt-empty"><span class="material-symbols-rounded">cloud_off</span>Could not load comments.<br>Please try again.</div>';
+  });
+}
+function cmtMineCount(){return CMT.list.filter(function(c){return c.uid===S.user.uid;}).length;}
+function cmtRenderList(){
+  var el=document.getElementById('cmtList');
+  document.getElementById('cmtCountTxt').textContent=CMT.list.length?(' · '+CMT.list.length):'';
+  if(!CMT.list.length){el.innerHTML='<div class="cmt-empty"><span class="material-symbols-rounded">forum</span>No comments yet.<br>Share your experience with this group.</div>';return;}
+  el.innerHTML=CMT.list.map(function(c,i){
+    var nm=c.username||'user',canDel=(c.uid===S.user.uid)||isAdmin();
+    return '<div class="cmt-row" style="animation-delay:'+Math.min(i,8)*30+'ms"><div class="cmt-av" style="background:'+cmtColor(nm)+'">'+escHtml(nm.charAt(0))+'</div>'+
+      '<div class="cmt-body"><div class="cmt-meta">'+(c.isAdmin?'<span class="cmt-tag">ADMIN</span>':'')+'<b>'+escHtml(nm)+'</b><span class="cmt-t">'+cmtAgo(c.tsNum||0)+'</span></div><div class="cmt-txt">'+escHtml(c.text||'')+'</div></div>'+
+      (canDel?'<button class="cmt-del" aria-label="Delete comment" onclick="cmtDel(\''+c.id+'\')"><span class="material-symbols-rounded">delete</span></button>':'')+'</div>';
+  }).join('');
+}
+function cmtRenderFoot(){
+  var f=document.getElementById('cmtFoot');if(!f||!S.user)return;
+  if(!CMT.name||CMT.editing){
+    f.innerHTML='<div class="cmt-setup"><h4>'+(CMT.name?'Change username':'Choose a username')+'</h4><p>This name is shown with your comments. 3-20 letters, numbers, . or _</p></div>'+
+      '<div class="cmt-compose"><div class="cmt-in"><input id="cmtNameIn" maxlength="20" autocomplete="off" autocapitalize="none" placeholder="username" value="'+escHtml(CMT.name||'')+'" oninput="this.value=this.value.replace(/[^a-zA-Z0-9._]/g,\'\')"></div><button class="cmt-send" onclick="cmtSaveName()">Save</button></div><div class="cmt-err" id="cmtErr"></div>';
+    return;
+  }
+  var used=cmtMineCount(),left=CMT_MAX_PER_GROUP-used;
+  f.innerHTML='<div class="cmt-quota"><span>'+(left>0?used+' of '+CMT_MAX_PER_GROUP+' comments used in this group':'You have used both comments in this group')+'</span><a href="#" onclick="cmtEditName();return false">@'+escHtml(CMT.name)+' · Edit</a></div>'+
+    '<div class="cmt-compose"><div class="cmt-av" style="width:34px;height:34px;flex:0 0 34px;font-size:13px;background:'+cmtColor(CMT.name)+'">'+escHtml(CMT.name.charAt(0))+'</div>'+
+    '<div class="cmt-in"><input id="cmtIn" maxlength="'+CMT_MAX_LEN+'" autocomplete="off" '+(left>0?'':'disabled ')+'placeholder="'+(left>0?'Add a comment...':'Comment limit reached')+'" oninput="cmtOnInput()" onkeydown="if(event.key===\'Enter\')cmtPost()"><span class="cmt-cnt" id="cmtCnt">0/'+CMT_MAX_LEN+'</span></div>'+
+    '<button class="cmt-send" id="cmtSend" disabled onclick="cmtPost()">Post</button></div><div class="cmt-err" id="cmtErr"></div>';
+}
+function cmtErr(m){var e=document.getElementById('cmtErr');if(e)e.textContent=m||'';}
+function cmtOnInput(){
+  var i=document.getElementById('cmtIn'),n=i.value.length;
+  var c=document.getElementById('cmtCnt');c.textContent=n+'/'+CMT_MAX_LEN;c.classList.toggle('warn',n>=90);
+  document.getElementById('cmtSend').disabled=!i.value.trim();
+  cmtErr(cmtHasLink(i.value)?'Links are not allowed in comments.':'');
+}
+function cmtEditName(){CMT.editing=true;cmtRenderFoot();var i=document.getElementById('cmtNameIn');if(i)i.focus();}
+function cmtSaveName(){
+  var v=(document.getElementById('cmtNameIn').value||'').trim();
+  if(!/^[a-zA-Z0-9._]{3,20}$/.test(v)){cmtErr('Use 3-20 letters, numbers, . or _');return;}
+  if(cmtHasLink(v)){cmtErr('Username cannot look like a link.');return;}
+  if(!isAdmin()&&/admin|universalcombo|support/i.test(v)){cmtErr('This username is reserved.');return;}
+  db.collection('profiles').doc(S.user.uid).set({username:v,usernameLower:v.toLowerCase(),updatedAt:new Date().toISOString()},{merge:true}).then(function(){
+    CMT.name=v;CMT.editing=false;try{localStorage.setItem('uc_username_'+S.user.uid,v);}catch(e){}
+    cmtRenderFoot();showToast('✅ Username saved');
+  }).catch(function(){cmtErr('Could not save. Check your connection.');});
+}
+function cmtBumpCount(delta){
+  var g=findGroupObj(CMT.tab,CMT.gid);
+  var n=Math.max(0,((g&&g.commentCount)||0)+delta);
+  if(g)g.commentCount=n;
+  var el=document.querySelector('[data-fb="'+CMT.key+'"] .cmt-count');if(el)fbBumpCount(el,n);
+  try{db.collection(collectionForTab(CMT.tab)).doc(CMT.gid).update({commentCount:firebase.firestore.FieldValue.increment(delta)}).catch(function(){});}catch(e){}
+}
+function cmtPost(){
+  if(CMT.busy||!S.user||!CMT.name)return;
+  var inp=document.getElementById('cmtIn');if(!inp)return;
+  var text=inp.value.replace(/\s+/g,' ').trim();
+  if(!text)return;
+  if(text.length>CMT_MAX_LEN){cmtErr('Maximum '+CMT_MAX_LEN+' characters.');return;}
+  if(cmtHasLink(text)){cmtErr('Links are not allowed in comments.');return;}
+  CMT.busy=true;var btn=document.getElementById('cmtSend');btn.disabled=true;btn.textContent='...';
+  var uid=S.user.uid,now=Date.now(),rateRef=db.collection('commentRate').doc(uid);
+  function done(){CMT.busy=false;var b=document.getElementById('cmtSend');if(b)b.textContent='Post';}
+  Promise.all([
+    db.collection('comments').where('gkey','==',CMT.key).where('uid','==',uid).get(),
+    rateRef.get()
+  ]).then(function(r){
+    if(r[0].size>=CMT_MAX_PER_GROUP){cmtErr('You can post only '+CMT_MAX_PER_GROUP+' comments in one group.');cmtLoad();done();return;}
+    var times=((r[1].exists&&r[1].data().times)||[]).filter(function(t){return now-t<3600000;});
+    if(times.length>=CMT_PER_HOUR){
+      var wait=Math.ceil((3600000-(now-Math.min.apply(null,times)))/60000);
+      cmtErr('Limit reached: '+CMT_PER_HOUR+' comments per hour. Try again in '+wait+' min.');done();return;
+    }
+    var doc={gkey:CMT.key,tabKey:CMT.tab,groupId:CMT.gid,uid:uid,username:CMT.name,text:text,tsNum:now,ts:new Date(now).toISOString(),isAdmin:isAdmin()};
+    return db.collection('comments').add(doc).then(function(ref){
+      doc.id=ref.id;CMT.list.unshift(doc);
+      times.push(now);rateRef.set({times:times.slice(-CMT_PER_HOUR)}).catch(function(){});
+      cmtBumpCount(1);cmtRenderList();cmtRenderFoot();haptic();
+      var l=document.getElementById('cmtList');if(l)l.scrollTop=0;
+      done();
+    });
+  }).catch(function(){cmtErr('Could not post. Please try again.');done();});
+}
+function cmtDel(id){
+  if(!confirm('Delete this comment?'))return;
+  db.collection('comments').doc(id).delete().then(function(){
+    CMT.list=CMT.list.filter(function(c){return c.id!==id;});
+    cmtBumpCount(-1);cmtRenderList();cmtRenderFoot();showToast('✅ Comment deleted');
+  }).catch(function(){showToast('❌ Could not delete comment',true);});
+}
 // ── ADMIN CONFIG ─────────────────────────────────────────────────────────
 // Sirf ye email admin hai — baaki sab staff
 var ADMIN_EMAIL = 'm.k.p.tyoup@gmail.com';
@@ -2548,6 +2743,10 @@ function voteButtonsHtml(tabKey,g){
       '<button type="button" class="fbtn not-helpful'+(mine==='dislike'?' is-selected':'')+'" aria-pressed="'+(mine==='dislike'?'true':'false')+'" aria-label="Dislike" onclick="fbClick(event,\''+tabKey+'\',\''+g.id+'\',\'dislike\')">'+
         '<span class="material-symbols-rounded fbtn-ic">thumb_down</span>'+
         '<span class="fbtn-count">'+dc+'</span>'+
+      '</button>'+
+      '<button type="button" class="fbtn cmt" aria-label="Comments" onclick="cmtOpen(\''+tabKey+'\',\''+g.id+'\')">'+
+        '<span class="material-symbols-rounded fbtn-ic">mode_comment</span>'+
+        '<span class="fbtn-count cmt-count">'+(g.commentCount||0)+'</span>'+
       '</button>'+
     '</div>'+
     '</div>';
