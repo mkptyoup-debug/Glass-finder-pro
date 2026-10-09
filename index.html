@@ -3805,12 +3805,25 @@ closeModal();
 function stkOrderText(){
 var list=stkEntries().filter(function(x){return x.e.s!=='in';});
 var d=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-var lines=['📦 *'+stkT('head')+'* — '+d,''];
-list.forEach(function(x,i){
-lines.push((i+1)+'. '+(x.e.s==='out'?'❌':'⚠️')+' *'+x.name+'* × '+(x.e.q||1));
-if(x.models.length)lines.push('   📱 '+x.models.slice(0,6).join(', ')+(x.models.length>6?' +'+(x.models.length-6)+' '+stkT('more'):''));
+var SUB={flat:'Flat Glass',uv:'UV Glass',display:'Display Glass'};
+var GO=['flat','uv','display'];
+function sec(x){
+if(x.tab.indexOf('pf_')===0){var k=x.tab.slice(3),ix=99;PART_TYPES.forEach(function(t,i){if(t.key===k)ix=i;});return {o:100+ix,h:stkTabName(x.tab).toUpperCase(),s:''};}
+if(x.tab==='backcover')return {o:50,h:'BACK COVER',s:''};
+var gi=GO.indexOf(x.tab);return {o:gi<0?9:gi,h:'GLASS',s:SUB[x.tab]||stkTabName(x.tab)};
+}
+list.forEach(function(x){x.sec=sec(x);});
+list.sort(function(a,b){
+return (a.sec.o-b.sec.o)||String(a.name).localeCompare(String(b.name),undefined,{numeric:true,sensitivity:'base'});
 });
-lines.push('');lines.push(stkT('total')+': '+list.length+' '+stkT('items'));lines.push('— Universal Combo');
+var lines=['*ORDER LIST*','Date: '+d],lastH='',lastS='',pcs=0;
+list.forEach(function(x){
+if(x.sec.h!==lastH){lines.push('');lines.push('*'+x.sec.h+'*');lastH=x.sec.h;lastS='';}
+if(x.sec.s&&x.sec.s!==lastS){lines.push('_'+x.sec.s+'_');lastS=x.sec.s;}
+var q=x.e.q||1;pcs+=q;
+lines.push(String(x.name).trim()+' - '+q+' pcs');
+});
+lines.push('');lines.push('Total: '+list.length+' items, '+pcs+' pcs');
 return {text:lines.join('\n'),count:list.length};
 }
 function stkSend(){
