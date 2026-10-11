@@ -1032,6 +1032,15 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 #partsCodeBtn.hide{display:none!important}
 #partsDelAllBtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;margin-bottom:16px;background:var(--danger-bg);border:1px dashed #D95C5C66;border-radius:13px;color:var(--danger);font-size:13px;font-weight:700}
 #partsDelAllBtn.hide{display:none!important}
+#partsAdminToggle{display:flex;align-items:center;gap:6px;width:fit-content;margin:0 0 12px auto;padding:8px 13px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:10px;color:var(--brand);font-size:12px;font-weight:700}
+#partsAdminToggle:active{transform:scale(.94)}
+#partsAdminToggle.hide{display:none!important}
+#partsAdminPanel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+#partsAdminPanel>button{width:100%!important;margin:0!important;padding:10px 8px!important;font-size:12px!important}
+#partsAdminPanel>#partsAddBtn{order:1;grid-column:1/-1}
+#partsAdminPanel>#partsBulkBtn{order:2}
+#partsAdminPanel>#partsCodeBtn{order:3}
+#partsAdminPanel>#partsDelAllBtn{order:4;grid-column:1/-1}
 .pf2-sw{width:100%;display:flex;align-items:center;gap:10px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:14px;padding:11px 14px;margin-bottom:14px;font-size:14px;font-weight:600;color:var(--text-1,#2b221b)}
 .pf2-sw-l{flex:1;text-align:left}
 .pf2-sw-t{font-size:12px;font-weight:800;padding:3px 12px;border-radius:14px;background:var(--surface-2);color:var(--text-2);transition:all .25s}
@@ -1532,10 +1541,13 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
       </div>
       <div id="partsSearchSuggest" class="suggest-box hide"></div>
     </div>
+    <button id="partsAdminToggle" class="hide" onclick="togglePartsAdmin()"></button>
+    <div id="partsAdminPanel" class="hide">
     <button id="partsCodeBtn" class="hide" onclick="openPartsCodeModal()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">save</span> Data Code</button>
     <button id="partsAddBtn" class="hide" onclick="openPartsAddModal()">＋ Add New Part Group</button>
     <button id="partsBulkBtn" class="hide" onclick="openPartsBulkModal()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">playlist_add</span> Bulk Add</button>
     <button id="partsDelAllBtn" class="hide" onclick="openPartsDeleteAll()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">delete_sweep</span> Delete All</button>
+    </div>
     <div id="pfTabBar" class="pf-tabbar"></div>
     <div id="pfSwipeViewport" class="pf-swipe-viewport">
       <div id="pfSwipeTrack" class="pf-swipe-track"></div>
@@ -5540,6 +5552,7 @@ else{btn.classList.add('hide');if(bulkBtn)bulkBtn.classList.add('hide');if(codeB
 var t=PART_TYPES.find(function(x){return x.key===PF.currentCategory;})||PART_TYPES[PF.activeIdx];
 if(t){btn.textContent='＋ Add '+t.label+' Group';if(bulkBtn)bulkBtn.innerHTML='<span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">playlist_add</span> Bulk Add '+t.label;}
 var delBtn=document.getElementById('partsDelAllBtn');if(delBtn){if(isAdmin()){delBtn.classList.remove('hide');if(t)delBtn.innerHTML='<span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">delete_sweep</span> Delete All '+t.label;}else delBtn.classList.add('hide');}
+applyPartsAdminState();
 }
 var PF_allModelsCache=null;
 function invalidatePartsModelsCache(){PF_allModelsCache=null;}
@@ -6439,6 +6452,14 @@ bumpPartsVersion(typeKey);renderPartsCards();
 if(g)logRecentUpdate('🗑️ '+t.label+': '+g.partName+' removed');
 closeModal();showToast('✅ Deleted');
 });
+}
+var PF_adminOpen=false;
+function togglePartsAdmin(){PF_adminOpen=!PF_adminOpen;applyPartsAdminState();}
+function applyPartsAdminState(){
+var p=document.getElementById('partsAdminPanel'),b=document.getElementById('partsAdminToggle');
+if(!p||!b)return;var adm=isAdmin();
+b.classList.toggle('hide',!adm);p.classList.toggle('hide',!(adm&&PF_adminOpen));
+b.innerHTML='<span class="material-symbols-rounded" style="font-size:1.15em">settings</span> Admin '+(PF_adminOpen?'▴':'▾');
 }
 var PF_DELALL_PASS='MKP@2026';
 function openPartsDeleteAll(){
