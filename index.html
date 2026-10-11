@@ -1030,6 +1030,8 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 #partsCodeBtn{display:flex;align-items:center;gap:6px;width:fit-content;margin:0 0 14px auto!important;padding:9px 14px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:10px;color:var(--brand);font-size:12px;font-weight:600;transition:transform .15s}
 #partsCodeBtn:active{transform:scale(.94)}
 #partsCodeBtn.hide{display:none!important}
+#partsDelAllBtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;margin-bottom:16px;background:var(--danger-bg);border:1px dashed #D95C5C66;border-radius:13px;color:var(--danger);font-size:13px;font-weight:700}
+#partsDelAllBtn.hide{display:none!important}
 .pf2-sw{width:100%;display:flex;align-items:center;gap:10px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:14px;padding:11px 14px;margin-bottom:14px;font-size:14px;font-weight:600;color:var(--text-1,#2b221b)}
 .pf2-sw-l{flex:1;text-align:left}
 .pf2-sw-t{font-size:12px;font-weight:800;padding:3px 12px;border-radius:14px;background:var(--surface-2);color:var(--text-2);transition:all .25s}
@@ -1533,6 +1535,7 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
     <button id="partsCodeBtn" class="hide" onclick="openPartsCodeModal()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">save</span> Data Code</button>
     <button id="partsAddBtn" class="hide" onclick="openPartsAddModal()">＋ Add New Part Group</button>
     <button id="partsBulkBtn" class="hide" onclick="openPartsBulkModal()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">playlist_add</span> Bulk Add</button>
+    <button id="partsDelAllBtn" class="hide" onclick="openPartsDeleteAll()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">delete_sweep</span> Delete All</button>
     <div id="pfTabBar" class="pf-tabbar"></div>
     <div id="pfSwipeViewport" class="pf-swipe-viewport">
       <div id="pfSwipeTrack" class="pf-swipe-track"></div>
@@ -5536,6 +5539,7 @@ if(isAdmin()){btn.classList.remove('hide');if(bulkBtn)bulkBtn.classList.remove('
 else{btn.classList.add('hide');if(bulkBtn)bulkBtn.classList.add('hide');if(codeBtn)codeBtn.classList.add('hide');}
 var t=PART_TYPES.find(function(x){return x.key===PF.currentCategory;})||PART_TYPES[PF.activeIdx];
 if(t){btn.textContent='＋ Add '+t.label+' Group';if(bulkBtn)bulkBtn.innerHTML='<span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">playlist_add</span> Bulk Add '+t.label;}
+var delBtn=document.getElementById('partsDelAllBtn');if(delBtn){if(isAdmin()){delBtn.classList.remove('hide');if(t)delBtn.innerHTML='<span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">delete_sweep</span> Delete All '+t.label;}else delBtn.classList.add('hide');}
 }
 var PF_allModelsCache=null;
 function invalidatePartsModelsCache(){PF_allModelsCache=null;}
@@ -6434,6 +6438,39 @@ invalidatePartsModelsCache();
 bumpPartsVersion(typeKey);renderPartsCards();
 if(g)logRecentUpdate('🗑️ '+t.label+': '+g.partName+' removed');
 closeModal();showToast('✅ Deleted');
+});
+}
+var PF_DELALL_PASS='MKP@2026';
+function openPartsDeleteAll(){
+if(!isAdmin())return;
+var t=PART_TYPES.find(function(x){return x.key===PF.currentCategory;})||PART_TYPES[PF.activeIdx];
+if(!t)return;
+var n=(PF.data[t.key]||[]).length;
+openModal('<div class="mhead"><span class="mtitle">🗑️ Delete All '+t.label+'</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
+'<p style="color:var(--text-2);margin-bottom:14px;font-size:14px">'+n+' part group delete ho jayenge. Ye wapas nahi aayenge.</p>'+
+'<div class="fgrp"><label class="flbl">Password</label><input class="finp" id="pf_delAllPass" type="password" autocomplete="off" placeholder="Password daalo"/></div>'+
+'<div class="brow"><button class="bcancel" onclick="closeModal()">Cancel</button>'+
+'<button class="bdel" id="pf_delAllBtn" onclick="doPartsDeleteAll(\''+t.key+'\')">Delete All</button></div>');
+}
+function doPartsDeleteAll(typeKey){
+var t=PART_TYPES.find(function(x){return x.key===typeKey;});
+if(!t||!db||!isAdmin())return;
+var inp=document.getElementById('pf_delAllPass');
+if(!inp||inp.value!==PF_DELALL_PASS){showToast('❌ Galat password',true);return;}
+var btn=document.getElementById('pf_delAllBtn');
+if(btn){btn.disabled=true;btn.textContent='Deleting...';}
+db.collection(t.col).get().then(function(snap){
+var docs=snap.docs;var total=docs.length;
+if(!total){closeModal();showToast('ℹ️ Already empty');return;}
+var chunks=[];for(var i=0;i<docs.length;i+=400)chunks.push(docs.slice(i,i+400));
+return chunks.reduce(function(p,ch){return p.then(function(){var b=db.batch();ch.forEach(function(d){b.delete(d.ref);});return b.commit();});},Promise.resolve()).then(function(){
+PF.data[typeKey]=[];invalidatePartsModelsCache();bumpPartsVersion(typeKey);renderPartsCards();
+logRecentUpdate('🗑️ '+t.label+': all '+total+' groups removed');
+closeModal();showToast('✅ '+total+' deleted');
+});
+}).catch(function(e){
+console.error(e);showToast('❌ Delete failed: '+((e&&e.message)||e),true);
+if(btn){btn.disabled=false;btn.textContent='Delete All';}
 });
 }
 function logRecentUpdate(msg){
