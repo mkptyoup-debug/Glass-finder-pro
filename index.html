@@ -1718,7 +1718,7 @@ var used=cmtMineCount(),left=CMT_MAX_PER_GROUP-used;
 f.innerHTML='<div class="cmt-quota"><span>'+(left>0?used+' of '+CMT_MAX_PER_GROUP+' comments used in this group':'You have used both comments in this group')+'</span><a href="#" onclick="cmtEditName();return false">'+escHtml(CMT.name)+' · Edit</a></div>'+
 '<div class="cmt-compose"><div class="cmt-av" style="width:34px;height:34px;flex:0 0 34px;font-size:13px;background:'+cmtColor(CMT.name)+'">'+escHtml(CMT.name.charAt(0))+'</div>'+
 '<div class="cmt-in"><input id="cmtIn" maxlength="'+CMT_MAX_LEN+'" autocomplete="off" '+(left>0?'':'disabled ')+'placeholder="'+(left>0?'Add a comment...':'Comment limit reached')+'" oninput="cmtOnInput()" onkeydown="if(event.key===\'Enter\')cmtPost()"><span class="cmt-cnt" id="cmtCnt">0/'+CMT_MAX_LEN+'</span></div>'+
-'<button class="cmt-send" id="cmtSend" disabled onclick="cmtPost()">Post</button></div><div class="cmt-err" id="cmtErr"></div>';
+'<button class="cmt-send" id="cmtSend" disabled onclick="cmtPost()">Post</button></div><div class="cmt-err" id="cmtErr"></div><div style="font-size:11px;opacity:.7;margin-top:6px;line-height:1.4">Be respectful. No abuse, hate or spam. Use the report button on any comment — reported comments are reviewed and removed.</div>';
 }
 function cmtErr(m){var e=document.getElementById('cmtErr');if(e)e.textContent=m||'';}
 function cmtOnInput(){
@@ -3236,6 +3236,23 @@ openModal('<div class="mhead"><span class="mtitle">🗑️ Delete My Account</sp
 '<div id="delErr" style="color:var(--danger);font-size:12.5px;margin-top:8px"></div>'+
 '<button class="cbtn" id="delBtn" style="margin-top:14px;width:100%;background:var(--danger);color:#fff;border-color:var(--danger)" onclick="confirmDeleteAccount()">Delete permanently</button></div>');
 }
+function deleteUserData(uid){
+var D=function(r){return r.delete().catch(function(){});};
+var jobs=['app_users','share_stats','profiles','user_stats','commentRate'].map(function(c){return D(db.collection(c).doc(uid));});
+jobs.push(db.collection('comments').where('uid','==',uid).get().then(function(sn){
+return Promise.all(sn.docs.map(function(d){
+var x=d.data();
+return d.ref.delete().then(function(){
+var col=x.tabKey&&collectionForTab(x.tabKey);
+if(col&&x.groupId)return db.collection(col).doc(x.groupId).update({commentCount:firebase.firestore.FieldValue.increment(-1)}).catch(function(){});
+}).catch(function(){});
+}));
+}).catch(function(){}));
+jobs.push(db.collection('votes').where('uid','==',uid).get().then(function(sn){
+return Promise.all(sn.docs.map(function(d){return D(d.ref);}));
+}).catch(function(){}));
+return Promise.all(jobs);
+}
 function confirmDeleteAccount(){
 var u=auth&&auth.currentUser;if(!u)return;
 var errEl=document.getElementById('delErr'),btn=document.getElementById('delBtn'),passEl=document.getElementById('delPass');
@@ -3248,13 +3265,7 @@ re=u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.e
 re=u.reauthenticateWithPopup(new firebase.auth.GoogleAuthProvider());
 }
 btn.disabled=true;btn.textContent='Please wait...';errEl.textContent='';
-re.then(function(){
-var uid=u.uid;
-return Promise.all([
-db.collection('app_users').doc(uid).delete().catch(function(){}),
-db.collection('share_stats').doc(uid).delete().catch(function(){})
-]);
-}).then(function(){return u.delete();}).then(function(){
+re.then(function(){return deleteUserData(u.uid);}).then(function(){return u.delete();}).then(function(){
 S.user=null;S.role='staff';
 closeModal();updateUserUI();
 showToast('✅ Account deleted');
