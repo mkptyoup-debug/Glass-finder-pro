@@ -30,25 +30,25 @@ if(/UniversalComboApp/.test(navigator.userAgent))document.documentElement.classL
 <meta name="color-scheme" content="light dark">
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "Universal Combo",
-  "alternateName": "Glassfinder",
-  "url": "https://mkptyoup-debug.github.io/Glass-finder-pro/",
-  "description": "Universal Combo instantly finds the right tempered glass/screen guard for your mobile phone model. Compatible model list for Flat Glass, UV Curved, and Display - a free tool for mobile accessories dealers.",
-  "applicationCategory": "BusinessApplication",
-  "operatingSystem": "Any",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "INR"
-  },
-  "audience": {
-    "@type": "Audience",
-    "audienceType": "Mobile accessories dealers and shop owners"
-  },
-  "inLanguage": ["en", "hi"],
-  "isAccessibleForFree": true
+"@context": "https://schema.org",
+"@type": "WebApplication",
+"name": "Universal Combo",
+"alternateName": "Glassfinder",
+"url": "https://mkptyoup-debug.github.io/Glass-finder-pro/",
+"description": "Universal Combo instantly finds the right tempered glass/screen guard for your mobile phone model. Compatible model list for Flat Glass, UV Curved, and Display - a free tool for mobile accessories dealers.",
+"applicationCategory": "BusinessApplication",
+"operatingSystem": "Any",
+"offers": {
+"@type": "Offer",
+"price": "0",
+"priceCurrency": "INR"
+},
+"audience": {
+"@type": "Audience",
+"audienceType": "Mobile accessories dealers and shop owners"
+},
+"inLanguage": ["en", "hi"],
+"isAccessibleForFree": true
 }
 </script>
 <script>
@@ -63,7 +63,6 @@ if(/UniversalComboApp/.test(navigator.userAgent))document.documentElement.classL
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 button,a,.card,[onclick]{touch-action:manipulation}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
-
 :root,html[data-theme="light"]{
 --bg:#FAF8F4;--surface-1:#FFFFFF;--surface-2:#F4EFE6;--surface-3:#FFFFFF;
 --border-hair:#EFE9DD;--border-def:#E6DECC;
@@ -98,8 +97,6 @@ body{background:var(--bg);color:var(--text-1);font-family:'Poppins',-apple-syste
 #backToTop{position:fixed;right:16px;bottom:calc(166px + env(safe-area-inset-bottom));z-index:1700;width:42px;height:42px;border-radius:50%;background:linear-gradient(145deg,var(--brand-2),var(--brand));color:var(--text-1);font-size:18px;font-weight:800;border:none;box-shadow:0 6px 20px #C9A15E55;opacity:0;visibility:hidden;transform:translateY(10px) scale(.9);transition:opacity .2s ease,transform .2s ease,visibility .2s}
 #backToTop.show{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
 #backToTop:active{transform:scale(.9)}
-
-/* BOTTOM NAVIGATION */
 #bottomNav{position:fixed;left:16px;right:16px;bottom:calc(15px + env(safe-area-inset-bottom));z-index:1800;display:flex;padding:0;border-radius:24px;background:var(--surface-1);border:1px solid var(--border-hair);box-shadow:0 8px 28px rgba(35,29,21,.12);max-width:420px;margin:0 auto;height:66px}
 .bnav-item{position:relative;flex:1 1 0;width:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:none;border:none;color:var(--text-3);font-size:10px;font-weight:600;letter-spacing:.02em;overflow:hidden;transition:color .22s ease}
 .bnav-ic{width:20px;height:20px;display:block;transition:transform .22s cubic-bezier(.34,1.56,.64,1),filter .22s ease;stroke:currentColor;fill:none}
@@ -118,8 +115,6 @@ body{background:var(--bg);color:var(--text-1);font-family:'Poppins',-apple-syste
 input,textarea,button,select{font-family:inherit}
 button{cursor:pointer}
 .hide{display:none!important}
-
-/* SPLASH */
 #splash{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 25% 15%,#C9A15E1c,transparent 42%),radial-gradient(circle at 80% 85%,#9A744820,transparent 45%),radial-gradient(circle at 50% 50%,var(--surface-1),var(--bg) 75%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s ease,visibility .6s ease;overflow:hidden}
 #splash.fade-out{opacity:0;visibility:hidden;pointer-events:none}
 #splashParticles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
@@ -138,8 +133,6 @@ button{cursor:pointer}
 @keyframes splashPop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
 @keyframes splashRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes barSlide{0%{left:-40%}100%{left:100%}}
-
-/* LOGIN SCREEN */
 #loginScreen{position:fixed;inset:0;z-index:8000;background:radial-gradient(circle at 30% 20%,#C9A15E1a,transparent 50%),var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px}
 #loginScreen.show{display:flex}
 .login-box{position:relative;width:100%;max-width:400px;background:var(--surface-1);border:1px solid var(--border-hair);border-radius:var(--r-lg);padding:32px 24px;box-shadow:var(--sh-3)}
@@ -156,7 +149,6 @@ button{cursor:pointer}
 .login-gate-note{display:none;background:var(--warning-bg);border:1px solid var(--brand);color:var(--brand);border-radius:12px;padding:10px 12px;font-size:12.5px;font-weight:600;text-align:center;margin-bottom:16px;line-height:1.45}
 .in-app .google-btn,.in-app .login-divider{display:none}
 .login-err{color:var(--danger);font-size:12px;text-align:center;margin-top:10px;min-height:18px}
-/* HEADER */
 #header{position:sticky;top:0;z-index:200;background:var(--bg,#FAF8F4);border-bottom:1px solid var(--border-hair);padding:14px 16px 0}
 .search-ic-glow{width:31px;height:31px;border-radius:50%;background:var(--surface-2);color:var(--brand-text);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:none}
 #offlineBar{display:none;position:sticky;top:0;z-index:202;background:#F4EBED;color:var(--danger-bg);font-size:12.5px;font-weight:700;text-align:center;padding:8px 12px}
@@ -164,7 +156,6 @@ button{cursor:pointer}
 .skel-wrap{padding:4px 0}
 .skel-card{height:78px;border-radius:14px;margin-bottom:12px;background:linear-gradient(90deg,var(--surface-1) 25%,var(--skel-2) 37%,var(--surface-1) 63%);background-size:400% 100%;animation:skelShine 1.4s ease-in-out infinite}
 @keyframes skelShine{0%{background-position:100% 0}100%{background-position:0 0}}
-/* PARTS FINDER — branded first-load skeleton (shield pulse + gold shimmer cards) */
 .pf-skel-wrap{padding:18px 2px 4px;text-align:center}
 .pf-skel-shield{font-size:34px;margin:6px auto 10px;width:60px;height:60px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:var(--surface-2);box-shadow:none;animation:pfShieldPulse 1.6s ease-in-out infinite}
 @keyframes pfShieldPulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.08);opacity:1}}
@@ -198,8 +189,6 @@ button{cursor:pointer}
 #menuDot{display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:var(--danger);border:2px solid var(--bg)}
 #menuDot.show{display:block}
 #menuBtn:active{transform:scale(.92)}
-
-/* TABS */
 .tabs{display:flex;gap:6px;background:var(--surface-1);border:1px solid var(--border-def);border-bottom:none;box-shadow:0 4px 14px rgba(120,90,40,.06);border-radius:14px 14px 0 0;padding:6px 6px 0}
 .tab{flex:1;padding:13px 6px;background:transparent;border:1px solid transparent;border-bottom:2px solid transparent;border-radius:12px 12px 0 0;color:var(--text-2);font-size:13px;font-weight:600;transition:background .3s cubic-bezier(.22,1,.36,1),border-color .3s cubic-bezier(.22,1,.36,1),color .3s cubic-bezier(.22,1,.36,1),transform .15s ease;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
 .tab:active{transform:scale(.97)}
@@ -210,10 +199,6 @@ button{cursor:pointer}
 .tab.au{background:linear-gradient(180deg,var(--surface-1),var(--bg));border-color:#B08D6A3d;border-bottom-color:var(--group);color:var(--brand-text);font-weight:800}
 .tab.ab{background:linear-gradient(180deg,var(--surface-1),var(--bg));border-color:#B08D6A3d;border-bottom-color:var(--group);color:var(--group);font-weight:800}
 .tab.ad{background:linear-gradient(180deg,var(--surface-1),var(--bg));border-color:#C9A15E3d;border-bottom-color:var(--brand-2);color:var(--warning);font-weight:800}
-
-/* UNIFIED CATEGORY BAR — Glass, Back Cover aur sab Spare Parts categories
-   ek hi scrollable chip row mein, taaki alag-alag page/tab pe jaaye bina
-   sabhi categories ek jagah se turant switch ho sakein. */
 .qs-scroll{display:flex;gap:9px;margin-top:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;padding:8px 6px 12px}
 .qs-scroll::-webkit-scrollbar{display:none}
 .qs-tile{flex:0 0 auto;scroll-snap-align:start;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:68px;padding:11px 4px 9px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:14px;color:var(--text-2);opacity:.85;transform:scale(.94);box-shadow:none;transition:background .25s ease,border-color .25s ease,color .25s ease,transform .25s cubic-bezier(.22,1,.36,1),opacity .25s ease,box-shadow .25s ease}
@@ -232,11 +217,7 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .qs-swipe-hint{display:flex;align-items:center;justify-content:center;gap:5px;font-size:10px;font-weight:700;color:var(--text-2);opacity:.75;margin:5px 2px 0;letter-spacing:.02em}
 .qs-swipe-hint .material-symbols-rounded{animation:qsSwipeMove 1.8s ease-in-out infinite}
 @keyframes qsSwipeMove{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
-
-/* BODY */
 #body{max-width:680px;margin:0 auto;padding:16px}
-
-/* STATS */
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
 .stat{background:var(--surface-1);border:1px solid var(--border-def);border-radius:var(--r-md);padding:15px 16px;position:relative;overflow:hidden;box-shadow:0 6px 18px rgba(120,90,40,.07);transition:transform .18s cubic-bezier(.22,1,.36,1)}
 .stat-ico{position:absolute;top:-4px;right:2px;font-size:32px;opacity:.045}
@@ -253,7 +234,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .stat-val{font-size:22px;font-weight:800;color:var(--brand-2);line-height:1.1;position:relative}
 .stat-val.sm{font-size:13px;font-weight:700}
 .stat-lbl{font-size:10px;color:var(--text-2);font-weight:700;margin-top:4px;text-transform:uppercase;letter-spacing:.07em;position:relative}
-/* UPDATES PAGE */
 #updatesScreen{display:none;position:fixed;inset:0;background:var(--bg);z-index:1500;overflow-y:auto;padding-bottom:calc(112px + env(safe-area-inset-bottom))}
 #updatesScreen.show{display:block}
 .upd-body{padding:16px;max-width:520px;margin:0 auto}
@@ -283,8 +263,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .uinfo-change{font-size:12.5px;color:var(--text-2);margin:3px 0;padding-left:2px}
 .uinfo-tip{font-size:12px;color:var(--warning);margin-top:12px;padding-top:12px;border-top:1px solid var(--border-hair);line-height:1.5}
 .uempty{text-align:center;color:var(--text-2);font-size:12px;padding:20px 0}
-
-/* PARTS FINDER BUTTON */
 #partsFinderBtn{width:100%;display:flex;align-items:center;gap:14px;padding:16px;margin-bottom:18px;background:linear-gradient(135deg,#ECEFF3,var(--surface-1) 60%,var(--surface-1));border:1px solid #C9A15E40;border-radius:16px;text-align:left;transition:transform .2s;position:relative;overflow:hidden}
 #partsFinderBtn::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#C9A15E66,transparent)}
 #partsFinderBtn:active{transform:scale(.98)}
@@ -292,8 +270,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .pf-title{font-size:15px;font-weight:800;color:var(--text-1)}
 .pf-sub{font-size:11.5px;color:var(--text-2);margin-top:2px}
 .pf-arrow{margin-left:auto;color:var(--brand-2);font-size:18px;flex-shrink:0}
-
-/* PARTS SCREEN */
 #partsScreen{display:none}
 #partsScreen.show{display:block;animation:fadeUp .3s ease}
 .pf-back.hide{display:none!important}
@@ -311,41 +287,36 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 #partsSearchBox .search-ic-glow{width:30px;height:30px;font-size:14px}
 #partsAddBtn{width:100%;padding:14px;margin-bottom:16px;background:linear-gradient(135deg,#C9A15E14,#C9A15E08);border:1px dashed #C9A15E4a;border-radius:13px;color:var(--brand-2);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
 #bulkAddBtn,#partsBulkBtn{width:100%;padding:12px;margin-bottom:16px;background:linear-gradient(135deg,#C9A15E14,#C9A15E08);border:1px dashed #C9A15E4a;border-radius:13px;color:var(--brand);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
-
-/* PARTS FINDER — FLAGSHIP MONOCHROME CATEGORY CARDS */
 :root{--pf-accent:var(--brand);--pf-text-inactive:var(--text-3);--pf-text-active:var(--text-1);--pf-ic-inactive:var(--text-2);--pf-ic-active:var(--text-1)}
 #pfSwipeViewport,#pfTabBar{background:linear-gradient(180deg,var(--surface-1),var(--bg))}
 .pf-tabbar{display:flex;gap:10px;margin-bottom:18px;overflow-x:auto;padding:6px 2px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-#pfTabBar{display:none} /* ab category switch top unified catbar se hota hai, ye purana row sirf JS state ke liye DOM me rakha hai */
+#pfTabBar{display:none}
 .pf-tabbar::-webkit-scrollbar{display:none}
 .pf-tab{flex:0 0 auto;width:70px;height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;padding:10px 5px 9px;border-radius:18px;
-  background:var(--surface-1);
-  border:1px solid var(--surface-2);
-  box-shadow:0 6px 16px rgba(52,42,34,.08);
-  cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative;
-  opacity:1;transform:translateY(0) scale(1);
-  animation:pfCardIn .45s cubic-bezier(.22,1,.36,1) forwards;
-  transition:transform .28s cubic-bezier(.34,1.56,.64,1),border-color .28s ease,background .28s ease,box-shadow .28s ease}
+background:var(--surface-1);
+border:1px solid var(--surface-2);
+box-shadow:0 6px 16px rgba(52,42,34,.08);
+cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative;
+opacity:1;transform:translateY(0) scale(1);
+animation:pfCardIn .45s cubic-bezier(.22,1,.36,1) forwards;
+transition:transform .28s cubic-bezier(.34,1.56,.64,1),border-color .28s ease,background .28s ease,box-shadow .28s ease}
 .pf-tab-ic-wrap{width:23px;height:23px;display:flex;align-items:center;justify-content:center;color:var(--pf-ic-inactive);transition:color .22s ease}
 .pf-tab-ic-wrap svg{width:100%;height:100%;overflow:visible;display:block;stroke:currentColor}
 .pf-tab-lbl{font-size:11.5px;font-weight:500;color:var(--pf-text-inactive);letter-spacing:.01em;transition:color .18s ease,font-weight .18s ease,transform .18s ease;white-space:nowrap;transform:scale(1);display:inline-block}
 .pf-tab.active{border-color:var(--brand);
-  background:linear-gradient(180deg,#FBF5E8,var(--brand-dim));
-  box-shadow:0 6px 16px rgba(184,138,69,.16);
-  transform:translateY(-2px) scale(1)}
+background:linear-gradient(180deg,#FBF5E8,var(--brand-dim));
+box-shadow:0 6px 16px rgba(184,138,69,.16);
+transform:translateY(-2px) scale(1)}
 .pf-tab.active .pf-tab-ic-wrap{color:var(--brand-text)}
 .pf-tab.active .pf-tab-lbl{color:var(--text-1);font-weight:700;transform:scale(1.02)}
 .pf-tab.pulse{animation:pfTabPulse .18s cubic-bezier(.22,1,.36,1)}
 @keyframes pfTabPulse{0%{transform:translateY(-2px) scale(1)}50%{transform:translateY(-2px) scale(1.03)}100%{transform:translateY(-2px) scale(1)}}
 @keyframes pfCardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* icon micro-interactions — only play while selected, kept subtle */
 .pf-ic-reflect{stroke-dasharray:11;stroke-dashoffset:0;opacity:.85}
 .pf-ic-reflect.r2{opacity:.5}
 .pf-tab.anim-display .pf-ic-reflect{animation:pfReflect .6s cubic-bezier(.22,1,.36,1)}
 .pf-tab.anim-display .pf-ic-reflect.r2{animation-delay:.08s}
 @keyframes pfReflect{0%{stroke-dashoffset:11;opacity:0}45%{opacity:1}100%{stroke-dashoffset:0;opacity:.85}}
-
 .pf-batt-cell{transform-origin:center bottom;transform:scaleY(1)}
 .pf-tab.anim-battery .pf-batt-cell{animation:pfBattFill .35s cubic-bezier(.22,1,.36,1) backwards}
 .pf-tab.anim-battery .pf-batt-cell[data-idx="0"]{animation-delay:0ms}
@@ -353,7 +324,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .pf-tab.anim-battery .pf-batt-cell[data-idx="2"]{animation-delay:120ms}
 .pf-tab.anim-battery .pf-batt-cell[data-idx="3"]{animation-delay:180ms}
 @keyframes pfBattFill{0%{transform:scaleY(0);opacity:.25}100%{transform:scaleY(1);opacity:1}}
-
 .pf-ic-pins{stroke-dasharray:1.6 1.6;stroke-dashoffset:0}
 .pf-tab.anim-ccboard .pf-ic-pins{animation:pfPinFlow .7s ease-in-out}
 .pf-tab.anim-ccboard .pf-ic-ribbon{animation:pfRibbonGlow .7s ease-in-out}
@@ -362,26 +332,20 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .pf-ic-camlight{opacity:.5;transition:opacity .22s ease}
 .pf-tab.anim-backdoor .pf-ic-camlight{animation:pfCamGlow .8s ease-in-out}
 @keyframes pfCamGlow{0%{opacity:.3}50%{opacity:1}100%{opacity:.5}}
-
 .pf-ic-camlight path{opacity:0}
 .pf-tab.anim-backdoor .pf-ic-camlight{animation:pfCamSpin .8s cubic-bezier(.22,1,.36,1)}
 .pf-tab.anim-backdoor .pf-ic-camlight path{animation:pfCamFade .8s ease}
 @keyframes pfCamSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes pfCamFade{0%{opacity:0}15%{opacity:1}85%{opacity:1}100%{opacity:0}}
-
 .pf-ic-frame-sweep{transform:translateY(-24px)}
 .pf-tab.anim-frame .pf-ic-frame-sweep{animation:pfFrameSweep .5s cubic-bezier(.22,1,.36,1)}
 @keyframes pfFrameSweep{0%{transform:translateY(-24px)}100%{transform:translateY(48px)}}
-
 .pf-type-count-row{display:flex;justify-content:flex-end;margin-bottom:8px}
-
 .pf-swipe-viewport{overflow:hidden;position:relative;touch-action:pan-y}
 .pf-swipe-track{display:flex;will-change:transform}
 .pf-swipe-track.dragging{transition:none!important}
 .pf-swipe-page{flex-shrink:0;box-sizing:border-box;padding:0 1px;min-height:160px}
-/* PARTS FINDER — PREMIUM REDESIGN */
 .pf-type-count{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(52,42,34,.06);color:var(--text-2);border:1px solid rgba(52,42,34,.07)}
-
 .pf-card-imgwrap{position:relative;border-radius:12px;margin:8px 0;overflow:hidden}
 .pf-card-imgtrack{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .pf-card-imgtrack::-webkit-scrollbar{display:none}
@@ -417,8 +381,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .pf-models-count{font-size:10px;color:var(--text-2);font-weight:600;margin-bottom:8px;letter-spacing:.03em}
 .pf-models-wrap{display:flex;flex-wrap:wrap;gap:5px}
 .pf-model-chip{font-size:11px;font-weight:500;padding:4px 9px;border-radius:6px;background:var(--surface-1);border:1px solid rgba(52,42,34,.05);color:var(--text-2);letter-spacing:.02em}
-
-/* PARTS SEARCH RESULT */
 .pf-result-card{background:linear-gradient(145deg,var(--surface-1),var(--surface-1));border:1.5px solid rgba(52,42,34,.08);border-radius:18px;padding:16px;margin-bottom:14px;animation:fadeUp .4s ease;overflow:hidden;position:relative;contain:content;content-visibility:auto;contain-intrinsic-size:0 220px}
 .pf-result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .pf-result-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
@@ -431,8 +393,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .pf-result-actions{display:flex;gap:6px;flex-shrink:0;margin-left:auto}
 .pf-result-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
 .pf-result-titlewrap{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0}
-
-/* RECENT */
 #quickAccess{background:var(--surface-1);border:1px solid var(--border-hair);border-radius:16px;padding:13px 12px 14px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 2px 10px rgba(35,29,21,.05)}
 #quickAccess::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#C9A15E55,transparent)}
 .qa-title{font-size:10px;font-weight:800;color:var(--text-3);letter-spacing:.1em;margin-bottom:11px;text-transform:uppercase}
@@ -443,8 +403,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .qa-icon .material-symbols-rounded{font-size:17px;color:var(--brand-text);font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24}
 .qa-label{font-size:10.5px;font-weight:700;color:var(--text-2);text-align:center;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .qa-count{position:absolute;top:5px;right:7px;background:var(--brand);color:var(--text-1);font-size:8.5px;font-weight:800;border-radius:7px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center;padding:0 3px;line-height:1}
-
-/* SEARCH */
 #searchWrap{margin-bottom:14px;position:sticky;top:var(--header-h,64px);z-index:150;background:var(--bg);padding-top:10px;padding-bottom:2px;margin-top:-10px}
 #searchBox{display:flex;align-items:center;background:var(--surface-1);border:1.5px solid var(--border-def);border-radius:18px;padding:0 6px 0 18px;gap:12px;box-shadow:0 6px 18px rgba(52,42,34,.07);transition:border-color .2s ease,box-shadow .2s ease}
 #searchBox.focused{box-shadow:0 6px 18px rgba(52,42,34,.07),0 0 0 3px #C9A15E22;border-color:var(--brand)}
@@ -457,8 +415,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 @keyframes voicePulse{0%{box-shadow:0 0 0 0 #D95C5C66}70%{box-shadow:0 0 0 12px #D95C5C00}100%{box-shadow:0 0 0 0 #D95C5C00}}
 #partsSearchBox .voice-btn{width:31px;height:31px;font-size:12px}
 #partsSearchBox .voice-btn.listening{background:linear-gradient(135deg,var(--danger),#B23B3B)}
-
-/* RESULT BANNER */
 #resultBanner{display:none;margin-bottom:14px;padding:14px 16px;border-radius:14px;border:1px solid;position:relative;overflow:hidden;animation:fadeUp .35s ease}
 #resultBanner.found{background:linear-gradient(135deg,var(--success-bg),var(--success-bg));border-color:#4CAF5044}
 #resultBanner.notfound{background:linear-gradient(135deg,#F3ECEE,var(--danger-bg));border-color:#D95C5C44}
@@ -469,8 +425,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 #resultClear{background:none;border:1px solid currentColor;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;opacity:.7}
 #resultClear:active{transform:scale(.92)}
 .rb-query{font-size:12px;opacity:.6}
-
-/* TOOLBAR */
 .toolbar{display:flex;gap:8px;margin-bottom:16px;justify-content:flex-end}
 .tbtn{display:flex;align-items:center;gap:6px;padding:9px 14px;background:var(--surface-1);border:1px solid var(--border-def);border-radius:10px;color:var(--brand);font-size:12px;font-weight:600;transition:transform .15s}
 .tbtn:active{transform:scale(.94)}
@@ -486,8 +440,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .suggest-item:active,.suggest-item.hovered{background:#C9A15E15}
 .suggest-ic{font-size:15px;opacity:.4;flex-shrink:0;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20}
 .suggest-item .mhl{background:var(--group);color:var(--text-1);border-radius:3px;padding:0 3px;font-weight:800}
-
-/* CARDS */
 #cardList{display:flex;flex-direction:column;gap:14px}
 #cardList.cl-slide{transition:transform .22s cubic-bezier(.22,1,.36,1),opacity .22s ease}
 #cardList.cl-out-left{transform:translateX(-32px);opacity:0}
@@ -548,8 +500,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .cbtn.fav-btn{font-size:16px}
 .cbtn.fav-btn.active{border-color:#C9A15E6a;background:#C9A15E14;color:var(--brand-2)}
 .cbtn:active{transform:scale(.95)}
-
-/* ── LIKE / DISLIKE (flagship-style, icon + live count) ──────────────── */
 .fb-widget{margin-top:10px;padding:0;border-radius:0;background:none;border:none;border-top:1px solid var(--border-hair);box-shadow:none;position:relative;overflow:visible;display:flex;align-items:center;gap:10px;padding-top:10px}
 .fb-widget::before{display:none}
 .fb-row{display:flex;gap:8px;position:relative;z-index:1}
@@ -560,30 +510,20 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .fbtn:disabled{cursor:default;opacity:.55;transform:none!important}
 .fbtn .fbtn-ic{font-size:16px;line-height:1;transition:transform .25s cubic-bezier(.34,1.56,.64,1),color .2s ease-out;font-variation-settings:'FILL' 0,'wght' 500,'GRAD' 0,'opsz' 24}
 .fbtn .fbtn-count{font-size:12.5px;font-weight:700;color:var(--text-2);transition:color .2s ease-out;min-width:8px;text-align:left}
-
-/* ripple */
 .fbtn .fb-ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.28;transform:scale(0);animation:fbRipple .55s ease-out forwards;pointer-events:none}
 @keyframes fbRipple{to{transform:scale(2.6);opacity:0}}
-
-/* selected — helpful */
 .fbtn.helpful.is-selected{background:linear-gradient(155deg,var(--success-bg),var(--success-bg));border-color:var(--success);box-shadow:0 0 0 1px rgba(34,197,94,.18),0 0 22px -6px rgba(34,197,94,.45)}
 .fbtn.helpful.is-selected .fbtn-ic{color:var(--success);font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24;animation:fbPop .4s cubic-bezier(.34,1.56,.64,1)}
 .fbtn.helpful.is-selected .fbtn-count{color:var(--success)}
-
-/* selected — not helpful */
 .fbtn.not-helpful.is-selected{background:linear-gradient(155deg,var(--danger-bg),var(--danger-bg));border-color:var(--danger);box-shadow:0 0 0 1px rgba(239,68,68,.18),0 0 22px -6px rgba(239,68,68,.45)}
 .fbtn.not-helpful.is-selected .fbtn-ic{color:var(--danger);font-variation-settings:'FILL' 1,'wght' 600,'GRAD' 0,'opsz' 24;animation:fbPop .4s cubic-bezier(.34,1.56,.64,1)}
 .fbtn.not-helpful.is-selected .fbtn-count{color:#962C2C}
-
 @keyframes fbPop{0%{transform:scale(.55) rotate(-10deg)}55%{transform:scale(1.3) rotate(5deg)}80%{transform:scale(.94)}100%{transform:scale(1) rotate(0)}}
-
-/* count roll animation */
 .fbtn-count.fb-bump{animation:fbBump .32s ease-out}
 @keyframes fbBump{0%{transform:translateY(40%);opacity:0}100%{transform:translateY(0);opacity:1}}
-
 @media (max-width:340px){
-  .fbtn{gap:4px;padding:0 9px;min-width:44px}
-  .fbtn .fbtn-count{font-size:11.5px}
+.fbtn{gap:4px;padding:0 9px;min-width:44px}
+.fbtn .fbtn-count{font-size:11.5px}
 }
 #floatingAdd{display:none;position:fixed;bottom:calc(100px + env(safe-area-inset-bottom));right:16px;width:56px;height:56px;background:linear-gradient(135deg,var(--brand-2),var(--brand));border:none;border-radius:50%;font-size:26px;color:var(--text-1);box-shadow:0 6px 24px #C9A15E6e;z-index:500;align-items:center;justify-content:center;transition:transform .2s}
 #floatingAdd.show{display:flex}
@@ -591,8 +531,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 #addBtn,#uFeedAddBtn,#uInfoEditBtn{width:100%;margin-top:14px;padding:14px;background:linear-gradient(135deg,#C9A15E14,#C9A15E08);border:1px dashed #C9A15E4a;border-radius:13px;color:var(--brand);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}
 #addBtn{margin-top:0;margin-bottom:16px}
 #addBtn:active,#uFeedAddBtn:active,#uInfoEditBtn:active{transform:scale(.97)}
-
-/* EMPTY */
 .empty{text-align:center;padding:34px 16px;border:1px dashed var(--border-def);border-radius:16px;animation:fadeUp .4s ease}
 .empty-ico{font-size:40px;margin-bottom:12px}
 .empty-ico .material-symbols-rounded{font-size:40px;opacity:.55;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 40}
@@ -600,13 +538,11 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .empty-s{font-size:13px;color:var(--text-2)}
 .pf-cross-wrap{margin-top:18px;display:flex;flex-direction:column;gap:8px;text-align:left}
 .pf-cross-hint{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
-  background:color-mix(in srgb,var(--tc) 12%,var(--surface-2));border:1px solid color-mix(in srgb,var(--tc) 40%,var(--border-hair));
-  border-radius:12px;padding:12px 14px;color:#2D2F39;font-size:13px;font-weight:600;cursor:pointer;
-  animation:fadeUp .35s ease}
+background:color-mix(in srgb,var(--tc) 12%,var(--surface-2));border:1px solid color-mix(in srgb,var(--tc) 40%,var(--border-hair));
+border-radius:12px;padding:12px 14px;color:#2D2F39;font-size:13px;font-weight:600;cursor:pointer;
+animation:fadeUp .35s ease}
 .pf-cross-hint b{color:var(--tc)}
 .pf-cross-arrow{color:var(--tc);font-size:16px;font-weight:800;flex:0 0 auto}
-
-/* MODAL */
 #modalBg{display:none;position:fixed;inset:0;background:rgba(4,5,10,.88);backdrop-filter:blur(8px);z-index:2000;align-items:center;justify-content:center;padding:16px}
 #modalBg.show{display:flex}
 .modal{background:var(--surface-3);border:1px solid var(--border-hair);border-radius:var(--r-lg);width:100%;max-width:520px;padding:26px;box-shadow:var(--sh-3);max-height:90vh;overflow-y:auto}
@@ -626,7 +562,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .bsave:active{transform:scale(.96)}
 .bdel{flex:1;padding:13px;background:var(--danger-bg);border:1px solid #D95C5C44;border-radius:11px;color:var(--danger);font-size:14px;font-weight:700}
 .bdel:active{transform:scale(.96)}
-
 .google-btn{width:100%;padding:13px;background:#fff;border:1px solid #ddd;border-radius:12px;color:var(--text-2);font-size:14px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:10px;transition:box-shadow .2s,transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.15)}
 .google-btn:active{transform:scale(.97);background:var(--surface-1)}
 .login-divider{text-align:center;margin-bottom:16px;position:relative}
@@ -635,8 +570,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .login-tabs{display:flex;background:var(--surface-1);border-radius:10px;padding:4px;margin-bottom:20px;gap:4px}
 .login-tab{flex:1;padding:9px;border-radius:7px;border:none;background:transparent;color:var(--text-2);font-size:13px;font-weight:600;transition:background-color .2s,color .2s;cursor:pointer}
 .login-tab.active{background:linear-gradient(135deg,#C9A15E22,#C9A15E11);color:var(--brand);border:1px solid #C9A15E33}
-
-/* FEEDBACK DASHBOARD */
 .fb-card{background:var(--surface-1);border:none;border-radius:var(--r-md);padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
 .fb-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#C9A15E44,transparent)}
 .fb-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
@@ -648,8 +581,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .fb-empty-ico{font-size:36px;margin-bottom:10px}
 .fb-empty-ico .material-symbols-rounded{font-size:36px;opacity:.55;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 40}
 .fb-count{font-size:11px;color:var(--text-2);margin-bottom:16px;font-weight:600}
-
-/* ADMIN DASHBOARD */
 .adash-wrap{display:flex;flex-direction:column;gap:18px}
 .adash-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .adash-stat{background:var(--surface-1);border:none;border-radius:var(--r-md);padding:16px 12px;text-align:center}
@@ -673,8 +604,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .adash-row-sub{font-size:10.5px;color:var(--text-2);flex-shrink:0;white-space:nowrap}
 .adash-row-badge{font-size:11px;font-weight:800;color:var(--text-1);background:var(--brand);border-radius:10px;padding:2px 9px;flex-shrink:0}
 .adash-empty{text-align:center;padding:20px 10px;color:var(--text-2);font-size:12px}
-
-/* ADMIN DASHBOARD v2 — upgraded analytics */
 .adash-tabs{position:sticky;top:0;z-index:5;display:flex;gap:6px;background:var(--surface-2);padding:2px 0 10px;margin:-4px 0 4px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid #2F261C0f}
 .adash-tabs::-webkit-scrollbar{display:none}
 .adash-tab{flex-shrink:0;padding:8px 14px;border-radius:12px;background:var(--surface-1);border:1px solid #2F261C14;color:var(--text-2);font-size:12px;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:background-color .18s ease,color .18s ease,border-color .18s ease}
@@ -774,14 +703,14 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 #menuOverlay.show{display:block}
 #menuOverlay.in{opacity:1}
 #menuPanel{position:fixed;top:0;right:0;height:100%;height:100dvh;width:82%;max-width:320px;background:
-    radial-gradient(circle at 0% 0%,#C9A15E1c,transparent 55%),
-    radial-gradient(circle at 100% 100%,#9A744822,transparent 50%),
-    linear-gradient(165deg,#FFFDF9f2,#F7F2EAf7);
-  backdrop-filter:blur(28px) saturate(160%);-webkit-backdrop-filter:blur(28px) saturate(160%);
-  border-left:1px solid rgba(212,175,106,.16);z-index:2600;transform:translateX(105%);
-  transition:transform .36s cubic-bezier(.4,0,.2,1);
-  box-shadow:-12px 0 40px rgba(52,42,34,.14);
-  display:flex;flex-direction:column;overflow:hidden}
+radial-gradient(circle at 0% 0%,#C9A15E1c,transparent 55%),
+radial-gradient(circle at 100% 100%,#9A744822,transparent 50%),
+linear-gradient(165deg,#FFFDF9f2,#F7F2EAf7);
+backdrop-filter:blur(28px) saturate(160%);-webkit-backdrop-filter:blur(28px) saturate(160%);
+border-left:1px solid rgba(212,175,106,.16);z-index:2600;transform:translateX(105%);
+transition:transform .36s cubic-bezier(.4,0,.2,1);
+box-shadow:-12px 0 40px rgba(52,42,34,.14);
+display:flex;flex-direction:column;overflow:hidden}
 #menuPanel.show{transform:translateX(0)}
 .menu-header{position:relative;flex-shrink:0;padding:22px 18px 18px;background:var(--surface-1);border-bottom:1px solid var(--border-hair);display:flex;align-items:center;gap:13px}
 .menu-close-btn{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:9px;border:1px solid rgba(212,175,106,.18);background:rgba(52,42,34,.03);color:var(--text-2);display:flex;align-items:center;justify-content:center;transition:background .15s ease,transform .15s ease}
@@ -874,8 +803,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .menu-logout-btn:hover{background:linear-gradient(90deg,#D95C5C2a,#D95C5C16)!important}
 .menu-logout-btn .menu-ic{color:var(--danger)}
 .menu-footer-meta{display:flex;align-items:center;justify-content:center;gap:6px;font-size:10.5px;color:var(--text-2);margin-top:10px;letter-spacing:.02em}
-
-/* TOAST */
 #toast{display:none;align-items:center;gap:10px;position:fixed;bottom:30px;left:50%;background:linear-gradient(135deg,var(--success-bg),var(--success-bg));border:1px solid var(--success);border-radius:14px;padding:11px 18px 11px 14px;color:var(--success);font-size:14px;font-weight:600;z-index:3000;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.6)}
 #toast.show{display:flex;animation:toastPop .35s cubic-bezier(.34,1.56,.64,1) forwards}
 #toast.error{background:linear-gradient(135deg,var(--danger-bg),var(--danger-bg));border-color:#952D3B;color:var(--danger);animation:toastPop .35s cubic-bezier(.34,1.56,.64,1) forwards,toastShake .4s ease .35s forwards}
@@ -884,7 +811,6 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .toast-ic{font-size:19px;flex-shrink:0}
 .toast-ic.material-symbols-rounded{font-variation-settings:'FILL' 1}
 @keyframes toastPop{from{opacity:0;transform:translateX(-50%) scale(.85) translateY(8px)}to{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}}
-
 #paySuccessOverlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(6,7,12,.72);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .25s ease}
 #paySuccessOverlay.show{opacity:1;pointer-events:auto}
 .pay-success-card{display:flex;flex-direction:column;align-items:center;transform:scale(.85);opacity:0}
@@ -902,14 +828,11 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 #paySuccessOverlay.show .pay-success-title,#paySuccessOverlay.show .pay-success-sub{animation:paySuccessTextIn .35s ease-out .55s forwards}
 @keyframes paySuccessTextIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes toastShake{0%,100%{transform:translateX(-50%)}20%{transform:translateX(calc(-50% - 6px))}40%{transform:translateX(calc(-50% + 6px))}60%{transform:translateX(calc(-50% - 4px))}80%{transform:translateX(calc(-50% + 4px))}}
-
-/* LOADING */
 #loading{text-align:center;padding:60px 16px;color:var(--text-2)}
 .spin{width:26px;height:26px;border:2px solid var(--border-def);border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 #installBtn{position:fixed;bottom:20px;right:20px;padding:12px 20px;background:linear-gradient(135deg,var(--brand-2),var(--brand));color:var(--text-1);border:none;border-radius:10px;font-weight:bold;display:none;z-index:9999;box-shadow:0 6px 20px #C9A15E4a}
-/* PREMIUM — paywall, plan cards, lock badges, trial banner */
 .menu-premium-card{margin:14px 14px 4px;padding:14px;border-radius:16px;background:linear-gradient(135deg,var(--warning-bg),var(--warning-bg));border:1px solid #E7A93C40;position:relative;overflow:hidden;cursor:pointer}
 .menu-premium-card::after{content:"";position:absolute;top:-30%;right:-20%;width:140px;height:140px;background:radial-gradient(circle,#C9A15E33,transparent 70%)}
 .menu-premium-top{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--brand);font-size:13.5px}
@@ -956,19 +879,14 @@ html[data-theme="dark"] .qs-tile.active .qs-ic{background:rgba(42,32,16,.18);col
 .pw-fine{text-align:center;font-size:10.5px;color:#515871;margin-top:10px;line-height:1.5}
 .pw-trial-banner{margin:0 2px 14px;padding:10px 12px;border-radius:12px;background:var(--success-bg);border:1px solid var(--success);font-size:12px;color:#2C9652;text-align:center;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px}
 .pw-trial-banner .material-symbols-rounded{font-size:16px;font-variation-settings:'FILL' 1}
-
-/* ═══ iOS-STYLE MOTION POLISH ═══ */
 :root{--ios:cubic-bezier(.32,.72,0,1);--ios-pop:cubic-bezier(.34,1.56,.64,1)}
 button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
-/* Page / tab switch */
 .page-anim{animation:pageIn .5s var(--ios)}
 @keyframes pageIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
-/* Cards: spring entrance + press feedback */
 .card{opacity:1;animation:cardIn .55s var(--ios) backwards;transition:transform .35s var(--ios),box-shadow .35s var(--ios)}
 @keyframes cardIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
 .card:nth-child(2){animation-delay:.025s}.card:nth-child(3){animation-delay:.05s}.card:nth-child(4){animation-delay:.075s}.card:nth-child(5){animation-delay:.1s}.card:nth-child(n+6){animation-delay:.125s}
 .card:active{transform:scale(.985)}
-/* Modal -> iPhone bottom sheet */
 #modalBg{background:rgba(20,16,10,.42);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);align-items:flex-end;padding:0;animation:bgFade .35s ease}
 @keyframes bgFade{from{opacity:0}to{opacity:1}}
 #modalBg.closing{opacity:0;transition:opacity .28s ease;pointer-events:none}
@@ -977,17 +895,15 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
 #modalBg.closing .modal{transform:translateY(110%)!important;transition:transform .3s cubic-bezier(.4,0,1,1)}
 @media(min-width:600px){
-  #modalBg{align-items:center;padding:16px}
-  .modal{border-radius:var(--r-lg);animation:modalPop .4s var(--ios)}
-  .modal::before{display:none}
-  #modalBg.closing .modal{transform:scale(.95)!important;opacity:0;transition:transform .25s ease,opacity .25s ease}
+#modalBg{align-items:center;padding:16px}
+.modal{border-radius:var(--r-lg);animation:modalPop .4s var(--ios)}
+.modal::before{display:none}
+#modalBg.closing .modal{transform:scale(.95)!important;opacity:0;transition:transform .25s ease,opacity .25s ease}
 }
 @keyframes modalPop{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:none}}
-/* Side menu */
 #menuOverlay{transition:opacity .4s var(--ios)}
 #menuPanel{transition:transform .5s var(--ios)}
 .menu-body{overscroll-behavior:contain}
-/* Search suggestions, toast, login */
 @keyframes suggestIn{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:none}}
 .suggest-box{animation-duration:.3s;animation-timing-function:var(--ios)}
 @keyframes toastPop{from{opacity:0;transform:translateX(-50%) translateY(18px) scale(.9)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
@@ -996,16 +912,13 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 @keyframes loginRise{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
 .google-btn{transition:transform .25s var(--ios-pop),box-shadow .2s}
 @media (prefers-reduced-motion:reduce){
-  .card,.modal,#modalBg,.page-anim,#loginScreen.show,#loginScreen.show .login-box,#menuPanel,#menuOverlay{animation-duration:.01ms!important;transition-duration:.01ms!important}
+.card,.modal,#modalBg,.page-anim,#loginScreen.show,#loginScreen.show .login-box,#menuPanel,#menuOverlay{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
-
-/* ── PROFESSIONAL ICONS (emoji -> Material Symbols, auto-converted) ── */
 .emo-ic{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;font-size:1.18em;line-height:1;display:inline-block;vertical-align:-.2em;letter-spacing:normal;text-transform:none;white-space:nowrap;-webkit-font-feature-settings:'liga';font-feature-settings:'liga';-webkit-font-smoothing:antialiased;font-variation-settings:'FILL' 0,'wght' 500,'opsz' 24;user-select:none}
 .emo-ic::before{content:attr(data-ic)}
 .emo-ic.f{font-variation-settings:'FILL' 1,'wght' 500,'opsz' 24}
 .emo-ic.ok{color:#3E8E5A}.emo-ic.err{color:#C0453F}.emo-ic.warn{color:#B7791F}.emo-ic.gold{color:var(--brand,#B88A45)}
 #toast .emo-ic,button .emo-ic.ok,button .emo-ic.err{color:inherit}
-/* ── SEARCH BAR POLISH: pinned, premium look, subtle motion ── */
 #searchWrap,#partsSearchWrap{padding-top:10px;padding-bottom:8px;margin-top:-10px;transition:box-shadow .3s ease,background .3s ease;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);background:rgba(250,248,244,.98)}
 #searchWrap.is-stuck,#partsSearchWrap.is-stuck{box-shadow:0 10px 18px -12px rgba(52,42,34,.28);border-bottom:1px solid var(--border-hair)}
 #searchBox,#partsSearchBox{position:relative;min-height:54px;border-radius:16px;border:1.5px solid var(--border-def);background:linear-gradient(180deg,#fff,var(--surface-1));box-shadow:0 8px 22px -10px rgba(52,42,34,.22),inset 0 1px 0 #fff;transition:transform .25s cubic-bezier(.22,1,.36,1),border-color .25s ease,box-shadow .25s ease;overflow:hidden}
@@ -1020,7 +933,6 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 #searchClear{animation:sbPop .2s ease}
 @keyframes sbPop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){#searchBox,#partsSearchBox,#searchBox::after,#partsSearchBox::after{transition:none}#searchBox.focused .search-ic-glow,#partsSearchBox:focus-within .search-ic-glow{animation:none}}
-/* Glass aur Parts search bar bilkul same */
 #searchWrap,#partsSearchWrap{padding-top:10px;padding-bottom:8px;margin-top:-10px;margin-bottom:14px}
 #partsSearchBox{margin-bottom:0}
 #searchBox .voice-btn,#partsSearchBox .voice-btn{width:34px;height:34px;font-size:14px}
@@ -1045,7 +957,6 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 .pf2-sw-l{flex:1;text-align:left}
 .pf2-sw-t{font-size:12px;font-weight:800;padding:3px 12px;border-radius:14px;background:var(--surface-2);color:var(--text-2);transition:all .25s}
 .pf2-sw.on .pf2-sw-t{background:linear-gradient(135deg,#3DBE78,#1F8F52);color:#fff}
-/* ── DISLIKE REASON SHEET + REPORT ── */
 #rsOverlay{position:fixed;inset:0;z-index:2550;background:rgba(20,14,8,.45);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .22s}
 #rsOverlay.show{opacity:1}
 #rsSheet{width:100%;max-width:560px;background:#fff;border-radius:24px 24px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -20px 50px -20px rgba(20,14,8,.5);transform:translateY(100%);transition:transform .4s cubic-bezier(.2,1.05,.3,1)}
@@ -1059,7 +970,6 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 .cmt-flag.done{color:#3E8E5A}
 .cmt-rep{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.04em;background:#C0453F;color:#fff;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:1px}
 @media (prefers-reduced-motion:reduce){#rsSheet,#rsOverlay{transition:none}}
-/* ── MY PROFILE ── */
 .pf2{text-align:center;padding:2px 2px 6px}
 .pf2-av{width:92px;height:92px;margin:6px auto 10px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:800;color:#fff;text-transform:uppercase;background:linear-gradient(135deg,#CFA765,#A97E3E);box-shadow:0 0 0 4px #fff,0 0 0 6px #CFA76588,0 18px 30px -12px rgba(169,126,62,.8);animation:pf2Pop .6s cubic-bezier(.2,1.3,.3,1)}
 @keyframes pf2Pop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
@@ -1083,7 +993,6 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 .pf2-save:active{transform:scale(.97)}.pf2-save:disabled{opacity:.6}
 .pf2-out{width:100%;margin-top:10px;background:none;border:1.5px solid var(--border-def);border-radius:14px;padding:11px;font-size:14px;font-weight:700;color:#C0453F;display:flex;align-items:center;justify-content:center;gap:6px}
 @media (prefers-reduced-motion:reduce){.pf2-av{animation:none}}
-/* ── USERNAME POPUP ── */
 #unOverlay{position:fixed;inset:0;z-index:2600;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(20,14,8,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;transition:opacity .25s}
 #unOverlay.show{opacity:1}
 #unCard{width:100%;max-width:360px;background:#fff;border-radius:26px;padding:26px 22px 18px;text-align:center;box-shadow:0 30px 60px -20px rgba(20,14,8,.6);transform:translateY(24px) scale(.94);transition:transform .45s cubic-bezier(.2,1.2,.3,1)}
@@ -1101,7 +1010,6 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 #unSave:active{transform:scale(.97)}#unSave:disabled{opacity:.6}
 #unLater{background:none;border:none;color:var(--text-2);font-size:13px;padding:12px 8px 2px}
 @media (prefers-reduced-motion:reduce){#unCard,#unOverlay{transition:none}}
-/* ── COMMENTS (Instagram-style bottom sheet) ── */
 .fbtn.cmt .fbtn-ic{color:var(--brand)}
 #cmtOverlay{position:fixed;inset:0;z-index:2500;background:rgba(20,14,8,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);opacity:0;transition:opacity .25s ease;display:flex;align-items:flex-end;justify-content:center}
 #cmtOverlay.show{opacity:1}
@@ -1144,7 +1052,6 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 .cmt-setup p{margin:0 0 10px;font-size:12px;color:var(--text-2);line-height:1.4}
 .cmt-err{color:#C0453F;font-size:11.5px;margin:6px 6px 0;min-height:14px}
 @media (prefers-reduced-motion:reduce){#cmtSheet,#cmtOverlay{transition:none}.cmt-row{animation:none}}
-/* ── FLAGSHIP TOAST: top pe, island-style spring animation ── */
 #toast{top:calc(env(safe-area-inset-top,0px) + 14px);bottom:auto;left:50%;transform:translateX(-50%);max-width:min(92vw,420px);white-space:normal;line-height:1.35;gap:11px;padding:12px 18px 12px 14px;border:1px solid rgba(255,255,255,.08);border-radius:22px;background:rgba(30,25,21,.94);-webkit-backdrop-filter:blur(14px) saturate(160%);backdrop-filter:blur(14px) saturate(160%);color:#F6F1EA;font-size:13.5px;font-weight:600;box-shadow:0 18px 40px -12px rgba(20,14,8,.55),0 2px 0 rgba(255,255,255,.05) inset;overflow:hidden;will-change:transform,opacity}
 #toast.show,#toast.error,#toast.warn,#toast.info{display:flex;animation:toastIsland .62s cubic-bezier(.2,1.25,.35,1) forwards}
 #toast.out{animation:toastIslandOut .3s cubic-bezier(.5,0,.75,0) forwards!important}
@@ -1159,8 +1066,6 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 @keyframes toastIsland{0%{opacity:0;transform:translateX(-50%) translateY(-90px) scale(.55)}55%{opacity:1;transform:translateX(-50%) translateY(6px) scale(1.04)}100%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
 @keyframes toastIslandOut{to{opacity:0;transform:translateX(-50%) translateY(-70px) scale(.7)}}
 @keyframes toastBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
-
-/* ── FLAGSHIP LIKE BUTTON ── */
 .fb-row{position:relative;gap:10px}
 .fbtn{height:38px;min-width:66px;padding:0 15px;gap:7px;border-radius:22px;box-shadow:0 2px 6px -3px rgba(52,42,34,.25)}
 .fbtn .fbtn-ic{font-size:19px}
@@ -1176,7 +1081,6 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 .fb-spark{position:absolute;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--c,#3DBE78);pointer-events:none;z-index:5;animation:fbSpark .65s cubic-bezier(.15,.8,.3,1) forwards}
 @keyframes fbSpark{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
 @media (prefers-reduced-motion:reduce){#toast,#toast::after{animation:none!important}.fbtn.helpful.is-selected .fbtn-ic,.fbtn.helpful.is-selected::before,.fb-spark{animation:none!important}}
-/* ── MY SHOP STOCK ── */
 .stk-w{margin-top:12px;padding:10px;border:1px solid var(--border-hair);border-radius:14px;background:var(--surface-2)}
 .stk-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
 .stk-lbl{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;color:var(--text-2);letter-spacing:.02em}
@@ -1230,401 +1134,365 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 .stk-empty-t{font-size:14px;font-weight:700;color:var(--text-1)}
 .stk-empty-s{font-size:12.5px;color:var(--text-3);margin-top:4px;line-height:1.5}
 .stk-note{margin-top:16px;font-size:11px;color:var(--text-3);text-align:center}
-
+html.play-mode #menuPremiumCard,html.play-mode .lock-badge,html.play-mode .menu-user-premium-badge,html.play-mode .pf2-chip.plan{display:none!important}
+#menuDeleteBtn .menu-item-label,#menuDeleteBtn .menu-ic{color:var(--danger)}
 </style>
 </head>
 <body>
-
-<!-- SPLASH -->
 <div id="splash">
-  <div id="splashParticles"></div>
-  <div class="splash-glow"></div>
-  <div class="splash-shield">🛡️</div>
-  <div class="splash-title">Universal Combo</div>
-  <div class="splash-tag" data-i18n="splash.tag">Find Compatible Glass &amp; Spare Parts</div>
-  <div class="splash-loader"></div>
-  <div class="splash-status"><span class="splash-status-text" id="splashStatusText">Loading Database...</span></div>
+<div id="splashParticles"></div>
+<div class="splash-glow"></div>
+<div class="splash-shield">🛡️</div>
+<div class="splash-title">Universal Combo</div>
+<div class="splash-tag" data-i18n="splash.tag">Find Compatible Glass &amp; Spare Parts</div>
+<div class="splash-loader"></div>
+<div class="splash-status"><span class="splash-status-text" id="splashStatusText">Loading Database...</span></div>
 </div>
-
-<!-- LOGIN SCREEN -->
 <div id="loginScreen">
-  <div class="login-box">
-    <button class="login-close" id="loginClose" onclick="hideLogin()" aria-label="Close">✕</button>
-    <div class="login-logo">🛡️</div>
-    <div class="login-title" data-i18n="login.title">Universal Combo</div>
-    <div class="login-sub" data-i18n="login.sub">Create your account or log in</div>
-    <div class="login-gate-note" id="loginGateNote"></div>
-
-    <!-- Google Login Button -->
-    <button class="google-btn" onclick="doGoogleLogin()">
-      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#2C5496" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#4CAF50" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#967B2C" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18z"/><path fill="#96342C" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
-      Google se Login / Sign Up
-    </button>
-
-    <div class="login-divider"><span data-i18n="login.divider">ya email se</span></div>
-
-    <div class="login-tabs">
-      <button class="login-tab active" id="ltSignin" onclick="switchLoginTab('signin')">🔑 <span data-i18n="login.signin">Sign In</span></button>
-      <button class="login-tab" id="ltSignup" onclick="switchLoginTab('signup')">✨ <span data-i18n="login.signup">Sign Up</span></button>
-    </div>
-    <div id="signupNameWrap" class="linp-wrap" style="display:none">
-      <span class="linp-icon material-symbols-rounded">person</span>
-      <input class="linp" type="text" id="loginName" placeholder="Your name" data-i18n-ph="login.name" autocomplete="name"/>
-    </div>
-    <div class="linp-wrap">
-      <span class="linp-icon material-symbols-rounded">mail</span>
-      <input class="linp" type="email" id="loginEmail" placeholder="Email address" data-i18n-ph="login.email" autocomplete="email"/>
-    </div>
-    <div class="linp-wrap">
-      <span class="linp-icon material-symbols-rounded">lock</span>
-      <input class="linp" type="password" id="loginPass" placeholder="Password" data-i18n-ph="login.password" onkeydown="if(event.key==='Enter')doLogin()"/>
-    </div>
-    <button class="login-btn" onclick="doLogin()" id="loginBtn">Sign In</button>
-    <div class="login-err" id="loginErr"></div>
-  </div>
+<div class="login-box">
+<button class="login-close" id="loginClose" onclick="hideLogin()" aria-label="Close">✕</button>
+<div class="login-logo">🛡️</div>
+<div class="login-title" data-i18n="login.title">Universal Combo</div>
+<div class="login-sub" data-i18n="login.sub">Create your account or log in</div>
+<div class="login-gate-note" id="loginGateNote"></div>
+<button class="google-btn" onclick="doGoogleLogin()">
+<svg width="18" height="18" viewBox="0 0 18 18"><path fill="#2C5496" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#4CAF50" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#967B2C" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18z"/><path fill="#96342C" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
+Google se Login / Sign Up
+</button>
+<div class="login-divider"><span data-i18n="login.divider">ya email se</span></div>
+<div class="login-tabs">
+<button class="login-tab active" id="ltSignin" onclick="switchLoginTab('signin')">🔑 <span data-i18n="login.signin">Sign In</span></button>
+<button class="login-tab" id="ltSignup" onclick="switchLoginTab('signup')">✨ <span data-i18n="login.signup">Sign Up</span></button>
 </div>
-
+<div id="signupNameWrap" class="linp-wrap" style="display:none">
+<span class="linp-icon material-symbols-rounded">person</span>
+<input class="linp" type="text" id="loginName" placeholder="Your name" data-i18n-ph="login.name" autocomplete="name"/>
+</div>
+<div class="linp-wrap">
+<span class="linp-icon material-symbols-rounded">mail</span>
+<input class="linp" type="email" id="loginEmail" placeholder="Email address" data-i18n-ph="login.email" autocomplete="email"/>
+</div>
+<div class="linp-wrap">
+<span class="linp-icon material-symbols-rounded">lock</span>
+<input class="linp" type="password" id="loginPass" placeholder="Password" data-i18n-ph="login.password" onkeydown="if(event.key==='Enter')doLogin()"/>
+</div>
+<button class="login-btn" onclick="doLogin()" id="loginBtn">Sign In</button>
+<div class="login-err" id="loginErr"></div>
+</div>
+</div>
 <div id="offlineBar"><span class="material-symbols-rounded" style="font-size:14px;vertical-align:-2px">wifi_off</span> <span data-i18n="offline.text">No internet — showing cached data</span></div>
-
 <div id="header">
-  <div class="header-top">
-    <div class="logo">
-      <div class="logo-icon">🛡️</div>
-      <div>
-        <div class="logo-title">Universal Combo<span id="syncDot" style="margin-left:6px;vertical-align:middle"></span></div>
-        <div class="logo-tagline">One Stop Combo Solution</div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <button id="userBadge" onclick="openMenu()">👤</button>
-      <button id="menuBtn" onclick="openMenu()" aria-label="Open menu">☰<span id="menuDot"></span></button>
-    </div>
-  </div>
-
-  <div class="qs-scroll-wrap">
-    <div class="qs-scroll" id="quickShortcuts">
-    <button class="qs-tile active" data-cat="glass" onclick="selectCategory('glass')">
-      <span class="qs-ic qs-ic-svg" id="qsIc-glass"></span>
-      <span class="qs-label" data-i18n="tab.glass">Glass</span>
-    </button>
-    <button class="qs-tile" data-cat="backcover" onclick="selectCategory('backcover')">
-      <span class="qs-ic qs-ic-svg" id="qsIc-backcover"></span>
-      <span class="qs-label" data-i18n="tab.backcover">Back Cover</span>
-    </button>
-    <button class="qs-tile" data-cat="display" onclick="selectCategory('display')">
-      <span class="qs-ic qs-ic-svg" id="qsIc-display"></span>
-      <span class="qs-label">Display</span>
-    </button>
-    <button class="qs-tile" data-cat="battery" onclick="selectCategory('battery')">
-      <span class="qs-ic qs-ic-svg" id="qsIc-battery"></span>
-      <span class="qs-label">Battery</span>
-    </button>
-    <button class="qs-tile" data-cat="frame" onclick="selectCategory('frame')">
-      <span class="qs-ic qs-ic-svg" id="qsIc-frame"></span>
-      <span class="qs-label">Frame</span>
-    </button>
-    <button class="qs-tile" data-cat="backdoor" onclick="selectCategory('backdoor')">
-      <span class="qs-ic qs-ic-svg" id="qsIc-backdoor"></span>
-      <span class="qs-label">Back Door</span>
-    </button>
-    <button class="qs-tile" data-cat="ccboard" onclick="selectCategory('ccboard')">
-      <span class="qs-ic qs-ic-svg" id="qsIc-ccboard"></span>
-      <span class="qs-label">CC Board</span>
-    </button>
-    <button class="qs-tile" data-cat="middlestrip" onclick="selectCategory('middlestrip')">
-      <span class="qs-ic qs-ic-svg" id="qsIc-middlestrip"></span>
-      <span class="qs-label">Middle Strip</span>
-    </button>
-    <button class="qs-tile" data-cat="onoff" onclick="selectCategory('onoff')">
-      <span class="qs-ic qs-ic-svg" id="qsIc-onoff"></span>
-      <span class="qs-label">On/Off Button</span>
-    </button>
-    <button class="qs-tile" data-cat="fingerprint" onclick="selectCategory('fingerprint')">
-      <span class="qs-ic qs-ic-svg" id="qsIc-fingerprint"></span>
-      <span class="qs-label">Fingerprint</span>
-    </button>
-    </div>
-    <div class="qs-swipe-hint" id="qsSwipeHint"><span class="material-symbols-rounded" style="font-size:13px">swipe</span>Swipe to change category</div>
-  </div>
+<div class="header-top">
+<div class="logo">
+<div class="logo-icon">🛡️</div>
+<div>
+<div class="logo-title">Universal Combo<span id="syncDot" style="margin-left:6px;vertical-align:middle"></span></div>
+<div class="logo-tagline">One Stop Combo Solution</div>
 </div>
-
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<button id="userBadge" onclick="openMenu()">👤</button>
+<button id="menuBtn" onclick="openMenu()" aria-label="Open menu">☰<span id="menuDot"></span></button>
+</div>
+</div>
+<div class="qs-scroll-wrap">
+<div class="qs-scroll" id="quickShortcuts">
+<button class="qs-tile active" data-cat="glass" onclick="selectCategory('glass')">
+<span class="qs-ic qs-ic-svg" id="qsIc-glass"></span>
+<span class="qs-label" data-i18n="tab.glass">Glass</span>
+</button>
+<button class="qs-tile" data-cat="backcover" onclick="selectCategory('backcover')">
+<span class="qs-ic qs-ic-svg" id="qsIc-backcover"></span>
+<span class="qs-label" data-i18n="tab.backcover">Back Cover</span>
+</button>
+<button class="qs-tile" data-cat="display" onclick="selectCategory('display')">
+<span class="qs-ic qs-ic-svg" id="qsIc-display"></span>
+<span class="qs-label">Display</span>
+</button>
+<button class="qs-tile" data-cat="battery" onclick="selectCategory('battery')">
+<span class="qs-ic qs-ic-svg" id="qsIc-battery"></span>
+<span class="qs-label">Battery</span>
+</button>
+<button class="qs-tile" data-cat="frame" onclick="selectCategory('frame')">
+<span class="qs-ic qs-ic-svg" id="qsIc-frame"></span>
+<span class="qs-label">Frame</span>
+</button>
+<button class="qs-tile" data-cat="backdoor" onclick="selectCategory('backdoor')">
+<span class="qs-ic qs-ic-svg" id="qsIc-backdoor"></span>
+<span class="qs-label">Back Door</span>
+</button>
+<button class="qs-tile" data-cat="ccboard" onclick="selectCategory('ccboard')">
+<span class="qs-ic qs-ic-svg" id="qsIc-ccboard"></span>
+<span class="qs-label">CC Board</span>
+</button>
+<button class="qs-tile" data-cat="middlestrip" onclick="selectCategory('middlestrip')">
+<span class="qs-ic qs-ic-svg" id="qsIc-middlestrip"></span>
+<span class="qs-label">Middle Strip</span>
+</button>
+<button class="qs-tile" data-cat="onoff" onclick="selectCategory('onoff')">
+<span class="qs-ic qs-ic-svg" id="qsIc-onoff"></span>
+<span class="qs-label">On/Off Button</span>
+</button>
+<button class="qs-tile" data-cat="fingerprint" onclick="selectCategory('fingerprint')">
+<span class="qs-ic qs-ic-svg" id="qsIc-fingerprint"></span>
+<span class="qs-label">Fingerprint</span>
+</button>
+</div>
+<div class="qs-swipe-hint" id="qsSwipeHint"><span class="material-symbols-rounded" style="font-size:13px">swipe</span>Swipe to change category</div>
+</div>
+</div>
 <div id="body" class="page-anim">
-  <div id="loading" class="hide"><div class="spin"></div>Connecting...</div>
-  <div id="mainContent" class="hide">
-    <!-- Standalone AI Assistant call-to-action button, sits above the search box -->
-    <button id="aiAssistantBtn" onclick="openAIChat()" aria-label="Open AI Assistant">
-      <span id="aiAssistantIcon">✨</span>
-      <span id="aiAssistantText">Ask AI — Search by Photo or Chat</span>
-    </button>
-    <style>
-      #aiAssistantBtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;margin:0 0 10px 0;padding:12px 16px;border:none;border-radius:16px;background:linear-gradient(135deg,#8B5E1F,#C79A4B);color:#fff;font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(139,94,31,0.35);cursor:pointer;}
-      #aiAssistantBtn:active{transform:scale(0.98);}
-      #aiAssistantIcon{font-size:18px;}
-      #aiChatOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;display:none;}
-      #aiChatOverlay.show{display:block;}
-      #aiChatSheet{position:fixed;left:0;right:0;bottom:0;max-height:85vh;background:#fff;border-radius:20px 20px 0 0;z-index:9999;display:none;flex-direction:column;box-shadow:0 -6px 24px rgba(0,0,0,0.25);}
-      #aiChatSheet.show{display:flex;}
-      #aiChatHeader{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee;}
-      #aiChatHeader .title{font-weight:800;font-size:15px;color:#4a2f0f;display:flex;align-items:center;gap:8px;}
-      #aiChatClose{background:none;border:none;font-size:20px;color:#888;cursor:pointer;padding:4px 8px;}
-      #aiChatMessages{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-height:200px;}
-      .aiMsg{max-width:82%;padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.4;white-space:pre-wrap;}
-      .aiMsg.user{align-self:flex-end;background:#8B5E1F;color:#fff;border-bottom-right-radius:4px;}
-      .aiMsg.bot{align-self:flex-start;background:#f3ece0;color:#3a2a12;border-bottom-left-radius:4px;}
-      .aiMsg img{max-width:160px;border-radius:10px;display:block;margin-top:6px;}
-      #aiChatInputRow{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid #eee;}
-      #aiChatImgBtn,#aiChatSendBtn{background:#f3ece0;border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;flex-shrink:0;}
-      #aiChatSendBtn{background:#8B5E1F;color:#fff;}
-      #aiChatTextInput{flex:1;border:1px solid #e2d8c8;border-radius:20px;padding:9px 14px;font-size:14px;outline:none;}
-      #aiChatPreviewWrap{padding:0 16px;display:none;}
-      #aiChatPreviewWrap.show{display:block;}
-      #aiChatPreviewWrap img{max-width:90px;border-radius:10px;margin-bottom:6px;}
-    </style>
-
-    <!-- AI Chat popup -->
-    <div id="aiChatOverlay" onclick="closeAIChat()"></div>
-    <div id="aiChatSheet">
-      <div id="aiChatHeader">
-        <div class="title">✨ AI Assistant</div>
-        <button id="aiChatClose" onclick="closeAIChat()" aria-label="Close">✕</button>
-      </div>
-      <div id="aiChatMessages"></div>
-      <div id="aiChatPreviewWrap"><img id="aiChatPreviewImg"/></div>
-      <div id="aiChatInputRow">
-        <button id="aiChatImgBtn" onclick="document.getElementById('aiChatImgInput').click()" title="Attach photo">📷</button>
-        <input type="file" id="aiChatImgInput" accept="image/*" capture="environment" style="display:none" onchange="handleAIChatImage(this)"/>
-        <input id="aiChatTextInput" placeholder="Ask about a model or send a photo..." onkeydown="if(event.key==='Enter')sendAIChatMessage()"/>
-        <button id="aiChatSendBtn" onclick="sendAIChatMessage()" aria-label="Send">➤</button>
-      </div>
-    </div>
-
-    <div id="searchWrap">
-      <div id="searchBox">
-        <span class="search-ic-glow"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">search</span></span>
-        <input id="searchInput" placeholder="Search phone model (e.g. Vivo Y21)" data-i18n-ph="search.placeholder" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused');showSearchHistory()" onkeydown="if(event.key==='Enter')flushSearchTrack()" onblur="flushSearchTrack();document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
-        <button id="searchClear" onclick="clearSearch()" aria-label="Clear search">✕</button>
-        <button id="voiceBtn" class="voice-btn" onclick="startVoiceSearch('searchInput',onSearch)" title="Search by voice" aria-label="Search by voice"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
-      </div>
-      <div id="searchSuggest" class="suggest-box hide"></div>
-    </div>
-    <div id="resultBanner">
-      <div class="rb-top">
-        <span class="rb-label" id="rbLabel"></span>
-        <button id="resultClear" onclick="clearSearch()" data-i18n="search.clear">Clear</button>
-      </div>
-      <div class="rb-query" id="rbQuery"></div>
-    </div>
-    <div class="toolbar hide" id="toolbarWrap">
-      <button class="tbtn" onclick="openCodeModal()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">save</span> Data Code</button>
-    </div>
-    <button id="addBtn" class="hide" onclick="openAddModal()">＋ <span data-i18n="addbtn.glass">Add New Glass Group</span></button>
-    <button id="bulkAddBtn" class="hide" onclick="openBulkModal()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">playlist_add</span> Bulk Add</button>
-    <div id="cardListViewport" style="overflow:hidden">
-      <div id="cardList"></div>
-    </div>
-  </div>
+<div id="loading" class="hide"><div class="spin"></div>Connecting...</div>
+<div id="mainContent" class="hide">
+<button id="aiAssistantBtn" onclick="openAIChat()" aria-label="Open AI Assistant">
+<span id="aiAssistantIcon">✨</span>
+<span id="aiAssistantText">Ask AI — Search by Photo or Chat</span>
+</button>
+<style>
+#aiAssistantBtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;margin:0 0 10px 0;padding:12px 16px;border:none;border-radius:16px;background:linear-gradient(135deg,#8B5E1F,#C79A4B);color:#fff;font-weight:700;font-size:14px;box-shadow:0 4px 14px rgba(139,94,31,0.35);cursor:pointer;}
+#aiAssistantBtn:active{transform:scale(0.98);}
+#aiAssistantIcon{font-size:18px;}
+#aiChatOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;display:none;}
+#aiChatOverlay.show{display:block;}
+#aiChatSheet{position:fixed;left:0;right:0;bottom:0;max-height:85vh;background:#fff;border-radius:20px 20px 0 0;z-index:9999;display:none;flex-direction:column;box-shadow:0 -6px 24px rgba(0,0,0,0.25);}
+#aiChatSheet.show{display:flex;}
+#aiChatHeader{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee;}
+#aiChatHeader .title{font-weight:800;font-size:15px;color:#4a2f0f;display:flex;align-items:center;gap:8px;}
+#aiChatClose{background:none;border:none;font-size:20px;color:#888;cursor:pointer;padding:4px 8px;}
+#aiChatMessages{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-height:200px;}
+.aiMsg{max-width:82%;padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.4;white-space:pre-wrap;}
+.aiMsg.user{align-self:flex-end;background:#8B5E1F;color:#fff;border-bottom-right-radius:4px;}
+.aiMsg.bot{align-self:flex-start;background:#f3ece0;color:#3a2a12;border-bottom-left-radius:4px;}
+.aiMsg img{max-width:160px;border-radius:10px;display:block;margin-top:6px;}
+#aiChatInputRow{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid #eee;}
+#aiChatImgBtn,#aiChatSendBtn{background:#f3ece0;border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;flex-shrink:0;}
+#aiChatSendBtn{background:#8B5E1F;color:#fff;}
+#aiChatTextInput{flex:1;border:1px solid #e2d8c8;border-radius:20px;padding:9px 14px;font-size:14px;outline:none;}
+#aiChatPreviewWrap{padding:0 16px;display:none;}
+#aiChatPreviewWrap.show{display:block;}
+#aiChatPreviewWrap img{max-width:90px;border-radius:10px;margin-bottom:6px;}
+</style>
+<div id="aiChatOverlay" onclick="closeAIChat()"></div>
+<div id="aiChatSheet">
+<div id="aiChatHeader">
+<div class="title">✨ AI Assistant</div>
+<button id="aiChatClose" onclick="closeAIChat()" aria-label="Close">✕</button>
 </div>
-
+<div id="aiChatMessages"></div>
+<div id="aiChatPreviewWrap"><img id="aiChatPreviewImg"/></div>
+<div id="aiChatInputRow">
+<button id="aiChatImgBtn" onclick="document.getElementById('aiChatImgInput').click()" title="Attach photo">📷</button>
+<input type="file" id="aiChatImgInput" accept="image/*" capture="environment" style="display:none" onchange="handleAIChatImage(this)"/>
+<input id="aiChatTextInput" placeholder="Ask about a model or send a photo..." onkeydown="if(event.key==='Enter')sendAIChatMessage()"/>
+<button id="aiChatSendBtn" onclick="sendAIChatMessage()" aria-label="Send">➤</button>
+</div>
+</div>
+<div id="searchWrap">
+<div id="searchBox">
+<span class="search-ic-glow"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">search</span></span>
+<input id="searchInput" placeholder="Search phone model (e.g. Vivo Y21)" data-i18n-ph="search.placeholder" oninput="onSearch()" onfocus="document.getElementById('searchBox').classList.add('focused');showSearchHistory()" onkeydown="if(event.key==='Enter')flushSearchTrack()" onblur="flushSearchTrack();document.getElementById('searchBox').classList.remove('focused');setTimeout(function(){document.getElementById('searchSuggest').classList.add('hide')},150)"/>
+<button id="searchClear" onclick="clearSearch()" aria-label="Clear search">✕</button>
+<button id="voiceBtn" class="voice-btn" onclick="startVoiceSearch('searchInput',onSearch)" title="Search by voice" aria-label="Search by voice"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
+</div>
+<div id="searchSuggest" class="suggest-box hide"></div>
+</div>
+<div id="resultBanner">
+<div class="rb-top">
+<span class="rb-label" id="rbLabel"></span>
+<button id="resultClear" onclick="clearSearch()" data-i18n="search.clear">Clear</button>
+</div>
+<div class="rb-query" id="rbQuery"></div>
+</div>
+<div class="toolbar hide" id="toolbarWrap">
+<button class="tbtn" onclick="openCodeModal()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">save</span> Data Code</button>
+</div>
+<button id="addBtn" class="hide" onclick="openAddModal()">＋ <span data-i18n="addbtn.glass">Add New Glass Group</span></button>
+<button id="bulkAddBtn" class="hide" onclick="openBulkModal()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">playlist_add</span> Bulk Add</button>
+<div id="cardListViewport" style="overflow:hidden">
+<div id="cardList"></div>
+</div>
+</div>
+</div>
 <div id="aboutSeo" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">
-  <h2>Universal Combo - Mobile Tempered Glass Model Finder</h2>
-  <p>Universal Combo is a free tool for shop owners and mobile accessories dealers.</p>
+<h2>Universal Combo - Mobile Tempered Glass Model Finder</h2>
+<p>Universal Combo is a free tool for shop owners and mobile accessories dealers.</p>
 </div>
-
 <button id="floatingAdd" onclick="openAddModal()">＋</button>
-
-<!-- SIDE MENU -->
 <div id="menuOverlay" onclick="closeMenu()"></div>
 <div id="menuPanel">
-  <div class="menu-header">
-    <div class="menu-avatar" id="menuUserAvatar">?</div>
-    <div id="menuUserInfo" class="menu-user-info hide" onclick="openProfile()" style="cursor:pointer">
-      <div class="menu-user-name" id="menuUserName">—</div>
-      <div class="menu-user-email" id="menuUserEmail">—</div>
-      <span class="menu-user-role" id="menuUserRole">Staff</span>
-      <span class="menu-user-premium-badge hide" id="menuUserPremiumBadge"><span class="material-symbols-rounded" style="font-size:11px">workspace_premium</span>Premium</span>
-    </div>
-    <button class="menu-close-btn" onclick="closeMenu()" aria-label="Close menu"><span class="material-symbols-rounded">close</span></button>
-  </div>
-
-  <div class="menu-body">
-    <div class="menu-section" id="profileMenuSection"><button class="menu-item" id="menuProfileBtn" onclick="openProfile()"><span class="material-symbols-rounded menu-ic">account_circle</span><span class="menu-item-label">My Profile<small class="adm-desc">Name, shop details and your activity</small></span></button></div>
-    <div class="menu-premium-card" id="menuPremiumCard" onclick="openUpgradeModal()">
-      <div class="menu-premium-top"><span class="material-symbols-rounded" style="font-size:18px">workspace_premium</span><span id="menuPremiumTitle">Go Premium</span></div>
-      <div class="menu-premium-sub" id="menuPremiumSub">Unlimited search, Back Cover/Parts unlock and Bulk Export</div>
-      <div class="menu-premium-btn" id="menuPremiumBtn">Upgrade →</div>
-    </div>
-
-    <div class="menu-section">
-      <div class="menu-section-label">Requests</div>
-      <button class="menu-item" onclick="openRequestForm('display')"><span class="material-symbols-rounded menu-ic">add_photo_alternate</span><span class="menu-item-label">Request Display Update</span></button>
-      <button class="menu-item" onclick="openRequestForm('glass')"><span class="material-symbols-rounded menu-ic">smartphone</span><span class="menu-item-label">Request Glass Update</span></button>
-    </div>
-
-    <div class="menu-divider"></div>
-    <div class="menu-section">
-      <div class="menu-section-label">Personal</div>
-      <button class="menu-item" onclick="openFavorites()"><span class="material-symbols-rounded menu-ic">star</span><span class="menu-item-label">My Favorites</span></button>
-      <button class="menu-item" onclick="openTrending()"><span class="material-symbols-rounded menu-ic">local_fire_department</span><span class="menu-item-label">Trending Today</span><span class="menu-badge">HOT</span></button>
-      <button class="menu-item" onclick="handleExportListClick()"><span class="material-symbols-rounded menu-ic">file_download</span><span class="menu-item-label">Export List (CSV)</span><span class="lock-badge" id="exportLockBadge">🔒 PRO</span></button>
-    </div>
-
-    <div class="menu-divider"></div>
-    <div class="menu-section">
-      <div class="menu-section-label" data-i18n="menu.settings">Settings</div>
-      <div class="menu-item theme-row">
-        <span class="material-symbols-rounded menu-ic">palette</span>
-        <span class="menu-item-label" data-i18n="menu.theme">Theme</span>
-        <div class="tseg" id="themeSeg">
-          <button type="button" class="tseg-btn" data-theme-opt="light" aria-label="Light"><span class="material-symbols-rounded">light_mode</span></button>
-          <button type="button" class="tseg-btn" data-theme-opt="dark" aria-label="Dark"><span class="material-symbols-rounded">dark_mode</span></button>
-          <button type="button" class="tseg-btn" data-theme-opt="system" aria-label="System"><span class="material-symbols-rounded">smartphone</span></button>
-        </div>
-      </div>
-      <div class="menu-item lang-row">
-        <span class="material-symbols-rounded menu-ic">translate</span>
-        <span class="menu-item-label" data-i18n="menu.language">Language</span>
-        <div class="tseg" id="langSeg">
-          <button type="button" class="tseg-btn lseg-btn" data-lang-opt="en">EN</button>
-          <button type="button" class="tseg-btn lseg-btn" data-lang-opt="hi">हि</button>
-        </div>
-      </div>
-      <button class="menu-item" onclick="shareApp()"><span class="material-symbols-rounded menu-ic">ios_share</span><span class="menu-item-label" data-i18n="menu.shareApp">Share App</span></button>
-      <div class="menu-item switch-row" id="notifBtn" onclick="setupNotifications()">
-        <span class="material-symbols-rounded menu-ic" id="notifIcon">notifications</span>
-        <span class="menu-item-label" id="notifLabel">Notifications</span>
-        <label class="switch" onclick="event.stopPropagation();setupNotifications()">
-          <input type="checkbox" id="notifToggle">
-          <span class="switch-slider"></span>
-        </label>
-      </div>
-      <button class="menu-item" onclick="testNotification()"><span class="material-symbols-rounded menu-ic">notifications_active</span><span class="menu-item-label">Test Notification</span></button>
-      <button class="menu-item" onclick="openFeedback()"><span class="material-symbols-rounded menu-ic">chat_bubble</span><span class="menu-item-label">Send Feedback</span></button>
-      <button class="menu-item" onclick="openAboutLegal()"><span class="material-symbols-rounded menu-ic">info</span><span class="menu-item-label">About &amp; Legal</span></button>
-    </div>
-
-    <div class="menu-divider hide" id="adminDivider"></div>
-    <div class="menu-section" id="adminSection">
-      <div class="menu-section-label hide" id="adminSectionLabel">Admin Panel</div>
-      <div class="adm-sub">📊 Analytics</div>
-      <button class="menu-item hide" id="menuAdminDashBtn" onclick="openAdminDashboard()"><span class="material-symbols-rounded menu-ic">admin_panel_settings</span><span class="menu-item-label">Admin Dashboard<small class="adm-desc">Users, searches, premium, shares</small></span></button>
-      <div class="adm-sub">👥 Users</div>
-      <button class="menu-item hide" id="menuCommentsBtn" onclick="openAdminComments()"><span class="material-symbols-rounded menu-ic">forum</span><span class="menu-item-label">Comments<small class="adm-desc">Latest comments from all groups</small></span></button>
-      <button class="menu-item hide" id="menuStaffFreeBtn" onclick="openStaffFreeModal()"><span class="material-symbols-rounded menu-ic">badge</span><span class="menu-item-label">Manage Free Staff<small class="adm-desc">Give free premium access by email</small></span></button>
-      <div class="adm-sub">📨 Messages</div>
-      <button class="menu-item hide" id="menuSendNotifBtn" onclick="openSendNotifModal()"><span class="material-symbols-rounded menu-ic">campaign</span><span class="menu-item-label">Send Notification<small class="adm-desc">Push message to all users</small></span></button>
-      <button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="material-symbols-rounded menu-ic">forum</span><span class="menu-item-label">View Feedback<small class="adm-desc">What users are telling you</small></span></button>
-      <button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="material-symbols-rounded menu-ic">move_to_inbox</span><span class="menu-item-label">View Update Requests<small class="adm-desc">Models users want you to add</small></span></button>
-      <div class="adm-sub">💾 Data Safety</div>
-      <button class="menu-item hide" id="menuBackupBtn" onclick="exportBackup()"><span class="material-symbols-rounded menu-ic">cloud_download</span><span class="menu-item-label">Backup Data (JSON)<small class="adm-desc">Download a copy of all data</small></span></button>
-      <button class="menu-item hide" id="menuRestoreBtn" onclick="document.getElementById('restoreFileInput').click()"><span class="material-symbols-rounded menu-ic">cloud_upload</span><span class="menu-item-label">Restore Data<small class="adm-desc">Upload a backup file</small></span></button>
-      <input type="file" id="restoreFileInput" accept="application/json" class="hide" onchange="restoreBackup(event)">
-    </div>
-  </div>
-
-  <div class="menu-footer">
-    <button class="menu-item hide menu-logout-btn" id="menuLogout" onclick="doLogout()"><span class="material-symbols-rounded menu-ic">logout</span><span class="menu-item-label">Logout</span></button>
-    <button class="menu-item hide" id="menuLoginBtn" onclick="closeMenu();showLogin()"><span class="material-symbols-rounded menu-ic">login</span><span class="menu-item-label">Login</span></button>
-    <div class="menu-footer-meta"><span id="appVersionTxt">v3.0</span><span>·</span><span>Made with ❤️</span></div>
-  </div>
+<div class="menu-header">
+<div class="menu-avatar" id="menuUserAvatar">?</div>
+<div id="menuUserInfo" class="menu-user-info hide" onclick="openProfile()" style="cursor:pointer">
+<div class="menu-user-name" id="menuUserName">—</div>
+<div class="menu-user-email" id="menuUserEmail">—</div>
+<span class="menu-user-role" id="menuUserRole">Staff</span>
+<span class="menu-user-premium-badge hide" id="menuUserPremiumBadge"><span class="material-symbols-rounded" style="font-size:11px">workspace_premium</span>Premium</span>
 </div>
-
-<!-- SPARE PARTS SECTION — ab alag page nahi, isi Home screen ke andar hi
-     rehta hai. Upar wala unified category bar (#catBarHome) hi ise control
-     karta hai; category select karte hi ye section neeche inline dikhta hai. -->
+<button class="menu-close-btn" onclick="closeMenu()" aria-label="Close menu"><span class="material-symbols-rounded">close</span></button>
+</div>
+<div class="menu-body">
+<div class="menu-section" id="profileMenuSection"><button class="menu-item" id="menuProfileBtn" onclick="openProfile()"><span class="material-symbols-rounded menu-ic">account_circle</span><span class="menu-item-label">My Profile<small class="adm-desc">Name, shop details and your activity</small></span></button></div>
+<div class="menu-premium-card" id="menuPremiumCard" onclick="openUpgradeModal()">
+<div class="menu-premium-top"><span class="material-symbols-rounded" style="font-size:18px">workspace_premium</span><span id="menuPremiumTitle">Go Premium</span></div>
+<div class="menu-premium-sub" id="menuPremiumSub">Unlimited search, Back Cover/Parts unlock and Bulk Export</div>
+<div class="menu-premium-btn" id="menuPremiumBtn">Upgrade →</div>
+</div>
+<div class="menu-section">
+<div class="menu-section-label">Requests</div>
+<button class="menu-item" onclick="openRequestForm('display')"><span class="material-symbols-rounded menu-ic">add_photo_alternate</span><span class="menu-item-label">Request Display Update</span></button>
+<button class="menu-item" onclick="openRequestForm('glass')"><span class="material-symbols-rounded menu-ic">smartphone</span><span class="menu-item-label">Request Glass Update</span></button>
+</div>
+<div class="menu-divider"></div>
+<div class="menu-section">
+<div class="menu-section-label">Personal</div>
+<button class="menu-item" onclick="openFavorites()"><span class="material-symbols-rounded menu-ic">star</span><span class="menu-item-label">My Favorites</span></button>
+<button class="menu-item" onclick="openTrending()"><span class="material-symbols-rounded menu-ic">local_fire_department</span><span class="menu-item-label">Trending Today</span><span class="menu-badge">HOT</span></button>
+<button class="menu-item" onclick="handleExportListClick()"><span class="material-symbols-rounded menu-ic">file_download</span><span class="menu-item-label">Export List (CSV)</span><span class="lock-badge" id="exportLockBadge">🔒 PRO</span></button>
+</div>
+<div class="menu-divider"></div>
+<div class="menu-section">
+<div class="menu-section-label" data-i18n="menu.settings">Settings</div>
+<div class="menu-item theme-row">
+<span class="material-symbols-rounded menu-ic">palette</span>
+<span class="menu-item-label" data-i18n="menu.theme">Theme</span>
+<div class="tseg" id="themeSeg">
+<button type="button" class="tseg-btn" data-theme-opt="light" aria-label="Light"><span class="material-symbols-rounded">light_mode</span></button>
+<button type="button" class="tseg-btn" data-theme-opt="dark" aria-label="Dark"><span class="material-symbols-rounded">dark_mode</span></button>
+<button type="button" class="tseg-btn" data-theme-opt="system" aria-label="System"><span class="material-symbols-rounded">smartphone</span></button>
+</div>
+</div>
+<div class="menu-item lang-row">
+<span class="material-symbols-rounded menu-ic">translate</span>
+<span class="menu-item-label" data-i18n="menu.language">Language</span>
+<div class="tseg" id="langSeg">
+<button type="button" class="tseg-btn lseg-btn" data-lang-opt="en">EN</button>
+<button type="button" class="tseg-btn lseg-btn" data-lang-opt="hi">हि</button>
+</div>
+</div>
+<button class="menu-item" onclick="shareApp()"><span class="material-symbols-rounded menu-ic">ios_share</span><span class="menu-item-label" data-i18n="menu.shareApp">Share App</span></button>
+<div class="menu-item switch-row" id="notifBtn" onclick="setupNotifications()">
+<span class="material-symbols-rounded menu-ic" id="notifIcon">notifications</span>
+<span class="menu-item-label" id="notifLabel">Notifications</span>
+<label class="switch" onclick="event.stopPropagation();setupNotifications()">
+<input type="checkbox" id="notifToggle">
+<span class="switch-slider"></span>
+</label>
+</div>
+<button class="menu-item" onclick="testNotification()"><span class="material-symbols-rounded menu-ic">notifications_active</span><span class="menu-item-label">Test Notification</span></button>
+<button class="menu-item" onclick="openFeedback()"><span class="material-symbols-rounded menu-ic">chat_bubble</span><span class="menu-item-label">Send Feedback</span></button>
+<button class="menu-item" onclick="openAboutLegal()"><span class="material-symbols-rounded menu-ic">info</span><span class="menu-item-label">About &amp; Legal</span></button>
+<button class="menu-item" onclick="openPrivacyPolicy()"><span class="material-symbols-rounded menu-ic">policy</span><span class="menu-item-label">Privacy Policy</span></button>
+<button class="menu-item" onclick="contactSupport()"><span class="material-symbols-rounded menu-ic">mail</span><span class="menu-item-label">Contact Us</span></button>
+</div>
+<div class="menu-divider hide" id="adminDivider"></div>
+<div class="menu-section" id="adminSection">
+<div class="menu-section-label hide" id="adminSectionLabel">Admin Panel</div>
+<div class="adm-sub">📊 Analytics</div>
+<button class="menu-item hide" id="menuAdminDashBtn" onclick="openAdminDashboard()"><span class="material-symbols-rounded menu-ic">admin_panel_settings</span><span class="menu-item-label">Admin Dashboard<small class="adm-desc">Users, searches, premium, shares</small></span></button>
+<div class="adm-sub">👥 Users</div>
+<button class="menu-item hide" id="menuCommentsBtn" onclick="openAdminComments()"><span class="material-symbols-rounded menu-ic">forum</span><span class="menu-item-label">Comments<small class="adm-desc">Latest comments from all groups</small></span></button>
+<button class="menu-item hide" id="menuStaffFreeBtn" onclick="openStaffFreeModal()"><span class="material-symbols-rounded menu-ic">badge</span><span class="menu-item-label">Manage Free Staff<small class="adm-desc">Give free premium access by email</small></span></button>
+<div class="adm-sub">📨 Messages</div>
+<button class="menu-item hide" id="menuSendNotifBtn" onclick="openSendNotifModal()"><span class="material-symbols-rounded menu-ic">campaign</span><span class="menu-item-label">Send Notification<small class="adm-desc">Push message to all users</small></span></button>
+<button class="menu-item hide" id="menuFeedbackBtn" onclick="openFeedbackDashboard()"><span class="material-symbols-rounded menu-ic">forum</span><span class="menu-item-label">View Feedback<small class="adm-desc">What users are telling you</small></span></button>
+<button class="menu-item hide" id="menuRequestsBtn" onclick="openRequestsDashboard()"><span class="material-symbols-rounded menu-ic">move_to_inbox</span><span class="menu-item-label">View Update Requests<small class="adm-desc">Models users want you to add</small></span></button>
+<div class="adm-sub">💾 Data Safety</div>
+<button class="menu-item hide" id="menuBackupBtn" onclick="exportBackup()"><span class="material-symbols-rounded menu-ic">cloud_download</span><span class="menu-item-label">Backup Data (JSON)<small class="adm-desc">Download a copy of all data</small></span></button>
+<button class="menu-item hide" id="menuRestoreBtn" onclick="document.getElementById('restoreFileInput').click()"><span class="material-symbols-rounded menu-ic">cloud_upload</span><span class="menu-item-label">Restore Data<small class="adm-desc">Upload a backup file</small></span></button>
+<input type="file" id="restoreFileInput" accept="application/json" class="hide" onchange="restoreBackup(event)">
+</div>
+</div>
+<div class="menu-footer">
+<button class="menu-item hide menu-logout-btn" id="menuLogout" onclick="doLogout()"><span class="material-symbols-rounded menu-ic">logout</span><span class="menu-item-label">Logout</span></button>
+<button class="menu-item hide" id="menuDeleteBtn" onclick="openDeleteAccount()"><span class="material-symbols-rounded menu-ic">delete_forever</span><span class="menu-item-label">Delete My Account</span></button>
+<button class="menu-item hide" id="menuLoginBtn" onclick="closeMenu();showLogin()"><span class="material-symbols-rounded menu-ic">login</span><span class="menu-item-label">Login</span></button>
+<div class="menu-footer-meta"><span id="appVersionTxt">v3.0</span><span>·</span><span>Made with ❤️</span></div>
+</div>
+</div>
 <div id="partsScreen">
-  <div class="pf-body">
-    <div id="partsSearchWrap">
-      <div id="partsSearchBox">
-        <span class="search-ic-glow"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">search</span></span>
-        <input id="partsSearchInput" placeholder="Search phone model (e.g. Vivo Y21)" data-i18n-ph="pf.searchph" oninput="onPartsSearch()" onkeydown="if(event.key==='Enter')flushSearchTrack()" onblur="flushSearchTrack();setTimeout(function(){document.getElementById('partsSearchSuggest').classList.add('hide')},150)"/>
-        <button id="partsVoiceBtn" class="voice-btn" onclick="startVoiceSearch('partsSearchInput',onPartsSearch)" title="Search by voice" aria-label="Search by voice"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
-      </div>
-      <div id="partsSearchSuggest" class="suggest-box hide"></div>
-    </div>
-    <button id="partsAdminToggle" class="hide" onclick="togglePartsAdmin()"></button>
-    <div id="partsAdminPanel" class="hide">
-    <button id="partsCodeBtn" class="hide" onclick="openPartsCodeModal()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">save</span> Data Code</button>
-    <button id="partsAddBtn" class="hide" onclick="openPartsAddModal()">＋ Add New Part Group</button>
-    <button id="partsBulkBtn" class="hide" onclick="openPartsBulkModal()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">playlist_add</span> Bulk Add</button>
-    <button id="partsDelAllBtn" class="hide" onclick="openPartsDeleteAll()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">delete_sweep</span> Delete All</button>
-    </div>
-    <div id="pfTabBar" class="pf-tabbar"></div>
-    <div id="pfSwipeViewport" class="pf-swipe-viewport">
-      <div id="pfSwipeTrack" class="pf-swipe-track"></div>
-    </div>
-  </div>
+<div class="pf-body">
+<div id="partsSearchWrap">
+<div id="partsSearchBox">
+<span class="search-ic-glow"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">search</span></span>
+<input id="partsSearchInput" placeholder="Search phone model (e.g. Vivo Y21)" data-i18n-ph="pf.searchph" oninput="onPartsSearch()" onkeydown="if(event.key==='Enter')flushSearchTrack()" onblur="flushSearchTrack();setTimeout(function(){document.getElementById('partsSearchSuggest').classList.add('hide')},150)"/>
+<button id="partsVoiceBtn" class="voice-btn" onclick="startVoiceSearch('partsSearchInput',onPartsSearch)" title="Search by voice" aria-label="Search by voice"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.08A7 7 0 0 0 19 11z"/></svg></button>
 </div>
-
-<!-- UPDATES SCREEN -->
+<div id="partsSearchSuggest" class="suggest-box hide"></div>
+</div>
+<button id="partsAdminToggle" class="hide" onclick="togglePartsAdmin()"></button>
+<div id="partsAdminPanel" class="hide">
+<button id="partsCodeBtn" class="hide" onclick="openPartsCodeModal()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">save</span> Data Code</button>
+<button id="partsAddBtn" class="hide" onclick="openPartsAddModal()">＋ Add New Part Group</button>
+<button id="partsBulkBtn" class="hide" onclick="openPartsBulkModal()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">playlist_add</span> Bulk Add</button>
+<button id="partsDelAllBtn" class="hide" onclick="openPartsDeleteAll()"><span class="material-symbols-rounded" style="font-size:1.15em;vertical-align:-3px">delete_sweep</span> Delete All</button>
+</div>
+<div id="pfTabBar" class="pf-tabbar"></div>
+<div id="pfSwipeViewport" class="pf-swipe-viewport">
+<div id="pfSwipeTrack" class="pf-swipe-track"></div>
+</div>
+</div>
+</div>
 <div id="updatesScreen">
-  <div class="pf-header">
-    <span class="pf-htitle">📢 <span data-i18n="updates.header">Updates</span></span>
-  </div>
-  <div class="upd-body">
-    <div class="upd-sec-title" data-i18n="updates.whatsnew">What's New</div>
-    <div id="uHeroWrap"></div>
-
-    <div class="upd-sec-title" data-i18n="updates.recent">Recent Updates</div>
-    <div id="uFeedWrap" class="uupd-list"></div>
-    <button id="uFeedAddBtn" class="hide" onclick="openUFeedModal(null)" style="margin-top:2px">＋ Add Update</button>
-
-    <div class="upd-sec-title" data-i18n="updates.version">Version History</div>
-    <div id="uVerWrap"></div>
-    <button id="uVerAddBtn" class="hide" onclick="openUVerModal(null)" style="margin-top:2px">＋ Add Version</button>
-
-    <div class="upd-sec-title" data-i18n="updates.dbinfo">Database Information</div>
-    <div class="udb-grid">
-      <div class="stat"><div class="stat-ico">📱</div><div class="stat-val" id="u1">0</div><div class="stat-lbl">Total Models</div></div>
-      <div class="stat"><div class="stat-ico">🛡️</div><div class="stat-val" id="u2">0</div><div class="stat-lbl">Glass Groups</div></div>
-      <div class="stat"><div class="stat-ico">🔧</div><div class="stat-val" id="u3">0</div><div class="stat-lbl">Spare Parts</div></div>
-      <div class="stat"><div class="stat-ico">🕐</div><div class="stat-val sm" id="u4">—</div><div class="stat-lbl">Last Updated</div></div>
-    </div>
-
-    <div class="upd-sec-title" data-i18n="updates.catbreak">Category-wise Details</div>
-    <div id="uCatWrap" class="ucat-list"></div>
-
-    <div class="upd-sec-title" data-i18n="updates.appinfo">App Info</div>
-    <div id="uInfoWrap"></div>
-    <button id="uInfoEditBtn" class="hide" onclick="openUInfoModal()" style="margin-top:12px">✏️ Edit App Info</button>
-  </div>
+<div class="pf-header">
+<span class="pf-htitle">📢 <span data-i18n="updates.header">Updates</span></span>
 </div>
-
+<div class="upd-body">
+<div class="upd-sec-title" data-i18n="updates.whatsnew">What's New</div>
+<div id="uHeroWrap"></div>
+<div class="upd-sec-title" data-i18n="updates.recent">Recent Updates</div>
+<div id="uFeedWrap" class="uupd-list"></div>
+<button id="uFeedAddBtn" class="hide" onclick="openUFeedModal(null)" style="margin-top:2px">＋ Add Update</button>
+<div class="upd-sec-title" data-i18n="updates.version">Version History</div>
+<div id="uVerWrap"></div>
+<button id="uVerAddBtn" class="hide" onclick="openUVerModal(null)" style="margin-top:2px">＋ Add Version</button>
+<div class="upd-sec-title" data-i18n="updates.dbinfo">Database Information</div>
+<div class="udb-grid">
+<div class="stat"><div class="stat-ico">📱</div><div class="stat-val" id="u1">0</div><div class="stat-lbl">Total Models</div></div>
+<div class="stat"><div class="stat-ico">🛡️</div><div class="stat-val" id="u2">0</div><div class="stat-lbl">Glass Groups</div></div>
+<div class="stat"><div class="stat-ico">🔧</div><div class="stat-val" id="u3">0</div><div class="stat-lbl">Spare Parts</div></div>
+<div class="stat"><div class="stat-ico">🕐</div><div class="stat-val sm" id="u4">—</div><div class="stat-lbl">Last Updated</div></div>
+</div>
+<div class="upd-sec-title" data-i18n="updates.catbreak">Category-wise Details</div>
+<div id="uCatWrap" class="ucat-list"></div>
+<div class="upd-sec-title" data-i18n="updates.appinfo">App Info</div>
+<div id="uInfoWrap"></div>
+<button id="uInfoEditBtn" class="hide" onclick="openUInfoModal()" style="margin-top:12px">✏️ Edit App Info</button>
+</div>
+</div>
 <button id="backToTop" onclick="scrollToTop()" aria-label="Back to top">↑</button>
 <nav id="bottomNav">
-  <button class="bnav-item active" id="navHome" onclick="switchPage('home',this,event)">
-    <svg class="bnav-ic" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1v-9"/></svg>
-    <span data-i18n="nav.home">Home</span><span class="bnav-dot"></span>
-  </button>
-  <button class="bnav-item" id="navUpdates" onclick="switchPage('updates',this,event)">
-    <svg class="bnav-ic" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-    <span data-i18n="nav.updates">Updates</span><span class="bnav-dot"></span>
-  </button>
+<button class="bnav-item active" id="navHome" onclick="switchPage('home',this,event)">
+<svg class="bnav-ic" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1v-9"/></svg>
+<span data-i18n="nav.home">Home</span><span class="bnav-dot"></span>
+</button>
+<button class="bnav-item" id="navUpdates" onclick="switchPage('updates',this,event)">
+<svg class="bnav-ic" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+<span data-i18n="nav.updates">Updates</span><span class="bnav-dot"></span>
+</button>
 </nav>
-
 <div id="modalBg" onclick="if(event.target===this)closeModal()">
-  <div class="modal" id="modalBox"></div>
+<div class="modal" id="modalBox"></div>
 </div>
 <div id="imgViewerBg" onclick="if(event.target===this)closeImageViewer()">
-  <button class="iv-close" onclick="closeImageViewer()" aria-label="Close image viewer">✕</button>
-  <button class="iv-arrow prev" id="ivPrevBtn" onclick="ivNav(-1)" aria-label="Previous image">‹</button>
-  <button class="iv-arrow next" id="ivNextBtn" onclick="ivNav(1)" aria-label="Next image">›</button>
-  <div class="iv-stage" id="ivStage"></div>
-  <div class="iv-caption" id="ivCaption"></div>
-  <div class="iv-dots" id="ivDots"></div>
+<button class="iv-close" onclick="closeImageViewer()" aria-label="Close image viewer">✕</button>
+<button class="iv-arrow prev" id="ivPrevBtn" onclick="ivNav(-1)" aria-label="Previous image">‹</button>
+<button class="iv-arrow next" id="ivNextBtn" onclick="ivNav(1)" aria-label="Next image">›</button>
+<div class="iv-stage" id="ivStage"></div>
+<div class="iv-caption" id="ivCaption"></div>
+<div class="iv-dots" id="ivDots"></div>
 </div>
 <div id="toast"></div>
 <div id="paySuccessOverlay" class="hide">
-  <div class="pay-success-card">
-    <svg class="pay-success-ring" viewBox="0 0 90 90">
-      <circle class="pay-success-circle" cx="45" cy="45" r="40"/>
-      <path class="pay-success-check" d="M27 46l12 12 24-26"/>
-    </svg>
-    <div class="pay-success-title">Payment Successful</div>
-    <div class="pay-success-sub">Premium activated!</div>
-  </div>
+<div class="pay-success-card">
+<svg class="pay-success-ring" viewBox="0 0 90 90">
+<circle class="pay-success-circle" cx="45" cy="45" r="40"/>
+<path class="pay-success-check" d="M27 46l12 12 24-26"/>
+</svg>
+<div class="pay-success-title">Payment Successful</div>
+<div class="pay-success-sub">Premium activated!</div>
+</div>
 </div>
 <button id="installBtn">📲 Install App</button>
-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -1632,6 +1500,9 @@ button,.tab,.card,.menu-item,.suggest-item,.fbtn{touch-action:manipulation}
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.6.2/fuse.min.js"></script>
 <script defer src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
+var PLAY_MODE=false;
+try{if(/[?&]src=play(&|$)/.test(location.search)||/^android-app:\/\//.test(document.referrer||''))sessionStorage.setItem('uc_play','1');PLAY_MODE=sessionStorage.getItem('uc_play')==='1';}catch(e){}
+if(PLAY_MODE)document.documentElement.classList.add('play-mode');
 (function(){
 var headerEl=document.getElementById('header');
 var pfHeaderEl=document.querySelector('.pf-header');
@@ -2501,7 +2372,7 @@ S.premium.loaded=true;
 updatePremiumUI();
 }
 function isPremiumActive(){
-if(isAdmin())return true;
+if(PLAY_MODE||isAdmin())return true;
 if(S.premium.staffFree)return true;
 var p=S.premium;
 if(!p.loaded)return false;
@@ -2648,6 +2519,7 @@ if(avatar)avatar.classList.remove('is-premium','is-trial');
 }
 }
 function openUpgradeModal(){
+if(PLAY_MODE)return;
 closeMenu();
 try{
 var __paid=S.premium&&S.premium.premiumExpiry&&new Date(S.premium.premiumExpiry).getTime()>Date.now();
@@ -2708,6 +2580,7 @@ box.appendChild(closeBtn);
 document.body.appendChild(box);
 }
 function startCheckout(){
+if(PLAY_MODE)return;
 if(!S.user){closeModal();showLogin();return;}
 var ctaBtn=document.querySelector('.pw-cta');
 if(ctaBtn){ctaBtn.disabled=true;ctaBtn.textContent='Please wait...';}
@@ -3343,6 +3216,53 @@ document.getElementById('loginErr').textContent=msg;
 showToast(msg,true);
 });
 }
+function openPrivacyPolicy(){
+closeMenu();
+window.open('https://mkptyoup-debug.github.io/Glass-finder-pro/privacy.html','_blank','noopener');
+}
+function contactSupport(){
+closeMenu();
+window.location.href='mailto:M.k.p.tyoup@gmail.com?subject=Universal%20Combo%20Support';
+}
+function openDeleteAccount(){
+closeMenu();
+if(!S.user||!auth||!auth.currentUser){showLogin();return;}
+if(isAdmin()){showToast('❌ Admin account yahan se delete nahi ho sakta',true);return;}
+var u=auth.currentUser;
+var isG=(u.providerData||[]).some(function(p){return p.providerId==='google.com';});
+openModal('<div class="mhead"><span class="mtitle">🗑️ Delete My Account</span><button class="mclose" onclick="closeModal()" aria-label="Close">✕</button></div>'+
+'<div style="color:var(--text-2);font-size:13.5px;line-height:1.7"><p>Your account, email and activity data will be permanently deleted. This cannot be undone.</p>'+
+(isG?'<p style="margin-top:8px">You will be asked to confirm with your Google account.</p>':'<input class="linp" type="password" id="delPass" placeholder="Enter your password to confirm" autocomplete="current-password" style="margin-top:12px"/>')+
+'<div id="delErr" style="color:var(--danger);font-size:12.5px;margin-top:8px"></div>'+
+'<button class="cbtn" id="delBtn" style="margin-top:14px;width:100%;background:var(--danger);color:#fff;border-color:var(--danger)" onclick="confirmDeleteAccount()">Delete permanently</button></div>');
+}
+function confirmDeleteAccount(){
+var u=auth&&auth.currentUser;if(!u)return;
+var errEl=document.getElementById('delErr'),btn=document.getElementById('delBtn'),passEl=document.getElementById('delPass');
+function reset(m){btn.disabled=false;btn.textContent='Delete permanently';errEl.textContent=m||'';}
+var re;
+if(passEl){
+if(!passEl.value){reset('❌ Password likho');return;}
+re=u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,passEl.value));
+}else{
+re=u.reauthenticateWithPopup(new firebase.auth.GoogleAuthProvider());
+}
+btn.disabled=true;btn.textContent='Please wait...';errEl.textContent='';
+re.then(function(){
+var uid=u.uid;
+return Promise.all([
+db.collection('app_users').doc(uid).delete().catch(function(){}),
+db.collection('share_stats').doc(uid).delete().catch(function(){})
+]);
+}).then(function(){return u.delete();}).then(function(){
+S.user=null;S.role='staff';
+closeModal();updateUserUI();
+showToast('✅ Account deleted');
+}).catch(function(e){
+var c=e&&e.code||'';
+reset('❌ '+((c==='auth/wrong-password'||c==='auth/invalid-credential')?'Wrong password':(c==='auth/popup-closed-by-user'?'Cancelled':(e&&e.message)||'Something went wrong')));
+});
+}
 function doLogout(){
 auth.signOut().then(function(){
 S.user=null;S.role='staff';
@@ -3373,7 +3293,7 @@ document.getElementById('menuUserEmail').textContent=S.user.email;
 var avEl=document.getElementById('menuUserAvatar');if(avEl)avEl.textContent=name.charAt(0).toUpperCase();
 var roleEl=document.getElementById('menuUserRole');
 roleEl.textContent='Admin';roleEl.className='menu-user-role admin';
-menuLogout.classList.remove('hide');
+menuLogout.classList.remove('hide');var _dB=document.getElementById('menuDeleteBtn');if(_dB)_dB.classList.remove('hide');
 menuLoginBtn.classList.add('hide');
 if(menuAnnounceBtn)menuAnnounceBtn.classList.remove('hide');
 var menuAdminDashBtn=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn)menuAdminDashBtn.classList.remove('hide');
@@ -3403,7 +3323,7 @@ document.getElementById('menuUserEmail').textContent=S.user.email;
 var avEl2=document.getElementById('menuUserAvatar');if(avEl2)avEl2.textContent=name2.charAt(0).toUpperCase();
 var roleEl2=document.getElementById('menuUserRole');
 roleEl2.textContent='Staff';roleEl2.className='menu-user-role staff';
-menuLogout.classList.remove('hide');
+menuLogout.classList.remove('hide');var _dB=document.getElementById('menuDeleteBtn');if(_dB)_dB.classList.remove('hide');
 menuLoginBtn.classList.add('hide');
 if(menuAnnounceBtn)menuAnnounceBtn.classList.add('hide');
 var menuAdminDashBtn2=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn2)menuAdminDashBtn2.classList.add('hide');
@@ -3426,7 +3346,7 @@ badge.innerHTML='<span class="material-symbols-rounded" style="font-size:16px">l
 badge.title='Login';
 badge.className='';
 menuUserInfo.classList.add('hide');
-menuLogout.classList.add('hide');
+menuLogout.classList.add('hide');var _dB2=document.getElementById('menuDeleteBtn');if(_dB2)_dB2.classList.add('hide');
 menuLoginBtn.classList.remove('hide');
 if(menuAnnounceBtn)menuAnnounceBtn.classList.add('hide');
 var menuAdminDashBtn3=document.getElementById('menuAdminDashBtn');if(menuAdminDashBtn3)menuAdminDashBtn3.classList.add('hide');
@@ -7366,6 +7286,8 @@ openModal('<div class="mhead"><span class="mtitle">ℹ️ About &amp; Legal</spa
 '<div style="color:var(--text-2);font-size:13.5px;line-height:1.7">'+
 '<p><b style="color:var(--brand)">Glass Finder</b> — Mobile parts &amp; glass catalog lookup app.</p>'+
 '<p style="margin-top:10px;color:var(--text-2)">This app gives you compatibility information for mobile display, glass, and parts. Data is updated regularly.</p>'+
+'<p style="margin-top:10px"><a href="https://mkptyoup-debug.github.io/Glass-finder-pro/privacy.html" target="_blank" rel="noopener" style="color:var(--brand)">Privacy Policy</a> · <a href="mailto:M.k.p.tyoup@gmail.com" style="color:var(--brand)">M.k.p.tyoup@gmail.com</a></p>'+
+'<p style="margin-top:10px;color:var(--text-2);font-size:12px">To delete your account and data: Menu → Delete My Account, or email us.</p>'+
 '<p style="margin-top:10px;color:var(--text-2);font-size:12px">© '+new Date().getFullYear()+' Glass Finder. All rights reserved.</p>'+
 '</div>');
 }
@@ -7776,18 +7698,16 @@ setTimeout(function(){span.remove();},500);
 });
 })();
 </script>
-
-<!-- Notification permission prompt sheet -->
 <div id="notifPromptBackdrop" class="notif-backdrop" onclick="dismissNotifPrompt()"></div>
 <div id="notifPromptSheet" class="notif-sheet">
-  <div class="notif-sheet-handle"></div>
-  <div class="notif-sheet-icon">🔔</div>
-  <div class="notif-sheet-title">Stay Updated</div>
-  <div class="notif-sheet-desc">Naye models, offers aur important updates ki notification paane ke liye notifications on karein.</div>
-  <div class="notif-sheet-actions">
-    <button class="notif-btn-skip" onclick="dismissNotifPrompt()">Not Now</button>
-    <button class="notif-btn-allow" onclick="acceptNotifPrompt()">Enable</button>
-  </div>
+<div class="notif-sheet-handle"></div>
+<div class="notif-sheet-icon">🔔</div>
+<div class="notif-sheet-title">Stay Updated</div>
+<div class="notif-sheet-desc">Naye models, offers aur important updates ki notification paane ke liye notifications on karein.</div>
+<div class="notif-sheet-actions">
+<button class="notif-btn-skip" onclick="dismissNotifPrompt()">Not Now</button>
+<button class="notif-btn-allow" onclick="acceptNotifPrompt()">Enable</button>
+</div>
 </div>
 </body>
-  </html>
+</html>
